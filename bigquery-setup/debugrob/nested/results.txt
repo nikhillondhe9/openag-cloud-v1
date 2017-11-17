@@ -1,0 +1,9 @@
+
++----+------------+-----------+-------------------+----------------+-----------------+
+| id | first_name | last_name | addresses_address | addresses_city | addresses_state |
++----+------------+-----------+-------------------+----------------+-----------------+
+| 1  | John       | Doe       | 123 First Avenue  | Seattle        | WA              |
+| 1  | John       | Doe       | 456 Main Street   | Portland       | OR              |
+| 2  | Jane       | Doe       | 789 Any Avenue    | New York       | NY              |
+| 2  | Jane       | Doe       | 321 Main Street   | Hoboken        | NJ              |
++----+------------+-----------+-------------------+----------------+-----------------+

@@ -1,0 +1,17 @@
+[
+  {
+    "name": "timestamp",
+    "type": "TIMESTAMP",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "temp",
+    "type": "FLOAT",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "humid",
+    "type": "FLOAT",
+    "mode": "NULLABLE"
+  }
+]

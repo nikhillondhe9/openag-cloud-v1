@@ -3,8 +3,8 @@
 export GCLOUD_PROJECT=openag-cloud-v1
 export GCLOUD_REGION=us-central1
 export GCLOUD_ZONE=us-central1-b
+export GOOGLE_APPLICATION_CREDENTIALS=../service_account.json
 
-#export GOOGLE_APPLICATION_CREDENTIALS=/Users/rob/pubsub-python-client-test/temp-v1-service-account.json
 #export GCLOUD_REGISTRY=dev-reg-temp-v1
 #export GCLOUD_DEVICE=my-rs256-device
 #export GCLOUD_TOPIC=pubsub-topic
