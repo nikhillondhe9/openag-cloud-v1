@@ -1,0 +1,20 @@
+[
+	{
+		"description": "<expName>~<treatName>~Env~<user>~<created UTC TS>",
+		"name": "id",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+		"description": "rating value of recipe",
+        "name": "rating",
+        "type": "INTEGER",
+        "mode": "NULLABLE"
+    },
+    {
+		"description": "text of the users comment",
+        "name": "text",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    }
+]

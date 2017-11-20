@@ -1,0 +1,44 @@
+[
+	{
+		"description": "<expName>~<treatName>~Env~<valName>~<created UTC TS>",
+		"name": "id",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+		"description": "one of: string, int, float",
+        "name": "type",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+		"description": "string value",
+        "name": "sval",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+		"description": "integer value",
+        "name": "ival",
+        "type": "INTEGER",
+        "mode": "NULLABLE"
+    },
+    {
+		"description": "float value",
+        "name": "fval",
+        "type": "FLOAT",
+        "mode": "NULLABLE"
+    },
+    {
+		"description": "plant X location in tray",
+        "name": "X",
+        "type": "INTEGER",
+        "mode": "NULLABLE"
+    },
+    {
+		"description": "plant Y location in tray",
+        "name": "Y",
+        "type": "INTEGER",
+        "mode": "NULLABLE"
+    }
+]

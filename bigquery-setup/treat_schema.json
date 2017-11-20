@@ -1,0 +1,38 @@
+[
+	{
+		"description": "<expName>~<treatName>~<created UTC TS>",
+		"name": "id",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+		"description": "user name who created this treatment",
+        "name": "user",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+		"description": "climate recipe this treatment runs",
+        "name": "recipe",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+		"description": "device this treatment runs on",
+        "name": "device",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+		"description": "treatment start datetime",
+        "name": "start",
+        "type": "TIMESTAMP",
+        "mode": "NULLABLE"
+    },
+    {
+		"description": "treatment end datetime",
+        "name": "end",
+        "type": "TIMESTAMP",
+        "mode": "NULLABLE"
+    }
+]

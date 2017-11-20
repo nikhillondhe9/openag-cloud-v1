@@ -1,0 +1,26 @@
+[
+	{
+		"description": "<expName>~<created UTC TS>",
+		"name": "id",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+		"description": "user name who created this experiment",
+        "name": "user",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+		"description": "experiment start datetime",
+        "name": "start",
+        "type": "TIMESTAMP",
+        "mode": "NULLABLE"
+    },
+    {
+		"description": "experiment end datetime",
+        "name": "end",
+        "type": "TIMESTAMP",
+        "mode": "NULLABLE"
+    }
+]
