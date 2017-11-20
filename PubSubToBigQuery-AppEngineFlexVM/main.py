@@ -13,6 +13,7 @@
 # limitations under the License.
 
 # [START app]
+import os
 import logging
 import subprocess
 
@@ -25,7 +26,10 @@ app = Flask(__name__)
 # [START example]
 @app.route('/')
 def fortune():
-    output = subprocess.check_output('/usr/games/fortune')
+    if not os.path.exists('/usr/games/fortune'):
+        output = "meh"
+    else:
+        output = subprocess.check_output('/usr/games/fortune')
     return output, 200, {'Content-Type': 'text/plain; charset=utf-8'}
 # [END example]
 
