@@ -1,6 +1,6 @@
 [
 	{
-		"description": "<expName>~<treatName>~Env~<valName>~<created UTC TS>",
+		"description": "<expName>~Env~<treatName>~<valName>~<created UTC TS>",
 		"name": "id",
         "type": "STRING",
         "mode": "NULLABLE"
