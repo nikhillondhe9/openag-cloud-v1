@@ -16,12 +16,6 @@ mk_schema(){
   fi
 }
 
-# This next command should automatically authorize this computer to our
-# cloud project with the service_account.json credentials (did you remember to
-# decrypt it?) If it opens a browser window to verify your google account, 
-# something is wrong.
-gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS --project=$GCLOUD_PROJECT
-
 # Make the dataset (check if it exists first)
 bq mk $DATASET
 if [ $? -eq 1 ]; then
@@ -29,9 +23,17 @@ if [ $? -eq 1 ]; then
   exit 1
 fi
 
-# Create all tables in the schema
+# Set the description of the dataset
+bq update --description "MIT Media Lab, Open Agriculture Initiative, Open Phenome Library.  A public dataset of plant growth and research data."  $DATASET
+
+# Create all tables in the dataset
 mk_schema $EXP_TABLE 
 mk_schema $TRE_TABLE 
 mk_schema $VAL_TABLE 
 mk_schema $COM_TABLE 
 
+# Set a description for each table
+bq update --description "Experiments, the top level table. Comprised of a set of Treatments to compare against each other."  $DATASET.$EXP_TABLE 
+bq update --description "Each Treatment is a run of a Climate Recipe and post harvest results."  $DATASET.$TRE_TABLE 
+bq update --description "Values are generic name/value/location objects."  $DATASET.$VAL_TABLE 
+bq update --description "Comments can be added to many objects."  $DATASET.$COM_TABLE 
