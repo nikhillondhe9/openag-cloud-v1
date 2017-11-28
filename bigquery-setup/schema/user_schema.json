@@ -1,0 +1,26 @@
+[
+    {
+        "description": "<users email> NO TILDES ALLOWED",
+        "name": "id",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "displayable user name",
+        "name": "user",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "account created datetime",
+        "name": "created",
+        "type": "TIMESTAMP",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "Is this a privileged OpenAg user?",
+        "name": "openag",
+        "type": "BOOL",
+        "mode": "NULLABLE"
+    }
+]

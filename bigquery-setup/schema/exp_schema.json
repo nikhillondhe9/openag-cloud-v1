@@ -1,24 +1,24 @@
 [
-	{
-		"description": "<expName>~<created UTC TS>",
-		"name": "id",
+    {
+        "description": "<expName>~<created UTC TS> NO TILDES IN FIELDS ALLOWED",
+        "name": "id",
         "type": "STRING",
         "mode": "NULLABLE"
     },
     {
-		"description": "user name who created this experiment",
+        "description": "users email who created this experiment",
         "name": "user",
         "type": "STRING",
         "mode": "NULLABLE"
     },
     {
-		"description": "experiment start datetime",
+        "description": "experiment start datetime",
         "name": "start",
         "type": "TIMESTAMP",
         "mode": "NULLABLE"
     },
     {
-		"description": "experiment end datetime",
+        "description": "experiment end datetime",
         "name": "end",
         "type": "TIMESTAMP",
         "mode": "NULLABLE"

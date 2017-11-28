@@ -1,0 +1,14 @@
+[
+    {
+        "description": "<users email>~<recipe name>~<created UTC TS> NO TILDES IN FIELDS ALLOWED",
+        "name": "id",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "UV hours per day",
+        "name": "UV",
+        "type": "FLOAT",
+        "mode": "NULLABLE"
+    }
+]

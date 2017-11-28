@@ -1,9 +1,16 @@
-Experiment ID,Species,Seed source link,Experimental Conditions,Parameter of variation 1,"Levels, parameter 1",Parameter of variation 2,"Levels, parameter 2",,Start Date,End Date,,Compiled Volatile Data,Height Data,Weight Data,Climate Data
-20160515OB-UVC-1,Ocimum basilicum var Sweet Basil,http://www.edenbrothers.com/store/sweet_basil_seeds.html,6,light type,Philips Illumitex Fluorescent,UV photoperiod,control(none) long,,20160515,20160701,,https://docs.google.com/spreadsheets/d/17Y3bCTAX94JEZsUeQcdfQEuu559Tkg_DkIAqyuiZ3qI/edit?usp=sharing,,,
-20160501OB-UV-2,Ocimum basilicum var Sweet Basil,http://www.edenbrothers.com/store/sweet_basil_seeds.html,9,light type,Philips Illumitex Fluorescent,UV photoperiod,long short control(none),,20160810,20161006,,,,,
-20161017OB-UV-3,Ocimum basilicum var Sweet Basil,http://www.edenbrothers.com/store/sweet_basil_seeds.html,8,light type,Philips Illumitex Fluorescent,UV photoperiod,17 4 24 14 8 10 hours control (none),,20161017,20161209,,,,,
-20170622OB-UV-4,Ocimum basilicum var Sweet Basil,http://www.edenbrothers.com/store/sweet_basil_seeds.html,7,UV photoperiod,"10.67, 17.45, 0, 8.48, 24, 4.12, 14.06",null,null,,20170622,20170713,,pending,link,link,link
-20170713OB-UV-5,Ocimum basilicum var Sweet Basil,http://www.edenbrothers.com/store/sweet_basil_seeds.html,7,UV photoperiod,"10.67, 17.45, 0, 8.48, 24, 4.12, 14.06",null,null,,20170713,20170807,,pending,link,link,link
-20170913OB-UV-6,Ocimum basilicum var Sweet Basil,http://www.edenbrothers.com/store/sweet_basil_seeds.html,7,UV photoperiod,"10.67, 17.45, 0, 8.48, 24, 4.12, 14.06",null,null,,20170913,20170927,,null,null,null,link
-20171002OB-UV-7,Ocimum basilicum var Sweet Basil,http://www.edenbrothers.com/store/sweet_basil_seeds.html,7,UV photoperiod,"10.67, 17.45, 0, 8.48, 24, 4.12, 14.06",null,null,,20170226,active,,pending,pending,pending,pending
-20171004-CT-9,"Gossypium UA-222, Gyssypium UA-48",pending,6,"Fertilizer concentration, grow medium, cultivar","150, 200, 250",medium,"shallow water culture, 8"" pots, 6"" pots",,20171004,active,,pending,pending,pending,pending
+Experiment ID,Species,Seed source link,Experimental Conditions,Parameter of variation 1,"Levels, parameter 1",Parameter of variation 2,"Levels, parameter 2",,Start Date,End Date,,Compiled Volatile Data,Height Data,Weight Data,Climate Data,Treatments
+20160515OB-UVC-1,Ocimum basilicum var Sweet Basil,http://www.edenbrothers.com/store/sweet_basil_seeds.html,6,light type,"Philips, Illumitex, Fluorescent",UV photoperiod,control(none) long,,20160515,20160701,,https://docs.google.com/spreadsheets/d/17Y3bCTAX94JEZsUeQcdfQEuu559Tkg_DkIAqyuiZ3qI/edit?usp=sharing,,,,What are the treatments?
+20160501OB-UV-2,Ocimum basilicum var Sweet Basil,http://www.edenbrothers.com/store/sweet_basil_seeds.html,9,light type,"Philips, Illumitex, Fluorescent",UV photoperiod,long short control(none),,20160810,20161006,,,,,,What are the treatments?
+20161017OB-UV-3,Ocimum basilicum var Sweet Basil,http://www.edenbrothers.com/store/sweet_basil_seeds.html,8,light type,"Philips, Illumitex, Fluorescent",UV photoperiod,17 4 24 14 8 10 hours control (none),,20161017,20161209,,,,,,What are the treatments?  3 lights for which UV hours?
+20170622OB-UV-4,Ocimum basilicum var Sweet Basil,http://www.edenbrothers.com/store/sweet_basil_seeds.html,7,UV photoperiod,"10.67, 17.45, 0, 8.48, 24, 4.12, 14.06",null,null,,20170622,20170713,,pending,link,link,link,Treat 1-7: UV hours from column F
+20170713OB-UV-5,Ocimum basilicum var Sweet Basil,http://www.edenbrothers.com/store/sweet_basil_seeds.html,7,UV photoperiod,"10.67, 17.45, 0, 8.48, 24, 4.12, 14.06",null,null,,20170713,20170807,,pending,link,link,link,Treat 1-7: UV hours from column F
+20170913OB-UV-6,Ocimum basilicum var Sweet Basil,http://www.edenbrothers.com/store/sweet_basil_seeds.html,7,UV photoperiod,"10.67, 17.45, 0, 8.48, 24, 4.12, 14.06",null,null,,20170913,20170927,,null,null,null,link,Treat 1-7: UV hours from column F
+20171002OB-UV-7,Ocimum basilicum var Sweet Basil,http://www.edenbrothers.com/store/sweet_basil_seeds.html,7,UV photoperiod,"10.67, 17.45, 0, 8.48, 24, 4.12, 14.06",null,null,,20171002,active,,pending,pending,pending,pending,Treat 1-7: UV hours from column F
+20171004-CT-9,"Gossypium UA-222, Gyssypium UA-48",pending,8,"Fertilizer concentration, grow medium, cultivar","150, 200, 250",medium,"shallow water culture, 8"" pots, 6"" pots",,20171004,active,,pending,pending,pending,pending,"Treat 1: 150ppmN, shallow water, UA-222
+Treat 2: 150ppmN, shallow water, UA-48
+Treat 3: 200ppmN, 6"", UA-222
+Treat 4: 200ppmN, 6"", UA-48
+Treat 5: 200ppmN, 8"", UA-222
+Treat 6: 200ppmN, 8"", UA-48
+Treat 7: 250ppmN, shallow water, UA-222
+Treat 8: 250ppmN, shallow water, UA-48"

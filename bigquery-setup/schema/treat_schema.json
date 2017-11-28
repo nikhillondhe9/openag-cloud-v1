@@ -1,38 +1,68 @@
 [
-	{
-		"description": "<expName>~<treatName>~<created UTC TS>",
-		"name": "id",
+    {
+        "description": "<expName>~<treatName>~<created UTC TS> NO TILDES IN FIELDS ALLOWED",
+        "name": "id",
         "type": "STRING",
         "mode": "NULLABLE"
     },
     {
-		"description": "user name who created this treatment",
+        "description": "users email who created this treatment",
         "name": "user",
         "type": "STRING",
         "mode": "NULLABLE"
     },
     {
-		"description": "climate recipe this treatment runs",
+        "description": "climate recipe this treatment runs, NO TILDES ALLOWED",
         "name": "recipe",
         "type": "STRING",
         "mode": "NULLABLE"
     },
     {
-		"description": "device this treatment runs on",
+        "description": "device this treatment runs on",
         "name": "device",
         "type": "STRING",
         "mode": "NULLABLE"
     },
     {
-		"description": "treatment start datetime",
+        "description": "treatment start datetime",
         "name": "start",
         "type": "TIMESTAMP",
         "mode": "NULLABLE"
     },
     {
-		"description": "treatment end datetime",
+        "description": "treatment end datetime",
         "name": "end",
         "type": "TIMESTAMP",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "plant species in latin",
+        "name": "species",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "plant cultivar",
+        "name": "cultivar",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "seed URL",
+        "name": "seed",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "net nitrogen in ppm",
+        "name": "netn",
+        "type": "INTEGER",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "growth technology",
+        "name": "growthtech",
+        "type": "STRING",
         "mode": "NULLABLE"
     }
 ]
