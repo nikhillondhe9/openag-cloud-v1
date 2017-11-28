@@ -14,7 +14,7 @@ echo "If the tables are NOT empty, you will insert duplicate data."
 echo "Has the schema been created and are tables empty? [y/N]: "
 read -n 1 yn
 if [[ $yn != "y" && $yn != "Y"  ]]; then
-  echo "	>>> Go create/load the schema first.  Exiting."
+  echo "    >>> Go create/load the schema first.  Exiting."
   exit 1
 fi
 
@@ -22,11 +22,19 @@ fi
 for DS in "${DATASETS[@]}"; do
   for TBL in "${DATA_TABLES[@]}"; do
     restore_data $DS $TBL $BUCKET
+    if [ $? -eq 1 ]; then
+      echo "Exiting script."
+      exit 1
+    fi
   done
 done
 
 for TBL in "${UI_TABLES[@]}"; do
   restore_data $WEBUI_DS $TBL $BUCKET
+  if [ $? -eq 1 ]; then
+    echo "Exiting script."
+    exit 1
+  fi
 done
 
 echo "Done restoring!"

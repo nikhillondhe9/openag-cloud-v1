@@ -11,11 +11,19 @@ gsutil mb $BUCKET
 for DS in "${DATASETS[@]}"; do
   for TBL in "${DATA_TABLES[@]}"; do
     export_data $DS $TBL $BUCKET
+    if [ $? -eq 1 ]; then
+      echo "Exiting script."
+      exit 1
+    fi
   done
 done
 
 for TBL in "${UI_TABLES[@]}"; do
   export_data $WEBUI_DS $TBL $BUCKET
+  if [ $? -eq 1 ]; then
+    echo "Exiting script."
+    exit 1
+  fi
 done
 
 

@@ -15,10 +15,18 @@ fi
 for DS in "${DATASETS[@]}"; do
   for TBL in "${DATA_TABLES[@]}"; do
     rm_data $DS $TBL
+    if [ $? -eq 1 ]; then
+      echo "Exiting script."
+      exit 1
+    fi
   done
 done
 
 for TBL in "${UI_TABLES[@]}"; do
   rm_data $WEBUI_DS $TBL
+  if [ $? -eq 1 ]; then
+    echo "Exiting script."
+    exit 1
+  fi
 done
 

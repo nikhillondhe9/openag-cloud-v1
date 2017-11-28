@@ -7,6 +7,7 @@
 # Function to create a dataset and set its description.
 # The first arg is the dataset name.
 # The second arg is the dataset description.
+# Returns 1 for error, 0 for success.
 mk_dataset(){
   DS=$1 # dataset name
   DESC="$2" # description
@@ -14,12 +15,13 @@ mk_dataset(){
   # Make the dataset (check if it exists first)
   bq mk $DS
   if [ $? -eq 1 ]; then
-    echo "Exiting script, Does the dataset $DS already exist?"
-    exit 1
+    echo "Does the dataset $DS already exist?"
+    return 1
   fi
 
   # Set the description of the dataset
   bq update --description "$DESC" $DS
+  return 0
 } 
 
 
@@ -28,6 +30,7 @@ mk_dataset(){
 # The first arg is the dataset name.
 # The second arg is the table name.
 # The third arg is the table description.
+# Returns 1 for error, 0 for success.
 mk_schema(){
   DS=$1 # dataset name
   TBL=$2 # table name
@@ -39,12 +42,13 @@ mk_schema(){
   # Create a table with a schema.
   bq mk -t $DS.$TBL $FILE
   if [ $? -eq 1 ]; then
-    echo "Exiting script, Failed to create table $DS.$TBL from $FILE"
-    exit 1
+    echo "Failed to create table $DS.$TBL from $FILE"
+    return 1
   fi
 
   # Set a description for the table.
   bq update --description "$DESC" $DS.$TBL 
+  return 0
 }
 
 
@@ -52,6 +56,7 @@ mk_schema(){
 # Function to load data into a table.
 # The first arg is the dataset name.
 # The second arg is the table name.
+# Returns 1 for error, 0 for success.
 load_data(){
   DS=$1 # dataset name
   TBL=$2 # table name
@@ -63,14 +68,16 @@ load_data(){
     $DS.$TBL $FILE
 
   if [ $? -eq 1 ]; then
-    echo "Exiting script, Failed to load table $TBL from $FILE"
-    exit 1
+    echo "Failed to load table $TBL from $FILE"
+    return 1
   fi
+  return 0
 }
 
 
 #------------------------------------------------------------------------------
 # Function to display datasets and their tables.
+# Returns 1 for error, 0 for success.
 list_ds_and_tables(){
   echo "List of all known datasets and tables:"
   DSCOUNT=${#DATASETS[@]}
@@ -91,6 +98,7 @@ list_ds_and_tables(){
     TBL=${UI_TABLES[ $T ]}
     echo "	$WEBUI_DS  $TBL"
   done
+  return 0
 }
 
 
@@ -98,6 +106,7 @@ list_ds_and_tables(){
 # Function to update a table with an updated schema.
 # The first arg is the dataset name.
 # The second arg is the table name.
+# Returns 1 for error, 0 for success.
 update_schema(){
   DS=$1
   TBL=$2
@@ -106,9 +115,10 @@ update_schema(){
   FILE+="_schema.json"
   bq update -t $DS.$TBL $FILE
   if [ $? -eq 1 ]; then
-    echo "Exiting script, Failed to update table $DS.$TBL schema from $FILE"
-    exit 1
+    echo "Failed to update table $DS.$TBL schema from $FILE"
+    return 1
   fi
+  return 0
 }
 
 
@@ -117,6 +127,7 @@ update_schema(){
 # The first arg is the dataset name.
 # The second arg is the table name.
 # The third arg is the bucket name.
+# Returns 1 for error, 0 for success.
 export_data(){
   DS=$1
   TBL=$2
@@ -126,8 +137,8 @@ export_data(){
   # Save the data as a CSV file to the bucket.
   bq extract $DS.$TBL $DEST
   if [ $? -eq 1 ]; then
-    echo "Exiting script, Failed to export table $DS.$TBL to $DEST"
-    exit 1
+    echo "Failed to export table $DS.$TBL to $DEST"
+    return 1
   fi
 
   # Dump and copy the schema of the table to the bucket.
@@ -135,6 +146,7 @@ export_data(){
   bq show --format=prettyjson $DS.$TBL > $FILE
   gsutil cp $FILE $BUCKET
   rm $FILE
+  return 0
 }
 
 #------------------------------------------------------------------------------
@@ -142,6 +154,7 @@ export_data(){
 # The first arg is the dataset name.
 # The second arg is the table name.
 # The third arg is the bucket name.
+# Returns 1 for error, 0 for success.
 restore_data(){
   DS=$1
   TBL=$2
@@ -154,9 +167,10 @@ restore_data(){
     $DS.$TBL $SOURCE
 
   if [ $? -eq 1 ]; then
-    echo "Exiting script, Failed to load table $DS.$TBL from $SOURCE"
-    exit 1
+    echo "Failed to load table $DS.$TBL from $SOURCE"
+    return 1
   fi
+  return 0
 }
 
 
@@ -164,6 +178,7 @@ restore_data(){
 # Function to remove all data from a table.
 # The first arg is the dataset name.
 # The second arg is the table name.
+# Returns 1 for error, 0 for success.
 rm_data(){
   DS=$1 # dataset name
   TBL=$2 # table name
@@ -172,24 +187,27 @@ rm_data(){
 
   bq query --use_legacy_sql=false "$DML"
   if [ $? -eq 1 ]; then
-    echo "Exiting script, Failed to execute '$DML'"
-    exit 1
+    echo "Failed to execute '$DML'"
+    return 1
   fi
+  return 0
 }
 
 
 #------------------------------------------------------------------------------
 # Function to remove a dataset. (User is prompted to verify)
 # The first arg is the dataset name.
+# Returns 1 for error, 0 for success.
 rm_dataset(){
   DS=$1 # dataset name
 
   bq rm -r -d $DS
   if [ $? -eq 1 ]; then
-    echo "Exiting script, Failed to delete dataset $DS"
-    exit 1
+    echo "Failed to delete dataset $DS"
+    return 1
   fi
   echo "Dataset $DS deleted."
+  return 0
 } 
 
 
