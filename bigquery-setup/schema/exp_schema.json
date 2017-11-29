@@ -6,8 +6,8 @@
         "mode": "NULLABLE"
     },
     {
-        "description": "users email who created this experiment",
-        "name": "user",
+        "description": "user id who created this experiment",
+        "name": "userid",
         "type": "STRING",
         "mode": "NULLABLE"
     },

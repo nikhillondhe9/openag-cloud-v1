@@ -55,4 +55,5 @@ bq query --quiet --use_legacy_sql=false \
 
 echo ""
 echo "All experiments:"
-bq query --quiet --use_legacy_sql=false "SELECT REGEXP_EXTRACT(id, r\"[^~]+\") as experiment, FORMAT_TIMESTAMP( \"%c\", TIMESTAMP( REGEXP_EXTRACT(id, r\"(?:[^\~]*\~){1}([^~]*)\")), \"UTC\") as created, user FROM $DATA_DS.$EXP_TABLE ORDER BY id LIMIT 10"
+bq query --quiet --use_legacy_sql=false "SELECT REGEXP_EXTRACT(exp.id, r\"[^~]+\") as experiment, FORMAT_TIMESTAMP( \"%F\", TIMESTAMP( REGEXP_EXTRACT(exp.id, r\"(?:[^\~]*\~){1}([^~]*)\")), \"UTC\") as created, user.username, user.openag FROM openag_private_data.exp as exp, (SELECT * FROM openag_private_webui.user) as user WHERE exp.userid = user.id ORDER BY exp.id LIMIT 10"
+

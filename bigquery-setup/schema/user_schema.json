@@ -1,13 +1,13 @@
 [
     {
-        "description": "<users email> NO TILDES ALLOWED",
+        "description": "<user id (email)> NO TILDES ALLOWED",
         "name": "id",
         "type": "STRING",
         "mode": "NULLABLE"
     },
     {
         "description": "displayable user name",
-        "name": "user",
+        "name": "username",
         "type": "STRING",
         "mode": "NULLABLE"
     },

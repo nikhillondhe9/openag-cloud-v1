@@ -1,11 +1,11 @@
-# Value ID, Type, Sval, Ival, Fval, X, Y
-4-20170622OB-UV~Env~Treat2~Air Temperature~2017-11-11T10:10:20.02Z, float, ,, 20.1,,
-4-20170622OB-UV~Env~Treat2~Air Temperature~2017-11-11T10:10:30.03Z, float, ,, 20.0,,
-4-20170622OB-UV~Env~Treat2~Air Temperature~2017-11-11T10:10:40.04Z, float, ,, 19.9,,
-4-20170622OB-UV~Env~Treat2~Air Temperature~2017-11-11T10:10:40.05Z, float, ,, 19.8,,
-4-20170622OB-UV~Env~Treat2~LED Blue~2017-11-11T00:00:00.00Z, int, ,1,,,
-4-20170622OB-UV~Env~Treat2~LED Blue~2017-11-11T16:00:00.00Z, int, ,0,,,
-4-20170622OB-UV~Env~Treat4~LED White~2017-11-11T00:00:00.00Z, int, ,1,,,
-4-20170622OB-UV~Env~Treat4~LED White~2017-11-11T16:00:00.00Z, int, ,0,,,
-8-20171002OB-UV~Phe~Treat1~Fruit Weight (fresh)~2017-11-21T00:00:00.00Z, float, ,, 15.4, 1, 2
-8-20171002OB-UV~Phe~Treat1~Color~2017-11-21T00:00:00.00Z, string, redish green,,, 1, 2
+#Value ID,Type,Sval,Ival,Fval,X,Y
+4-20170622OB-UV~Env~Treat2~Air Temperature~2017-11-11T10:10:20.02Z,float,,,20.1,,
+4-20170622OB-UV~Env~Treat2~Air Temperature~2017-11-11T10:10:30.03Z,float,,,20.0,,
+4-20170622OB-UV~Env~Treat2~Air Temperature~2017-11-11T10:10:40.04Z,float,,,19.9,,
+4-20170622OB-UV~Env~Treat2~Air Temperature~2017-11-11T10:10:40.05Z,float,,,19.8,,
+4-20170622OB-UV~Env~Treat2~LED Blue~2017-11-11T00:00:00.00Z,int,,1,,,
+4-20170622OB-UV~Env~Treat2~LED Blue~2017-11-11T16:00:00.00Z,int,,0,,,
+4-20170622OB-UV~Env~Treat4~LED White~2017-11-11T00:00:00.00Z,int,,1,,,
+4-20170622OB-UV~Env~Treat4~LED White~2017-11-11T16:00:00.00Z,int,,0,,,
+8-20171002OB-UV~Phe~Treat1~Fruit Weight (fresh)~2017-11-21T00:00:00.00Z,float,,,15.4,1,2
+8-20171002OB-UV~Phe~Treat1~Color~2017-11-21T00:00:00.00Z,string,redish green,,,1,2

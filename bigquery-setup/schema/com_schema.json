@@ -1,6 +1,6 @@
 [
     {
-        "description": "<expName>~Env~<treatName>~<users email>~<created UTC TS> NO TILDES IN FIELDS ALLOWED",
+        "description": "<expName>~Env~<treatName>~<user id>~<created UTC TS> NO TILDES IN FIELDS ALLOWED",
         "name": "id",
         "type": "STRING",
         "mode": "NULLABLE"

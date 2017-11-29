@@ -17,5 +17,8 @@
   * "YYYY-MM-DDTHH:MM:SS.DDDDDDZ"  Must include the 'T' before the time and the 'Z' after (to indicate UTC).
   * Example: 2017-11-30T14:20:58.456Z
 
+* All .csv files can NOT have spaces between the fields.  
+  * Data should be in the format:  a,b,hello there,45.0,true
+
 * How to get list of recipe names from treatments table:
   * cat treatments.csv | cut -f 3 -d , | cut -f 2 -d " " > rn.txt

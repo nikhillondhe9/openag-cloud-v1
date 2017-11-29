@@ -1,6 +1,6 @@
 [
     {
-        "description": "<users email>~<recipe name>~<created UTC TS> NO TILDES IN FIELDS ALLOWED",
+        "description": "<user id>~<recipe name>~<created UTC TS> NO TILDES IN FIELDS ALLOWED",
         "name": "id",
         "type": "STRING",
         "mode": "NULLABLE"
