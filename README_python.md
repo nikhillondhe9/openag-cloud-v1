@@ -13,8 +13,8 @@ wget https://bootstrap.pypa.io/get-pip.py
 sudo python get-pip.py
 
 ## Common python BQ and Pub-Sub setup
-pip install --upgrade virtualenv
 cd ~/openag-cloud-v1
+pip install --upgrade virtualenv
 virtualenv --python python3 env
 source env/bin/activate
 pip install --upgrade google-cloud-core

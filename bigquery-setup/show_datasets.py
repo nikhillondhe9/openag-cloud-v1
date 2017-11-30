@@ -1,5 +1,13 @@
 #!/usr/bin/env python3
 
+import os, sys
+from func_lib import ValidEnvForGCP  # Our common functions
+
+# Is our env set up? (check before importing GC modules)
+if not ValidEnvForGCP():
+  print( "Exiting", sys.argv[0] )
+  exit( 1 )
+
 # Imports the Google Cloud client library
 from google.cloud import bigquery
 

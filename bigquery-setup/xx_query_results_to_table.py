@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+#debugrob, just a test / hack script.  delete later.
+
 import os, sys, getopt, argparse
 from func_lib import ValidEnvForGCP  # Our common functions
 
@@ -15,45 +17,93 @@ from google.cloud import bigquery
 # ~/.config/gcloud/configurations/config_default
 
 
+
 #------------------------------------------------------------------------------
-# Function to print out comments (there are 4 types).
-#   cli arg is a reference to the BigQuery Client.
-#   exp arg is the experiment name.
-#   key arg is the key to the parent obj. type: Exp, Tre, Env, Phe
-#   treat arg is the treatment name.  pass in ".*" for all treatments.
-#   label arg is the name of what is being printed.
-def printComments( cli, exp, key, treat, label ):
-  # Get all comments for this treat 
-  CQ = "#standardsql \n"\
-       "SELECT "\
-       "  (SELECT username FROM openag_private_webui.user WHERE "\
-       "    id = REGEXP_EXTRACT(c.id, r\"(?:[^\~]*\~){3}([^~]*)\")) "\
-       "  as username, "\
-       "  c.text "\
-       "  FROM openag_private_data.com as c "\
-       "WHERE REGEXP_CONTAINS(c.id, r\""
-  CQ += exp             # All comments for experiment <exp>
-  CQ += "~" + key + "~" # key
-  CQ += treat           # for the current treatment
-  CQ += "~.*\") "       # ignore userid and timestamp
-  CQ += "ORDER BY id"
-  for row in cli.query_rows( CQ ): 
-    print( label+row.username, row.text, sep=', ' )
+"""
+other notes say to use: configuration.query.allowLargeResults
+
+and: configuration.query.destinationTable
+  [Optional] Describes the table where the query results should be stored. If not present, a new table will be created to store the results. This property must be set for large results that exceed the maximum response size.
+"""
 
 
 #------------------------------------------------------------------------------
-# Our main function
-def main():
+"""
+debugrob, from this link: 
+https://cloud.google.com/bigquery/docs/python-client-migration
 
-  # glorious command line args
-  parser = argparse.ArgumentParser(description='cmd line args')
-  parser.add_argument('--showValues', dest='showValues', \
-                      action='store_true', help='show all values')
-  args = parser.parse_args()
+### old client code
+client = bigquery.Client()
+query_job = client.run_async_query(str(uuid.uuid4()), query)
 
-  # Instantiates a client
-  cli = bigquery.Client()
+# Use standard SQL syntax.
+query_job.use_legacy_sql = False
 
+# Set a destination table.
+dest_dataset = client.dataset(dest_dataset_id)
+dest_table = dest_dataset.table(dest_table_id)
+query_job.destination = dest_table
+
+# Allow the results table to be overwritten.
+query_job.write_disposition = 'WRITE_TRUNCATE'
+
+query_job.begin()
+query_job.result()  # Wait for query to finish.
+
+rows = query_job.query_results().fetch_data()
+for row in rows:
+    print(row)
+
+
+### new code:
+QUERY_W_PARAM = (
+    'SELECT name, state '
+    'FROM `bigquery-public-data.usa_names.usa_1910_2013` '
+    'WHERE state = @state '
+    'LIMIT 100')
+TIMEOUT = 30  # in seconds
+param = bigquery.ScalarQueryParameter('state', 'STRING', 'TX')
+job_config = bigquery.QueryJobConfig()
+job_config.query_parameters = [param]
+query_job = client.query(
+    QUERY_W_PARAM, job_config=job_config)  # API request - starts the query
+assert query_job.state == 'RUNNING'
+
+# Waits for the query to finish
+iterator = query_job.result(timeout=TIMEOUT)
+rows = list(iterator)
+for row in rows:
+    print(row)
+"""
+
+#------------------------------------------------------------------------------
+#debugrob: don't need to do this?  
+# Create temporary destination table to hold the results of the query
+
+#debugrob, hack here
+QUERY_W_PARAM = (
+    'SELECT * '
+    'FROM `openag_private_data.exp` '
+    'LIMIT 100')
+TIMEOUT = 30  # in seconds
+job_config = bigquery.QueryJobConfig()
+job_config.use_legacy_sql = False
+#job_config.default_dataset
+#job_config.table_definitions
+job_config.destination = "query_results_table"
+query_job = cli.query(
+    QUERY_W_PARAM, job_config=job_config)  # API request - starts the query
+assert query_job.state == 'RUNNING'
+
+# Waits for the query to finish
+iterator = query_job.result(timeout=TIMEOUT)
+rows = list(iterator)
+for row in rows:
+    print(row)
+
+
+
+"""
   # Get a list of experiments
   EQ = "#standardsql \n"\
        "SELECT REGEXP_EXTRACT(id, r\"[^~]+\") as name "\
@@ -146,12 +196,7 @@ def main():
       # Get all comments for this phenotypic expression 
       printComments( cli, exp, "Phe", treat, 
           "      Phenotypic Expression Comment by: " )
+"""
 
-
-
-#------------------------------------------------------------------------------
-# Entry point for the script
-if __name__ == "__main__":
-    main()
 
 

@@ -18,7 +18,9 @@
   * Example: 2017-11-30T14:20:58.456Z
 
 * All .csv files can NOT have spaces between the fields.  
-  * Data should be in the format:  a,b,hello there,45.0,true
+  * Data should be in the format:  a,b,"hello there",45.0,true
+  * Any field that could have a comma ',' in it (user entered fields) MUST
+    be surrounded by double quotes '"'.
 
 * How to get list of recipe names from treatments table:
   * cat treatments.csv | cut -f 3 -d , | cut -f 2 -d " " > rn.txt

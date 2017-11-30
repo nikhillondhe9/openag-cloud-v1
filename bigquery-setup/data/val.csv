@@ -7,5 +7,5 @@
 4-20170622OB-UV~Env~Treat2~LED Blue~2017-11-11T16:00:00.00Z,int,,0,,,
 4-20170622OB-UV~Env~Treat4~LED White~2017-11-11T00:00:00.00Z,int,,1,,,
 4-20170622OB-UV~Env~Treat4~LED White~2017-11-11T16:00:00.00Z,int,,0,,,
-8-20171002OB-UV~Phe~Treat1~Fruit Weight (fresh)~2017-11-21T00:00:00.00Z,float,,,15.4,1,2
-8-20171002OB-UV~Phe~Treat1~Color~2017-11-21T00:00:00.00Z,string,redish green,,,1,2
+7-20171002OB-UV~Phe~Treat1~Fruit Weight (fresh)~2017-11-21T00:00:00.00Z,float,,,15.4,1,2
+7-20171002OB-UV~Phe~Treat1~Color~2017-11-21T00:00:00.00Z,string,redish green,,,1,2
