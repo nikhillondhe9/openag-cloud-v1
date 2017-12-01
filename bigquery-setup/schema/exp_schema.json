@@ -13,13 +13,13 @@
     },
     {
         "description": "experiment start datetime",
-        "name": "start",
+        "name": "startd",
         "type": "TIMESTAMP",
         "mode": "NULLABLE"
     },
     {
         "description": "experiment end datetime",
-        "name": "end",
+        "name": "endd",
         "type": "TIMESTAMP",
         "mode": "NULLABLE"
     }

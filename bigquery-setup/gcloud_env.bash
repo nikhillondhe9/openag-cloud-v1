@@ -15,7 +15,7 @@ export WEBUI_DS=openag_private_webui
 export WEBUI_DS_DESC="MIT ML, OpenAg. A private dataset to hold users, recipes and ratings."
 
 export PUBLIC_DATA_DS=openag_foundation_open_phenome
-export PUBLIC_DATA_DS_DESC="MIT Media Lab, Open Agriculture Initiative, Open Phenome Library.  A curated public dataset of plant growth and research data." 
+export PUBLIC_DATA_DS_DESC="OpenAg Foundation, Open Phenome Library.  A curated public dataset of plant growth and research data." 
 
 export PUBLIC_USER_DATA_DS=openag_public_user_data
 export PUBLIC_USER_DATA_DS_DESC="MIT Media Lab, Open Agriculture Initiative, Open Phenome Library.  A user public dataset of plant growth and research data." 

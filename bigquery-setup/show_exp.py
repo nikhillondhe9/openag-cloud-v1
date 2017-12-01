@@ -22,16 +22,17 @@ from google.cloud import bigquery
 #   key arg is the key to the parent obj. type: Exp, Tre, Env, Phe
 #   treat arg is the treatment name.  pass in ".*" for all treatments.
 #   label arg is the name of what is being printed.
-def printComments( cli, exp, key, treat, label ):
+def printComments( cli, ds, exp, key, treat, label ):
   # Get all comments for this treat 
-  CQ = "#standardsql \n"\
-       "SELECT "\
-       "  (SELECT username FROM openag_private_webui.user WHERE "\
-       "    id = REGEXP_EXTRACT(c.id, r\"(?:[^\~]*\~){3}([^~]*)\")) "\
-       "  as username, "\
-       "  c.text "\
-       "  FROM openag_private_data.com as c "\
-       "WHERE REGEXP_CONTAINS(c.id, r\""
+  CQ = (
+    '#standardsql \n'
+    'SELECT '
+    '  (SELECT username FROM openag_private_webui.user WHERE '
+    '    id = REGEXP_EXTRACT(c.id, r\"(?:[^\~]*\~){3}([^~]*)\")) '
+    '  as username, '
+    '  c.text '
+    '  FROM ' + ds + '.com as c '
+    '  WHERE REGEXP_CONTAINS(c.id, r\"' )
   CQ += exp             # All comments for experiment <exp>
   CQ += "~" + key + "~" # key
   CQ += treat           # for the current treatment
@@ -42,40 +43,73 @@ def printComments( cli, exp, key, treat, label ):
 
 
 #------------------------------------------------------------------------------
-# Our main function
 def main():
 
   # glorious command line args
   parser = argparse.ArgumentParser(description='cmd line args')
   parser.add_argument('--showValues', dest='showValues', \
                       action='store_true', help='show all values')
+  parser.add_argument('--dataset', type=str, default=os.getenv("DATA_DS"), \
+                      help='dataset to use')
+  parser.add_argument('--experiment', type=str, \
+                      help='show only this experiment')
   args = parser.parse_args()
 
   # Instantiates a client
   cli = bigquery.Client()
 
+  # Verify the datasets exist
+  ds_list = []
+  for ds in cli.list_datasets():
+    ds_list.append( ds.dataset_id )
+  if args.dataset not in ds_list:
+    print( 'ERROR: {} is not in the list of valid datasets: {}'.format( 
+        args.dataset, ds_list ))
+    exit( 1 )
+
   # Get a list of experiments
-  EQ = "#standardsql \n"\
-       "SELECT REGEXP_EXTRACT(id, r\"[^~]+\") as name "\
-       "FROM openag_private_data.exp "\
-       "ORDER BY id"
-  for row in cli.query_rows( EQ ):
-    exp = row.name 
+  exps = [] # empty list of experiments
+  if None == args.experiment:   # show all experiments
+    EQ = (
+      '#standardsql \n'
+      'SELECT REGEXP_EXTRACT(id, r\"[^~]+\") as name '
+      'FROM ' + args.dataset + '.exp '
+      'ORDER BY id' )
+    for row in cli.query_rows( EQ ):
+      exps.append( row.name )
+  else:                         # only show the experiment the user specified
+    # Verify that the experiment exists
+    EQ = (
+      '#standardsql \n'
+      'SELECT id FROM ' + args.dataset + '.exp ' 
+      'WHERE REGEXP_EXTRACT(id, r\'[^~]+\') = \'' + args.experiment + '\'' )
+    results_iter = cli.query_rows( EQ )
+    results_list = list( results_iter ) # access iterator to send query to API
+    if 1 != results_iter.num_results:
+      print( 'ERROR: Experiment ' + args.experiment + ' does not exist in '
+             'dataset ' + args.dataset )
+      exit( 1 )
+    exps.append( args.experiment ) # only one exp in our list
+
+  # For each experiment in our list
+  for exp in exps:
     print( exp )
 
     # Get all comments for this exp (using expression subquery)
-    printComments( cli, exp, "Exp", ".*", "  Experiment Comment by: " )
+    printComments( cli, args.dataset, exp, 
+        "Exp", ".*", "  Experiment Comment by: " )
 
     # Get the list of treatments for each exp.
-    TQ = "#standardsql \n"\
-         "SELECT REGEXP_EXTRACT(t.id, r\"(?:[^\~]*\~){1}([^~]*)\") as name, "\
-         "user.username as username, recipe, device "\
-         "FROM openag_private_data.treat as t, "\
-         "  (SELECT * FROM openag_private_webui.user) as user "\
-         "WHERE REGEXP_CONTAINS(t.id, r\"^"
+    TQ = (
+      '#standardsql \n'
+      'SELECT REGEXP_EXTRACT(t.id, r\"(?:[^\~]*\~){1}([^~]*)\") as name, '
+      'user.username as username, recipe, device '
+      'FROM ' + args.dataset + '.treat as t, '
+      '  (SELECT * FROM openag_private_webui.user) as user '
+      'WHERE REGEXP_CONTAINS(t.id, r\"^' )
     TQ += exp
-    TQ += "\") AND userid = user.id "\
-         "ORDER BY t.id "
+    TQ += "\") AND userid = user.id "
+    TQ += "ORDER BY t.id "
     for row in cli.query_rows( TQ ):
       treat = row.name
       username = row.username
@@ -85,33 +119,33 @@ def main():
       if( args.showValues ):
         # Print all values for this exp + treat
         print( "    " + treat, username, device, recipe, sep=', ' )
-        VQ = "#standardsql \n"\
-             "CREATE TEMPORARY FUNCTION "\
-             "  isFloat(type STRING) AS (TRIM(type) = 'float'); "\
-             "CREATE TEMPORARY FUNCTION "\
-             "  getFloatAsStr(fval FLOAT64, ival INT64, sval STRING) "\
-             "  AS (CAST( fval AS STRING)); "\
-             "CREATE TEMPORARY FUNCTION "\
-             "  isInt(type STRING) AS (TRIM(type) = 'int'); "\
-             "CREATE TEMPORARY FUNCTION "\
-             "  getIntAsStr(fval FLOAT64, ival INT64, sval STRING) "\
-             "  AS (CAST( ival AS STRING)); "\
-             "CREATE TEMPORARY FUNCTION "\
-             "  isString(type STRING) AS (TRIM(type) = 'string'); "\
-             "CREATE TEMPORARY FUNCTION "\
-             "  getString(fval FLOAT64, ival INT64, sval STRING) "\
-             "  AS (TRIM(sval)); "\
-             "CREATE TEMPORARY FUNCTION "\
-             "  getValAsStr(type STRING, "\
-             "    fval FLOAT64, ival INT64, sval STRING)  AS ("\
-             "    IF( isFloat(type), getFloatAsStr(fval,ival,sval), "\
-             "      IF( isInt(type), getIntAsStr(fval,ival,sval), "\
-             "        IF( isString(type), getString(fval, ival, sval), "\
-             "          NULL)))); "\
-             "SELECT REGEXP_EXTRACT(id, r\"(?:[^\~]*\~){3}([^~]*)\") as Name, "\
-             "  getValAsStr(type,fval,ival,sval) as Value "\
-             "  FROM openag_private_data.val "\
-             "WHERE REGEXP_CONTAINS(id, r\""
+        VQ=( '#standardsql \n'
+             'CREATE TEMPORARY FUNCTION '
+             '  isFloat(type STRING) AS (TRIM(type) = "float"); '
+             'CREATE TEMPORARY FUNCTION '
+             '  getFloatAsStr(fval FLOAT64, ival INT64, sval STRING) '
+             '  AS (CAST( fval AS STRING)); '
+             'CREATE TEMPORARY FUNCTION '
+             '  isInt(type STRING) AS (TRIM(type) = "int"); '
+             'CREATE TEMPORARY FUNCTION '
+             '  getIntAsStr(fval FLOAT64, ival INT64, sval STRING) '
+             '  AS (CAST( ival AS STRING)); '
+             'CREATE TEMPORARY FUNCTION '
+             '  isString(type STRING) AS (TRIM(type) = "string"); '
+             'CREATE TEMPORARY FUNCTION '
+             '  getString(fval FLOAT64, ival INT64, sval STRING) '
+             '  AS (TRIM(sval)); '
+             'CREATE TEMPORARY FUNCTION '
+             '  getValAsStr(type STRING, '
+             '    fval FLOAT64, ival INT64, sval STRING)  AS ('
+             '    IF( isFloat(type), getFloatAsStr(fval,ival,sval), '
+             '      IF( isInt(type), getIntAsStr(fval,ival,sval), '
+             '        IF( isString(type), getString(fval, ival, sval), '
+             '          NULL)))); '
+             'SELECT REGEXP_EXTRACT(id, r"(?:[^\~]*\~){3}([^~]*)") as Name, '
+             '  getValAsStr(type,fval,ival,sval) as Value '
+             '  FROM ' + args.dataset + '.val '
+             'WHERE REGEXP_CONTAINS(id, r"' )
         VQ += exp
         VQ += "~.*~" # get Exp and Phe and anything else I add values to
         VQ += treat
@@ -121,10 +155,10 @@ def main():
           print( "      Value: " + row.Name, str(row.Value), sep=', ' )
       else:
         # Get count of values for this exp + treat
-        VQ = "#standardsql \n"\
-             "SELECT COUNT(id) as num "\
-             "FROM openag_private_data.val "\
-             "WHERE REGEXP_CONTAINS(id, r\""
+        VQ = ('#standardsql \n'
+              'SELECT COUNT(id) as num '
+              'FROM ' + args.dataset + '.val '
+              'WHERE REGEXP_CONTAINS(id, r\"' )
         VQ += exp
         VQ += "~.*~" # get Exp and Phe and anything else I add values to
         VQ += treat
@@ -136,15 +170,15 @@ def main():
                "numValues="+numValues, sep=', ' )
 
       # Get all comments for this treat 
-      printComments( cli, exp, "Tre", treat, 
+      printComments( cli, args.dataset, exp, "Tre", treat, 
           "      Treatment Comment by: " )
 
       # Get all comments for this env 
-      printComments( cli, exp, "Env", treat, 
+      printComments( cli, args.dataset, exp, "Env", treat, 
           "      Environmental Data Comment by: " )
 
       # Get all comments for this phenotypic expression 
-      printComments( cli, exp, "Phe", treat, 
+      printComments( cli, args.dataset, exp, "Phe", treat, 
           "      Phenotypic Expression Comment by: " )
 
 

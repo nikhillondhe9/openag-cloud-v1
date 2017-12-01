@@ -25,13 +25,13 @@
     },
     {
         "description": "treatment start datetime",
-        "name": "start",
+        "name": "startd",
         "type": "TIMESTAMP",
         "mode": "NULLABLE"
     },
     {
         "description": "treatment end datetime",
-        "name": "end",
+        "name": "endd",
         "type": "TIMESTAMP",
         "mode": "NULLABLE"
     },
