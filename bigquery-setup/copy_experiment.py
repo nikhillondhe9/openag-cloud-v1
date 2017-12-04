@@ -35,8 +35,10 @@ def main():
   parser.add_argument('--sourceDS', required=True, type=str, \
                       help='Source dataset')
   parser.add_argument('--destDS', required=True, type=str, \
-                      help='Source dataset')
+                      help='Destination dataset')
   args = parser.parse_args()
+
+#debugrob, add an "Are you sure, this will overwrite experiment <E> in the <destDS>?  [y/N] "
 
   cli = bigquery.Client()
 

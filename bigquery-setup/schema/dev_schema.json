@@ -1,0 +1,141 @@
+[
+    {
+        "description": "<device name>~<created UTC TS> NO TILDES IN FIELDS ALLOWED",
+        "name": "id",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "user id who manages this device",
+        "name": "userid",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "Class of device",
+        "name": "type",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "Hardware version",
+        "name": "HWver",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "Software version",
+        "name": "SWver",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "MAC address",
+        "name": "MAC",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "IP address",
+        "name": "IP",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "Physical location",
+        "name": "location",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "Warehouse number",
+        "name": "warehouse",
+        "type": "INTEGER",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "Container number",
+        "name": "container",
+        "type": "INTEGER",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "Rack number",
+        "name": "rack",
+        "type": "INTEGER",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "Tray number",
+        "name": "tray",
+        "type": "INTEGER",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "Air temperature sensor model and location",
+        "name": "airTemp",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "Water temperature sensor model and location",
+        "name": "waterTemp",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "Humidity sensor model and location",
+        "name": "humidity",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "Grow light model and location",
+        "name": "light",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "UV light model and location",
+        "name": "UV",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "pH sensor model and location",
+        "name": "pH",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "EC sensor model and location",
+        "name": "EC",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "CO2 sensor model and location",
+        "name": "CO2",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "Camera model and location",
+        "name": "camera",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "DO sensor model and location",
+        "name": "DO",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "ORP sensor model and location",
+        "name": "ORP",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    }
+]
+

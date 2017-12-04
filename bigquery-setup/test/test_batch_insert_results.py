@@ -3,6 +3,11 @@
 import os, sys, getopt, argparse
 from func_lib import ValidEnvForGCP  # Our common functions
 
+# Since we are in a subdirectory of where our environment expects us to be,
+# adjust the env. vars that have a relative path:
+os.environ[ 'GOOGLE_APPLICATION_CREDENTIALS' ] = \
+    '../' + os.environ[ 'GOOGLE_APPLICATION_CREDENTIALS' ]
+
 if not ValidEnvForGCP():
   print( "Exiting", sys.argv[0] )
   exit( 1 )

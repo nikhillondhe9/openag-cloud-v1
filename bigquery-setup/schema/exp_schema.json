@@ -22,5 +22,11 @@
         "name": "endd",
         "type": "TIMESTAMP",
         "mode": "NULLABLE"
+    },
+    {
+        "description": "document describing the protocol for this experiment",
+        "name": "protocol",
+        "type": "STRING",
+        "mode": "NULLABLE"
     }
 ]

@@ -6,9 +6,94 @@
         "mode": "NULLABLE"
     },
     {
+        "description": "parent id this recipe was copied from",
+        "name": "parentId",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "version or number of times edited: 2",
+        "name": "version",
+        "type": "INTEGER",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "format: flexformat, simple, scratch",
+        "name": "format",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "parsable text",
+        "name": "JSON",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "number of days to run",
+        "name": "runDays",
+        "type": "INTEGER",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "number of hours the lights are on",
+        "name": "photoperiod",
+        "type": "FLOAT",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "number of hours to hold the day temp",
+        "name": "dayTempHold",
+        "type": "FLOAT",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "daytime temperature in Celcius",
+        "name": "dayTemp",
+        "type": "FLOAT",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "nighttime temperature in Celcius",
+        "name": "nightTemp",
+        "type": "FLOAT",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "% RH",
+        "name": "humidity",
+        "type": "INTEGER",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "photosynthetically active radiation",
+        "name": "PAR",
+        "type": "INTEGER",
+        "mode": "NULLABLE"
+    },
+    {
         "description": "UV hours per day",
         "name": "UV",
         "type": "FLOAT",
         "mode": "NULLABLE"
+    },
+    {
+        "description": "potential of hydrogen",
+        "name": "pH",
+        "type": "FLOAT",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "electrical conductivity",
+        "name": "EC",
+        "type": "FLOAT",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "carbon dioxide",
+        "name": "CO2",
+        "type": "INTEGER",
+        "mode": "NULLABLE"
     }
 ]
+

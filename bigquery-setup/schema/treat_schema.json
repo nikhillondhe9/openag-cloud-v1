@@ -24,19 +24,19 @@
         "mode": "NULLABLE"
     },
     {
-        "description": "treatment start datetime",
+        "description": "start datetime",
         "name": "startd",
         "type": "TIMESTAMP",
         "mode": "NULLABLE"
     },
     {
-        "description": "treatment end datetime",
+        "description": "end datetime",
         "name": "endd",
         "type": "TIMESTAMP",
         "mode": "NULLABLE"
     },
     {
-        "description": "plant species in latin",
+        "description": "plant species",
         "name": "species",
         "type": "STRING",
         "mode": "NULLABLE"

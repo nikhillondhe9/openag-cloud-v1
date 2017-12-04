@@ -31,14 +31,16 @@ export EXP_TABLE=exp
 export TRE_TABLE=treat
 export VAL_TABLE=val
 export COM_TABLE=com
+export DEV_TABLE=dev
 export EXP_TABLE_DESC="Experiments, the top level table. Comprised of a set of Treatments to compare against each other."
 export TRE_TABLE_DESC="Each Treatment is a run of a Climate Recipe and post harvest results."
 export VAL_TABLE_DESC="Values are generic name/value/location objects." 
 export COM_TABLE_DESC="Comments can be added to many objects." 
+export DEV_TABLE_DESC="The device a Climate Recipe is run on." 
 
 # bash arrays of tables for the DATA datasets that we can loop over.
-export DATA_TABLES=($EXP_TABLE $TRE_TABLE $VAL_TABLE $COM_TABLE)
-export DATA_TABLE_DESCS=("$EXP_TABLE_DESC" "$TRE_TABLE_DESC" "$VAL_TABLE_DESC" "$COM_TABLE_DESC")
+export DATA_TABLES=($EXP_TABLE $TRE_TABLE $VAL_TABLE $COM_TABLE $DEV_TABLE)
+export DATA_TABLE_DESCS=("$EXP_TABLE_DESC" "$TRE_TABLE_DESC" "$VAL_TABLE_DESC" "$COM_TABLE_DESC" "$DEV_TABLE_DESC")
 
 
 #------------------------------------------------------------------------------
