@@ -42,6 +42,12 @@ export DEV_TABLE_DESC="The device a Climate Recipe is run on."
 export DATA_TABLES=($EXP_TABLE $TRE_TABLE $VAL_TABLE $COM_TABLE $DEV_TABLE)
 export DATA_TABLE_DESCS=("$EXP_TABLE_DESC" "$TRE_TABLE_DESC" "$VAL_TABLE_DESC" "$COM_TABLE_DESC" "$DEV_TABLE_DESC")
 
+# part of the row id for comments and values
+export ID_KEY_ENV=Env
+export ID_KEY_PHE=Phe
+export ID_KEY_TRE=Tre
+export ID_KEY_DEV=Dev
+
 
 #------------------------------------------------------------------------------
 export USER_TABLE=user

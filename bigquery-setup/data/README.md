@@ -1,4 +1,4 @@
-# GDrive data files for upload to bq
+# Notes on uploading .csv files to bq
 
 * Master List of Phenome Experiments.xlsx
   * Full path:

@@ -19,11 +19,26 @@ from google.cloud import bigquery
 
 
 #------------------------------------------------------------------------------
+# Run a batch query and print the job state after waiting for completion.
 def run_batch_query( cli, sql, jobc, to ):
   print( 'Running:', sql )
   query_job = cli.query( sql, job_config=jobc )
   iterator = query_job.result( timeout=to )
   print( query_job.state )
+
+
+#------------------------------------------------------------------------------
+# Dynamically get the list of columns from the table.
+def get_columns( cli, ds, table ):
+  ds = cli.dataset( ds )    # returns a reference to the DS
+  tref = ds.table( table )  # returns a reference to the table
+  t = cli.get_table( tref ) # get the full table object from the server's API
+  COLS = ""
+  for col in t.schema:
+    COLS += col.name + ","
+  COLS = COLS[:-1] # remove last char, ',' or ' '
+  return( COLS )
+
 
 #------------------------------------------------------------------------------
 def main():
@@ -38,8 +53,15 @@ def main():
                       help='Destination dataset')
   args = parser.parse_args()
 
-#debugrob, add an "Are you sure, this will overwrite experiment <E> in the <destDS>?  [y/N] "
+  # Verify the user wants to OVERWRITE the experiment in the DEST DS!
+  yn = input( 'Are you sure you want to overwrite experiment ' + 
+    args.experiment + ' in the ' + args.destDS + ' dataset? [y/N]: ' )
+  if yn.lower() != 'y':
+    print( "Exiting", sys.argv[0] )
+    exit( 1 )
 
+
+  # Instantiate a BQ client instance.
   cli = bigquery.Client()
 
   # Verify the datasets exist
@@ -66,18 +88,37 @@ def main():
     print( 'ERROR: Experiment ' + args.experiment + ' does not exist.' )
     exit( 1 )
 
-  # Use DELETE.format( table )
+  # Use DELETE.format( table ), id must start with <exp>
   DELETE = (
     'DELETE FROM ' + args.destDS + '.{0} '
-    'WHERE STARTS_WITH(id, \'' + args.experiment + '\')' )
-  # Use INSERT.format( table, fields )
+    ' WHERE STARTS_WITH(id, \'' + args.experiment + '\')' )
+  # Use INSERT.format( table, fields ), id must start with <exp>
   INSERT = (
     'INSERT ' + args.destDS + '.{0} ({1}) '
-    'SELECT {1} '
-    'FROM ' + args.sourceDS + '.{0} '
-    'WHERE REGEXP_EXTRACT(id, r\'[^~]+\') = \'' + args.experiment + '\'' )
+    ' SELECT {1} '
+    ' FROM ' + args.sourceDS + '.{0} '
+    ' WHERE REGEXP_EXTRACT(id, r\'[^~]+\') = \'' + args.experiment + '\'' )
+
+  # DML for the device table, since its id is only the device name:
+  # DEV_DELETE.format( tdev, ttre )
+  DEV_DELETE = (
+    'DELETE FROM ' + args.destDS + '.{0} '
+    ' WHERE id IN '
+    ' (SELECT device FROM ' + args.sourceDS + '.{1} '
+    '  WHERE REGEXP_EXTRACT(id, r\'[^~]+\') = \'' + args.experiment + '\''
+    '  ORDER BY id) ' )
+  # DEV_INSERT.format( tdev, dev_columns, ttre )
+  DEV_INSERT = (
+    'INSERT ' + args.destDS + '.{0} ({1}) '
+    ' SELECT {1} '
+    ' FROM ' + args.sourceDS + '.{0} '
+    ' WHERE id IN '
+    ' (SELECT device FROM ' + args.sourceDS + '.{2} ' 
+    '  WHERE REGEXP_EXTRACT(id, r\'[^~]+\') = \'' + args.experiment + '\''
+    '  ORDER BY id) ' )
 
 
+  # BQ client instance
   cli = bigquery.Client()
 
   # Set up a batch job
@@ -85,23 +126,36 @@ def main():
   job_config.use_legacy_sql = False
   TIMEOUT = 30  # in seconds
 
+  # Table names from env vars
+  texp = os.getenv("EXP_TABLE")
+  ttre = os.getenv("TRE_TABLE")
+  tval = os.getenv("VAL_TABLE")
+  tcom = os.getenv("COM_TABLE")
+  tdev = os.getenv("DEV_TABLE")
+
   # Do the deletes, remove records that may be there before we add dupes.
-  run_batch_query( cli, DELETE.format( 'exp' ), job_config, TIMEOUT )
-  run_batch_query( cli, DELETE.format( 'treat' ), job_config, TIMEOUT )
-  run_batch_query( cli, DELETE.format( 'val' ), job_config, TIMEOUT )
-  run_batch_query( cli, DELETE.format( 'com' ), job_config, TIMEOUT )
+  run_batch_query( cli, DELETE.format( texp ), job_config, TIMEOUT )
+  run_batch_query( cli, DELETE.format( ttre ), job_config, TIMEOUT )
+  run_batch_query( cli, DELETE.format( tval ), job_config, TIMEOUT )
+  run_batch_query( cli, DELETE.format( tcom ), job_config, TIMEOUT )
+  run_batch_query( cli, DEV_DELETE.format( tdev, ttre ), job_config, TIMEOUT )
 
   # Do the inserts.
-  run_batch_query( cli, INSERT.format( 'exp', 'id,userid,startd,endd' ),
-    job_config, TIMEOUT )
-  run_batch_query( cli, INSERT.format( 'treat', 'id,userid,recipe,device,'
-    'startd,endd,species,cultivar,seed,netn,growthtech' ), job_config, TIMEOUT )
-  run_batch_query( cli, INSERT.format( 'val', 'id,type,sval,ival,fval,X,Y' ),
-    job_config, TIMEOUT )
-  run_batch_query( cli, INSERT.format( 'com', 'id,rating,text' ),
-    job_config, TIMEOUT )
-
-
+  t = texp
+  run_batch_query( cli, INSERT.format( t, get_columns( cli, args.destDS, t )), 
+                   job_config, TIMEOUT )
+  t = ttre
+  run_batch_query( cli, INSERT.format( t, get_columns( cli, args.destDS, t )), 
+                   job_config, TIMEOUT )
+  t = tval
+  run_batch_query( cli, INSERT.format( t, get_columns( cli, args.destDS, t )), 
+                   job_config, TIMEOUT )
+  t = tcom
+  run_batch_query( cli, INSERT.format( t, get_columns( cli, args.destDS, t )), 
+                   job_config, TIMEOUT )
+  run_batch_query( cli, 
+    DEV_INSERT.format( tdev, get_columns( cli, args.destDS, tdev ), ttre ), 
+      job_config, TIMEOUT )
 
 
 #------------------------------------------------------------------------------

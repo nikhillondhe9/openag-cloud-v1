@@ -2,7 +2,7 @@
 
 source gcloud_env.bash
 
-list_ds_and_tables
+#list_ds_and_tables
 
 #------------------------------------------------------------------------------
 # Command line arg processing

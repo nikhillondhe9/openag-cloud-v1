@@ -27,7 +27,8 @@ def printComments( cli, ds, exp, key, treat, label ):
   CQ = (
     '#standardsql \n'
     'SELECT '
-    '  (SELECT username FROM openag_private_webui.user WHERE '
+    '  (SELECT username FROM ' + 
+    os.getenv("WEBUI_DS") + '.' + os.getenv("USER_TABLE") + ' WHERE '
     '    id = REGEXP_EXTRACT(c.id, r\"(?:[^\~]*\~){3}([^~]*)\")) '
     '  as username, '
     '  c.text '
@@ -73,7 +74,7 @@ def main():
     EQ = (
       '#standardsql \n'
       'SELECT REGEXP_EXTRACT(id, r\"[^~]+\") as name '
-      'FROM ' + args.dataset + '.exp '
+      'FROM ' + args.dataset + '.' + os.getenv("EXP_TABLE") + ' '
       'ORDER BY id' )
     for row in cli.query_rows( EQ ):
       exps.append( row.name )
@@ -81,7 +82,7 @@ def main():
     # Verify that the experiment exists
     EQ = (
       '#standardsql \n'
-      'SELECT id FROM ' + args.dataset + '.exp ' 
+      'SELECT id FROM ' + args.dataset + '.' + os.getenv("EXP_TABLE") + ' '
       'WHERE REGEXP_EXTRACT(id, r\'[^~]+\') = \'' + args.experiment + '\'' )
     results_iter = cli.query_rows( EQ )
     results_list = list( results_iter ) # access iterator to send query to API
@@ -113,12 +114,12 @@ def main():
     for row in cli.query_rows( TQ ):
       treat = row.name
       username = row.username
-      device = row.device
       recipe = row.recipe
+      device = row.device
 
       if( args.showValues ):
         # Print all values for this exp + treat
-        print( "    " + treat, username, device, recipe, sep=', ' )
+        print( "    " + treat, username, recipe, sep=', ' )
         VQ=( '#standardsql \n'
              'CREATE TEMPORARY FUNCTION '
              '  isFloat(type STRING) AS (TRIM(type) = "float"); '
@@ -144,7 +145,7 @@ def main():
              '          NULL)))); '
              'SELECT REGEXP_EXTRACT(id, r"(?:[^\~]*\~){3}([^~]*)") as Name, '
              '  getValAsStr(type,fval,ival,sval) as Value '
-             '  FROM ' + args.dataset + '.val '
+             '  FROM ' + args.dataset + '.' + os.getenv("VAL_TABLE") + ' '
              'WHERE REGEXP_CONTAINS(id, r"' )
         VQ += exp
         VQ += "~.*~" # get Exp and Phe and anything else I add values to
@@ -153,11 +154,13 @@ def main():
         VQ += "  ORDER BY id "
         for row in cli.query_rows( VQ ):
           print( "      Value: " + row.Name, str(row.Value), sep=', ' )
+
       else:
+
         # Get count of values for this exp + treat
         VQ = ('#standardsql \n'
               'SELECT COUNT(id) as num '
-              'FROM ' + args.dataset + '.val '
+              'FROM ' + args.dataset + '.' + os.getenv("VAL_TABLE") + ' '
               'WHERE REGEXP_CONTAINS(id, r\"' )
         VQ += exp
         VQ += "~.*~" # get Exp and Phe and anything else I add values to
@@ -166,21 +169,33 @@ def main():
         numValues = "0" # default
         for row in cli.query_rows( VQ ): # should only be one row
             numValues = str(row.num) # convert int to string
-        print( "    " + treat, username, device, recipe, 
+        print( "    " + treat, username, recipe, 
                "numValues="+numValues, sep=', ' )
 
-      # Get all comments for this treat 
-      printComments( cli, args.dataset, exp, "Tre", treat, 
+      # show device details
+      if None == device:
+        device = ''
+      DQ=( '#standardsql \n'
+           'SELECT location,type,warehouse,container,rack,tray FROM ' + 
+           args.dataset + '.' + os.getenv("DEV_TABLE") + ' '
+           'WHERE id = "' + device + '"' )
+      for row in cli.query_rows( DQ ):
+        print( "      Device: " + device, row.location, row.type, 
+          str(row.warehouse) + '.' + str(row.container) + '.' + 
+          str(row.rack) + '.' + str(row.tray), sep=' ' )
+
+      # show all comments
+      printComments( cli, args.dataset, exp, os.getenv("ID_KEY_TRE"), treat, 
           "      Treatment Comment by: " )
 
-      # Get all comments for this env 
-      printComments( cli, args.dataset, exp, "Env", treat, 
+      printComments( cli, args.dataset, exp, os.getenv("ID_KEY_ENV"), treat, 
           "      Environmental Data Comment by: " )
 
-      # Get all comments for this phenotypic expression 
-      printComments( cli, args.dataset, exp, "Phe", treat, 
+      printComments( cli, args.dataset, exp, os.getenv("ID_KEY_PHE"), treat, 
           "      Phenotypic Expression Comment by: " )
 
+      printComments( cli, args.dataset, exp, os.getenv("ID_KEY_DEV"), treat, 
+          "      Device Comment by: " )
 
 
 #------------------------------------------------------------------------------

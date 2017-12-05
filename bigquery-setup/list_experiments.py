@@ -18,13 +18,18 @@ from google.cloud import bigquery
 #------------------------------------------------------------------------------
 def main():
 
+  parser = argparse.ArgumentParser()
+  parser.add_argument('--dataset', type=str, default=os.getenv("DATA_DS"), \
+    help='dataset')
+  args = parser.parse_args()
+
   cli = bigquery.Client()
 
   # Get a list of experiments
   EQ = (
     '#standardsql \n'
     'SELECT REGEXP_EXTRACT(id, r\"[^~]+\") as name '
-    'FROM openag_private_data.exp '
+    'FROM ' + args.dataset + '.' + os.getenv("EXP_TABLE") + ' '
     'ORDER BY id' )
   for row in cli.query_rows( EQ ):
     exp = row.name 
