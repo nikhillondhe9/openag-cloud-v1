@@ -1,0 +1,38 @@
+[
+    {
+        "description": "<experiment name>~<treatment name>~<sample name>~<created UTC TS>~<molecule name>",
+        "name": "id",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "retention time in minutes",
+        "name": "RT",
+        "type": "FLOAT",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "retention index in Kovats",
+        "name": "RI",
+        "type": "FLOAT",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "sum(M/Z) * time",
+        "name": "abundance",
+        "type": "INTEGER",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "chemical abstract service",
+        "name": "CAS",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "molecular weight in grams/mol",
+        "name": "weight",
+        "type": "FLOAT",
+        "mode": "NULLABLE"
+    }
+]

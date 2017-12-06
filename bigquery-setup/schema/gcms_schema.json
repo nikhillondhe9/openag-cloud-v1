@@ -1,0 +1,26 @@
+[
+    {
+        "description": "<experiment name>~<treatment name>~<sample name>~<created UTC TS>",
+        "name": "id",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "profile code for this experiment",
+        "name": "profile",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "sample mass in grams",
+        "name": "mass",
+        "type": "FLOAT",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "number of plants",
+        "name": "nplants",
+        "type": "INTEGER",
+        "mode": "NULLABLE"
+    }
+]
