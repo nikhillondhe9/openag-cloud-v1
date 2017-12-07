@@ -6,12 +6,6 @@
         "mode": "NULLABLE"
     },
     {
-        "description": "profile code for this experiment",
-        "name": "profile",
-        "type": "STRING",
-        "mode": "NULLABLE"
-    },
-    {
         "description": "sample mass in grams",
         "name": "mass",
         "type": "FLOAT",
