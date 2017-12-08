@@ -132,6 +132,8 @@ def main():
   tval = os.getenv("VAL_TABLE")
   tcom = os.getenv("COM_TABLE")
   tdev = os.getenv("DEV_TABLE")
+  tgcm = os.getenv("GCM_TABLE")
+  tmol = os.getenv("MOL_TABLE")
 
   # Do the deletes, remove records that may be there before we add dupes.
   run_batch_query( cli, DELETE.format( texp ), job_config, TIMEOUT )
@@ -139,6 +141,8 @@ def main():
   run_batch_query( cli, DELETE.format( tval ), job_config, TIMEOUT )
   run_batch_query( cli, DELETE.format( tcom ), job_config, TIMEOUT )
   run_batch_query( cli, DEV_DELETE.format( tdev, ttre ), job_config, TIMEOUT )
+  run_batch_query( cli, DELETE.format( tgcm ), job_config, TIMEOUT )
+  run_batch_query( cli, DELETE.format( tmol ), job_config, TIMEOUT )
 
   # Do the inserts.
   t = texp
@@ -156,6 +160,12 @@ def main():
   run_batch_query( cli, 
     DEV_INSERT.format( tdev, get_columns( cli, args.destDS, tdev ), ttre ), 
       job_config, TIMEOUT )
+  t = tgcm
+  run_batch_query( cli, INSERT.format( t, get_columns( cli, args.destDS, t )), 
+                   job_config, TIMEOUT )
+  t = tmol
+  run_batch_query( cli, INSERT.format( t, get_columns( cli, args.destDS, t )), 
+                   job_config, TIMEOUT )
 
 
 #------------------------------------------------------------------------------

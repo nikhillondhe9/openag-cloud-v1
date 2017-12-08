@@ -5,7 +5,7 @@ source gcloud_env.bash
 # Command line arg processing
 if [ $# -lt 1 ]; then
   echo "Please provide the experiment you want to copy."
-  echo "For example: 4-20170622OB-UV"
+  echo "For example: 2-20160501OB-UV"
   exit 1
 fi
 EXP=$1
