@@ -62,13 +62,13 @@
     {
         "description": "% RH",
         "name": "humidity",
-        "type": "INTEGER",
+        "type": "FLOAT",
         "mode": "NULLABLE"
     },
     {
         "description": "photosynthetically active radiation",
         "name": "PAR",
-        "type": "INTEGER",
+        "type": "FLOAT",
         "mode": "NULLABLE"
     },
     {

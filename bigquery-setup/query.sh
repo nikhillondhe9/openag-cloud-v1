@@ -57,3 +57,20 @@ echo ""
 echo "All experiments:"
 bq query --quiet --use_legacy_sql=false "SELECT REGEXP_EXTRACT(exp.id, r\"[^~]+\") as experiment, FORMAT_TIMESTAMP( \"%F\", TIMESTAMP( REGEXP_EXTRACT(exp.id, r\"(?:[^\~]*\~){1}([^~]*)\")), \"UTC\") as created, user.username, user.openag FROM openag_private_data.exp as exp, (SELECT * FROM openag_private_webui.user) as user WHERE exp.userid = user.id ORDER BY exp.id LIMIT 10"
 
+echo ""
+echo "GCMS data for Exp2, Treat2, PL2:"
+bq query --quiet --use_legacy_sql=false \
+"SELECT "\
+"  REGEXP_EXTRACT(id, r'[^~]+') AS experiment, "\
+"  REGEXP_EXTRACT(id, r'(?:[^\~]*\~){1}([^~]*)') AS treatment, "\
+"  REGEXP_EXTRACT(id, r'(?:[^\~]*\~){2}([^~]*)') AS sample, "\
+"  REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)') AS molecule, "\
+"  RT, abundance "\
+"  FROM openag_private_data.mol "\
+"  GROUP BY experiment, treatment, sample, molecule, RT, abundance "\
+"  HAVING "\
+"    '2-20160501OB-UV' = experiment AND "\
+"    'Treat2' = treatment AND "\
+"    'PL2' = sample "\
+"  ORDER BY LOWER( molecule ) "
+

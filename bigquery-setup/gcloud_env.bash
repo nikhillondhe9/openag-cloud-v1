@@ -1,9 +1,15 @@
 # All the Google cloud platform and BigQuery env. vars. we use in our scripts.
 # Meant to be sourced in our bash scripts.
 
+# if TOP_DIR isn't set, make it "."
+if [[ -z "${TOP_DIR}" ]]; then
+  TOP_DIR="."
+fi
+source $TOP_DIR/func_lib.bash
+
 #------------------------------------------------------------------------------
 export GCLOUD_PROJECT=openag-cloud-v1
-export GOOGLE_APPLICATION_CREDENTIALS=../service_account.json
+export GOOGLE_APPLICATION_CREDENTIALS=$TOP_DIR/../service_account.json
 export GOOGLE_STORAGE_DATA_BUCKET=openag-cloud-v1-data
 
 
@@ -32,15 +38,20 @@ export TRE_TABLE=treat
 export VAL_TABLE=val
 export COM_TABLE=com
 export DEV_TABLE=dev
+export GCM_TABLE=gcms
+export MOL_TABLE=mol
 export EXP_TABLE_DESC="Experiments, the top level table. Comprised of a set of Treatments to compare against each other."
 export TRE_TABLE_DESC="Each Treatment is a run of a Climate Recipe and post harvest results."
 export VAL_TABLE_DESC="Values are generic name/value/location objects." 
 export COM_TABLE_DESC="Comments can be added to many objects." 
 export DEV_TABLE_DESC="The device a Climate Recipe is run on." 
+export GCM_TABLE_DESC="GCMS data sets for each treatment."
+export MOL_TABLE_DESC="The molecules in a GCMS data set."
 
 # bash arrays of tables for the DATA datasets that we can loop over.
-export DATA_TABLES=($EXP_TABLE $TRE_TABLE $VAL_TABLE $COM_TABLE $DEV_TABLE)
-export DATA_TABLE_DESCS=("$EXP_TABLE_DESC" "$TRE_TABLE_DESC" "$VAL_TABLE_DESC" "$COM_TABLE_DESC" "$DEV_TABLE_DESC")
+export DATA_TABLES=($EXP_TABLE $TRE_TABLE $VAL_TABLE $COM_TABLE $DEV_TABLE $GCM_TABLE $MOL_TABLE)
+
+export DATA_TABLE_DESCS=("$EXP_TABLE_DESC" "$TRE_TABLE_DESC" "$VAL_TABLE_DESC" "$COM_TABLE_DESC" "$DEV_TABLE_DESC" "$GCM_TABLE_DESC" "$MOL_TABLE_DESC")
 
 # part of the row id for comments and values
 export ID_KEY_ENV=Env
@@ -62,6 +73,6 @@ export UI_TABLE_DESCS=("$USER_TABLE_DESC" "$REC_TABLE_DESC")
 
 #------------------------------------------------------------------------------
 # include our function library
-source func_lib.bash
+source $TOP_DIR/func_lib.bash
 
 
