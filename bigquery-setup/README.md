@@ -30,10 +30,11 @@ See the [README_python.md](../README_python.md) file for instructions on setting
 * `delete_all_data.sh` Delete all data from all datasets (DANGEROUS).
 * `delete_data.sh` Delete the data from one table (DANGEROUS).
 * `delete_datasets.sh` Delete EVERYTHING. (HELLA DANGEROUS).
+* `delete_data_from_openag_foundation_open_phenome.sh` Delete everything in the public dataset.
 
 
 ## Internal files
-* `gcloud_env.bash` Google cloud platform and BigQuery environment variables.  Also has our datasets and tables.
+* `gcloud_env.bash` Google cloud platform and BigQuery environment variables.  Also has our dataset and table names as environment variables and arrays.
 * `func_lib.bash` Library of bash functions used in the above scripts.
 * `func_lib.py` Library of python functions used in the above scripts.
 
