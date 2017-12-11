@@ -105,7 +105,7 @@ def main():
       '#standardsql \n'
       'SELECT REGEXP_EXTRACT(t.id, r\"(?:[^\~]*\~){1}([^~]*)\") as name, '
       'user.username as username, recipe, device '
-      'FROM ' + args.dataset + '.treat as t, '
+      'FROM ' + args.dataset + '.' + os.getenv("TRE_TABLE") + ' as t, '
       '  (SELECT * FROM openag_private_webui.user) as user '
       'WHERE REGEXP_CONTAINS(t.id, r\"^' )
     TQ += exp
@@ -155,6 +155,24 @@ def main():
         for row in cli.query_rows( VQ ):
           print( "      Value: " + row.Name, str(row.Value), sep=', ' )
 
+        # Also print all GCMS sample data
+        GQ = ('#standardsql \n'
+        'SELECT '
+        '  REGEXP_EXTRACT(id, r"[^~]+") AS experiment, '
+        '  REGEXP_EXTRACT(id, r"(?:[^\~]*\~){1}([^~]*)") AS treatment, '
+        '  REGEXP_EXTRACT(id, r"(?:[^\~]*\~){2}([^~]*)") AS sample, '
+        '  REGEXP_EXTRACT(id, r"(?:[^\~]*\~){4}([^~]*)") AS molecule, '
+        '  RT, abundance '
+        '  FROM ' + args.dataset + '.' + os.getenv("MOL_TABLE") + ' '
+        '  GROUP BY experiment, treatment, sample, molecule, RT, abundance '
+        '  HAVING '
+        '    "' + exp + '" = experiment AND '
+        '    "' + treat + '" = treatment '
+        '  ORDER BY sample, LOWER( molecule ) ' )
+        for row in cli.query_rows( GQ ):
+          print( "      GCMS Sample: " + row.sample, row.molecule, \
+                 str(row.RT), str(row.abundance), sep=', ' )
+
       else:
 
         # Get count of values for this exp + treat
@@ -169,8 +187,22 @@ def main():
         numValues = "0" # default
         for row in cli.query_rows( VQ ): # should only be one row
             numValues = str(row.num) # convert int to string
+
+        # get count of GCMS samples
+        GQ = ('#standardsql \n'
+               'SELECT COUNT(id) as num '
+               'FROM ' + args.dataset + '.' + os.getenv("GCM_TABLE") + ' '
+               'WHERE REGEXP_CONTAINS(id, r\"' )
+        GQ += exp
+        GQ += "~" 
+        GQ += treat
+        GQ += "~.*\") "
+        numGCMS = "0" # default
+        for row in cli.query_rows( GQ ): # should only be one row
+            numGCMS = str(row.num) # convert int to string
         print( "    " + treat, username, recipe, 
-               "numValues="+numValues, sep=', ' )
+               "Values="+numValues, "GCMSsamples="+numGCMS, sep=', ' )
+
 
       # show device details
       if None == device:

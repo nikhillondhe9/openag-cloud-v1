@@ -5,5 +5,6 @@ echo ""
 echo "source env/bin/activate"
 echo "cd bigquery-setup"
 echo "source gcloud_env.bash"
+echo ""
 
 
