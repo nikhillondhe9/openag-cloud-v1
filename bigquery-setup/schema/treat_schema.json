@@ -3,25 +3,25 @@
         "description": "<expName>~<treatName>~<created UTC TS> NO TILDES IN FIELDS ALLOWED",
         "name": "id",
         "type": "STRING",
-        "mode": "NULLABLE"
+        "mode": "REQUIRED"
     },
     {
         "description": "user id who created this treatment",
         "name": "userid",
         "type": "STRING",
-        "mode": "NULLABLE"
+        "mode": "REQUIRED"
     },
     {
         "description": "climate recipe this treatment runs, NO TILDES ALLOWED",
         "name": "recipe",
         "type": "STRING",
-        "mode": "NULLABLE"
+        "mode": "REQUIRED"
     },
     {
         "description": "device this treatment runs on",
         "name": "device",
         "type": "STRING",
-        "mode": "NULLABLE"
+        "mode": "REQUIRED"
     },
     {
         "description": "start datetime",

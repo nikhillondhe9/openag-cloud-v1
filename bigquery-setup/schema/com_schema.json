@@ -3,18 +3,18 @@
         "description": "<expName>~Env~<treatName>~<user id>~<created UTC TS> NO TILDES IN FIELDS ALLOWED",
         "name": "id",
         "type": "STRING",
-        "mode": "NULLABLE"
+        "mode": "REQUIRED"
     },
     {
         "description": "rating value of recipe",
         "name": "rating",
         "type": "INTEGER",
-        "mode": "NULLABLE"
+        "mode": "REQUIRED"
     },
     {
         "description": "text of the users comment",
         "name": "text",
         "type": "STRING",
-        "mode": "NULLABLE"
+        "mode": "REQUIRED"
     }
 ]

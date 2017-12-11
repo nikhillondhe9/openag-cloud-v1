@@ -1,0 +1,2 @@
+planting    6/22/2017    date of plant transfer from propogation rack into experimental treatment        
+harvesting    7/13/2017    date of harvest of plants and collection of data        

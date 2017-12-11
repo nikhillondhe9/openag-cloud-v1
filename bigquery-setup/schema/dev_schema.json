@@ -3,19 +3,19 @@
         "description": "<device name>~<created UTC TS> NO TILDES IN FIELDS ALLOWED",
         "name": "id",
         "type": "STRING",
-        "mode": "NULLABLE"
+        "mode": "REQUIRED"
     },
     {
-        "description": "user id who manages this device",
+        "description": "User who manages this device",
         "name": "userid",
         "type": "STRING",
-        "mode": "NULLABLE"
+        "mode": "REQUIRED"
     },
     {
         "description": "Class of device",
         "name": "type",
         "type": "STRING",
-        "mode": "NULLABLE"
+        "mode": "REQUIRED"
     },
     {
         "description": "Hardware version",

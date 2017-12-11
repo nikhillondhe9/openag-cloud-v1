@@ -3,7 +3,7 @@
         "description": "<experiment name>~<treatment name>~<sample name>~<created UTC TS>~<molecule name>",
         "name": "id",
         "type": "STRING",
-        "mode": "NULLABLE"
+        "mode": "REQUIRED"
     },
     {
         "description": "retention time in minutes",

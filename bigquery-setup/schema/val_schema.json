@@ -1,15 +1,15 @@
 [
     {
-        "description": "<expName>~Env~<treatName>~<valName>~<created UTC TS> NO TILDES IN FIELDS ALLOWED",
+        "description": "<expName>~<KEY>~<treatName>~<valName>~<created UTC TS> NO TILDES IN FIELDS ALLOWED",
         "name": "id",
         "type": "STRING",
-        "mode": "NULLABLE"
+        "mode": "REQUIRED"
     },
     {
         "description": "one of: string, int, float",
         "name": "type",
         "type": "STRING",
-        "mode": "NULLABLE"
+        "mode": "REQUIRED"
     },
     {
         "description": "string value",

@@ -3,7 +3,7 @@
         "description": "<user id>~<recipe name>~<created UTC TS> NO TILDES IN FIELDS ALLOWED",
         "name": "id",
         "type": "STRING",
-        "mode": "NULLABLE"
+        "mode": "REQUIRED"
     },
     {
         "description": "parent id this recipe was copied from",
