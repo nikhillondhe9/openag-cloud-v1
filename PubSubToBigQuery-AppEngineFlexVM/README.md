@@ -24,7 +24,9 @@ cd ~/openag-cloud-v1/
 
 
 * Deploy the app to GAE: `gcloud_deploy.sh`
-* How can I see the python app standard out?  (check log file redirect from docker CMD)
+* How can I see the python app standard out?  
+  * By using the console stackdriver logging
+  * https://console.cloud.google.com/logs/viewer
 
 file:///Users/rob/gcp/pubsub-bigquery-example/pubsub/README.md
 

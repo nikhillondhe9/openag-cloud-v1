@@ -21,7 +21,7 @@ gcloud config set compute/zone $GCLOUD_ZONE
 gcloud config list
 
 gcloud app deploy
-gcloud app browse
+#gcloud app browse
 
 echo "Remember to stop and/or delete this instance in the console if you are just testing!"
 
