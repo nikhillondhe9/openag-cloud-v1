@@ -1,20 +1,26 @@
 # [START dockerfile]
+
+#debugrob, delete below?
+#FROM google/python
 FROM gcr.io/google_appengine/python
 
-# Install the fortunes binary from the debian repositories.
-RUN apt-get update && apt-get install -y fortunes
+RUN pip install --upgrade pip
+# tweepy is for twitter, kill it debugrob
+#RUN pip install tweepy
+RUN pip install --upgrade google-api-python-client
+RUN pip install python-dateutil
 
-# Change the -p argument to use Python 2.7 if desired.
-RUN virtualenv /env -p python3.4
+#debugrob: not needed, delete later
+#ADD twitter-to-pubsub.py /twitter-to-pubsub.py
+#ADD controller.py /controller.py
 
-# Set virtualenv environment variables. This is equivalent to running
-# source /env/bin/activate.
-ENV VIRTUAL_ENV /env
-ENV PATH /env/bin:$PATH
+# add copies files to the docker filesystem image at the specified path
+ADD pubsub-to-bigquery.py /pubsub-to-bigquery.py
+# utils library 
+ADD utils.py /utils.py
 
-ADD requirements.txt /app/
-RUN pip install -r requirements.txt
-ADD . /app/
+#CMD python controller.py
+# run our application
+CMD python pubsub-to-bigquery.py 
 
-CMD gunicorn -b :$PORT main:app
 # [END dockerfile]

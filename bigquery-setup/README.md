@@ -5,7 +5,7 @@ All the python scripts take a -h argument to explain their options.
 See the [README_python.md](../README_python.md) file for instructions on setting up gcloud and python.
 
 ## Create and load the datasets
-* `authorize_gcloud.sh` Authorize your google account and gcloud project.
+* `../authorize_gcloud.sh` Authorize your google account and gcloud project (only needs to be done once, it will save to ~/.config).
 * `create_bigquery_dataset_and_schema.sh` Create the datasets and tables.
 * `load_manual_data_to_bigquery.sh` Load data into the tables.
 
@@ -34,7 +34,8 @@ See the [README_python.md](../README_python.md) file for instructions on setting
 
 
 ## Internal files
-* `gcloud_env.bash` Google cloud platform and BigQuery environment variables.  Also has our dataset and table names as environment variables and arrays.
+* `../gcloud_env.bash` Google cloud platform environment variables.
+* `bq_env.bash` BigQuery dataset and table names as environment variables and arrays.
 * `func_lib.bash` Library of bash functions used in the above scripts.
 * `func_lib.py` Library of python functions used in the above scripts.
 

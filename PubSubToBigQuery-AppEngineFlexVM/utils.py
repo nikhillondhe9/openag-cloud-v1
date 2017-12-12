@@ -1,19 +1,6 @@
 #!/usr/bin/env python
-# Copyright 2015 Google Inc. All Rights Reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 
-"""This file contains some utilities used for processing tweet data and writing
+""" This file contains some utilities used for processing tweet data and writing
 data to BigQuery
 """
 
@@ -112,8 +99,11 @@ def bq_data_insert(bigquery, project_id, dataset, table, tweets):
         response = bigquery.tabledata().insertAll(
                 projectId=project_id, datasetId=dataset,
                 tableId=table, body=body).execute(num_retries=NUM_RETRIES)
-        # print "streaming response: %s %s" % (datetime.datetime.now(), response)
+#debugrob: 
+        print( "bq streaming response: %s %s" % (datetime.datetime.now(), response))
         return response
-        # TODO: 'invalid field' errors can be detected here.
-    except Exception, e1:
-        print "Giving up: %s" % e1
+        #debugrob TODO: 'invalid field' errors can be detected here.
+    except Exception as e:
+        print( "Giving up: %s" % e )
+
+

@@ -1,16 +1,14 @@
-# All the Google cloud platform and BigQuery env. vars. we use in our scripts.
+# BigQuery env. vars. we use in our scripts.
 # Meant to be sourced in our bash scripts.
 
-# if TOP_DIR isn't set, make it "."
+# Check if we have our env.
 if [[ -z "${TOP_DIR}" ]]; then
-  TOP_DIR="."
+  echo "ERROR: gcloud_env.bash has not been sourced."
+  exit 1
 fi
-source $TOP_DIR/func_lib.bash
 
-#------------------------------------------------------------------------------
-export GCLOUD_PROJECT=openag-cloud-v1
-export GOOGLE_APPLICATION_CREDENTIALS=$TOP_DIR/../service_account.json
-export GOOGLE_STORAGE_DATA_BUCKET=openag-cloud-v1-data
+# Include our bash function library
+source $TOP_DIR/bigquery-setup/func_lib.bash
 
 
 #------------------------------------------------------------------------------
@@ -69,10 +67,5 @@ export REC_TABLE_DESC="Climate Recipes."
 # bash arrays of tables for the UI dataset that we can loop over.
 export UI_TABLES=($USER_TABLE $REC_TABLE)
 export UI_TABLE_DESCS=("$USER_TABLE_DESC" "$REC_TABLE_DESC")
-
-
-#------------------------------------------------------------------------------
-# include our function library
-source $TOP_DIR/func_lib.bash
 
 

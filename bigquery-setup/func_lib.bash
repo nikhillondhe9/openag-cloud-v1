@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Function library for Google BigQuery and Cloud Storage scripts.
-# This file should be sourced (inside) or after gcloud_env.bash.
+# This file should be sourced after gcloud_env.bash.
 
 #------------------------------------------------------------------------------
 # Function to create a dataset and set its description.
