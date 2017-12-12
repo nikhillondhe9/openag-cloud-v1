@@ -4,9 +4,9 @@
 #FROM google/python
 FROM gcr.io/google_appengine/python
 
+#debugrob: how to specify python 3 by default?  is it being done by app.yaml?
+
 RUN pip install --upgrade pip
-# tweepy is for twitter, kill it debugrob
-#RUN pip install tweepy
 RUN pip install --upgrade google-api-python-client
 RUN pip install python-dateutil
 
