@@ -8,7 +8,7 @@ if ! [ -z "${VIRTUAL_ENV}" ] ; then
 fi
 
 cd ~/openag-cloud-v1/bigquery-setup
-pip install --upgrade virtualenv
+sudo pip install --upgrade virtualenv
 virtualenv --python python3 bq_env
 source bq_env/bin/activate
 pip install --upgrade google-cloud-core
