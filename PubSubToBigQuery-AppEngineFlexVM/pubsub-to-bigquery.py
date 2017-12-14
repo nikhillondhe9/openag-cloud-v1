@@ -36,11 +36,12 @@ def create_subscription(client, project_name, sub_name):
     try:
         subscription = client.projects().subscriptions().get(
             subscription=name ).execute( num_retries=NUM_RETRIES )
+        print( 'Subscription {} exists.'.format(subscription['name']))
     except Exception as e:
         # sub doesn't exist, so create it
         subscription = client.projects().subscriptions().create(
             name=name, body=body ).execute( num_retries=NUM_RETRIES )
-    print( 'Subscription {} was created/verified.'.format(subscription['name']))
+        print( 'Subscription {} was created.'.format(subscription['name']))
 
 
 #------------------------------------------------------------------------------
@@ -53,7 +54,7 @@ def get_full_subscription_name(project, subscription):
 # Pulls messages from a given subscription.
 def pull_messages(client, project_name, sub_name):
     BATCH_SIZE = 50
-    tweets = []
+    values = []
     subscription = get_full_subscription_name(project_name, sub_name)
     body = {
             'returnImmediately': False,
@@ -73,19 +74,20 @@ def pull_messages(client, project_name, sub_name):
         for receivedMessage in receivedMessages:
                 message = receivedMessage.get('message')
                 if message:
-                        tweets.append(
+                        values.append(
                             base64.urlsafe_b64decode(str(message.get('data'))))
                         ack_ids.append(receivedMessage.get('ackId'))
         ack_body = {'ackIds': ack_ids}
         client.projects().subscriptions().acknowledge(
                 subscription=subscription, body=ack_body).execute(
                         num_retries=NUM_RETRIES)
-    return tweets
+    return values
 
 
-def write_to_bq(pubsub, sub_name, bigquery):
-    """Write the data to BigQuery in small chunks."""
-    tweets = []
+#------------------------------------------------------------------------------
+# Write the data to BigQuery in small chunks.
+def write_to_bq( pubsub, sub_name, bigquery ):
+    values = []
 #debugrob: 
     #CHUNK = 50  # The size of the BigQuery insertion batch.
     CHUNK = 1
@@ -93,44 +95,34 @@ def write_to_bq(pubsub, sub_name, bigquery):
     # before checking again.
     WAIT = 2
     tweet = None
-    mtweet = None
     count = 0
 #debugrob: should this be while True ? so it runs forever?
     count_max = 50000
     while count < count_max:
-        while len(tweets) < CHUNK:
+        while len(values) < CHUNK:
             twmessages = pull_messages(pubsub, PROJECT_ID, sub_name)
             if twmessages:
                 for res in twmessages:
-                    print( 'debugrob received message data: ', res)
+                    # Each value must be a JSON object that matches the 
+                    # table schema.
+                    #print( 'received pubsub message data: ', res )
+                    val = None
                     try:
-                        tweet = json.loads(res)
+                        val = json.loads(res)
                     except Exception as e:
                         print( 'ERROR:', e )
-                    print( 'debugrob received message tweet: ', tweet)
-
-#debugrob: 
-                    # First do some massaging of the raw data
-                    #mtweet = utils.cleanup(tweet)
-                    # We only want to write tweets to BigQuery; we'll skip
-                    # 'delete' and 'limit' information.
-                    #if 'delete' in mtweet:
-                    #    continue
-                    #if 'limit' in mtweet:
-                    #    continue
-
-                    tweets.append(mtweet)
+                        continue
+                    values.append( val )
             else:
                 # pause before checking again
                 print( 'sleeping...')
                 time.sleep(WAIT)
         response = utils.bq_data_insert( bigquery, PROJECT_ID, 
-            os.environ['BQ_DATASET'], os.environ['BQ_TABLE'], tweets )
-        tweets = []
+            os.environ['BQ_DATASET'], os.environ['BQ_TABLE'], values )
+        values = []
         count += 1
-#debugrob: 
-        #if count % 25 == 0:
-        print ("processing count: %s of %s at %s: %s" %
+        if count % 25 == 0:
+            print ("processing count: %s of %s at %s: %s" %
                    (count, count_max, datetime.datetime.now(), response))
 
 
@@ -138,7 +130,7 @@ def write_to_bq(pubsub, sub_name, bigquery):
 if __name__ == '__main__':
     topic_info = PUBSUB_TOPIC.split('/')
     topic_name = topic_info[-1]
-    sub_name = "tweets-%s" % topic_name
+    sub_name = "values-%s" % topic_name
     print( "starting write to BigQuery....")
     credentials = utils.get_credentials()
     bigquery = utils.create_bigquery_client(credentials)
@@ -148,7 +140,7 @@ if __name__ == '__main__':
         subscription = create_subscription(pubsub, PROJECT_ID, sub_name)
     except Exception as e:
         print( e )
-    write_to_bq(pubsub, sub_name, bigquery)
+    write_to_bq( pubsub, sub_name, bigquery )
     print( 'exited write loop' )
 
 

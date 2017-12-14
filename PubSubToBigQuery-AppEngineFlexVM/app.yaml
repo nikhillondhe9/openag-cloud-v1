@@ -7,9 +7,9 @@ runtime_config:
 
 #[START env]
 env_variables:
-  PUBSUB_TOPIC: projects/openag-cloud-v1/topics/test-topic
   PROJECT_ID: openag-cloud-v1
-  BQ_DATASET: openag_public_user_data
+  PUBSUB_TOPIC: projects/openag-cloud-v1/topics/environmental-data
+  BQ_DATASET: test
   BQ_TABLE: val
   PUBSUB_VERIFICATION_TOKEN: SpaceLettuce123
 #[END env]

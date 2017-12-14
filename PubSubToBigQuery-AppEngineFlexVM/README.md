@@ -20,7 +20,10 @@ cd ~/openag-cloud-v1/
 
 * Manually send a message with the web console
   * [https://console.cloud.google.com/cloudpubsub/topics/test-topic?project=openag-cloud-v1](our topic and subscription)
-  * Try typing JSON into the Message: `{'data': 'hello'}`
+  * Try typing JSON into the Message (must use double quotes in console): 
+    * ` {"data": "hello"} `
+    * ` {"id": "expName~KEY~treatName~valName~UTC", "type": "float", "fval": "2.34", "X": "1", "Y": "3"} `
+    * ` {"id": "expName~KEY~treatName~valName~UTC", "type": "string", "sval": "yummy string with comma, eh?", "X": "0", "Y": "1"} `
 
 
 * Deploy the app to GAE: `gcloud_deploy.sh`
@@ -32,7 +35,8 @@ file:///Users/rob/gcp/pubsub-bigquery-example/pubsub/README.md
 
 https://cloud.google.com/appengine/docs/flexible/python/writing-and-responding-to-pub-sub-messages
 
-* PubSub REST API (dynamically built by the python code)
-https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions/create
+* Python API docs (dynamically built by the python code)
+  * [https://developers.google.com/resources/api-libraries/documentation/bigquery/v2/python/latest/](bigquery v2 API)
+  * [https://developers.google.com/resources/api-libraries/documentation/pubsub/v1beta2/python/latest/](pubsub v1beta2 API)
 
 

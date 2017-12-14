@@ -8,8 +8,8 @@ fi
 
 # These env vars live in app.yaml for the gcloud GAE deployed app:
 export PROJECT_ID=$GCLOUD_PROJECT
-export PUBSUB_TOPIC="projects/openag-cloud-v1/topics/test-topic"
-export BQ_DATASET="openag_public_user_data"
+export PUBSUB_TOPIC="projects/openag-cloud-v1/topics/environmental-data"
+export BQ_DATASET="test"
 export BQ_TABLE="val"
 export PUBSUB_VERIFICATION_TOKEN="SpaceLettuce123"
 

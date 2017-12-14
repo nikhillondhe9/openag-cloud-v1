@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import os, sys, getopt, argparse
+import os, sys, argparse
 from func_lib import ValidEnvForGCP  # Our common functions
 
 # Is our env set up? (check before importing GC modules)

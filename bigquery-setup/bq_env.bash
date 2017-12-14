@@ -24,10 +24,13 @@ export PUBLIC_DATA_DS_DESC="OpenAg Foundation, Open Phenome Library.  A curated 
 export PUBLIC_USER_DATA_DS=openag_public_user_data
 export PUBLIC_USER_DATA_DS_DESC="MIT Media Lab, Open Agriculture Initiative, Open Phenome Library.  A user public dataset of plant growth and research data." 
 
+export TEST_DS="test"
+export TEST_DS_DESC="A private test dataset." 
+
 # Keep the order the same in these two arrays.
 # NOTE: the webui DS is NOT in this array (it is loaded with different tables).
-export DATASETS=($DATA_DS $PUBLIC_DATA_DS $PUBLIC_USER_DATA_DS)
-export DATASET_DESCS=("$DATA_DS_DESC" "$PUBLIC_DATA_DS_DESC" "$PUBLIC_USER_DATA_DS_DESC")
+export DATASETS=($DATA_DS $PUBLIC_DATA_DS $PUBLIC_USER_DATA_DS $TEST_DS)
+export DATASET_DESCS=("$DATA_DS_DESC" "$PUBLIC_DATA_DS_DESC" "$PUBLIC_USER_DATA_DS_DESC" "$TEST_DS_DESC")
 
 
 #------------------------------------------------------------------------------
