@@ -19,7 +19,6 @@ if None == PROJECT:
     exit( 1 )
 
 PUBSUB_TOPIC = 'projects/' + PROJECT + '/topics/environmental-data'
-export GOOGLE_APPLICATION_CREDENTIALS=service_account.json
 
 NUM_RETRIES = 3
 
