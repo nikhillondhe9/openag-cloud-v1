@@ -26,6 +26,7 @@ if ! type pip >/dev/null 2>&1; then
     sudo python get-pip.py
 fi
 
+echo 'May prompt for your password with sudo...'
 sudo pip install --upgrade virtualenv
 virtualenv --python python3 pubsub_env
 source pubsub_env/bin/activate

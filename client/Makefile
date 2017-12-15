@@ -1,7 +1,7 @@
 TGZ = publish_client.tgz
 
 all:
-	tar Lczvf $(TGZ) utils.py publish.py send_value.sh
+	tar Lczvf $(TGZ) utils.py publish.py send_value.sh service_account.json
 	@echo "Now copy the $(TGZ) file to your BBB and run the setup."
 
 clean:

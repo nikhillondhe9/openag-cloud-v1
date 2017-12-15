@@ -15,8 +15,12 @@ import utils
 # hard coded topic.
 PROJECT = os.getenv('GCLOUD_PROJECT') 
 if None == PROJECT:
-    PROJECT = 'openag-cloud-v1'
+    print('ERROR: Missing required environment variables.')
+    exit( 1 )
+
 PUBSUB_TOPIC = 'projects/' + PROJECT + '/topics/environmental-data'
+export GOOGLE_APPLICATION_CREDENTIALS=service_account.json
+
 NUM_RETRIES = 3
 
 
