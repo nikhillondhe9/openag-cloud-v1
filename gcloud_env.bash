@@ -15,9 +15,9 @@ export GCLOUD_ZONE=us-east1-b
 export GOOGLE_APPLICATION_CREDENTIALS=$TOP_DIR/service_account.json
 export GOOGLE_STORAGE_DATA_BUCKET=openag-cloud-v1-data
 
-#export GCLOUD_REGISTRY=dev-reg-temp-v1
-#export GCLOUD_DEVICE=my-rs256-device
-#export GCLOUD_TOPIC=pubsub-topic
-#export GCLOUD_SUBS=my-sub
 
+export GCLOUD_TOPIC=environmental-data
+export GCLOUD_SUBS=values-environmental-data
+export GCLOUD_REGISTRY=brain-boxes
+export GCLOUD_DEVICE=robs-ML-BBB
 
