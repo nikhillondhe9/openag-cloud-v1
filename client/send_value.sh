@@ -17,6 +17,5 @@ source pubsub_env/bin/activate
 # Load our google project and service account (security) environment variables.
 source gcloud_env.bash
 
-#debugrob: process bash command line args and pass on
-
-python publish.py --value 1
+# Pass along all the command line args that this script has
+python publish.py "$@"
