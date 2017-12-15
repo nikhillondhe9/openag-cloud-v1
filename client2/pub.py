@@ -3,9 +3,6 @@
 import os, time, json, argparse
 from google.cloud import pubsub
 
-GCLOUD_PROJECT = 'openag-cloud-v1'
-GCLOUD_TOPIC = 'environmental-data'
-
 
 #------------------------------------------------------------------------------
 def main():
@@ -43,9 +40,8 @@ def main():
     publisher = pubsub.PublisherClient()
 
     # The resource path for the topic 
-    #topic_path = publisher.topic_path( os.environ['GCLOUD_PROJECT'], 
-    #                                   os.environ['GCLOUD_TOPIC'] )
-    topic_path = publisher.topic_path( GCLOUD_PROJECT, GCLOUD_TOPIC )
+    topic_path = publisher.topic_path( os.environ['GCLOUD_PROJECT'], 
+                                       os.environ['GCLOUD_TOPIC'] )
 
     # Publish a message 
     msg = message_json
