@@ -3,7 +3,6 @@
 # This test script writes an OpenAg environmental value to our PubSub service.
 
 import base64
-import datetime
 import json
 import os
 import time
@@ -51,7 +50,7 @@ if __name__ == '__main__':
     ID = args.experiment + '~Env~' + \
          args.treatment + '~' + \
          args.variableName + '~' + \
-         str( time.time() ).split('.')[0]
+         time.strftime( '%Y-%m-%dT%H:%M:%SZ', time.gmtime() )
 
     message_obj = {}
     # dict entries must match the val table schema.

@@ -30,8 +30,7 @@ def main():
     ID = args.experiment + '~Env~' + \
          args.treatment + '~' + \
          args.variableName + '~' + \
-         str( time.time() ).split('.')[0]
-#debugrob: use our BigQuery UTC human readable time format!
+         time.strftime( '%Y-%m-%dT%H:%M:%SZ', time.gmtime() )
 
     message_obj = {}
     # dict entries must match the val table schema.
