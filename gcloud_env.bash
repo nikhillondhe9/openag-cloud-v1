@@ -19,3 +19,6 @@ export GOOGLE_STORAGE_DATA_BUCKET=openag-cloud-v1-data
 export GCLOUD_TOPIC=environmental-data
 export GCLOUD_SUBS=values-environmental-data
 
+# both a topic and a subscription
+export GCLOUD_CMDS=commands
+

@@ -8,40 +8,20 @@ from google.cloud import pubsub
 def main():
 
     # make sure our env. vars are set up
-    if None == os.getenv('GCLOUD_PROJECT') or None == os.getenv('GCLOUD_TOPIC'):
+    if None == os.getenv('GCLOUD_PROJECT') or None == os.getenv('GCLOUD_CMDS'):
         print('ERROR: Missing required environment variables.')
         exit( 1 )
 
     # parse command line args
     parser = argparse.ArgumentParser()
-    parser.add_argument( '--experiment', type=str, help='Experiment name',
-                         default='TestExp')
-    parser.add_argument( '--treatment', type=str, help='Treatment name',
-                         default='TestTreat')
-    parser.add_argument( '--variableName', type=str, help='Env var name',
-                         default='CO2')
-    parser.add_argument( '--value', type=float, help='Value of env var',
+    parser.add_argument( '--command', type=str, help='command',
                          required=True )
     args = parser.parse_args()
-
-    # clean args, can't have any ~
-    args.experiment = args.experiment.replace( '~', '' )
-    args.treatment = args.treatment.replace( '~', '' )
-    args.variableName = args.variableName.replace( '~', '' )
-
-    # build the DB row ID (should this be done on the server? YES!)
-    # <expName>~<KEY>~<treatName>~<valName>~<created UTC TS> 
-    ID = args.experiment + '~Env~' + \
-         args.treatment + '~' + \
-         args.variableName + '~' + \
-         time.strftime( '%Y-%m-%dT%H:%M:%SZ', time.gmtime() )
 
     # create a python dict object
     message_obj = {}
     # dict entries must match the val table schema.
-    message_obj['id'] = ID
-    message_obj['type'] = 'float'
-    message_obj['fval'] = str( args.value )
+    message_obj['command'] = str( args.command )
     message_json = json.dumps( message_obj ) # dict obj to JSON string
 
     # instantiate a client
@@ -49,7 +29,7 @@ def main():
 
     # the resource path for the topic 
     topic_path = publisher.topic_path( 
-            os.getenv('GCLOUD_PROJECT'), os.getenv('GCLOUD_TOPIC') )
+            os.getenv('GCLOUD_PROJECT'), os.getenv('GCLOUD_CMDS') )
 
     # publish the message 
     try:
