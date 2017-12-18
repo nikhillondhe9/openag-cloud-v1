@@ -7,16 +7,14 @@ if ! [ -z "${VIRTUAL_ENV}" ] ; then
     deactivate
 fi
 
-# Make sure we have python 3, if on Linux, then install it if not found.
+# Install python 3, if on Linux.
 # If on some other OS, go do it yourself (see ../README_python.md).
-if ! type python3 >/dev/null 2>&1; then 
-    if [[ "$OSTYPE" == "linux"* ]]; then 
-        echo 'Installing python3, prompting for your password with sudo...'
-        sudo apt install python python-dev python3 python3-dev
-    else
-        echo 'ERROR: we need python3, go install it.'
-        exit 1
-    fi
+if [[ "$OSTYPE" == "linux"* ]]; then 
+    echo 'Installing python3, prompting for your password with sudo...'
+    sudo apt install python python-dev python3 python3-dev
+else
+    echo 'ERROR: we need python3, go install it.'
+    exit 1
 fi
  
 # Make sure we have pip installed
@@ -29,6 +27,7 @@ fi
 
 echo 'Please be patient, on a BBB this may take 30 min.'
 echo 'May prompt for your password with sudo...'
+sudo pip install --upgrade pip
 sudo pip install --upgrade virtualenv
 virtualenv --python python3 pubsub_env
 source pubsub_env/bin/activate
