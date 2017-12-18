@@ -14,6 +14,6 @@ ADD pubsub-to-bigquery.py /pubsub-to-bigquery.py
 ADD utils.py /utils.py
 
 # run our application
-CMD python pubsub-to-bigquery.py 
+CMD python /pubsub-to-bigquery.py 
 
 # [END dockerfile]

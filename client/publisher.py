@@ -6,7 +6,13 @@ from google.cloud import pubsub
 
 #------------------------------------------------------------------------------
 def main():
-    # command line args
+
+    # make sure our env. vars are set up
+    if None == os.getenv('GCLOUD_PROJECT') or None == os.getenv('GCLOUD_TOPIC'):
+        print('ERROR: Missing required environment variables.')
+        exit( 1 )
+
+    # parse command line args
     parser = argparse.ArgumentParser()
     parser.add_argument( '--experiment', type=str, help='Experiment name',
                          default='TestExp')
@@ -23,12 +29,14 @@ def main():
     args.treatment = args.treatment.replace( '~', '' )
     args.variableName = args.variableName.replace( '~', '' )
 
+    # build the DB row ID (should this be done on the server? YES!)
     # <expName>~<KEY>~<treatName>~<valName>~<created UTC TS> 
     ID = args.experiment + '~Env~' + \
          args.treatment + '~' + \
          args.variableName + '~' + \
          time.strftime( '%Y-%m-%dT%H:%M:%SZ', time.gmtime() )
 
+    # create a python dict object
     message_obj = {}
     # dict entries must match the val table schema.
     message_obj['id'] = ID
@@ -36,23 +44,26 @@ def main():
     message_obj['fval'] = str( args.value )
     message_json = json.dumps( message_obj ) # dict obj to JSON string
 
-    # Instantiates a client
+    # instantiate a client
     publisher = pubsub.PublisherClient()
 
-    # The resource path for the topic 
-    topic_path = publisher.topic_path( os.environ['GCLOUD_PROJECT'], 
-                                       os.environ['GCLOUD_TOPIC'] )
+    # the resource path for the topic 
+    topic_path = publisher.topic_path( os.getenv('GCLOUD_PROJECT'), 
+                                       os.getenv('GCLOUD_TOPIC') )
 
-    # Publish a message 
-    msg = message_json
-    future = publisher.publish( topic_path, msg.encode('utf-8') )
+    # publish the message 
+    try:
+        future = publisher.publish( topic_path, message_json.encode('utf-8') )
 
-    print('message \'{}\' \n\tsent to: {}'.format(msg, topic_path))
+        # result() blocks until future is complete 
+        # (when message is ack'd by server)
+        message_id = future.result()
+        #print('\tfrom future, message_id: {}'.format(message_id))
+    except Exception as e:
+        print( "ERROR: Exception: %s" % e)
+        exit( 1 )
 
-    # result() blocks until future is complete (when is that?)
-    # after message is ack'd ?
-    message_id = future.result()
-    print('\tfrom future, message_id: {}'.format(message_id))
+    print('Published \'{}\' \n\tto: {}'.format(message_json, topic_path))
 
 
 #------------------------------------------------------------------------------

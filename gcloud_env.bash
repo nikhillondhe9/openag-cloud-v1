@@ -18,6 +18,4 @@ export GOOGLE_STORAGE_DATA_BUCKET=openag-cloud-v1-data
 
 export GCLOUD_TOPIC=environmental-data
 export GCLOUD_SUBS=values-environmental-data
-export GCLOUD_REGISTRY=brain-boxes
-export GCLOUD_DEVICE=robs-ML-BBB
 

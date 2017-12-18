@@ -18,4 +18,4 @@ source pubsub_env/bin/activate
 source gcloud_env.bash
 
 # Pass along all the command line args that this script has
-python publish.py "$@"
+python3 publisher.py "$@"
