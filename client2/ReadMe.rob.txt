@@ -2,7 +2,7 @@
 #debugrob: 2017-12-15 latest attempt to see if I can just use 
            the device RSA key is used in place of the service account.
 
-command line device registry setup:
+Command line device registry setup:
 https://wiki.openag.media.mit.edu/users/rbaynes/google_cloud_platform/pub_sub
 
 1. update source_to_setup_local_env.bash with good env var names
@@ -47,6 +47,7 @@ gcloud beta pubsub subscriptions list
 https://console.cloud.google.com/iot/locations/us-central1/registries/openag-cloud-v1?project=openag-cloud-v1
 
 11.  Use pub.py to publish data from the BBB device.
+>>>  Still needs service_account.json file to talk to pub-sub api.
 
 
 ===============================================================================
