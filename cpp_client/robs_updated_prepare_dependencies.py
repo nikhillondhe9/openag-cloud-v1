@@ -1054,10 +1054,11 @@ class Installer(object):
     else:
       self._url_map.update({
           # Use CMake as our build system for the libraries and some deps
-          'cmake': (PackageInstaller(
-              config,
-              'https://www.cmake.org/files/v3.10/cmake-3.10.1.tar.gz',
-              config_type=CONFIGURE_CONFIG)),
+#debugrob: cmake should be installed with "sudo apt-get install cmake"
+#          'cmake': (PackageInstaller(
+#              config,
+#              'https://www.cmake.org/files/v3.10/cmake-3.10.1.tar.gz',
+#              config_type=CONFIGURE_CONFIG)),
 
           # This is used both for curl https support and
           # the OpenSslCodec library for the OpenSslCodec for data encryption.
@@ -1110,7 +1111,9 @@ class Installer(object):
     # make sure cmake occurs first since others may depend on it
     if not self._restricted_packages:
       self._restricted_packages = self._url_map.keys()
-      ordered_packages = ['cmake', 'openssl', 'glog']
+#debugrob: cmake should be installed with "sudo apt-get install cmake"
+#      ordered_packages = ['cmake', 'openssl', 'glog']
+      ordered_packages = ['openssl', 'glog']
       for p in ordered_packages:
         self._restricted_packages.remove(p)
       self._restricted_packages = ordered_packages + self._restricted_packages

@@ -3,13 +3,16 @@
 [https://google.github.io/google-api-cpp-client/latest/object_model.html](C++ SDK docs)
 
 ```
+sudo apt-get -y install cmake
+
 git clone https://github.com/google/google-api-cpp-client.git
 cp robs_updated_prepare_dependencies.py google-api-cpp-client/
 
 cd google-api-cpp-client
 ./robs_updated_prepare_dependencies.py 
 
-./external_dependencies/install/bin/cmake .
+#./external_dependencies/install/bin/cmake .
+cmake .
 make
 
 cd bin
@@ -51,7 +54,9 @@ GLOG_logtostderr=1  ../../bin/pubsub_test ../../../../service_account.json
 
 # still some bugs in the above, get a 404 trying to list topics.
 
-The big issue is to use all this on BBB, you run out of space building the requirements of the library (cmake first).
+The big issue is to use all this on BBB, you run out of space building the requirements of the library (cmake).  Turns out that the debian 8.3 the BBB ships with only has 300M free disk space in eMMC.  When I installed debian 9.2 (no gui) there is 1.6G free space.  
+
+Trying again with cmake installed as an apt package on my BBB running deb 9.2. 
 
 
 
