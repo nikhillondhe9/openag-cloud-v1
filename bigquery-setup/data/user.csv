@@ -1,6 +1,6 @@
-#User ID,User Name,Created,OpenAg user?
-tsavas@media.mit.edu,Tim Savas,2017-11-28T00:00:00Z,true
-ariellej@media.mit.edu,Arielle Johnson,2017-11-28T00:00:00Z,true
-rbaynes@mit.edu,Rob Baynes,2017-11-27T00:00:00Z,true
-public@gmail.com,Community User,2017-11-30T00:00:00Z,false
-calebh@media.mit.edu,Caleb Harper,2017-11-30T00:00:00Z,true
+#User ID,User Name,Password,Created,OpenAg user?
+tsavas@media.mit.edu,Tim Savas,$2a$08$91xZ4QZ8bbIJ8I6VbXKcqOAowfs7Td0IczBRO9PyyZj112zv68onW,2017-11-28T00:00:00Z,true
+ariellej@media.mit.edu,Arielle Johnson,$2a$08$91xZ4QZ8bbIJ8I6VbXKcqOAowfs7Td0IczBRO9PyyZj112zv68onW,2017-11-28T00:00:00Z,true
+rbaynes@mit.edu,Rob Baynes,$2a$08$91xZ4QZ8bbIJ8I6VbXKcqOAowfs7Td0IczBRO9PyyZj112zv68onW,2017-11-27T00:00:00Z,true
+public@gmail.com,Community User,$2a$08$91xZ4QZ8bbIJ8I6VbXKcqOAowfs7Td0IczBRO9PyyZj112zv68onW,2017-11-30T00:00:00Z,false
+calebh@media.mit.edu,Caleb Harper,$2a$08$91xZ4QZ8bbIJ8I6VbXKcqOAowfs7Td0IczBRO9PyyZj112zv68onW,2017-11-30T00:00:00Z,true

@@ -1,0 +1,43 @@
+{
+  "name": "OpenAg-UI",
+  "version": "1.0.0",
+  "description": "debugrob",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/debugrob/debugrob.git"
+  },
+  "license": "GPL-3.0",
+  "main": "server.js",
+  "dependencies": {
+    "express": "~4.14.0",
+    "ejs": "~2.5.2",
+    "@google-cloud/bigquery": "latest",
+    "passport": "~0.3.2",
+    "passport-local": "~1.0.0",
+    "connect-flash": "~0.1.1",
+    "bcrypt-nodejs": "latest",
+    "morgan": "~1.7.0",
+    "body-parser": "~1.15.2",
+    "cookie-parser": "~1.4.3",
+    "method-override": "~2.3.6",
+    "express-session": "~1.14.1"
+  },
+  "devDependencies": {
+    "@google-cloud/nodejs-repo-tools": "2.1.1",
+    "ava": "0.23.0"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "repo-tools test app && ava -t 30s --tap test/*.test.js"
+  },
+  "engines": {
+    "node": ">=4.3.2"
+  },
+  "author": "OpenAg",
+  "contributors": [
+    {
+      "name": "Rob Baynes",
+      "email": "rbaynes@mit.edu"
+    }
+  ]
+}

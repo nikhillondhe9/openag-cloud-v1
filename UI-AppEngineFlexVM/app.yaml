@@ -1,0 +1,18 @@
+# This file configures the GAE docker instance and environment.
+# https://cloud.google.com/appengine/docs/flexible/nodejs/configuring-your-app-with-app-yaml
+
+# The default service is deployed to: https://openag-cloud-v1.appspot.com/
+service: default
+
+runtime: nodejs
+env: flex
+
+# in node, use process.env.<name> to get these
+env_variables:
+  PROJECT_ID: openag-cloud-v1
+  GOOGLE_APPLICATION_CREDENTIALS: ../service_account.json
+  BQ_DATASET: openag_private_webui
+  BQ_USER_TABLE: user
+  BQ_RECIPE_TABLE: rec
+
+#debugrob do I need the service account when I deploy to GAE?

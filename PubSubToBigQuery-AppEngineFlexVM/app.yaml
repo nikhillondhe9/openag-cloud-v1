@@ -1,15 +1,13 @@
-#runtime: python
+service: pubsub
 runtime: custom
 env: flex
 runtime_config:
   # You can also specify 2 for Python 2.7
   python_version: 3
 
-#[START env]
 env_variables:
   PROJECT_ID: openag-cloud-v1
   PUBSUB_TOPIC: projects/openag-cloud-v1/topics/environmental-data
   BQ_DATASET: test
   BQ_TABLE: val
   PUBSUB_VERIFICATION_TOKEN: SpaceLettuce123
-#[END env]

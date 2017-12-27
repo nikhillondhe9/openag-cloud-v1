@@ -12,6 +12,12 @@
         "mode": "REQUIRED"
     },
     {
+        "description": "encrypted password",
+        "name": "password",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
         "description": "account created datetime",
         "name": "created",
         "type": "TIMESTAMP",

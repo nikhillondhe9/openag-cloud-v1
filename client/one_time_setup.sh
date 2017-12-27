@@ -12,7 +12,7 @@ fi
 if [[ "$OSTYPE" == "linux"* ]]; then 
     echo 'Installing python3, prompting for your password with sudo...'
     sudo apt install python python-dev python3 python3-dev
-else
+elif ! type python3 >/dev/null 2>&1; then 
     echo 'ERROR: we need python3, go install it.'
     exit 1
 fi
