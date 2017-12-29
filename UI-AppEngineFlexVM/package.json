@@ -1,10 +1,10 @@
 {
   "name": "OpenAg-UI",
   "version": "1.0.0",
-  "description": "debugrob",
+  "description": "Web UI to manage OpenAg recipes and devices.",
   "repository": {
     "type": "git",
-    "url": "git://github.com/debugrob/debugrob.git"
+    "url": "https://github.com/OpenAgInitiative/openag-cloud-v1.git"
   },
   "license": "GPL-3.0",
   "main": "server.js",

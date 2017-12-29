@@ -10,9 +10,7 @@ env: flex
 # in node, use process.env.<name> to get these
 env_variables:
   PROJECT_ID: openag-cloud-v1
-  GOOGLE_APPLICATION_CREDENTIALS: ../service_account.json
   BQ_DATASET: openag_private_webui
   BQ_USER_TABLE: user
   BQ_RECIPE_TABLE: rec
 
-#debugrob do I need the service account when I deploy to GAE?

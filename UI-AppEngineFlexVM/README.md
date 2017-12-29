@@ -2,18 +2,24 @@
 
 ## debugrob, TBD:
 
-[https://www.npmjs.com/package/@google-cloud/bigquery#using-the-client-library](
-hookup up BQ for DB)
-
+finish app/model/user.js BQ code.
 
 ## Deploying to the Google App Engine
-- `gcloud_deploy.sh`
+1. `cd openag-cloud-v1/UI-AppEngineFlexVM`
+2. `./gcloud_deploy.sh`
 
 ## Local installation for development and testing
 
 1. Install [https://github.com/creationix/nvm#installation](nvm).
 2. Use nvm to install node: `nvm install stable`
-3. Install packages: `npm install`
-4. Run the Node.js server locally: `npm start`
-5. [http://localhost:8080](View the app). 
+3. Make this version of node the default: `nvm alias default stable`
+4. `cd openag-cloud-v1/UI-AppEngineFlexVM`
+5. Install packages: `npm install`
+6. Run the Node.js server locally: `./run_locally.sh`
+7. [http://localhost:8080](View the app). 
+
+
+## Documentation 
+- [https://github.com/googleapis/nodejs-bigquery](BigQuery client for Node.js)
+- [https://github.com/GoogleCloudPlatform/google-cloud-node](Google Cloud client for Node.js)
 

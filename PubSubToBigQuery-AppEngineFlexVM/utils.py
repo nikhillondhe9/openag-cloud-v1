@@ -80,8 +80,7 @@ def bq_data_insert( bigquery, project_id, dataset, table, values ):
 
         #debugrob TODO: 'invalid field' errors can be detected here.
 
-        print( "bq resp: %s %s" % 
-            ( datetime.datetime.now(), response ))
+        print( "bq resp: %s %s" % ( datetime.datetime.now(), response ))
         return response
     except Exception as e:
         print( "Giving up: %s" % e )

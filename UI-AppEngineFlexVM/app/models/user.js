@@ -7,6 +7,10 @@ const datasetName = process.env.BQ_DATASET;
 const userTableName = process.env.BQ_USER_TABLE;
 const bq = BigQuery({ projectId: projectId });
 
+console.log('PROJECT_ID:'+ projectId );
+console.log('BQ_DATASET:'+ datasetName );
+console.log('BQ_USER_TABLE:'+ userTableName );
+
 
 //-----------------------------------------------------------------------------
 // User model class
@@ -18,11 +22,13 @@ class User {
     this.openag = false;        // privileged user?
   }
 
+  //---------------------------------------------------------------------------
   // generate a hash
   generateHash( password ) {
     return bcrypt.hashSync( password, bcrypt.genSaltSync(8), null );
   }
 
+  //---------------------------------------------------------------------------
   // check if password is valid
   validatePassword( password ) {
     if( typeof password === 'undefined' ) {
@@ -31,25 +37,84 @@ class User {
     return bcrypt.compareSync( password, this.password );
   }
 
+  //---------------------------------------------------------------------------
   // findById( email, function(err, user) {} )
   static findById( id, callback ) {
     if( typeof id === 'undefined' ) {
-      console.log( "findById: Passed invalid id." );
+      console.log( "ERROR: findById: Passed invalid id." );
       return callback( null, null );
     }
-    console.log( "debugrob: findById: " + id );
 
-//debugrob: how to auth?
-    //debugrob: do bq find
-    var sql = `SELECT id,username,password,openag 
-               FROM openag_private_webui.user WHERE id = ` + id;
+    // look up this user id (email) in our DB
+    var sql = "SELECT id,username,password,openag " +
+              "FROM " + datasetName + "." + userTableName + 
+              " WHERE id = '" + id + "'";
+    //console.log( "findById: sql='" + sql + "'" );
     const options = {
       query: sql,
       timeoutMs: 10000,     // Time out after 10 seconds.
       useLegacySql: false,  // Use standard SQL syntax for queries.
     };
-    bq.query(options)
-      .then(results => {
+
+    // This is an ASYNCHRONOUS query, 
+    // so you must wait and process the query results inside the 
+    // dynamic callback function when it is eventually called.
+    bq.query( options, function( err, rows ) {
+      if( err ) {
+        console.error('ERROR:', err);
+        return;
+      }
+      //rows.forEach(row => console.log(row));
+
+      if( rows.length == 0 ) {
+        // User not found, return no error (null) and no User (null).
+        return callback( null, null );
+      }
+
+      // We have at least one row that should be the User we searched for.
+      const row = rows[0];
+      var u = new User();
+      u.id       = row.id;
+      u.username = row.username;
+      u.password = row.password;
+      u.openag   = row.openag;
+      //console.log('found u.id: '+u.id);
+
+      // return no error (null) and the User we found.
+      return callback( null, u );
+    });
+  }
+
+  //---------------------------------------------------------------------------
+  // save( function(err) {} )
+  save( callback ) {
+
+    var dataset = bq.dataset( datasetName );
+    var table = dataset.table( userTableName );
+
+    // make JSON rows of data (only one row/user).
+    const rows = [{ id: this.id, 
+                    username: this.username, 
+                    password: this.password,
+					created: bq.timestamp(new Date()),
+                    openag: false }];
+    table.insert( rows ).then( () => {
+        // return no error (null).
+        return callback( null );
+      })
+      .catch(err => {
+        if (err && err.name === 'PartialFailureError') {
+          if (err.errors && err.errors.length > 0) {
+            console.log('Insert errors:');
+            err.errors.forEach(err => console.error(err));
+          }
+        } else {
+          console.error('ERROR:', err);
+        }
+      });
+
+/* log all the rows of the user table
+    table.getRows().then( results => {
         const rows = results[0];
         console.log('Rows:');
         rows.forEach(row => console.log(row));
@@ -57,34 +122,7 @@ class User {
       .catch(err => {
         console.error('ERROR:', err);
       });
-
-    // User not found.
-//debugrob:
-    if( id != 'rob@rob.rob' ) {
-        return callback( null, null );
-    }
-
-    // Found the user, so return them.
-    var u = new User();
-    u.id = id;
-    u.username = 'debugrob fill this in';
-//debugrob crypted 'r' password
-    u.password = '$2a$08$91xZ4QZ8bbIJ8I6VbXKcqOAowfs7Td0IczBRO9PyyZj112zv68onW';
-    u.openag = false;    
-    return callback( null, u );
-  }
-
-  //---------------------------------------------------------------------------
-  // save( function(err) {} )
-  save( callback ) {
-
-//debugrob: handle id and password of undefined (null)
-    console.log( "debugrob: save: " + this.id + ", " + this.username + 
-        ", " + this.password + ", " + this.openag );
-    return callback( null );
-
-    //debugrob: do bq save, and call callback?
-  }
+*/
 }
 
 
