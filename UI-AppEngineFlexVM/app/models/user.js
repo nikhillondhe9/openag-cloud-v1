@@ -1,6 +1,11 @@
 // load the things we need
 var bcrypt = require('bcrypt-nodejs');
 
+//debugrob, can I use a non-streaming query?  BQ won't let me update/delete
+// the user we insert with the exising code.  
+// Try a job / load/import
+
+//debugrob, put all this into a database.js class
 const BigQuery = require('@google-cloud/bigquery');
 const projectId = process.env.PROJECT_ID;
 const datasetName = process.env.BQ_DATASET;
@@ -92,12 +97,16 @@ class User {
     var dataset = bq.dataset( datasetName );
     var table = dataset.table( userTableName );
 
-    // make JSON rows of data (only one row/user).
+    // Make JSON rows of data (only one row/user).
     const rows = [{ id: this.id, 
                     username: this.username, 
                     password: this.password,
 					created: bq.timestamp(new Date()),
                     openag: false }];
+
+//debugrob, find another way - load job
+    // This is a STREAMING insert, which means that the data can't be 
+    // deleted or updated in BQ for 24 hours.  
     table.insert( rows ).then( () => {
         // return no error (null).
         return callback( null );
