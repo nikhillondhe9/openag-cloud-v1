@@ -104,7 +104,7 @@ class User {
 					created: bq.timestamp(new Date()),
                     openag: false }];
 
-//debugrob, find another way - load job
+//debugrob, find another way - load job.  But save this code in new DB class and name "streamingUserInsert()" with comments below.
     // This is a STREAMING insert, which means that the data can't be 
     // deleted or updated in BQ for 24 hours.  
     table.insert( rows ).then( () => {

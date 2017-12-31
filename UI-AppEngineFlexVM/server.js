@@ -1,5 +1,28 @@
 // server.js
 
+/*debugrob: Do First: 
+    Add a new view that shows the latest values from the test env. data.
+    Get latest value by time.
+    Use in place of the 'profile' view (delete that).
+        Experiment:            
+        Treatment:            
+        Device:            
+        Time:            
+        Name:            
+        Value:            
+*/
+
+//debugrob: Optimizations for later:
+//debugrob: Add synchronous batch job user insert to app/models/user.js - save existing stream insert code.
+
+//debugrob: Add DB class for BQ code.
+//debugrob: Use config/database.js to configure above.
+
+//debugrob: Upon startup, check memcache, if empty, load all users from BQ.
+//debugrob: change my DB class to be a write-through memcache to BQ.
+//debugrob: change my DB class to only read from memcache (for speed).
+
+
 // set up ======================================================================
 // get all the tools we need
 var express      = require('express');
@@ -12,7 +35,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser   = require('body-parser');
 var session      = require('express-session');
 
-//debugrob: unused
+//debugrob: unused for now, put our BQ config there
 var configDB = require('./config/database.js');
 
 // configuration ===============================================================
