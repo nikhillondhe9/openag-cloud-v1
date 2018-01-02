@@ -1,8 +1,17 @@
 # OpenAg Node.js UI for recipe and device management.
 
 ## debugrob, TBD:
+- See to dos in app/model/user.js 
+- Email new account verification scheme.
+- Google reCaptcha on signup.
 
-finish app/model/user.js BQ code.
+- http://blog.robertonodi.me/node-authentication-series-email-and-password/
+- https://github.com/ctavan/express-validator
+- https://medium.com/the-ideal-system/ooth-user-accounts-for-node-js-93cfcd28ed1a
+- https://codeforgeek.com/2014/07/node-email-verification-script/
+- https://codemoto.io/coding/nodejs/email-verification-node-express-mongodb
+- https://stackoverflow.com/questions/39092822/how-to-do-confirm-email-address-with-express-node
+
 
 ## Deploying to the Google App Engine
 1. `cd openag-cloud-v1/UI-AppEngineFlexVM`
