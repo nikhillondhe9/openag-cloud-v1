@@ -1,6 +1,6 @@
 [
     {
-        "description": "<device name>~<created UTC TS> NO TILDES IN FIELDS ALLOWED",
+        "description": "<device name>~<MAC>~<created UTC TS> NO TILDES IN FIELDS ALLOWED",
         "name": "id",
         "type": "STRING",
         "mode": "REQUIRED"
@@ -26,18 +26,6 @@
     {
         "description": "Software version",
         "name": "SWver",
-        "type": "STRING",
-        "mode": "NULLABLE"
-    },
-    {
-        "description": "MAC address",
-        "name": "MAC",
-        "type": "STRING",
-        "mode": "NULLABLE"
-    },
-    {
-        "description": "IP address",
-        "name": "IP",
         "type": "STRING",
         "mode": "NULLABLE"
     },

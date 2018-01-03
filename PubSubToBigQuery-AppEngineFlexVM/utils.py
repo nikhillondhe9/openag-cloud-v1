@@ -60,6 +60,15 @@ def create_pubsub_client( credentials ):
 def bq_data_insert( bigquery, project_id, dataset, table, values ):
     try:
         rowlist = []
+
+#debugrob: clean / scrub / check the values.  check max items should be < NN
+#    xxx = xxx.replace( '~', '' )
+
+#debugrob: pull out TOKEN, MAC, USER_ID and verify, don't pass them to DB.
+# also check if user has 'valid' flag True on thier account.
+
+#debugrob: how about some validation here against the table schema, ROB!?!
+
         # Generate the data that will be sent to BigQuery for insertion.
         # Each value must be a JSON object that matches the table schema.
         for item in values:
@@ -72,6 +81,8 @@ def bq_data_insert( bigquery, project_id, dataset, table, values ):
 # should I build the id here myself, instead of trusting the client to send it?
 # this is a "streaming" insert and we can't delete the data for a day.
 # I need to validate the user / openag flag, to know the correct DS.
+
+#debugrob: use a JOB here, not a streaming insertAll() which blocks deletion/updates for 24 hours.
 
         # Try the insertion.
         response = bigquery.tabledata().insertAll(

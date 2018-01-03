@@ -95,7 +95,11 @@ def write_to_bq( pubsub, sub_name, bigquery ):
     # before checking again.
     WAIT = 2
     tweet = None
+
+    # run forever!
     while True:
+
+        # accumulate values
         while len(values) < CHUNK:
             twmessages = pull_messages(pubsub, PROJECT_ID, sub_name)
             if twmessages:
@@ -114,6 +118,8 @@ def write_to_bq( pubsub, sub_name, bigquery ):
                 # pause before checking again
                 print( 'sleeping...')
                 time.sleep(WAIT)
+
+        # data validation and insertion into the DB
         response = utils.bq_data_insert( bigquery, PROJECT_ID, 
             os.environ['BQ_DATASET'], os.environ['BQ_TABLE'], values )
         values = []
@@ -125,7 +131,7 @@ if __name__ == '__main__':
     topic_info = PUBSUB_TOPIC.split('/')
     topic_name = topic_info[-1]
     sub_name = "values-%s" % topic_name
-    print( "starting write to BigQuery....")
+    print( "Subscribing and writing to BigQuery...")
     credentials = utils.get_credentials()
     bigquery = utils.create_bigquery_client(credentials)
     pubsub = utils.create_pubsub_client(credentials)
@@ -134,6 +140,7 @@ if __name__ == '__main__':
         subscription = create_subscription(pubsub, PROJECT_ID, sub_name)
     except Exception as e:
         print( e )
+    # loop forever
     write_to_bq( pubsub, sub_name, bigquery )
     print( 'exited write loop' )
 
