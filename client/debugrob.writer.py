@@ -2,6 +2,9 @@
 
 # Write out CSV lines to a named pipe which blocks until a reader opens it.
 
+# After the pipe is created, you can also do:
+#   echo Name,Type,Value > values.pipe
+
 import os, sys, csv, time, json, argparse
 
 #------------------------------------------------------------------------------
