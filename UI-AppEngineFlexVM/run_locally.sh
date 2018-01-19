@@ -14,8 +14,10 @@ fi
 # We also need these env vars that are set in app.yaml that is not processed
 # when run localy:
 export PROJECT_ID=${GCLOUD_PROJECT}
-export BQ_DATASET=openag_private_webui
+export BQ_USER_DATASET=openag_private_webui
 export BQ_USER_TABLE=user
 export BQ_RECIPE_TABLE=rec
+export BQ_DATA_DATASET=test
+export BQ_VALUE_TABLE=val
 
 npm start

@@ -3,7 +3,7 @@
 /*debugrob: Do First: 
     Add a new view that shows the latest values from the test env. data.
     Get latest value by time.
-    Use in place of the 'profile' view (delete that).
+    On home.ejs view:
         Experiment:            
         Treatment:            
         Device:            

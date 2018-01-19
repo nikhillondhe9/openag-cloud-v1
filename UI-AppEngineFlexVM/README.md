@@ -1,7 +1,7 @@
 # OpenAg Node.js UI for recipe and device management.
 
 ## debugrob, TBD:
-- See to dos in app/model/user.js 
+- See ToDos in app/model/user.js  and server.js
 - Email new account verification scheme.
 - Google reCaptcha on signup.
 
