@@ -31,52 +31,55 @@
 <!-- columns are from 1 to 12 units wide.  using col-sm-6 would be two columns.
 see: http://bootstrapdocs.com/v3.0.2/docs/css/
 -->
-        <div class="col-sm-12">
+      <div class="col-sm-12">
 <!--
     well is the grey background, rounded corner box
     I added the text-center to it
 -->
-            <div class="well text-center">
-                <p>
-<!-- use bootstrap table styles 
-    <table class="table table-striped">
-      ...
-    </table>
--->
-                    <% 
-                       console.log('username='+user.username);
-                       console.log('var name='+user.envvars.name);
-                    %>
-
-                    <span class="fa fa-flask"></span>
-                      <strong>Experiment</strong> <%= user.envvars.name %><br>
-
-                    <span class="fa fa-gear"></span>
-                      <strong>Treatment</strong> <%= user.username %><br>
-
-                    <span class="fa fa-cube"></span>
-                      <strong>Device</strong> <%= user.openag %><br>
-
-                    <span class="fa fa-clock-o"></span>
-                      <strong>Time</strong> <%= user.openag %><br>
-
-                    <span class="fa fa-cogs"></span>
-                      <strong>Variable</strong> <%= user.openag %><br>
-
-                    <span class="fa fa-thermometer-half"></span> 
-                      <strong>Value</strong> <%= user.openag %><br>
-                </p>
+        <div class="well text-center">
+            <table class="table table-condensed">
+              <tr> 
+                <th style="text-align: left;"> 
+                  <span class="fa fa-flask"></span> Experiment </th>
+                <td style="text-align: left;"> <%= user.experiment %> </td>
+              </tr> 
+              <tr> 
+                <th style="text-align: left;"> 
+                  <span class="fa fa-gear"></span> Treatment </th>
+                <td style="text-align: left;"> <%= user.treatment %> </td>
+              </tr> 
+              <tr> 
+                <th style="text-align: left;"> 
+                  <span class="fa fa-cube"></span> Device </th>
+                <td style="text-align: left;"> <%= user.device %> </td>
+              </tr> 
+              <tr> 
+                <th style="text-align: left;"> 
+                  <span class="fa fa-clock-o"></span> Time </th>
+                <td style="text-align: left;"> <%= user.time %> </td>
+              </tr> 
+              <tr> 
+                <th style="text-align: left;"> 
+                  <span class="fa fa-cogs"></span> Variable </th>
+                <td style="text-align: left;"> <%= user.variable %> </td>
+              </tr> 
+              <tr> 
+                <th style="text-align: left;"> 
+                  <span class="fa fa-thermometer-half"></span> Value </th>
+                <td style="text-align: left;"> <%= user.value %> </td>
+              </tr> 
+            </table>
                     
 <!--debugrob this is a button that calls code in app/routes.js in User class
                 <a href="/unlink/local" class="btn btn-default">Unlink</a>
 -->
 
-            </div>
         </div>
-
+      </div>
     </div>
 
     <div class="text-center">
+        <p>OpenAg license and linkz</p>
     </div>
 
 </div>

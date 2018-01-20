@@ -21,108 +21,6 @@ console.log('BQ_DATA_DATASET:'+ dataDatasetName );
 console.log('BQ_VALUE_TABLE:'+ valueTableName );
 
 
-//debugrob: put in some common util.js
-//-----------------------------------------------------------------------------
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-//-----------------------------------------------------------------------------
-//debugrob, as a quick hack, add a function to get the latest values for display to the User class.  Later, after I make a common DB class, move EnvVars class to its own .js file.
-class EnvVars {
-  constructor() {
-    this.experiment = '';
-    this.treatment = '';
-    this.device = 'test'; //debugrob, hardcode for now
-    this.time = '';
-    this.name = '';
-    this.value = '';
-  }
-
-  async getData() {
-    // get the latest value
-    var sql = 
-      "CREATE TEMPORARY FUNCTION  "+
-      "  isFloat(type STRING) AS (TRIM(type) = 'float'); "+
-      "CREATE TEMPORARY FUNCTION  "+
-      "  getFloatAsStr(fval FLOAT64, ival INT64, sval STRING) AS  "+
-      "    (CAST( fval AS STRING)); "+
-      "CREATE TEMPORARY FUNCTION  "+
-      "  isInt(type STRING) AS (TRIM(type) = 'int'); "+
-      "CREATE TEMPORARY FUNCTION  "+
-      "  getIntAsStr(fval FLOAT64, ival INT64, sval STRING) AS  "+
-      "    (CAST( ival AS STRING)); "+
-      "CREATE TEMPORARY FUNCTION  "+
-      "  isString(type STRING) AS (TRIM(type) = 'string'); "+
-      "CREATE TEMPORARY FUNCTION  "+
-      "  getString(fval FLOAT64, ival INT64, sval STRING) AS (TRIM(sval)); "+
-      "CREATE TEMPORARY FUNCTION  "+
-      "  getValAsStr(type STRING, fval FLOAT64, ival INT64, sval STRING) AS ( "+
-      "  IF( isFloat(type), getFloatAsStr(fval,ival,sval),  "+
-      "    IF( isInt(type), getIntAsStr(fval,ival,sval), "+
-      "      IF( isString(type), getString(fval, ival, sval), NULL)))); "+
-      "SELECT "+
-      "    REGEXP_EXTRACT(id, r\"(?:[^\~]*\~){0}([^~]*)\") as Experiment, "+
-      "    REGEXP_EXTRACT(id, r\"(?:[^\~]*\~){2}([^~]*)\") as Treatment, "+
-      "    REGEXP_EXTRACT(id, r\"(?:[^\~]*\~){3}([^~]*)\") as Name, "+
-      "    FORMAT_TIMESTAMP( '%c', TIMESTAMP( "+
-      "      REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)')), "+
-      "        'America/New_York') as Time, "+
-      "    getValAsStr(type,fval,ival,sval) as Value "+
-      "  FROM " + dataDatasetName + "." + valueTableName +
-      "  ORDER BY REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)') DESC "+
-      "  LIMIT 1 ";
-
-    //console.log( "EnvVars: sql='" + sql + "'" );
-    const options = {
-      query: sql,
-      timeoutMs: 10000,     // Time out after 10 seconds.
-      useLegacySql: false,  // Use standard SQL syntax for queries.
-    };
-
-    // Outer scope variable for use in the async callback below.
-    // This is how to get around the promise BS.
-    let ev = this;
-//debugrob: 
-    ev.time = undefined;
-
-    // This is an ASYNCHRONOUS query, 
-    // so you must wait and process the query results inside the 
-    // dynamic callback function when it is eventually called.
-    bq.query( options, function( err, rows ) {
-      if( err ) {
-        console.error('ERROR:', err);
-        return;
-      }
-      //rows.forEach(row => console.log(row));
-
-      if( rows.length == 0 ) {
-        // no data found!
-        return;
-      }
-
-      // Process the rows (this is 95% faster than rows.forEach() )
-      //for( var i=0; i < rows.length; i++ ) { }
-
-      ev.experiment = rows[0].Experiment;
-      ev.treatment = rows[0].Treatment;
-      ev.name = rows[0].Name;
-      ev.time = rows[0].Time;
-      ev.value = rows[0].Value;
-      console.log('EnvVars found: '+ev.time+' '+ev.name+' '+ev.value);
-    });
-
-//debugrob: there has to be a better way!
-    // spin here until the above async query is done
-    while( undefined == ev.time ) {
-      console.log('sleeping...')
-      await sleep( 1000 );
-    }
-
-  }
-}
-
-
 //-----------------------------------------------------------------------------
 // User model class
 class User {
@@ -131,13 +29,14 @@ class User {
     this.username = undefined;  // displayable user name
     this.password = undefined;  // encrypted password
     this.openag = false;        // privileged user?
-    this.envvars = new EnvVars();
-  }
 
-  //---------------------------------------------------------------------------
-  // debugrob temp hack
-  getEnvVarData() {
-    this.envvars.getData();
+    // later move this to a new class
+    this.experiment = '';
+    this.treatment = '';
+    this.device = 'test'; //debugrob, hardcode for now
+    this.time = '';
+    this.variable = '';
+    this.value = '';
   }
 
   //---------------------------------------------------------------------------
@@ -198,11 +97,80 @@ class User {
       u.openag   = row.openag;
       //console.log('found u.id: '+u.id);
 
-      // also get the latest env var data
-      u.getEnvVarData();
+      // later move this elsewhere.  
+      // no beuno haveing a query with async callback inside the same...
+      // just get the last env var and stick it on the user for now.
+      var sql = 
+      "CREATE TEMPORARY FUNCTION  "+
+      "  isFloat(type STRING) AS (TRIM(type) = 'float'); "+
+      "CREATE TEMPORARY FUNCTION  "+
+      "  getFloatAsStr(fval FLOAT64, ival INT64, sval STRING) AS  "+
+      "    (CAST( fval AS STRING)); "+
+      "CREATE TEMPORARY FUNCTION  "+
+      "  isInt(type STRING) AS (TRIM(type) = 'int'); "+
+      "CREATE TEMPORARY FUNCTION  "+
+      "  getIntAsStr(fval FLOAT64, ival INT64, sval STRING) AS  "+
+      "    (CAST( ival AS STRING)); "+
+      "CREATE TEMPORARY FUNCTION  "+
+      "  isString(type STRING) AS (TRIM(type) = 'string'); "+
+      "CREATE TEMPORARY FUNCTION  "+
+      "  getString(fval FLOAT64, ival INT64, sval STRING) AS (TRIM(sval)); "+
+      "CREATE TEMPORARY FUNCTION  "+
+      "  getValAsStr(type STRING, fval FLOAT64, ival INT64, sval STRING) AS ( "+
+      "  IF( isFloat(type), getFloatAsStr(fval,ival,sval),  "+
+      "    IF( isInt(type), getIntAsStr(fval,ival,sval), "+
+      "      IF( isString(type), getString(fval, ival, sval), NULL)))); "+
+      "SELECT "+
+      "    REGEXP_EXTRACT(id, r\"(?:[^\~]*\~){0}([^~]*)\") as Experiment, "+
+      "    REGEXP_EXTRACT(id, r\"(?:[^\~]*\~){2}([^~]*)\") as Treatment, "+
+      "    REGEXP_EXTRACT(id, r\"(?:[^\~]*\~){3}([^~]*)\") as Name, "+
+      "    FORMAT_TIMESTAMP( '%c', TIMESTAMP( "+
+      "      REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)')), "+
+      "        'America/New_York') as Time, "+
+      "    getValAsStr(type,fval,ival,sval) as Value "+
+      "  FROM " + dataDatasetName + "." + valueTableName +
+      "  ORDER BY REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)') DESC "+
+      "  LIMIT 1 ";
+
+      //console.log( "EnvVars: sql='" + sql + "'" );
+      const options = {
+        query: sql,
+        timeoutMs: 10000,     // Time out after 10 seconds.
+        useLegacySql: false,  // Use standard SQL syntax for queries.
+      };
+
+      // This is an ASYNCHRONOUS query, 
+      // so you must wait and process the query results inside the 
+      // dynamic callback function when it is eventually called.
+      bq.query( options, function( err, rows ) {
+        if( err ) {
+          console.error('ERROR:', err);
+          return;
+        }
+        //rows.forEach(row => console.log(row));
+  
+        if( rows.length == 0 ) {
+          // no data found!
+          return;
+        }
+
+        // Process the rows (this is 95% faster than rows.forEach() )
+        //for( var i=0; i < rows.length; i++ ) { }
+
+        u.experiment = rows[0].Experiment;
+        u.treatment = rows[0].Treatment;
+        u.variable = rows[0].Name;
+        u.time = rows[0].Time;
+        u.value = rows[0].Value;
+        //console.log('EnvVars found: '+u.time+' '+u.variable+' '+u.value);
+
+//must return from this inner async callback, so the browser waits until all the data is back.
+        // return no error (null) and the User we found.
+        return callback( null, u );
+      });
 
       // return no error (null) and the User we found.
-      return callback( null, u );
+//      return callback( null, u );
     });
   }
 
