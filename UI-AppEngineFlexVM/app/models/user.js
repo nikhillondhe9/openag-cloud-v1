@@ -22,6 +22,19 @@ console.log('BQ_VALUE_TABLE:'+ valueTableName );
 
 
 //-----------------------------------------------------------------------------
+// EnvVar class - move to its own file later debugrob.
+class EnvVar {
+  constructor() {
+    this.experiment = '';
+    this.treatment = '';
+    this.device = 'test-rack'; //debugrob, hardcode for now
+    this.time = '';
+    this.variable = '';
+    this.value = '';
+  }
+}
+
+//-----------------------------------------------------------------------------
 // User model class
 class User {
   constructor() {
@@ -29,14 +42,7 @@ class User {
     this.username = undefined;  // displayable user name
     this.password = undefined;  // encrypted password
     this.openag = false;        // privileged user?
-
-    // later move this to a new class
-    this.experiment = '';
-    this.treatment = '';
-    this.device = 'test'; //debugrob, hardcode for now
-    this.time = '';
-    this.variable = '';
-    this.value = '';
+    this.envVars = new Array();
   }
 
   //---------------------------------------------------------------------------
@@ -130,7 +136,7 @@ class User {
       "    getValAsStr(type,fval,ival,sval) as Value "+
       "  FROM " + dataDatasetName + "." + valueTableName +
       "  ORDER BY REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)') DESC "+
-      "  LIMIT 1 ";
+      "  LIMIT 5 ";
 
       //console.log( "EnvVars: sql='" + sql + "'" );
       const options = {
@@ -155,14 +161,17 @@ class User {
         }
 
         // Process the rows (this is 95% faster than rows.forEach() )
-        //for( var i=0; i < rows.length; i++ ) { }
+        for( var i=0; i < rows.length; i++ ) { 
+          var e = new EnvVar();
+          e.experiment = rows[i].Experiment;
+          e.treatment = rows[i].Treatment;
+          e.variable = rows[i].Name;
+          e.time = rows[i].Time;
+          e.value = rows[i].Value;
+          u.envVars.push( e );
+          //console.log('EnvVars found: '+e.time+' '+e.variable+' '+e.value);
+        }
 
-        u.experiment = rows[0].Experiment;
-        u.treatment = rows[0].Treatment;
-        u.variable = rows[0].Name;
-        u.time = rows[0].Time;
-        u.value = rows[0].Value;
-        //console.log('EnvVars found: '+u.time+' '+u.variable+' '+u.value);
 
 //must return from this inner async callback, so the browser waits until all the data is back.
         // return no error (null) and the User we found.

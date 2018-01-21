@@ -35,39 +35,38 @@ see: http://bootstrapdocs.com/v3.0.2/docs/css/
 <!--
     well is the grey background, rounded corner box
     I added the text-center to it
+            <table class="table table-condensed">
 -->
         <div class="well text-center">
-            <table class="table table-condensed">
+            <table class="table table-striped">
               <tr> 
                 <th style="text-align: left;"> 
                   <span class="fa fa-flask"></span> Experiment </th>
-                <td style="text-align: left;"> <%= user.experiment %> </td>
-              </tr> 
-              <tr> 
                 <th style="text-align: left;"> 
                   <span class="fa fa-gear"></span> Treatment </th>
-                <td style="text-align: left;"> <%= user.treatment %> </td>
-              </tr> 
-              <tr> 
                 <th style="text-align: left;"> 
                   <span class="fa fa-cube"></span> Device </th>
-                <td style="text-align: left;"> <%= user.device %> </td>
-              </tr> 
-              <tr> 
                 <th style="text-align: left;"> 
                   <span class="fa fa-clock-o"></span> Time </th>
-                <td style="text-align: left;"> <%= user.time %> </td>
-              </tr> 
-              <tr> 
                 <th style="text-align: left;"> 
                   <span class="fa fa-cogs"></span> Variable </th>
-                <td style="text-align: left;"> <%= user.variable %> </td>
-              </tr> 
-              <tr> 
                 <th style="text-align: left;"> 
                   <span class="fa fa-thermometer-half"></span> Value </th>
-                <td style="text-align: left;"> <%= user.value %> </td>
               </tr> 
+<!-- debugrob, use ejs tags to loop over an array of users -->
+              <% for( i=0; i < user.envVars.length; i++ ) { 
+                   e = user.envVars[i];
+              %>
+              <tr> 
+                <td style="text-align: left;"> <%= e.experiment %> </td>
+                <td style="text-align: left;"> <%= e.treatment %> </td>
+                <td style="text-align: left;"> <%= e.device %> </td>
+                <td style="text-align: left;"> <%= e.time %> </td>
+                <td style="text-align: left;"> <%= e.variable %> </td>
+                <td style="text-align: left;"> <%= e.value %> </td>
+              </tr> 
+              <% } %>
+
             </table>
                     
 <!--debugrob this is a button that calls code in app/routes.js in User class
