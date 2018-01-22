@@ -61,10 +61,10 @@ class User {
   }
 
   //---------------------------------------------------------------------------
-  // findById( email, function(err, user) {} )
-  static findById( id, callback ) {
+  // findById( email, getEnvVarData, function(err, user) {} )
+  static findById( id, getEnvVarData, callback ) {
     if( typeof id === 'undefined' ) {
-      console.log( "ERROR: findById: Passed invalid id." );
+      console.log( "findById ERROR: Passed invalid id." );
       return callback( null, null );
     }
 
@@ -75,7 +75,7 @@ class User {
     //console.log( "findById: sql='" + sql + "'" );
     const options = {
       query: sql,
-      timeoutMs: 10000,     // Time out after 10 seconds.
+      timeoutMs: 15000,     // Time out after 15 seconds.
       useLegacySql: false,  // Use standard SQL syntax for queries.
     };
 
@@ -84,13 +84,14 @@ class User {
     // dynamic callback function when it is eventually called.
     bq.query( options, function( err, rows ) {
       if( err ) {
-        console.error('ERROR:', err);
+        console.error('findById ERROR:', err);
         return;
       }
       //rows.forEach(row => console.log(row));
 
       if( rows.length == 0 ) {
         // User not found, return no error (null) and no User (null).
+        console.error('findById user \'' + id + '\' not found.');
         return callback( null, null );
       }
 
@@ -101,8 +102,12 @@ class User {
       u.username = row.username;
       u.password = row.password;
       u.openag   = row.openag;
-      //console.log('found u.id: '+u.id);
+      console.log('findById found user \'' + u.id + '\'' );
 
+      // if we don't need to get the env var data, just return here.
+      if( ! getEnvVarData ) {
+        return callback( null, u );
+      }
       // later move this elsewhere.  
       // no beuno haveing a query with async callback inside the same...
       // just get the last env var and stick it on the user for now.
@@ -138,10 +143,10 @@ class User {
       "  ORDER BY REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)') DESC "+
       "  LIMIT 5 ";
 
-      //console.log( "EnvVars: sql='" + sql + "'" );
+      //console.log( "findById EnvVars: sql='" + sql + "'" );
       const options = {
         query: sql,
-        timeoutMs: 10000,     // Time out after 10 seconds.
+        timeoutMs: 20000,     // Time out after 20 seconds.
         useLegacySql: false,  // Use standard SQL syntax for queries.
       };
 
@@ -157,6 +162,7 @@ class User {
   
         if( rows.length == 0 ) {
           // no data found!
+          console.log('findById no env vars.');
           return;
         }
 
@@ -169,16 +175,18 @@ class User {
           e.time = rows[i].Time;
           e.value = rows[i].Value;
           u.envVars.push( e );
-          //console.log('EnvVars found: '+e.time+' '+e.variable+' '+e.value);
+          console.log('findById EnvVar['+i+'] '+e.time+' '+e.variable+' '+e.value);
         }
 
 
 //must return from this inner async callback, so the browser waits until all the data is back.
         // return no error (null) and the User we found.
+        console.log('findById calling callback with valid user.');
         return callback( null, u );
       });
 
       // return no error (null) and the User we found.
+      console.log('findById done finding user.');
 //      return callback( null, u );
     });
   }
@@ -202,16 +210,17 @@ class User {
     // deleted or updated in BQ for 24 hours.  
     table.insert( rows ).then( () => {
         // return no error (null).
+        console.log('saved user \''+ this.username + '\'');
         return callback( null );
       })
       .catch(err => {
         if (err && err.name === 'PartialFailureError') {
           if (err.errors && err.errors.length > 0) {
-            console.log('Insert errors:');
+            console.log('save Insert errors:');
             err.errors.forEach(err => console.error(err));
           }
         } else {
-          console.error('ERROR:', err);
+          console.error('save ERROR:', err);
         }
       });
 

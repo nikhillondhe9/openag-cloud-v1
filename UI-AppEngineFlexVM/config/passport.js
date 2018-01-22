@@ -1,8 +1,8 @@
-// load all the things we need
-var LocalStrategy    = require('passport-local').Strategy;
+// load the 'local authentication' strategy (not using FB or Google).
+var LocalStrategy = require('passport-local').Strategy;
 
 // load up the user model
-var User       = require('../app/models/user');
+var User = require('../app/models/user');
 
 module.exports = function(passport) {
 
@@ -12,15 +12,20 @@ module.exports = function(passport) {
     // required for persistent login sessions
     // passport needs ability to serialize and unserialize users out of session
 
-    // used to serialize the user for the session
-    passport.serializeUser(function(user, done) {
-//debugrob: do I have to save these sessions on BQ?  or in memcache?
+    // used to serialize the user for the local session
+    passport.serializeUser( function( user, done) {
+        console.log('passport serialize');
         done(null, user.id);
     });
 
     // used to deserialize the user
-    passport.deserializeUser(function(id, done) {
-        User.findById(id, function(err, user) {
+    passport.deserializeUser( function( id, done) {
+        // This gets called right before we redirect to the /home page.
+        // It ALSO gets called when we logout.  How can we tell the diff?
+        console.log('passport deserialize');
+        // The second arg (true) means get env var data.  
+        // This is the only place we want to query for env vars.
+        User.findById(id, true, function(err, user) {
             done(err, user);
         });
     });
@@ -45,7 +50,8 @@ module.exports = function(passport) {
 
         // asynchronous
         process.nextTick( function() {
-            User.findById( email, function( err, user ) {
+            console.log('passport login');
+            User.findById( email, false, function( err, user ) {
                 // if there are any errors, return the error
                 if( err ) {
                     return done( err );
@@ -92,19 +98,20 @@ module.exports = function(passport) {
         process.nextTick(function() {
             // if the user is not already logged in:
             if (!req.user) {
-                User.findById( email, function(err, user) {
+                console.log('passport signup');
+                User.findById( email, false, function(err, user) {
                     // if there are any errors, return the error
                     if (err)
                         return done(err);
 
                     // check to see if theres already a user with that email
                     if (user) {
-                        return done(null, false, req.flash('signupMessage', 'That email is already taken.'));
+                        return done(null, false, req.flash('signupMessage', 
+                            'That email is already taken.'));
                     } else {
 
                         // create the user
                         var newUser      = new User();
-
                         newUser.id       = email;
                         newUser.username = req.body.username;
                         newUser.password = newUser.generateHash( password );
@@ -118,17 +125,19 @@ module.exports = function(passport) {
                     }
 
                 });
+/* I don't think we ever hit this case, so removing for now
             // if the user is logged in but has no local account...
             } else if ( !req.user.id ) {
                 // ...presumably they're trying to connect a local account
                 // BUT let's check if the email used to connect a local account
                 // is being used by another user
-                User.findById( email, function(err, user) {
+                User.findById( email, false, function(err, user) {
                     if (err)
                         return done(err);
                     
                     if (user) {
-                        return done(null, false, req.flash('loginMessage', 'That email is already taken.'));
+                        return done(null, false, req.flash('loginMessage', 
+                            'That email is already taken.'));
                     } else {
                         var user = req.user;
                         user.id = email;
@@ -142,6 +151,7 @@ module.exports = function(passport) {
                         });
                     }
                 });
+*/
             } else {
                 // user is logged in and already has a local account. 
                 // Ignore signup. (You should log out before trying to 
