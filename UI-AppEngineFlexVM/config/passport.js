@@ -14,7 +14,7 @@ module.exports = function(passport) {
 
     // used to serialize the user for the local session
     passport.serializeUser( function( user, done) {
-        console.log('passport serialize');
+        //console.log('passport serialize');
         done(null, user.id);
     });
 
@@ -22,7 +22,7 @@ module.exports = function(passport) {
     passport.deserializeUser( function( id, done) {
         // This gets called right before we redirect to the /home page.
         // It ALSO gets called when we logout.  How can we tell the diff?
-        console.log('passport deserialize');
+        //console.log('passport deserialize');
         // The second arg (true) means get env var data.  
         // This is the only place we want to query for env vars.
         User.findById(id, true, function(err, user) {
@@ -50,7 +50,7 @@ module.exports = function(passport) {
 
         // asynchronous
         process.nextTick( function() {
-            console.log('passport login');
+            //console.log('passport login');
             User.findById( email, false, function( err, user ) {
                 // if there are any errors, return the error
                 if( err ) {
@@ -98,7 +98,7 @@ module.exports = function(passport) {
         process.nextTick(function() {
             // if the user is not already logged in:
             if (!req.user) {
-                console.log('passport signup');
+                //console.log('passport signup');
                 User.findById( email, false, function(err, user) {
                     // if there are any errors, return the error
                     if (err)
