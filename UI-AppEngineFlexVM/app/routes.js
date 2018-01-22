@@ -4,11 +4,13 @@ module.exports = function(app, passport) {
 
     // show the login/create account page.
     app.get('/', function(req, res) {
+        console.log('route index');
         res.render('index.ejs');
     });
 
     // home page.
     app.get('/home', isLoggedIn, function(req, res) {
+        console.log('route home render home page');
         res.render('home.ejs', {
             user : req.user
         });
@@ -16,6 +18,7 @@ module.exports = function(app, passport) {
 
     // logout action and go back to login page.
     app.get('/logout', function(req, res) {
+        console.log('route logout');
         req.logout();
         res.redirect('/');
     });
@@ -27,6 +30,7 @@ module.exports = function(app, passport) {
     // LOGIN ===============================
     // show the login form
     app.get('/login', function(req, res) {
+        console.log('route get login');
         res.render('login.ejs', { message: req.flash('loginMessage') });
     });
 
@@ -67,9 +71,12 @@ module.exports = function(app, passport) {
 
 // route middleware to ensure user is logged in
 function isLoggedIn(req, res, next) {
-    if (req.isAuthenticated())
+    if (req.isAuthenticated()) {
+        console.log('route isLoggedIn yes, is auth, calling next');
         return next();
+    }
 
+    console.log('route isLoggedIn redirect to /');
     res.redirect('/');
 }
 
