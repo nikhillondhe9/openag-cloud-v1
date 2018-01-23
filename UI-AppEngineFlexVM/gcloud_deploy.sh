@@ -34,3 +34,5 @@ echo "Remember to stop and/or delete this instance in the console if you are jus
 #gcloud app versions list --hide-no-traffic
 #gcloud app versions stop <ver>
 #gcloud app instances delete --service default --version <ver> <ID>
+
+#gcloud app services set-traffic --splits <version>=1 default

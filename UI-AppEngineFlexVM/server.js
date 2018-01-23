@@ -1,72 +1,70 @@
 // server.js
 
-/*debugrob: Do First: 
-    Add a new view that shows the latest values from the test env. data.
-    Get latest value by time.
-    On home.ejs view:
-        Experiment:            
-        Treatment:            
-        Device:            
-        Time:            
-        Name:            
-        Value:            
-*/
-
 //debugrob: Optimizations for later:
-//debugrob: Add synchronous batch job user insert to app/models/user.js - save existing stream insert code.
+//  Add DB class for BQ code.  Make streaming and batch DB methods.
 
-//debugrob: Add DB class for BQ code.
-//debugrob: Use config/database.js to configure above.
-
-//debugrob: Upon startup, check memcache, if empty, load all users from BQ.
-//debugrob: change my DB class to be a write-through memcache to BQ.
-//debugrob: change my DB class to only read from memcache (for speed).
+//debugrob: Need for perf?: 
+//  Upon startup, check memcache, if empty, load all users from BQ.
+//  change my DB class to be a write-through memcache to BQ.
+//  change my DB class to only read from memcache (for speed).
 
 
 // set up ======================================================================
 // get all the tools we need
-var express      = require('express');
-var app          = express();
-var port         = process.env.PORT || 8080;
-var passport     = require('passport');
-var flash        = require('connect-flash');
-var morgan       = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser   = require('body-parser');
-var session      = require('express-session');
-
-//debugrob: unused for now, put our BQ config there
-var configDB = require('./config/database.js');
+var express        = require( 'express');
+var app            = express();
+var port           = process.env.PORT || 8080;
+var passport       = require( 'passport');
+var flash          = require( 'connect-flash');
+var morgan         = require( 'morgan');
+var cookieParser   = require( 'cookie-parser');
+var bodyParser     = require( 'body-parser');
+var session        = require( 'express-session'); 
+var MemcachedStore = require( 'connect-memjs')( session );
 
 // configuration ===============================================================
-//debugrob: make this the BQ config based on env vars?
-//mongoose.connect(configDB.url); // connect to our database
-
-require('./config/passport')(passport); // pass passport for configuration
+require( './config/passport')( passport ); // pass passport for configuration
 
 // set up our express application
-app.use(morgan('dev')); // log every request to the console
-app.use(cookieParser()); // read cookies (needed for auth)
-app.use(bodyParser.json()); // get information from html forms
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use( morgan( 'dev')); // log every request to the console
+app.use( cookieParser()); // read cookies (needed for auth)
+app.use( bodyParser.json()); // get information from html forms
+app.use( bodyParser.urlencoded({ extended: true }));
 
-app.set('view engine', 'ejs'); // set up ejs for templating
+app.set( 'view engine', 'ejs'); // set up ejs for templating
 
-// required for passport
+// A session cache is REQUIRED for passport.
+// Environment variables are defined in app.yaml for production.
+let MEMCACHE_URL = process.env.MEMCACHE_URL || '127.0.0.1:11211';
+
+// For the future, when GAE flex env has memcached (not yet).
+if( process.env.USE_GAE_MEMCACHE ) {
+    MEMCACHE_URL = `${process.env.GAE_MEMCACHE_HOST}:${process.env.GAE_MEMCACHE_PORT}`;
+    console.log('Using GAE session cache: ' + MEMCACHE_URL );
+} else {
+    console.log('Using session cache: ' + MEMCACHE_URL );
+}
 app.use(session({
-    secret: 'ilovefooddoyoulovefoodorganicyummyfood', // session secret
+    secret: '1LoveF00dDoY00L00eF000Organ1cYummyF000', // session secret
     resave: true,
-    saveUninitialized: true
+    saveUninitialized: true,
+    key: 'view:count',
+    proxy: 'true',
+    store: new MemcachedStore({
+        servers: [MEMCACHE_URL]
+    })
 }));
-app.use(passport.initialize());
-app.use(passport.session()); // persistent login sessions
-app.use(flash()); // use connect-flash for flash messages stored in session
 
-// routes ======================================================================
-require('./app/routes.js')(app, passport); // load our routes and pass in our app and fully configured passport
+// set up passport
+app.use( passport.initialize());
+app.use( passport.session()); // persistent login sessions
+app.use( flash()); // use connect-flash for flash messages stored in session
+
+// load our routes and pass in our app and fully configured passport
+require( './app/routes.js')( app, passport ); 
 
 // launch ======================================================================
-app.listen(port);
-console.log('open http://localhost:' + port);
+app.listen( port );
+console.log( 'open http://localhost:' + port );
 
 

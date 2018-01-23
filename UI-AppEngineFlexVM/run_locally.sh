@@ -20,4 +20,8 @@ export BQ_RECIPE_TABLE=rec
 export BQ_DATA_DATASET=test
 export BQ_VALUE_TABLE=val
 
+export MEMCACHE_URL=memcached-17341.c1.us-east1-2.gce.cloud.redislabs.com:17341
+export MEMCACHE_USERNAME=rbaynes@gmail.com
+export MEMCACHE_PASSWORD=Il0veRedis
+
 npm start
