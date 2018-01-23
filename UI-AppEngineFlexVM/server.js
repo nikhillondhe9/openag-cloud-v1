@@ -46,8 +46,9 @@ if( process.env.USE_GAE_MEMCACHE ) {
 }
 app.use(session({
     secret: '1LoveF00dDoY00L00eF000Organ1cYummyF000', // session secret
-    resave: true,
-    saveUninitialized: true,
+    // are these causing redis to be so large?
+    //resave: true,
+    //saveUninitialized: true,
     key: 'view:count',
     proxy: 'true',
     store: new MemcachedStore({
