@@ -12,6 +12,18 @@
 - https://codemoto.io/coding/nodejs/email-verification-node-express-mongodb
 - https://stackoverflow.com/questions/39092822/how-to-do-confirm-email-address-with-express-node
 
+## Using Redis as the memcached session store (one time setup already done)
+- Make a free "Redis Memcached Cloud" account.
+ - https://app.redislabs.com/#/bdbs
+ - Under subscriptions, add a default DB (also called bucket)
+  - DB/bucket: OpenAgUIsessions
+  - Enable SASL account:       
+   - user: rbaynes@gmail.com
+   - pass: Il0veRedis
+  - Save the buckets' endpoint:
+   - memcached-17341.c1.us-east1-2.gce.cloud.redislabs.com:17341
+ - Later, if we want to store other data in the memcached, use memjs
+  - https://redislabs.com/lp/using-memcached-cloud-multiple-languages/#opening-a-connection-to-memcached-using-memjs
 
 ## Deploying to the Google App Engine
 1. `cd openag-cloud-v1/UI-AppEngineFlexVM`
@@ -32,15 +44,3 @@
 - [https://github.com/googleapis/nodejs-bigquery](BigQuery client for Node.js)
 - [https://github.com/GoogleCloudPlatform/google-cloud-node](Google Cloud client for Node.js)
 
-## Using Redis as the memcached session store
-- Make a free "Redis Memcached Cloud" account.
- - https://app.redislabs.com/#/bdbs
- - Under subscriptions, add a default DB (also called bucket)
-  - DB/bucket: OpenAgUIsessions
-  - Enable SASL account:       
-   - user: rbaynes@gmail.com
-   - pass: Il0veRedis
-  - Save the buckets' endpoint:
-   - memcached-17341.c1.us-east1-2.gce.cloud.redislabs.com:17341
- - Using directly with memjs
-  - https://redislabs.com/lp/using-memcached-cloud-multiple-languages/#opening-a-connection-to-memcached-using-memjs
