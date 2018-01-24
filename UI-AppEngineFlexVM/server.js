@@ -44,15 +44,17 @@ if( process.env.USE_GAE_MEMCACHE ) {
 } else {
     console.log('Using session cache: ' + MEMCACHE_URL );
 }
+
 app.use(session({
     secret: '1LoveF00dDoY00L00eF000Organ1cYummyF000', // session secret
-    // are these causing redis to be so large?
-    //resave: true,
-    //saveUninitialized: true,
     key: 'view:count',
     proxy: 'true',
+    resave: 'true',
+    saveUninitialized: 'true',
     store: new MemcachedStore({
-        servers: [MEMCACHE_URL]
+        servers: [MEMCACHE_URL], 
+        username: [process.env.MEMCACHE_USERNAME],
+        password: [process.env.MEMCACHE_PASSWORD]
     })
 }));
 

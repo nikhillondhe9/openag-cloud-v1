@@ -21,7 +21,7 @@ env_variables:
   # (it is live for the standard env, but we don't want to use that env)
   # USE_GAE_MEMCACHE: 1
 
-  MEMCACHE_URL: memcached-17341.c1.us-east1-2.gce.cloud.redislabs.com:17341
+  MEMCACHE_URL: memcached-13909.c1.us-east1-2.gce.cloud.redislabs.com:13909
   # We are using a Memcached server with SASL authentiation enabled,
   # this is the specified Redis user for this DB/bucket (at the above
   # endpoint).
