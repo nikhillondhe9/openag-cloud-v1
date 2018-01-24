@@ -47,6 +47,7 @@ if( process.env.USE_GAE_MEMCACHE ) {
 
 app.use(session({
     secret: '1LoveF00dDoY00L00eF000Organ1cYummyF000', // session secret
+    cookie: { maxAge: 60000 }, // one minute session timeout
     key: 'view:count',
     proxy: 'true',
     resave: 'true',

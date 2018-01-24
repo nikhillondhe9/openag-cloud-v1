@@ -8,9 +8,9 @@ https://www.npmjs.com/package/connect-memjs
 
 ----
 
-https://app.redislabs.com/#/bdb/tabs/metrics/8680665
+https://app.redislabs.com
 
-https://console.cloud.google.com/logs/viewer?project=openag-cloud-v1&minLogLevel=0&expandAll=false&timestamp=2018-01-24T09:38:49.000000000Z&dateRangeStart=2018-01-24T08:37:37.003Z&interval=PT1H&resource=gae_app%2Fmodule_id%2Fdefault%2Fversion_id%2F20180123t182415&logName=projects%2Fopenag-cloud-v1%2Flogs%2Fappengine.googleapis.com%252Fstdout&advancedFilter=resource.type%3D%22gae_app%22%0Aresource.labels.module_id%3D%22default%22%0Aresource.labels.version_id%3D%2220180123t182415%22%0AlogName%3D%22projects%2Fopenag-cloud-v1%2Flogs%2Fappengine.googleapis.com%252Fstdout%22%0ANOT%20textPayload:health
+https://console.cloud.google.com/logs/viewer?project=openag-cloud-v1&minLogLevel=0&expandAll=false&timestamp=2018-01-24T09:38:52.000000000Z&interval=PT1H&resource=gae_app%2Fmodule_id%2Fdefault%2Fversion_id%2F20180123t182415&logName=projects%2Fopenag-cloud-v1%2Flogs%2Fappengine.googleapis.com%252Fstdout&advancedFilter=resource.type%3D%22gae_app%22%0Aresource.labels.module_id%3D%22default%22%0Aresource.labels.version_id%3D%2220180124t092616%22%0AlogName%3D%22projects%2Fopenag-cloud-v1%2Flogs%2Fappengine.googleapis.com%252Fstdout%22%0ANOT%20textPayload:health&dateRangeStart=2018-01-24T13:28:13.318Z&dateRangeEnd=2018-01-24T14:28:13.318Z
 
 https://console.cloud.google.com/appengine/versions?project=openag-cloud-v1&serviceId=default&versionId=20180123t182415&versionssize=50
 
