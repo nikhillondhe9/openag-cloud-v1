@@ -16,7 +16,7 @@ from oauth2client.client import GoogleCredentials
 SCOPES = ['https://www.googleapis.com/auth/bigquery',
           'https://www.googleapis.com/auth/pubsub']
 
-#debugrob: is this enough retries to insert into BQ?
+# should be enough retries to insert into BQ
 NUM_RETRIES = 3
 
 # Check for the latest API versions here:
