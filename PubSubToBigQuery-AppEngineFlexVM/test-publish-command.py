@@ -20,10 +20,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument( '--command', type=str, help='Command name',
                          default='Status')
-    parser.add_argument( '--arg0', type=str, help='arg0',
-                         default='0')
-    parser.add_argument( '--arg1', type=str, help='arg1',
-                         default='0')
+    parser.add_argument( '--arg0', type=str, help='arg0', default='0' )
+    parser.add_argument( '--arg1', type=str, help='arg1', default='0' )
+    parser.add_argument( '--deviceID', type=str, help='Device UUID',
+                         default='288b5931-d089-43f0-b91f-32392ae72afb')
     args = parser.parse_args()
 
     print( "Pubishing to %s" % PUBSUB_TOPIC )
@@ -32,8 +32,11 @@ if __name__ == '__main__':
 
     message_obj = {} # a python dict
     message_obj['command'] = str( args.command )
-    message_obj['arg0'] = str( args.arg0 )
-    message_obj['arg1'] = str( args.arg1 )
+    if args.arg0:
+        message_obj['arg0'] = str( args.arg0 )
+    if args.arg1:
+        message_obj['arg1'] = str( args.arg1 )
+    message_obj['deviceID'] = str( args.deviceID )
     message_json = json.dumps( message_obj ) # dict to JSON string
     print('publishing msg >', message_json, '<')
 
@@ -50,5 +53,6 @@ if __name__ == '__main__':
         exc_type, exc_value, exc_traceback = sys.exc_info()
         print( "Exception: %s" % e)
         traceback.print_tb( exc_traceback, file=sys.stdout )
+
 
 
