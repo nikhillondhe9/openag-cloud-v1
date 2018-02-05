@@ -1,6 +1,6 @@
 [
     {
-        "description": "<device name>~<MAC>~<created UTC TS> NO TILDES IN FIELDS ALLOWED",
+        "description": "<device name>~<DeviceID>~<created UTC TS> NO TILDES IN FIELDS ALLOWED",
         "name": "id",
         "type": "STRING",
         "mode": "REQUIRED"

@@ -1,6 +1,6 @@
 [
     {
-        "description": "<expName>~<KEY>~<treatName>~<valName>~<created UTC TS> NO TILDES IN FIELDS ALLOWED",
+        "description": "<expName>~<KEY>~<treatName>~<valName>~<created UTC TS>~<DeviceID> NO TILDES IN FIELDS ALLOWED",
         "name": "id",
         "type": "STRING",
         "mode": "REQUIRED"
