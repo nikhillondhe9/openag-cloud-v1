@@ -10,7 +10,7 @@
 
 
 // set up ======================================================================
-// get all the tools we need
+// get all the modules we will use
 var express        = require( 'express');
 var app            = express();
 var port           = process.env.PORT || 8080;
@@ -47,7 +47,7 @@ if( process.env.USE_GAE_MEMCACHE ) {
 
 app.use(session({
     secret: '1LoveF00dDoY00L00eF000Organ1cYummyF000', // session secret
-    cookie: { maxAge: 60000 }, // one minute session timeout
+    cookie: { maxAge: 300000 }, // 5 minute session timeout
     key: 'view:count',
     proxy: 'true',
     resave: 'true',

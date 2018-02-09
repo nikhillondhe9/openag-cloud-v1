@@ -13,15 +13,7 @@ fi
 
 source pubsub_env/bin/activate
 
-# load and run light_control, wait then stop:
-./test-publish-command.py --command RESET 
-./test-publish-command.py --command LoadRecipeIntoVariable --arg0 "light_control" --arg1 "`cat light_control.json`" 
-./test-publish-command.py --command AddVariableToTreatment --arg0 0 --arg1 "light_control" 
-./test-publish-command.py --command RunTreatment --arg0 0 
-sleep 30
 ./test-publish-command.py --command Status
-sleep 2
-./test-publish-command.py --command StopTreatment --arg0 0 
 
 
 

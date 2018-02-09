@@ -22,7 +22,6 @@ if __name__ == '__main__':
                          default='Status')
     parser.add_argument( '--arg0', type=str, help='arg0', default='0' )
     parser.add_argument( '--arg1', type=str, help='arg1', default='0' )
-    parser.add_argument( '--arg2', type=str, help='arg2', default='0' )
     parser.add_argument( '--deviceID', type=str, help='Device UUID',
                          default='288b5931-d089-43f0-b91f-32392ae72afb')
     args = parser.parse_args()
@@ -37,8 +36,6 @@ if __name__ == '__main__':
         message_obj['arg0'] = str( args.arg0 )
     if args.arg1:
         message_obj['arg1'] = str( args.arg1 )
-    if args.arg2:
-        message_obj['arg2'] = str( args.arg2 )
     message_obj['deviceID'] = str( args.deviceID )
     message_json = json.dumps( message_obj ) # dict to JSON string
     print('publishing msg >', message_json, '<')

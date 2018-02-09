@@ -132,12 +132,13 @@ class User {
       "    IF( isInt(type), getIntAsStr(fval,ival,sval), "+
       "      IF( isString(type), getString(fval, ival, sval), NULL)))); "+
       "SELECT "+
-      "    REGEXP_EXTRACT(id, r\"(?:[^\~]*\~){0}([^~]*)\") as Experiment, "+
-      "    REGEXP_EXTRACT(id, r\"(?:[^\~]*\~){2}([^~]*)\") as Treatment, "+
-      "    REGEXP_EXTRACT(id, r\"(?:[^\~]*\~){3}([^~]*)\") as Name, "+
+      "    REGEXP_EXTRACT(id, r'(?:[^\~]*\~){0}([^~]*)') as Experiment, "+
+      "    REGEXP_EXTRACT(id, r'(?:[^\~]*\~){2}([^~]*)') as Treatment, "+
+      "    REGEXP_EXTRACT(id, r'(?:[^\~]*\~){3}([^~]*)') as Name, "+
       "    FORMAT_TIMESTAMP( '%c', TIMESTAMP( "+
       "      REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)')), "+
       "        'America/New_York') as Time, "+
+      "    REGEXP_EXTRACT(id, r'(?:[^\~]*\~){5}([^~]*)') as DeviceID, "+
       "    getValAsStr(type,fval,ival,sval) as Value "+
       "  FROM " + dataDatasetName + "." + valueTableName +
       "  ORDER BY REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)') DESC "+
@@ -172,10 +173,12 @@ class User {
           e.experiment = rows[i].Experiment;
           e.treatment = rows[i].Treatment;
           e.variable = rows[i].Name;
+          // not using .DeviceID now (would have to look up dev name by id)
           e.time = rows[i].Time;
           e.value = rows[i].Value;
           u.envVars.push( e );
-          console.log('findById EnvVar['+i+'] '+e.time+' '+e.variable+' '+e.value);
+          console.log('findById EnvVar['+i+'] '+e.time+' '+e.variable+' '+
+              e.value);
         }
 
 
