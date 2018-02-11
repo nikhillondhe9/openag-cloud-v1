@@ -16,6 +16,59 @@ module.exports = function(app, passport) {
         });
     });
 
+    // configure treatment page.
+    app.get('/configure', isLoggedIn, function(req, res) {
+        console.log('route configure render configure page');
+        res.render('configure.ejs', {
+            user : req.user
+        });
+    });
+
+    // process the configure form
+    app.post('/configure', function(req, res) {
+        console.log('post configure req.body.meh=' + req.body.meh );
+//debugrob: use form data to decide what to send (reset+vars+recipe)
+        var user = req.user;
+        user.sendReset( function(err) {
+            //res.redirect('/configure'); // don't need this async func.
+        });
+        res.redirect('/configure');
+    });
+
+/*debugrob: works: the /configure route/button calls this code
+    app.get('/configure', isLoggedIn, function(req, res) {
+        console.log('route configure call user.sendReset()');
+        var user      = req.user;
+        user.sendReset( function(err) {
+            res.redirect('/home');
+        });
+    });
+*/
+
+    // run treatment page.
+    app.get('/run', isLoggedIn, function(req, res) {
+        console.log('route run render run page');
+        res.render('run.ejs', {
+            user : req.user
+        });
+    });
+
+    // stop treatment page.
+    app.get('/stop', isLoggedIn, function(req, res) {
+        console.log('route stop render stop page');
+        res.render('stop.ejs', {
+            user : req.user
+        });
+    });
+
+    // status page.
+    app.get('/status', isLoggedIn, function(req, res) {
+        console.log('route status render status page');
+        res.render('status.ejs', {
+            user : req.user
+        });
+    });
+
     // logout action and go back to login page.
     app.get('/logout', function(req, res) {
         console.log('route logout');

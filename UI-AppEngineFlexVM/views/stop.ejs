@@ -16,32 +16,21 @@
 
     <div class="page-header text-center">
         <h1>
-            <span class="fa fa-heart-o"></span>
-            <%= user.username %> Food Computer Data
-            <span class="fa fa-leaf"></span>
+            Configure your Food Computer
         </h1>
-        <a href="/home" class="btn btn-default btn-sm disabled">Data</a>
+        <a href="/home" class="btn btn-default btn-sm">Data</a>
         <a href="/configure" class="btn btn-default btn-sm">Configure</a>
         <a href="/run" class="btn btn-default btn-sm">Run</a>
-        <a href="/stop" class="btn btn-default btn-sm">Stop</a>
+        <a href="/stop" class="btn btn-default btn-sm disabled">Stop</a>
         <a href="/status" class="btn btn-default btn-sm">Status</a>
         <a href="/logout" class="btn btn-default btn-sm">Logout</a>
     </div>
 
     <div class="row">
 
-<!--debugrob how to continually update values? -->
-<!--debugrob just use refresh button (lame)? -->
-
 <!-- columns are from 1 to 12 units wide.  using col-sm-6 would be two columns.
 see: http://bootstrapdocs.com/v3.0.2/docs/css/
--->
       <div class="col-sm-12">
-<!--
-    well is the grey background, rounded corner box
-    I added the text-center to it
-            <table class="table table-condensed">
--->
         <div class="well text-center">
             <table class="table table-striped">
               <tr> 
@@ -58,7 +47,6 @@ see: http://bootstrapdocs.com/v3.0.2/docs/css/
                 <th style="text-align: left;"> 
                   <span class="fa fa-thermometer-half"></span> Value </th>
               </tr> 
-<!-- debugrob, use ejs tags to loop over an array of env vars -->
               <% for( i=0; i < user.envVars.length; i++ ) { 
                    e = user.envVars[i];
               %>
@@ -76,6 +64,7 @@ see: http://bootstrapdocs.com/v3.0.2/docs/css/
 
         </div>
       </div>
+-->
     </div>
 
     <div class="text-center">

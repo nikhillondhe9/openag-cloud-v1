@@ -9,8 +9,9 @@ module.exports = function(passport) {
     // =========================================================================
     // passport session setup ==================================================
     // =========================================================================
-    // required for persistent login sessions
-    // passport needs ability to serialize and unserialize users out of session
+    // Required for persistent login sessions.
+    // Passport needs the ability to serialize and deserialize users 
+    // into/out of the session.
 
     // used to serialize the user for the local session
     passport.serializeUser( function( user, done) {
@@ -23,6 +24,8 @@ module.exports = function(passport) {
         // This gets called right before we redirect to the /home page.
         // It ALSO gets called when we logout.  How can we tell the diff?
         console.log('passport deserialize');
+
+//debugrob: this is called way too much!  check the server log.  figure out how to only find the user on the login page.
 
         // The second arg (true) means get env var data.  
         // This is the only place we want to query for env vars.

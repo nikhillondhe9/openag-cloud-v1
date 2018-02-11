@@ -195,6 +195,13 @@ class User {
   }
 
   //---------------------------------------------------------------------------
+  // sendReset( function(err) {} )
+  sendReset( callback ) {
+    console.log('debugrob sendReset() called')
+    return callback( null );
+  }
+
+  //---------------------------------------------------------------------------
   // save( function(err) {} )
   save( callback ) {
 
