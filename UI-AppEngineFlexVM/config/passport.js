@@ -15,23 +15,20 @@ module.exports = function(passport) {
 
     // used to serialize the user for the local session
     passport.serializeUser( function( user, done) {
-        console.log('passport serialize');
-        done(null, user.id);
+        //console.log( 'passport serialize user.id:' + user.id);
+        done( null, user.id );
     });
 
     // used to deserialize the user
     passport.deserializeUser( function( id, done) {
         // This gets called right before we redirect to the /home page.
         // It ALSO gets called when we logout.  How can we tell the diff?
-        console.log('passport deserialize');
+        //console.log( 'passport deserialize id:' + id );
 
-//debugrob: this is called way too much!  check the server log.  figure out how to only find the user on the login page.
-
-        // The second arg (true) means get env var data.  
-        // This is the only place we want to query for env vars.
-        User.findById(id, true, function(err, user) {
-            done(err, user);
-        });
+        // Just return User with only an id.
+        var u = new User();
+        u.id = id;
+        done( null, u );
     });
 
     // =========================================================================
@@ -55,7 +52,7 @@ module.exports = function(passport) {
         // asynchronous
         process.nextTick( function() {
             console.log('passport login');
-            User.findById( email, false, function( err, user ) {
+            User.findById( email, function( err, user ) {
                 // if there are any errors, return the error
                 if( err ) {
                     console.log('passport login error');
@@ -75,7 +72,6 @@ module.exports = function(passport) {
                         req.flash( 'loginMessage', 'Oops! Wrong password.'));
                 } 
 
-                // else, all is well, return user
                 console.log('passport login success');
                 return done( null, user );
             });
@@ -107,7 +103,7 @@ module.exports = function(passport) {
             // if the user is not already logged in:
             if (!req.user) {
                 console.log('passport signup');
-                User.findById( email, false, function(err, user) {
+                User.findById( email, function(err, user) {
                     // if there are any errors, return the error
                     if (err)
                         return done(err);
@@ -133,14 +129,13 @@ module.exports = function(passport) {
                     }
 
                 });
-/*debugrob I don't think we ever hit this case, so removing for now
-*/
+
             // if the user is logged in but has no local account...
             } else if ( !req.user.id ) {
                 // ...presumably they're trying to connect a local account
                 // BUT let's check if the email used to connect a local account
                 // is being used by another user
-                User.findById( email, false, function(err, user) {
+                User.findById( email, function(err, user) {
                     if (err)
                         console.log('passport login no local accnt error');
                         return done(err);

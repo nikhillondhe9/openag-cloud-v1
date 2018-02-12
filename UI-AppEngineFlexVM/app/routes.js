@@ -1,3 +1,6 @@
+// load up the user model
+var User = require('../app/models/user');
+
 module.exports = function(app, passport) {
 
 // normal routes ===============================================================
@@ -11,8 +14,10 @@ module.exports = function(app, passport) {
     // home page.
     app.get('/home', isLoggedIn, function(req, res) {
         console.log('route home render home page');
-        res.render('home.ejs', {
-            user : req.user
+        User.getEnvVarData( req.user, function( err, userWithEnvVars ) {
+            res.render('home.ejs', {
+                user : userWithEnvVars
+            });
         });
     });
 
@@ -26,11 +31,16 @@ module.exports = function(app, passport) {
 
     // process the configure form
     app.post('/configure', function(req, res) {
-        console.log('post configure req.body.meh=' + req.body.meh );
+        console.log('post configure' + JSON.stringify(req.body, null, 2));
+        var1 = req.body.var1;
+        var2 = req.body.var2;
+        sched1 = req.body.sched1;
+        sched2 = req.body.sched2;
 //debugrob: use form data to decide what to send (reset+vars+recipe)
         var user = req.user;
         user.sendReset( function(err) {
             //res.redirect('/configure'); // don't need this async func.
+            //debugrob: write a message to the page?
         });
         res.redirect('/configure');
     });
@@ -107,7 +117,7 @@ module.exports = function(app, passport) {
         failureFlash : true // allow flash messages
     }));
 
-/*debugrob, called by a button on the home.ejs view.
+/*debugrob, called by an anchor link on the home.ejs view.
  * Example of how a button on a page can call code.
 
     app.get('/unlink/local', isLoggedIn, function(req, res) {
@@ -125,11 +135,11 @@ module.exports = function(app, passport) {
 // route middleware to ensure user is logged in
 function isLoggedIn(req, res, next) {
     if (req.isAuthenticated()) {
-        console.log('route isLoggedIn yes, is auth, calling next');
+        //console.log('route isLoggedIn yes, is auth, calling next');
         return next();
     }
 
-    console.log('route isLoggedIn redirect to /');
+    //console.log('route isLoggedIn redirect to /');
     res.redirect('/');
 }
 

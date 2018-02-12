@@ -1,34 +1,24 @@
-<!doctype html>
-<html>
-<head>
-    <title>OpenAg console</title>
-    <meta charset="UTF-8">
-    <meta name="google" content="notranslate">
-    <meta http-equiv="Content-Language" content="en">
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <style>
-        body { padding-top:80px; word-wrap:break-word; }
-    </style>
-</head>
-<body>
-<div class="container">
+<% include header.html %>
 
-    <div class="page-header text-center">
-        <h1>
-            <span class="fa fa-heart-o"></span>
-            <%= user.username %> Food Computer Data
-            <span class="fa fa-leaf"></span>
-        </h1>
-        <a href="/home" class="btn btn-default btn-sm disabled">Data</a>
-        <a href="/configure" class="btn btn-default btn-sm">Configure</a>
-        <a href="/run" class="btn btn-default btn-sm">Run</a>
-        <a href="/stop" class="btn btn-default btn-sm">Stop</a>
-        <a href="/status" class="btn btn-default btn-sm">Status</a>
-        <a href="/logout" class="btn btn-default btn-sm">Logout</a>
+<div class="page-header text-center">
+  <h1> Configure your Food Computer </h1>
+  <nav>
+    <div class="nav nav-tabs justify-content-center" role="tablist">
+      <a class="nav-item nav-link active" 
+          role="tab" href="/home">Data</a>
+      <a class="nav-item nav-link" 
+          role="tab" href="/configure">Configure</a>
+      <a class="nav-item nav-link" 
+          role="tab" href="/run">Run</a>
+      <a class="nav-item nav-link"
+          role="tab" href="/stop">Stop</a>
+      <a class="nav-item nav-link"
+          role="tab" href="/status">Status</a>
+      <a class="nav-item nav-link"
+          role="tab" href="/logout">Logout</a>
     </div>
-
-    <div class="row">
+  </nav>
+</div>
 
 <!--debugrob how to continually update values? -->
 <!--debugrob just use refresh button (lame)? -->
@@ -76,12 +66,5 @@ see: http://bootstrapdocs.com/v3.0.2/docs/css/
 
         </div>
       </div>
-    </div>
 
-    <div class="text-center">
-        <p>OpenAg license and linkz</p>
-    </div>
-
-</div>
-</body>
-</html>
+<% include footer.html %>

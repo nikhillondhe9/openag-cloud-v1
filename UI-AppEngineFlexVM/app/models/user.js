@@ -60,9 +60,10 @@ class User {
     return bcrypt.compareSync( password, this.password );
   }
 
+
   //---------------------------------------------------------------------------
-  // findById( email, getEnvVarData, function(err, user) {} )
-  static findById( id, getEnvVarData, callback ) {
+  // findById( email, function(err, user) {} )
+  static findById( id, callback ) {
     if( typeof id === 'undefined' ) {
       console.log( "findById ERROR: Passed invalid id." );
       return callback( null, null );
@@ -104,96 +105,97 @@ class User {
       u.openag   = row.openag;
       console.log('findById found user \'' + u.id + '\'' );
 
-      // if we don't need to get the env var data, just return here.
-      if( ! getEnvVarData ) {
-        return callback( null, u );
-      }
-      // later move this elsewhere.  
-      // no beuno haveing a query with async callback inside the same...
-      // just get the last env var and stick it on the user for now.
-      var sql = 
-      "CREATE TEMPORARY FUNCTION  "+
-      "  isFloat(type STRING) AS (TRIM(type) = 'float'); "+
-      "CREATE TEMPORARY FUNCTION  "+
-      "  getFloatAsStr(fval FLOAT64, ival INT64, sval STRING) AS  "+
-      "    (CAST( fval AS STRING)); "+
-      "CREATE TEMPORARY FUNCTION  "+
-      "  isInt(type STRING) AS (TRIM(type) = 'int'); "+
-      "CREATE TEMPORARY FUNCTION  "+
-      "  getIntAsStr(fval FLOAT64, ival INT64, sval STRING) AS  "+
-      "    (CAST( ival AS STRING)); "+
-      "CREATE TEMPORARY FUNCTION  "+
-      "  isString(type STRING) AS (TRIM(type) = 'string'); "+
-      "CREATE TEMPORARY FUNCTION  "+
-      "  getString(fval FLOAT64, ival INT64, sval STRING) AS (TRIM(sval)); "+
-      "CREATE TEMPORARY FUNCTION  "+
-      "  getValAsStr(type STRING, fval FLOAT64, ival INT64, sval STRING) AS ( "+
-      "  IF( isFloat(type), getFloatAsStr(fval,ival,sval),  "+
-      "    IF( isInt(type), getIntAsStr(fval,ival,sval), "+
-      "      IF( isString(type), getString(fval, ival, sval), NULL)))); "+
-      "SELECT "+
-      "    REGEXP_EXTRACT(id, r'(?:[^\~]*\~){0}([^~]*)') as Experiment, "+
-      "    REGEXP_EXTRACT(id, r'(?:[^\~]*\~){2}([^~]*)') as Treatment, "+
-      "    REGEXP_EXTRACT(id, r'(?:[^\~]*\~){3}([^~]*)') as Name, "+
-      "    FORMAT_TIMESTAMP( '%c', TIMESTAMP( "+
-      "      REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)')), "+
-      "        'America/New_York') as Time, "+
-      "    REGEXP_EXTRACT(id, r'(?:[^\~]*\~){5}([^~]*)') as DeviceID, "+
-      "    getValAsStr(type,fval,ival,sval) as Value "+
-      "  FROM " + dataDatasetName + "." + valueTableName +
-      "  ORDER BY REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)') DESC "+
-      "  LIMIT 5 ";
-
-      //console.log( "findById EnvVars: sql='" + sql + "'" );
-      const options = {
-        query: sql,
-        timeoutMs: 20000,     // Time out after 20 seconds.
-        useLegacySql: false,  // Use standard SQL syntax for queries.
-      };
-
-      // This is an ASYNCHRONOUS query, 
-      // so you must wait and process the query results inside the 
-      // dynamic callback function when it is eventually called.
-      bq.query( options, function( err, rows ) {
-        if( err ) {
-          console.error('ERROR:', err);
-          return;
-        }
-        //rows.forEach(row => console.log(row));
-  
-        if( rows.length == 0 ) {
-          // no data found!
-          //console.log('findById no env vars.');
-          return;
-        }
-
-        // Process the rows (this is 95% faster than rows.forEach() )
-        for( var i=0; i < rows.length; i++ ) { 
-          var e = new EnvVar();
-          e.experiment = rows[i].Experiment;
-          e.treatment = rows[i].Treatment;
-          e.variable = rows[i].Name;
-          // not using .DeviceID now (would have to look up dev name by id)
-          e.time = rows[i].Time;
-          e.value = rows[i].Value;
-          u.envVars.push( e );
-          console.log('findById EnvVar['+i+'] '+e.time+' '+e.variable+' '+
-              e.value);
-        }
-
-
-//must return from this inner async callback, so the browser waits until all the data is back.
-        // return no error (null) and the User we found.
-        console.log('findById calling callback with valid user.');
-        return callback( null, u );
-      });
-
-      // return no error (null) and the User we found.
-      console.log('findById done finding user.');
-//      return callback( null, u );
+      return callback( null, u );
     });
   }
 
+
+  //---------------------------------------------------------------------------
+  // getEnvVarData( email, function(err, user) {} )
+  static getEnvVarData( user, callback ) {
+    if( typeof user.id === 'undefined' ) {
+      console.log( "getEnvVarData ERROR: Passed invalid id." );
+      return callback( null, null );
+    }
+
+    // get the last env vars and stick it on the user for now.
+    var sql = 
+    "CREATE TEMPORARY FUNCTION  "+
+    "  isFloat(type STRING) AS (TRIM(type) = 'float'); "+
+    "CREATE TEMPORARY FUNCTION  "+
+    "  getFloatAsStr(fval FLOAT64, ival INT64, sval STRING) AS  "+
+    "    (CAST( fval AS STRING)); "+
+    "CREATE TEMPORARY FUNCTION  "+
+    "  isInt(type STRING) AS (TRIM(type) = 'int'); "+
+    "CREATE TEMPORARY FUNCTION  "+
+    "  getIntAsStr(fval FLOAT64, ival INT64, sval STRING) AS  "+
+    "    (CAST( ival AS STRING)); "+
+    "CREATE TEMPORARY FUNCTION  "+
+    "  isString(type STRING) AS (TRIM(type) = 'string'); "+
+    "CREATE TEMPORARY FUNCTION  "+
+    "  getString(fval FLOAT64, ival INT64, sval STRING) AS (TRIM(sval)); "+
+    "CREATE TEMPORARY FUNCTION  "+
+    "  getValAsStr(type STRING, fval FLOAT64, ival INT64, sval STRING) AS ( "+
+    "  IF( isFloat(type), getFloatAsStr(fval,ival,sval),  "+
+    "    IF( isInt(type), getIntAsStr(fval,ival,sval), "+
+    "      IF( isString(type), getString(fval, ival, sval), NULL)))); "+
+    "SELECT "+
+    "    REGEXP_EXTRACT(id, r'(?:[^\~]*\~){0}([^~]*)') as Experiment, "+
+    "    REGEXP_EXTRACT(id, r'(?:[^\~]*\~){2}([^~]*)') as Treatment, "+
+    "    REGEXP_EXTRACT(id, r'(?:[^\~]*\~){3}([^~]*)') as Name, "+
+    "    FORMAT_TIMESTAMP( '%c', TIMESTAMP( "+
+    "      REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)')), "+
+    "        'America/New_York') as Time, "+
+    "    REGEXP_EXTRACT(id, r'(?:[^\~]*\~){5}([^~]*)') as DeviceID, "+
+    "    getValAsStr(type,fval,ival,sval) as Value "+
+    "  FROM " + dataDatasetName + "." + valueTableName +
+    "  ORDER BY REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)') DESC "+
+    "  LIMIT 5 ";
+
+    //console.log( "getEnvVarData EnvVars: sql='" + sql + "'" );
+    const options = {
+      query: sql,
+      timeoutMs: 20000,     // Time out after 20 seconds.
+      useLegacySql: false,  // Use standard SQL syntax for queries.
+    };
+
+    // This is an ASYNCHRONOUS query, 
+    // so you must wait and process the query results inside the 
+    // dynamic callback function when it is eventually called.
+    bq.query( options, function( err, rows ) {
+      if( err ) {
+        console.error('ERROR:', err);
+        return;
+      }
+      //rows.forEach(row => console.log(row));
+  
+      if( rows.length == 0 ) {
+        // no data found!
+        //console.log('findById no env vars.');
+        return;
+      }
+
+      // Process the rows (this is 95% faster than rows.forEach() )
+      for( var i=0; i < rows.length; i++ ) { 
+        var e = new EnvVar();
+        e.experiment = rows[i].Experiment;
+        e.treatment = rows[i].Treatment;
+        e.variable = rows[i].Name;
+        // not using .DeviceID now (would have to look up dev name by id)
+        e.time = rows[i].Time;
+        e.value = rows[i].Value;
+        user.envVars.push( e );
+        console.log('getEnvVarData EnvVar['+i+'] '+e.time+' '+e.variable+' '+
+            e.value);
+      }
+
+      // return no error (null) and the User we found.
+      console.log('getEnvVarData calling callback with valid user.');
+      return callback( null, user );
+    });
+  }
+
+//debugrob: change this into a Command object NOW - also validate!
   //---------------------------------------------------------------------------
   // sendReset( function(err) {} )
   sendReset( callback ) {

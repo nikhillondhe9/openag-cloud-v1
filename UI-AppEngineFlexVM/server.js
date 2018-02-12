@@ -9,6 +9,9 @@
 //  change my DB class to only read from memcache (for speed).
 
 
+let SESSION_TIMEOUT_MINUTES = 15 
+
+
 // set up ======================================================================
 // get all the modules we will use
 var express        = require( 'express');
@@ -47,7 +50,7 @@ if( process.env.USE_GAE_MEMCACHE ) {
 
 app.use(session({
     secret: '1LoveF00dDoY00L00eF000Organ1cYummyF000', // session secret
-    cookie: { maxAge: 300000 }, // 5 minute session timeout
+    cookie: { maxAge: SESSION_TIMEOUT_MINUTES * 60 * 1000 }, // in ms
     key: 'view:count',
     proxy: 'true',
     resave: 'true',
