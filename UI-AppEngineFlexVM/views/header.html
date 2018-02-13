@@ -14,10 +14,59 @@
 </head>
 <body>
 
-<!-- if I want to automatically do anything on auth'd pages
-<% if( 'undefined' != typeof user ){ %>
+<!-- Automatically show menu on auth'd pages -->
+<% if( pageName ) { 
+     dataActive = "";
+     title = "";
+     if( 'data' == pageName ) {
+        dataActive = "active";
+        title = "Recent environmental variables";
+     }
+
+     configureActive = "";
+     if( 'configure' == pageName ) {
+        configureActive = "active";
+        title = "Configure your Food Computer";
+     }
+
+     runActive = "";
+     if( 'run' == pageName ) {
+        runActive = "active";
+        title = "Run your Food Computer";
+     }
+
+     stopActive = "";
+     if( 'stop' == pageName ) {
+        stopActive = "active";
+        title = "Stop your Food Computer";
+     }
+
+     statusActive = "";
+     if( 'status' == pageName ) {
+        statusActive = "active";
+        title = "Status of your Food Computer";
+     }
+%>
+<div class="page-header text-center">
+  <h1> <%= title %> </h1>
+  <nav>
+    <div class="nav nav-tabs justify-content-center" role="tablist">
+      <a class="nav-item nav-link <%= dataActive %>" 
+          role="tab" href="/home">Data</a>
+      <a class="nav-item nav-link <%= configureActive %>" 
+          role="tab" href="/configure">Configure</a>
+      <a class="nav-item nav-link <%= runActive %>" 
+          role="tab" href="/run">Run</a>
+      <a class="nav-item nav-link <%= stopActive %>"
+          role="tab" href="/stop">Stop</a>
+      <a class="nav-item nav-link <%= statusActive %>"
+          role="tab" href="/status">Status</a>
+      <a class="nav-item nav-link"
+          role="tab" href="/logout">Logout</a>
+    </div>
+  </nav>
+</div>
 <% } %> 
--->
 
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>

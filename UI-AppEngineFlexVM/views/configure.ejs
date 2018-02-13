@@ -1,26 +1,122 @@
 <% include header.html %>
 
-<div class="page-header text-center">
-  <h1> Configure your Food Computer </h1>
-  <nav>
-    <div class="nav nav-tabs justify-content-center" role="tablist">
-      <a class="nav-item nav-link" 
-          role="tab" href="/home">Data</a>
-      <a class="nav-item nav-link active" 
-          role="tab" href="/configure">Configure</a>
-      <a class="nav-item nav-link" 
-          role="tab" href="/run">Run</a>
-      <a class="nav-item nav-link"
-          role="tab" href="/stop">Stop</a>
-      <a class="nav-item nav-link"
-          role="tab" href="/status">Status</a>
-      <a class="nav-item nav-link"
-          role="tab" href="/logout">Logout</a>
-    </div>
-  </nav>
-</div>
+<%
+    varOp1 = vars[0];
+    varOp2 = vars[1];
+    varOp3 = vars[2];
+    varOp4 = vars[3];
+    varOp5 = vars[4];
+    varOp6 = vars[5];
+    varOp7 = vars[6];
 
+    var1Op1 = "";
+    var1Op2 = "";
+    var1Op3 = "";
+    var1Op4 = "";
+    var1Op5 = "";
+    var1Op6 = "";
+    var1Op7 = "";
 
+    var2Op1 = "";
+    var2Op2 = "";
+    var2Op3 = "";
+    var2Op4 = "";
+    var2Op5 = "";
+    var2Op6 = "";
+    var2Op7 = "";
+
+    vv = "";
+    if( 'undefined' != typeof( session )) {
+        vv = session.var1;
+    }
+    if( vv ) {
+        if(        varOp1 == vv ) {
+            var1Op1 = "selected";
+        } else if( varOp2 == vv ) {
+            var1Op2 = "selected";
+        } else if( varOp3 == vv ) {
+            var1Op3 = "selected";
+        } else if( varOp4 == vv ) {
+            var1Op4 = "selected";
+        } else if( varOp5 == vv ) {
+            var1Op5 = "selected";
+        } else if( varOp6 == vv ) {
+            var1Op6 = "selected";
+        } else if( varOp7 == vv ) {
+            var1Op7 = "selected";
+        } 
+    }
+
+    vv = "";
+    if( 'undefined' != typeof( session )) {
+        vv = session.var2;
+    }
+    if( vv ) {
+        if(        varOp1 == vv ) {
+            var2Op1 = "selected";
+        } else if( varOp2 == vv ) {
+            var2Op2 = "selected";
+        } else if( varOp3 == vv ) {
+            var2Op3 = "selected";
+        } else if( varOp4 == vv ) {
+            var2Op4 = "selected";
+        } else if( varOp5 == vv ) {
+            var2Op5 = "selected";
+        } else if( varOp6 == vv ) {
+            var2Op6 = "selected";
+        } else if( varOp7 == vv ) {
+            var2Op7 = "selected";
+        } 
+    }
+
+    schedOp1 = scheds[0];
+    schedOp2 = scheds[1];
+    schedOp3 = scheds[2];
+    schedOp4 = scheds[3];
+
+    sched1Op1 = "";
+    sched1Op2 = "";
+    sched1Op3 = "";
+    sched1Op4 = "";
+
+    sched2Op1 = "";
+    sched2Op2 = "";
+    sched2Op3 = "";
+    sched2Op4 = "";
+
+    vv = "";
+    if( 'undefined' != typeof( session )) {
+        vv = session.sched1;
+    }
+    if( vv ) {
+        if(        schedOp1 == vv ) {
+            sched1Op1 = "selected";
+        } else if( schedOp2 == vv ) {
+            sched1Op2 = "selected";
+        } else if( schedOp3 == vv ) {
+            sched1Op3 = "selected";
+        } else if( schedOp4 == vv ) {
+            sched1Op4 = "selected";
+        } 
+    }
+
+    vv = "";
+    if( 'undefined' != typeof( session )) {
+        vv = session.sched2;
+    }
+    if( vv ) {
+        if(        schedOp1 == vv ) {
+            sched2Op1 = "selected";
+        } else if( schedOp2 == vv ) {
+            sched2Op2 = "selected";
+        } else if( schedOp3 == vv ) {
+            sched2Op3 = "selected";
+        } else if( schedOp4 == vv ) {
+            sched2Op4 = "selected";
+        } 
+    }
+
+%>
   <form action="/configure" method="post">
     <div class="form-group text-center">
         <table class="table">
@@ -31,50 +127,60 @@
           <tr> 
             <td>
               <select class="form-control" name="var1">
-                <option> </option>
-                <option> co2_ccs811 </option>
-                <option> co2_t6713 </option>
-                <option> LED_panel </option>
-                <option> light_control </option>
-                <option> temp_humidity_htu20d </option>
-                <option> temp_humidity_sht25 </option>
+                <option <%= var1Op1 %> > <%= varOp1 %> </option>
+                <option <%= var1Op2 %> > <%= varOp2 %> </option>
+                <option <%= var1Op3 %> > <%= varOp3 %> </option>
+                <option <%= var1Op4 %> > <%= varOp4 %> </option>
+                <option <%= var1Op5 %> > <%= varOp5 %> </option>
+                <option <%= var1Op6 %> > <%= varOp6 %> </option>
+                <option <%= var1Op7 %> > <%= varOp7 %> </option>
               </select>
             </td>
             <td>
               <select class="form-control" name="sched1">
-                <option> </option>
-                <option> measure every 10 sec </option>
-                <option> LED disco set points </option>
-                <option> light control 800 LUX </option>
+                <option <%= sched1Op1 %> > <%= schedOp1 %> </option>
+                <option <%= sched1Op2 %> > <%= schedOp2 %> </option>
+                <option <%= sched1Op3 %> > <%= schedOp3 %> </option>
+                <option <%= sched1Op4 %> > <%= schedOp4 %> </option>
               </select>
             </td>
           </tr> 
           <tr> 
             <td>
               <select class="form-control" name="var2">
-                <option> </option>
-                <option> co2_ccs811 </option>
-                <option> co2_t6713 </option>
-                <option> LED_panel </option>
-                <option> light_control </option>
-                <option> temp_humidity_htu20d </option>
-                <option> temp_humidity_sht25 </option>
+                <option <%= var2Op1 %> > <%= varOp1 %> </option>
+                <option <%= var2Op2 %> > <%= varOp2 %> </option>
+                <option <%= var2Op3 %> > <%= varOp3 %> </option>
+                <option <%= var2Op4 %> > <%= varOp4 %> </option>
+                <option <%= var2Op5 %> > <%= varOp5 %> </option>
+                <option <%= var2Op6 %> > <%= varOp6 %> </option>
+                <option <%= var2Op7 %> > <%= varOp7 %> </option>
               </select>
             </td>
             <td>
               <select class="form-control" name="sched2">
-                <option> </option>
-                <option> measure every 10 sec </option>
-                <option> LED disco set points </option>
-                <option> light control 800 LUX </option>
+                <option <%= sched2Op1 %> > <%= schedOp1 %> </option>
+                <option <%= sched2Op2 %> > <%= schedOp2 %> </option>
+                <option <%= sched2Op3 %> > <%= schedOp3 %> </option>
+                <option <%= sched2Op4 %> > <%= schedOp4 %> </option>
               </select>
             </td>
           </tr> 
         </table>
-        <button type="submit" class="btn btn-warning btn-lg">Send to device</button>
+
+        <button type="submit" class="btn btn-primary btn-lg">
+          Save Configuration</button>
 
     </div>
   </form>
+
+  <% if( "undefined" != typeof( info ) && info.length > 0 ) { %>
+    <div class="alert alert-info text-center"><%= info %></div>
+  <% } %>
+
+  <% if( "undefined" != typeof( warning ) && warning.length > 0 ) { %>
+    <div class="alert alert-warning text-center"><%= warning %></div>
+  <% } %>
 
 
 <% include footer.html %>

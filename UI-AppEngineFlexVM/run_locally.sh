@@ -20,6 +20,8 @@ export BQ_RECIPE_TABLE=rec
 export BQ_DATA_DATASET=test
 export BQ_VALUE_TABLE=val
 
+export PUBSUB_TOPIC=projects/openag-cloud-v1/topics/commands
+
 export MEMCACHE_URL=memcached-13909.c1.us-east1-2.gce.cloud.redislabs.com:13909
 export MEMCACHE_USERNAME=rbaynes@gmail.com
 export MEMCACHE_PASSWORD=Il0veRedis

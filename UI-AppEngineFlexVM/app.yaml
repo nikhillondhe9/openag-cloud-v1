@@ -16,6 +16,8 @@ env_variables:
   BQ_DATA_DATASET: test
   BQ_VALUE_TABLE: val
 
+  PUBSUB_TOPIC: projects/openag-cloud-v1/topics/commands
+
   # The App Engine Memcache service is currently in alpha.
   # When it goes live for the FLEX env, try it.  
   # (it is live for the standard env, but we don't want to use that env)

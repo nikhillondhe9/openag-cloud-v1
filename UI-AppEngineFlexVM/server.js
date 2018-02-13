@@ -48,7 +48,8 @@ if( process.env.USE_GAE_MEMCACHE ) {
     console.log('Using session cache: ' + MEMCACHE_URL );
 }
 
-app.use(session({
+// set up session storage in the memcached
+app.use( session({
     secret: '1LoveF00dDoY00L00eF000Organ1cYummyF000', // session secret
     cookie: { maxAge: SESSION_TIMEOUT_MINUTES * 60 * 1000 }, // in ms
     key: 'view:count',
@@ -63,15 +64,16 @@ app.use(session({
 }));
 
 // set up passport
-app.use( passport.initialize());
-app.use( passport.session()); // persistent login sessions
-app.use( flash()); // use connect-flash for flash messages stored in session
+app.use( passport.initialize() );
+app.use( passport.session() ); // persistent login sessions
+app.use( flash() ); // use connect-flash for flash messages stored in session
 
 // load our routes and pass in our app and fully configured passport
-require( './app/routes.js')( app, passport ); 
+require( './app/routes.js' )( app, passport ); 
+
 
 // launch ======================================================================
 app.listen( port );
-console.log( 'open http://localhost:' + port );
+console.log( 'listening on port:' + port );
 
 

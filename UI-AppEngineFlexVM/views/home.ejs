@@ -1,30 +1,12 @@
 <% include header.html %>
 
-<div class="page-header text-center">
-  <h1> Configure your Food Computer </h1>
-  <nav>
-    <div class="nav nav-tabs justify-content-center" role="tablist">
-      <a class="nav-item nav-link active" 
-          role="tab" href="/home">Data</a>
-      <a class="nav-item nav-link" 
-          role="tab" href="/configure">Configure</a>
-      <a class="nav-item nav-link" 
-          role="tab" href="/run">Run</a>
-      <a class="nav-item nav-link"
-          role="tab" href="/stop">Stop</a>
-      <a class="nav-item nav-link"
-          role="tab" href="/status">Status</a>
-      <a class="nav-item nav-link"
-          role="tab" href="/logout">Logout</a>
-    </div>
-  </nav>
-</div>
 
 <!--debugrob how to continually update values? -->
 <!--debugrob just use refresh button (lame)? -->
 
 <!-- columns are from 1 to 12 units wide.  using col-sm-6 would be two columns.
 see: http://bootstrapdocs.com/v3.0.2/docs/css/
+//debugrob: update this to bootstrap 4 (below is bootstrap 3)
 -->
       <div class="col-sm-12">
 <!--
@@ -48,9 +30,8 @@ see: http://bootstrapdocs.com/v3.0.2/docs/css/
                 <th style="text-align: left;"> 
                   <span class="fa fa-thermometer-half"></span> Value </th>
               </tr> 
-<!-- debugrob, use ejs tags to loop over an array of env vars -->
-              <% for( i=0; i < user.envVars.length; i++ ) { 
-                   e = user.envVars[i];
+              <% for( i=0; i < envVars.length; i++ ) { 
+                   e = envVars[i];
               %>
               <tr> 
                 <td style="text-align: left;"> <%= e.experiment %> </td>

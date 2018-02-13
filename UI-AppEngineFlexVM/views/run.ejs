@@ -1,23 +1,69 @@
 <% include header.html %>
 
-<div class="page-header text-center">
-  <h1> Configure your Food Computer </h1>
-  <nav>
-    <div class="nav nav-tabs justify-content-center" role="tablist">
-      <a class="nav-item nav-link" 
-          role="tab" href="/home">Data</a>
-      <a class="nav-item nav-link" 
-          role="tab" href="/configure">Configure</a>
-      <a class="nav-item nav-link active" 
-          role="tab" href="/run">Run</a>
-      <a class="nav-item nav-link"
-          role="tab" href="/stop">Stop</a>
-      <a class="nav-item nav-link"
-          role="tab" href="/status">Status</a>
-      <a class="nav-item nav-link"
-          role="tab" href="/logout">Logout</a>
+<%
+    var var1 = "";
+    var var2 = "";
+    var sched1 = "";
+    var sched2 = "";
+    var validConfiguration = false;
+    if( 'undefined' != typeof( session )) {
+        if( 'undefined' != typeof( session.var1 )) {
+            var1 = session.var1;
+        }
+        if( 'undefined' != typeof( session.var2 )) {
+            var2 = session.var2;
+        }
+        if( 'undefined' != typeof( session.sched1 )) {
+            sched1 = session.sched1;
+        }
+        if( 'undefined' != typeof( session.sched2 )) {
+            sched2 = session.sched2;
+        }
+        if( 'undefined' != typeof( session.validConfiguration )) {
+            validConfiguration = session.validConfiguration;
+        }
+    }
+
+    var butDisabled = "";
+    if( ! validConfiguration ) { 
+        butDisabled = "disabled";
+        warning = "Please Configure something to Run.";
+    }
+%>
+  <form action="/run" method="post">
+    <div class="form-group text-center">
+        <table class="table ">
+          <tr> 
+            <th> Variables </th>
+            <th> Control Sets </th>
+          </tr> 
+<% if( 0 < var1.length ) { %>
+          <tr> 
+            <td> <%= var1 %> </td>
+            <td> <%= sched1 %> </td>
+          </tr> 
+<% } %>
+<% if( 0 < var2.length ) { %>
+          <tr> 
+            <td> <%= var2 %> </td>
+            <td> <%= sched2 %> </td>
+          </tr> 
+<% } %>
+        </table>
+
+        <button type="submit" class="btn btn-primary btn-lg"
+          <%= butDisabled %> >
+          Run Configuration</button>
+
     </div>
-  </nav>
-</div>
+  </form>
+
+  <% if( "undefined" != typeof( info ) && info.length > 0 ) { %>
+    <div class="alert alert-info text-center"><%= info %></div>
+  <% } %>
+
+  <% if( "undefined" != typeof( warning ) && warning.length > 0 ) { %>
+    <div class="alert alert-warning text-center"><%= warning %></div>
+  <% } %>
 
 <% include footer.html %>
