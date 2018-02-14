@@ -3,15 +3,109 @@
 const PubSub = require('@google-cloud/pubsub');
 const projectId = process.env.PROJECT_ID;
 const psTopic = process.env.PUBSUB_TOPIC;
-const DEVICE_ID = '288b5931-d089-43f0-b91f-32392ae72afb';
 
 const PS = PubSub({ projectId: projectId });
 const TOPIC = PS.topic( psTopic );
 const PUBLISHER = TOPIC.publisher();
 
+const DEVICE_ID = '288b5931-d089-43f0-b91f-32392ae72afb';
+const TREATMENT_ID = '0'; 
+
+// temporary JSON recipes
+const recipes = [ 
+'{ "dtype": "4", "measurement_period_ms": "10000", "num_cycles": "1", "curr_cycle": "0", "cycles": [ { "num_steps": "1", "num_repeats": "20", "curr_step": "0", "curr_repeat": "0", "steps": [ { "set_point": "0.000000", "duration": "50" } ] } ] }',  // measure every 10 sec
+'{ "dtype": "10", "measurement_period_ms": "500", "num_cycles": "1", "curr_cycle": "0", "cycles": [ { "num_steps": "43", "num_repeats": "1", "curr_step": "0", "curr_repeat": "0", "steps": [ { "set_point": ["255","255","255","255","255","255"], "duration": "5" }, { "set_point": ["255",  "0",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": ["200",  "0",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": ["155",  "0",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": ["100",  "0",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [ "55",  "0",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0","255",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0","200",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0","155",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0","100",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0", "55",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0","255",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0","200",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0","155",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0","100",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0", "55",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0","255",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0","200",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0","155",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0","100",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0", "55",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0","255",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0","200",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0","155",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0","100",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0", "55",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0","255"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0","200"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0","155"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0","100"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0", "55"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": ["255","255","255","255","255","255"], "duration": "1" }, { "set_point": ["200","200","200","200","200","200"], "duration": "1" }, { "set_point": ["155","155","155","155","155","155"], "duration": "1" }, { "set_point": ["100","100","100","100","100","100"], "duration": "1" }, { "set_point": [ "55", "55", "55", "55", "55", "55"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0",  "0"], "duration": "1" } ] } ] }', // LED disco set points
+'{ "dtype": "4", "measurement_period_ms": "4000", "num_cycles": "1", "curr_cycle": "0", "cycles": [ { "num_steps": "2", "num_repeats": "10", "curr_step": "0", "curr_repeat": "0", "steps": [ { "set_point": "800", "duration": "360" }, { "set_point": "0", "duration": "60" } ] } ] }'  // light control 800 LUX 
+];
+
+
+/* later: put in a utils.js if used.
+//-----------------------------------------------------------------------------
+function sleep( ms ) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+*/
+
+
+////////////////////////////////
+// private internal functions //
+////////////////////////////////
 
 //-----------------------------------------------------------------------------
-// Command class 
+/* send a commands array of commands.
+{ 
+    "deviceID": "<deviceID>", 
+    "commands": [
+        { 
+            "command": "<command>", 
+            "arg0": "<arg0>", 
+            "arg1": "<arg1>"
+        },
+        { 
+            "command": "<command>", 
+            "arg0": "<arg0>", 
+            "arg1": "<arg1>"
+        }
+    ]
+}
+ */
+function send( commands ) {
+    var jstr = JSON.stringify( commands );
+    //console.log('send() ' + jstr );
+    const data = Buffer.from( jstr );
+    PUBLISHER.publish( data, function( err, messageId ) {
+        if( err ) {
+            console.log( 'Error: Command: send(): ' + err );
+            return false;
+        }
+    });
+    return true;
+}
+
+//-----------------------------------------------------------------------------
+function addCommandToArray( commands, command, arg0, arg1 ) {
+    var cmd = {
+        command: command,
+        arg0: arg0,
+        arg1: arg1
+    };
+    commands['commands'].push( cmd );
+    return true;
+}
+
+//-----------------------------------------------------------------------------
+function addReset( commands ) {
+    addCommandToArray( commands, 'Reset', '0', '0' );
+}
+
+//-----------------------------------------------------------------------------
+function addRunTreatment( commands, treatment ) {
+    addCommandToArray( commands, 'RunTreatment', treatment, '0' );
+}
+
+//-----------------------------------------------------------------------------
+function addStopTreatment( commands, treatment ) {
+    addCommandToArray( commands, 'StopTreatment', treatment, '0' );
+}
+
+//-----------------------------------------------------------------------------
+function addStatus( commands ) {
+    addCommandToArray( commands, 'Status', '0', '0' );
+}
+
+//-----------------------------------------------------------------------------
+function addLoadRecipeIntoVariable( commands, variable, recipe ) {
+    addCommandToArray( commands, 'LoadRecipeIntoVariable', variable, recipe );
+}
+
+//-----------------------------------------------------------------------------
+function addAddVariableToTreatment( commands, treatment, variable ) {
+    addCommandToArray( commands, 'AddVariableToTreatment', treatment, variable);
+}
+
+
+//-----------------------------------------------------------------------------
+// Command class (public)
 class Command {
     constructor() {
     }
@@ -21,97 +115,46 @@ class Command {
     static sendRun( user, var1, var2, sched1, sched2, callback ) {
         console.log('Command: sendRun() called')
 
-        // reset, load vars, add vars to treat 0, run treat 0
-        Command.sendReset( function( err ) {
-            return callback( err );
-        });
+        var commands = { 
+            deviceID: DEVICE_ID,
+            commands: []        // a empty JSON array of commands
+        };
+
+        addReset( commands );   // stop anything currently running and reset.
 
         if( 0 < var1.length && 0 < sched1.length ) {
-//debugrob: get the JSON of the sched1 recipe
             var recipe = "";
-            Command.sendLoadRecipeIntoVariable( var1, recipe, function( err ) {
-                return callback( err );
-            });
-            Command.sendAddVariableToTreatment( '0', var1, function( err ) {
-                return callback( err );
-            });
+            if( "measure every 10 sec" == sched1 ) {
+                recipe = recipes[0];
+            } else if( "LED disco set points" == sched1 ) {
+                recipe = recipes[1];
+            } else if( "light control 800 LUX" == sched1 ) {
+                recipe = recipes[2];
+            }
+            addLoadRecipeIntoVariable( commands, var1, recipe );
+            addAddVariableToTreatment( commands, TREATMENT_ID, var1 );
         }
 
         if( 0 < var2.length && 0 < sched2.length ) {
-//debugrob: get the JSON of the sched2 recipe
             var recipe = "";
-            Command.sendLoadRecipeIntoVariable( var2, recipe, function( err ) {
-                return callback( err );
-            });
-            Command.sendAddVariableToTreatment( '0', var2, function( err ) {
-                return callback( err );
-            });
+            if( "measure every 10 sec" == sched2 ) {
+                recipe = recipes[0];
+            } else if( "LED disco set points" == sched2 ) {
+                recipe = recipes[1];
+            } else if( "light control 800 LUX" == sched2 ) {
+                recipe = recipes[2];
+            }
+            addLoadRecipeIntoVariable( commands, var2, recipe );
+            addAddVariableToTreatment( commands, TREATMENT_ID, var2 );
         }
 
-        Command.sendRunTreatment( '0', function( err ) {
-            return callback( err );
-        });
+        addRunTreatment( commands, TREATMENT_ID ); 
 
+        if( ! send( commands )) {
+            return callback( "Error in Commands send." );
+        }
         return callback( null );
     }
-
-    //-------------------------------------------------------------------------
-    // sendReset( function( err ) {} )
-    static sendReset( callback ) {
-        Command.send( 'Reset', '0', '0', callback );
-    }
-
-    //-------------------------------------------------------------------------
-    // sendRunTreatment( treatment, function( err ) {} )
-    static sendRunTreatment( treatment, callback ) {
-        Command.send( 'RunTreatment', treatment, '0', callback );
-    }
-
-    //-------------------------------------------------------------------------
-    // sendStopTreatment( treatment, function( err ) {} )
-    static sendStopTreatment( treatment, callback ) {
-        Command.send( 'StopTreatment', treatment, '0', callback );
-    }
-
-    //-------------------------------------------------------------------------
-    // sendStatus( function( err ) {} )
-    static sendStatus( callback ) {
-        Command.send( 'Status', '0', '0', callback );
-    }
-
-    //-------------------------------------------------------------------------
-    // sendLoadRecipeIntoVariable( variable, recipe, function( err ) {} )
-    static sendLoadRecipeIntoVariable( variable, recipe, callback ) {
-        Command.send( 'LoadRecipeIntoVariable', variable, recipe, callback );
-    }
-
-    //-------------------------------------------------------------------------
-    // sendAddVariableToTreatment( treatment, variable, function( err ) {} )
-    static sendAddVariableToTreatment( treatment, variable, callback ) {
-        Command.send( 'AddVariableToTreatment', treatment, variable, callback);
-    }
-
-    //-------------------------------------------------------------------------
-    // send( command, arg0, arg1, function( err ) {} )
-    static send( command, arg0, arg1, callback ) {
-        console.log( 'Command: send() ' + command + ', ' + arg0 + ', ' + arg1);
-        var msg = {
-            deviceID: DEVICE_ID,
-            command: command,
-            arg0: arg0,
-            arg1: arg1
-        };
-        var jstr = JSON.stringify( msg );
-        const data = Buffer.from( jstr );
-        PUBLISHER.publish( data, function( err, messageId ) {
-            if( err ) {
-                return callback( err );
-            }
-        });
-
-        return callback( null );
-    }
-
 }
 
 

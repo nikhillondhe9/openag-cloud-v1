@@ -32,17 +32,17 @@ module.exports = function(app, passport) {
 
     //-------------------------------------------------------------------------
     // configure treatment page.
-    var variables = [ "",
-                      "co2_ccs811",
-                      "co2_t6713",
-                      "LED_panel",
-                      "light_control",
-                      "temp_humidity_htu20d",
-                      "temp_humidity_sht25" ];
-    var schedules = [ "",
-                      "measure every 10 sec",
-                      "LED disco set points",
-                      "light control 800 LUX" ];
+    const variables = [ "",
+                        "co2_ccs811",
+                        "co2_t6713",
+                        "LED_panel",
+                        "light_control",
+                        "temp_humidity_htu20d",
+                        "temp_humidity_sht25" ];
+    const schedules = [ "",
+                        "measure every 10 sec",
+                        "LED disco set points",
+                        "light control 800 LUX" ];
     app.get( '/configure', isLoggedIn, function(req, res) {
         //console.log('route configure render configure page');
         res.render('configure.ejs', {
@@ -56,7 +56,7 @@ module.exports = function(app, passport) {
         });
     });
 
-    // process the configure form
+    // process (validate) the configure form
     app.post( '/configure', function(req, res) {
         //console.log('post configure' + JSON.stringify(req.body, null, 2));
         // store the form fields on the current session
@@ -89,11 +89,11 @@ module.exports = function(app, passport) {
             warningMsg = 
                 "The light_control can only run the light control set.";
         } else if(( var1 == variables[1] || var1 == variables[2] ||
-                    var1 == variables[4] || var1 == variables[5] ) &&
+                    var1 == variables[5] || var1 == variables[6] ) &&
                   ( sched1 != schedules[1] )) {
             warningMsg = "Sensors can only run the measure control set.";
         } else if(( var2 == variables[1] || var2 == variables[2] ||
-                    var2 == variables[4] || var2 == variables[5] ) &&
+                    var2 == variables[5] || var2 == variables[6] ) &&
                   ( sched2 != schedules[1] )) {
             warningMsg = "Sensors can only run the measure control set.";
         } else {

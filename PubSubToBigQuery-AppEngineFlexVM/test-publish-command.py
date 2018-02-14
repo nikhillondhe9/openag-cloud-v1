@@ -30,13 +30,34 @@ if __name__ == '__main__':
     credentials = utils.get_credentials()
     pubsub = utils.create_pubsub_client( credentials )
 
+# JSON commands array
+#{ 
+#    "deviceID": "<deviceID>", 
+#    "commands": [
+#        { 
+#            "command": "<command>", 
+#            "arg0": "<arg0>", 
+#            "arg1": "<arg1>"
+#        },
+#        { 
+#            "command": "<command>", 
+#            "arg0": "<arg0>", 
+#            "arg1": "<arg1>"
+#        }
+#    ]
+#}
+
     message_obj = {} # a python dict
-    message_obj['command'] = str( args.command )
-    if args.arg0:
-        message_obj['arg0'] = str( args.arg0 )
-    if args.arg1:
-        message_obj['arg1'] = str( args.arg1 )
     message_obj['deviceID'] = str( args.deviceID )
+
+    cmd = {} 
+    cmd['command'] = str( args.command )
+    cmd['arg0'] = str( args.arg0 )
+    cmd['arg1'] = str( args.arg1 )
+
+    # for first command: assign a new LIST containg the first command.
+    message_obj['commands'] = [cmd]
+
     message_json = json.dumps( message_obj ) # dict to JSON string
     print('publishing msg >', message_json, '<')
 
