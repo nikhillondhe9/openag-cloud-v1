@@ -120,52 +120,56 @@
   <form action="/configure" method="post">
     <div class="form-group text-center">
         <table class="table">
-          <tr> 
-            <th> Variables </th>
-            <th> Control Sets </th>
-          </tr> 
-          <tr> 
-            <td>
-              <select class="form-control" name="var1">
-                <option <%= var1Op1 %> > <%= varOp1 %> </option>
-                <option <%= var1Op2 %> > <%= varOp2 %> </option>
-                <option <%= var1Op3 %> > <%= varOp3 %> </option>
-                <option <%= var1Op4 %> > <%= varOp4 %> </option>
-                <option <%= var1Op5 %> > <%= varOp5 %> </option>
-                <option <%= var1Op6 %> > <%= varOp6 %> </option>
-                <option <%= var1Op7 %> > <%= varOp7 %> </option>
-              </select>
-            </td>
-            <td>
-              <select class="form-control" name="sched1">
-                <option <%= sched1Op1 %> > <%= schedOp1 %> </option>
-                <option <%= sched1Op2 %> > <%= schedOp2 %> </option>
-                <option <%= sched1Op3 %> > <%= schedOp3 %> </option>
-                <option <%= sched1Op4 %> > <%= schedOp4 %> </option>
-              </select>
-            </td>
-          </tr> 
-          <tr> 
-            <td>
-              <select class="form-control" name="var2">
-                <option <%= var2Op1 %> > <%= varOp1 %> </option>
-                <option <%= var2Op2 %> > <%= varOp2 %> </option>
-                <option <%= var2Op3 %> > <%= varOp3 %> </option>
-                <option <%= var2Op4 %> > <%= varOp4 %> </option>
-                <option <%= var2Op5 %> > <%= varOp5 %> </option>
-                <option <%= var2Op6 %> > <%= varOp6 %> </option>
-                <option <%= var2Op7 %> > <%= varOp7 %> </option>
-              </select>
-            </td>
-            <td>
-              <select class="form-control" name="sched2">
-                <option <%= sched2Op1 %> > <%= schedOp1 %> </option>
-                <option <%= sched2Op2 %> > <%= schedOp2 %> </option>
-                <option <%= sched2Op3 %> > <%= schedOp3 %> </option>
-                <option <%= sched2Op4 %> > <%= schedOp4 %> </option>
-              </select>
-            </td>
-          </tr> 
+          <thead class="thead-light">
+            <tr> 
+              <th> Variables </th>
+              <th> Control Sets </th>
+            </tr> 
+          </thead>
+          <tbody>
+            <tr> 
+              <td>
+                <select class="form-control" name="var1">
+                  <option <%= var1Op1 %> > <%= varOp1 %> </option>
+                  <option <%= var1Op2 %> > <%= varOp2 %> </option>
+                  <option <%= var1Op3 %> > <%= varOp3 %> </option>
+                  <option <%= var1Op4 %> > <%= varOp4 %> </option>
+                  <option <%= var1Op5 %> > <%= varOp5 %> </option>
+                  <option <%= var1Op6 %> > <%= varOp6 %> </option>
+                  <option <%= var1Op7 %> > <%= varOp7 %> </option>
+                </select>
+              </td>
+              <td>
+                <select class="form-control" name="sched1">
+                  <option <%= sched1Op1 %> > <%= schedOp1 %> </option>
+                  <option <%= sched1Op2 %> > <%= schedOp2 %> </option>
+                  <option <%= sched1Op3 %> > <%= schedOp3 %> </option>
+                  <option <%= sched1Op4 %> > <%= schedOp4 %> </option>
+                </select>
+              </td>
+            </tr> 
+            <tr> 
+              <td>
+                <select class="form-control" name="var2">
+                  <option <%= var2Op1 %> > <%= varOp1 %> </option>
+                  <option <%= var2Op2 %> > <%= varOp2 %> </option>
+                  <option <%= var2Op3 %> > <%= varOp3 %> </option>
+                  <option <%= var2Op4 %> > <%= varOp4 %> </option>
+                  <option <%= var2Op5 %> > <%= varOp5 %> </option>
+                  <option <%= var2Op6 %> > <%= varOp6 %> </option>
+                  <option <%= var2Op7 %> > <%= varOp7 %> </option>
+                </select>
+              </td>
+              <td>
+                <select class="form-control" name="sched2">
+                  <option <%= sched2Op1 %> > <%= schedOp1 %> </option>
+                  <option <%= sched2Op2 %> > <%= schedOp2 %> </option>
+                  <option <%= sched2Op3 %> > <%= schedOp3 %> </option>
+                  <option <%= sched2Op4 %> > <%= schedOp4 %> </option>
+                </select>
+              </td>
+            </tr> 
+          </tbody>
         </table>
 
         <button type="submit" class="btn btn-primary btn-lg">
@@ -174,12 +178,12 @@
     </div>
   </form>
 
-  <% if( "undefined" != typeof( info ) && info.length > 0 ) { %>
-    <div class="alert alert-info text-center"><%= info %></div>
+  <% if( "undefined" != typeof( config_info ) && config_info.length > 0 ) { %>
+    <div class="alert alert-info text-center"><%- config_info %></div>
   <% } %>
 
-  <% if( "undefined" != typeof( warning ) && warning.length > 0 ) { %>
-    <div class="alert alert-warning text-center"><%= warning %></div>
+  <% if( "undefined" != typeof( config_warning ) && config_warning.length > 0 ) { %>
+    <div class="alert alert-warning text-center"><%- config_warning %></div>
   <% } %>
 
 

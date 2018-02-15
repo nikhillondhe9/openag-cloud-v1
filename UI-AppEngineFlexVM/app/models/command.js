@@ -111,9 +111,9 @@ class Command {
     }
 
     //-------------------------------------------------------------------------
-    // Run a configuration (send all necessary commands).
-    static sendRun( user, var1, var2, sched1, sched2, callback ) {
-        console.log('Command: sendRun() called')
+    // Send all the necessary commands to set up and run.
+    static sendCommands( user, var1, var2, sched1, sched2, callback ) {
+        console.log('Command: sendCommands() called')
 
         var commands = { 
             deviceID: DEVICE_ID,
@@ -149,6 +149,42 @@ class Command {
         }
 
         addRunTreatment( commands, TREATMENT_ID ); 
+
+        if( ! send( commands )) {
+            return callback( "Error in Commands send." );
+        }
+        return callback( null );
+    }
+
+    //-------------------------------------------------------------------------
+    // Send the stop command.
+    static sendStop( user, callback ) {
+        console.log('Command: sendStop() called')
+
+        var commands = { 
+            deviceID: DEVICE_ID,
+            commands: []        // a empty JSON array of commands
+        };
+
+        addStopTreatment( commands, TREATMENT_ID ); 
+
+        if( ! send( commands )) {
+            return callback( "Error in Commands send." );
+        }
+        return callback( null );
+    }
+
+    //-------------------------------------------------------------------------
+    // Send the status command.
+    static sendStatus( user, callback ) {
+        console.log('Command: sendStatus() called')
+
+        var commands = { 
+            deviceID: DEVICE_ID,
+            commands: []        // a empty JSON array of commands
+        };
+
+        addStatus( commands, TREATMENT_ID ); 
 
         if( ! send( commands )) {
             return callback( "Error in Commands send." );

@@ -12,19 +12,19 @@ module.exports = function(app, passport) {
     // index: show the login/create account page.
     app.get( '/', function( req, res ) {
         //console.log( 'route index' );
-        res.render( 'index.ejs', { pageName: undefined } );
+        res.render( 'index.ejs', { pageName : undefined } );
     });
 
 
     //-------------------------------------------------------------------------
-    // home (Data) page.
-    app.get( '/home', isLoggedIn, function(req, res) {
-        //console.log('route home render home page');
+    // data page.
+    app.get( '/data', isLoggedIn, function(req, res) {
+        //console.log('route data render data page');
         DB.getEnvVarData( req.user.id, function( err, envVars ) {
-            res.render( 'home.ejs', {
+            res.render( 'data.ejs', {
                 user : req.user,
                 envVars : envVars,
-                pageName: 'data' 
+                pageName : 'data' 
             });
         });
     });
@@ -50,9 +50,9 @@ module.exports = function(app, passport) {
             session : req.session,
             vars : variables,
             scheds : schedules,
-            info : "",
-            warning : "",
-            pageName: 'configure' 
+            config_info : "",
+            config_warning : "",
+            pageName : 'configure' 
         });
     });
 
@@ -77,10 +77,9 @@ module.exports = function(app, passport) {
 
         // validate fields
         valid = false;
-        if( 0 == var1.length && 0 == var2.length ) {
-            warningMsg = "You must pick a variable.";
-        } else if( 0 == sched1.length && 0 == sched2.length ) {
-            warningMsg = "You must pick a control set.";
+        if(( 0 == var1.length && 0 == var2.length ) ||
+           ( 0 == sched1.length && 0 == sched2.length )) {
+            warningMsg = "You must pick a variable and a control set.";
         } else if(( var1 == variables[3] && sched1 != schedules[2] ) ||
                   ( var2 == variables[3] && sched2 != schedules[2] )) {
             warningMsg = "The LED_panel can only run the LED disco.";
@@ -101,9 +100,10 @@ module.exports = function(app, passport) {
         }
 
         if( valid ) {
-            infoMsg = "Saved! Now Run it.",
+            infoMsg = "Saved! Now <b><a href='/run'>Run</a></b> it.",
             warningMsg = "";
             req.session.validConfiguration = true;
+            req.session.hideButton = false;
         }
 
         // a bit of clean up
@@ -125,9 +125,9 @@ module.exports = function(app, passport) {
             session : req.session,
             vars : variables,
             scheds : schedules,
-            info : infoMsg,
-            warning : warningMsg,
-            pageName: 'configure' 
+            config_info : infoMsg,
+            config_warning : warningMsg,
+            pageName : 'configure' 
         });
     });
 
@@ -137,35 +137,43 @@ module.exports = function(app, passport) {
     // view uses the saved session data for its display.
     app.get( '/run', isLoggedIn, function(req, res) {
         //console.log('route run render run page');
+        infoMsg = "";
+        warningMsg = "";
         res.render( 'run.ejs', {
             user : req.user,
             session : req.session,
-            pageName: 'run' 
+            run_info : "",
+            run_warning : "",
+            pageName : 'run' 
         });
     });
 
     // process the run form
     app.post( '/run', function( req, res ) {
         if( ! req.session.validConfiguration ) {
+            req.session.hideButton = true;
             res.render( 'run.ejs', {
                 user : req.user,
                 session : req.session,
-                warning : "Can't Run an invalid Configuration.",
-                pageName: 'run' 
+                run_info : "",
+                run_warning : "Can't Run an invalid Configuration.",
+                pageName : 'run' 
             });
             return;
         }
 
-        infoMsg = "Run command sent to your device!";
+        req.session.validConfiguration = true;
+        req.session.hideButton = true;
+        infoMsg = "Configuration sent to your device!";
         warningMsg = "";
 
         // Send the commands to the device and display result to user.
-        Command.sendRun( req.user,
-                         req.session.var1,
-                         req.session.var2,
-                         req.session.sched1,
-                         req.session.sched2,
-                         function( err ) {
+        Command.sendCommands( req.user,
+                              req.session.var1,
+                              req.session.var2,
+                              req.session.sched1,
+                              req.session.sched2,
+                              function( err ) {
             if( err ) {
                 warningMsg = err;
                 infoMsg = "";
@@ -174,9 +182,9 @@ module.exports = function(app, passport) {
         res.render( 'run.ejs', {
             user : req.user,
             session : req.session,
-            info : infoMsg,
-            warning : warningMsg,
-            pageName: 'run' 
+            run_info : infoMsg,
+            run_warning : warningMsg,
+            pageName : 'run' 
         });
     });
 
@@ -184,11 +192,36 @@ module.exports = function(app, passport) {
     //-------------------------------------------------------------------------
     // stop treatment page.
     app.get( '/stop', isLoggedIn, function(req, res) {
-//debugrob: make view and handler like 'run'
         //console.log('route stop render stop page');
+        infoMsg = "";
+        warningMsg = "";
         res.render( 'stop.ejs', {
             user : req.user,
-            pageName: 'stop' 
+            session : req.session,
+            stop_info : "",
+            stop_warning : "",
+            pageName : 'stop' 
+        });
+    });
+
+    // process the stop form
+    app.post( '/stop', function( req, res ) {
+        infoMsg = "Stop sent to your device!";
+        warningMsg = "";
+
+        // Send the commands to the device and display result to user.
+        Command.sendStop( req.user, function( err ) {
+            if( err ) {
+                infoMsg = "";
+                warningMsg = err;
+            }
+        });
+        res.render( 'stop.ejs', {
+            user : req.user,
+            session : req.session,
+            stop_info : infoMsg,
+            stop_warning : warningMsg,
+            pageName : 'stop' 
         });
     });
 
@@ -197,12 +230,37 @@ module.exports = function(app, passport) {
     // status page.
     app.get( '/status', isLoggedIn, function(req, res) {
         //console.log('route status render status page');
+        infoMsg = "";
+        warningMsg = "";
         res.render( 'status.ejs', {
             user : req.user,
-            pageName: 'status' 
+            session : req.session,
+            status_info : "",
+            status_warning : "",
+            pageName : 'status' 
         });
     });
 
+    // process the status form
+    app.post( '/status', function( req, res ) {
+        infoMsg = "Status request sent to your device!";
+        warningMsg = "";
+
+        // Send the commands to the device and display result to user.
+        Command.sendStatus( req.user, function( err ) {
+            if( err ) {
+                infoMsg = "";
+                warningMsg = err;
+            }
+        });
+        res.render( 'status.ejs', {
+            user : req.user,
+            session : req.session,
+            status_info : infoMsg,
+            status_warning : warningMsg,
+            pageName : 'status' 
+        });
+    });
 
     //-------------------------------------------------------------------------
     // logout action and go back to login page.
@@ -223,15 +281,13 @@ module.exports = function(app, passport) {
         //console.log('route get login');
         res.render( 'login.ejs', { 
             message: req.flash('loginMessage'),
-            pageName: undefined
+            pageName : undefined
         });
     });
 
     // process the login form
     app.post( '/login', passport.authenticate('local-login', {
-//debugrob: put this back later:
-//        successRedirect : '/home', // redirect to the secure home section
-        successRedirect : '/configure', // debugrob, what I'm testing
+        successRedirect : '/data', // redirect to the secure data section
         failureRedirect : '/login', // redirect to the login page if error
         failureFlash : true // allow flash messages
     }));
@@ -241,30 +297,16 @@ module.exports = function(app, passport) {
     app.get( '/signup', function(req, res) {
         res.render('signup.ejs', { 
             message: req.flash('signupMessage'),
-            pageName: undefined
+            pageName : undefined
         });
     });
 
     // process the signup form
     app.post( '/signup', passport.authenticate('local-signup', {
-        successRedirect : '/home', // redirect to the secure home section
+        successRedirect : '/data', // redirect to the secure data section
         failureRedirect : '/signup', // redirect to the signup page if error
         failureFlash : true // allow flash messages
     }));
-
-/*debugrob, called by an anchor link on the home.ejs view.
- * Example of how a button on a page can call code.
-
-    app.get('/unlink/local', isLoggedIn, function(req, res) {
-        var user      = req.user;
-        user.id       = undefined;
-        user.password = undefined;
-        user.save(function(err) {
-            res.redirect('/home');
-        });
-    });
-*/
-
 };
 
 

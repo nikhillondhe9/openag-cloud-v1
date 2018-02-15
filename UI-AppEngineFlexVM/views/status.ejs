@@ -1,4 +1,21 @@
 <% include header.html %>
 
+  <br/>
+  <form action="/status" method="post">
+    <div class="form-group text-center">
+
+        <button type="submit" class="btn btn-primary btn-lg">
+          Request device Status</button>
+
+    </div>
+  </form>
+
+  <% if( "undefined" != typeof( status_info ) && status_info.length > 0 ) { %>
+    <div class="alert alert-info text-center"><%= status_info %></div>
+  <% } %>
+
+  <% if( "undefined" != typeof( status_warning ) && status_warning.length > 0 ) { %>
+    <div class="alert alert-warning text-center"><%= status_warning %></div>
+  <% } %>
 
 <% include footer.html %>

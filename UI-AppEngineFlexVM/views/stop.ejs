@@ -1,4 +1,21 @@
 <% include header.html %>
 
+  <br/>
+  <form action="/stop" method="post">
+    <div class="form-group text-center">
+
+        <button type="submit" class="btn btn-primary btn-lg">
+          Stop</button>
+
+    </div>
+  </form>
+
+  <% if( "undefined" != typeof( stop_info ) && stop_info.length > 0 ) { %>
+    <div class="alert alert-info text-center"><%= stop_info %></div>
+  <% } %>
+
+  <% if( "undefined" != typeof( stop_warning ) && stop_warning.length > 0 ) { %>
+    <div class="alert alert-warning text-center"><%= stop_warning %></div>
+  <% } %>
 
 <% include footer.html %>
