@@ -168,17 +168,26 @@ module.exports = function(app, passport) {
         warningMsg = "";
 
         // Send the commands to the device and display result to user.
-        Command.sendCommands( req.user,
-                              req.session.var1,
-                              req.session.var2,
-                              req.session.sched1,
-                              req.session.sched2,
-                              function( err ) {
+        cmds = Command.sendCommands( req.user,
+                                     req.session.var1,
+                                     req.session.var2,
+                                     req.session.sched1,
+                                     req.session.sched2,
+                                     function( err ) {
             if( err ) {
                 warningMsg = err;
                 infoMsg = "";
             }
         });
+
+        DB.saveCommand( req.user.id, req.user.DEVICE_ID, 
+                        cmds, function( err ) {
+            if( err ) {
+                warningMsg = err;
+                infoMsg = "";
+            }
+        });
+
         res.render( 'run.ejs', {
             user : req.user,
             session : req.session,
@@ -210,10 +219,17 @@ module.exports = function(app, passport) {
         warningMsg = "";
 
         // Send the commands to the device and display result to user.
-        Command.sendStop( req.user, function( err ) {
+        cmds = Command.sendStop( req.user, function( err ) {
             if( err ) {
                 infoMsg = "";
                 warningMsg = err;
+            }
+        });
+        DB.saveCommand( req.user.id, req.user.DEVICE_ID, 
+                        cmds, function( err ) {
+            if( err ) {
+                warningMsg = err;
+                infoMsg = "";
             }
         });
         res.render( 'stop.ejs', {
@@ -247,10 +263,17 @@ module.exports = function(app, passport) {
         warningMsg = "";
 
         // Send the commands to the device and display result to user.
-        Command.sendStatus( req.user, function( err ) {
+        cmds = Command.sendStatus( req.user, function( err ) {
             if( err ) {
                 infoMsg = "";
                 warningMsg = err;
+            }
+        });
+        DB.saveCommand( req.user.id, req.user.DEVICE_ID, 
+                        cmds, function( err ) {
+            if( err ) {
+                warningMsg = err;
+                infoMsg = "";
             }
         });
         res.render( 'status.ejs', {

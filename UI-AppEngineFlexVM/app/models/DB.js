@@ -10,6 +10,7 @@ const BigQuery = require('@google-cloud/bigquery');
 const projectId = process.env.PROJECT_ID;
 const userDatasetName = process.env.BQ_USER_DATASET;
 const userTableName = process.env.BQ_USER_TABLE;
+const cmdTableName = process.env.BQ_CMD_TABLE;
 const dataDatasetName = process.env.BQ_DATA_DATASET
 const valueTableName = process.env.BQ_VALUE_TABLE
 const BQ = BigQuery({ projectId: projectId });
@@ -17,6 +18,7 @@ const BQ = BigQuery({ projectId: projectId });
 console.log('DB: PROJECT_ID:'+ projectId );
 console.log('DB: BQ_USER_DATASET:'+ userDatasetName );
 console.log('DB: BQ_USER_TABLE:'+ userTableName );
+console.log('DB: BQ_CMD_TABLE:'+ cmdTableName );
 console.log('DB: BQ_DATA_DATASET:'+ dataDatasetName );
 console.log('DB: BQ_VALUE_TABLE:'+ valueTableName );
 
@@ -25,6 +27,44 @@ console.log('DB: BQ_VALUE_TABLE:'+ valueTableName );
 // Database model class
 class DB {
     constructor() {
+    }
+
+    //-------------------------------------------------------------------------
+    // saveCommand( email, deviceId, commandStr, function(err) {} )
+    static saveCommand( email, deviceId, commandStr, callback ) {
+
+        if( 'string' != typeof(commandStr) || 0 == commandStr.length ) {
+            console.log( "Error: invalid commandStr" );
+            return callback( "Error: invalid commandStr" );
+        }
+
+        var dataset = BQ.dataset( userDatasetName );
+        var table = dataset.table( cmdTableName );
+
+        var date = new Date();
+        var utc = date.toISOString();
+        var key = deviceId + '~' + email + '~' + utc;
+
+        // Make JSON row of data.
+        const rows = [{ id: key, message: commandStr }];
+
+        // This is a STREAMING insert, which means that the data can't be 
+        // deleted or updated in BQ for 24 hours. OK for a log.
+        table.insert( rows ).then( () => {
+            // return no error (null).
+            return callback( null );
+        })
+        .catch(err => {
+            if (err && err.name === 'PartialFailureError') {
+                if (err.errors && err.errors.length > 0) {
+                    console.log('saveCommand() Insert errors:');
+                    err.errors.forEach(err => console.error(err));
+                }
+            } else {
+                console.error('saveCommand() ERROR:', err);
+            }
+            return callback( err );
+        });
     }
 
     //-------------------------------------------------------------------------
@@ -188,17 +228,17 @@ class DB {
             console.log('saved user \''+ user.username + '\'');
             return callback( null );
         })
-            .catch(err => {
-                if (err && err.name === 'PartialFailureError') {
-                    if (err.errors && err.errors.length > 0) {
-                        console.log('save Insert errors:');
-                        err.errors.forEach(err => console.error(err));
-                    }
-                } else {
-                    console.error('save ERROR:', err);
+        .catch(err => {
+            if (err && err.name === 'PartialFailureError') {
+                if (err.errors && err.errors.length > 0) {
+                    console.log('save Insert errors:');
+                    err.errors.forEach(err => console.error(err));
                 }
-                return callback( err );
-            });
+            } else {
+                console.error('save ERROR:', err);
+            }
+            return callback( err );
+        });
 
 /*debugrob log all the rows of the user table
     table.getRows().then( results => {

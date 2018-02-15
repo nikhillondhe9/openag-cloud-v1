@@ -13,6 +13,7 @@ env_variables:
   BQ_USER_DATASET: openag_private_webui
   BQ_USER_TABLE: user
   BQ_RECIPE_TABLE: rec
+  BQ_CMD_TABLE: cmd
   BQ_DATA_DATASET: test
   BQ_VALUE_TABLE: val
 

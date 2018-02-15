@@ -8,7 +8,6 @@ const PS = PubSub({ projectId: projectId });
 const TOPIC = PS.topic( psTopic );
 const PUBLISHER = TOPIC.publisher();
 
-const DEVICE_ID = '288b5931-d089-43f0-b91f-32392ae72afb';
 const TREATMENT_ID = '0'; 
 
 // temporary JSON recipes
@@ -112,11 +111,12 @@ class Command {
 
     //-------------------------------------------------------------------------
     // Send all the necessary commands to set up and run.
+    // Returns the JSON string that is sent.
     static sendCommands( user, var1, var2, sched1, sched2, callback ) {
         console.log('Command: sendCommands() called')
 
         var commands = { 
-            deviceID: DEVICE_ID,
+            deviceID: user.DEVICE_ID,
             commands: []        // a empty JSON array of commands
         };
 
@@ -151,9 +151,14 @@ class Command {
         addRunTreatment( commands, TREATMENT_ID ); 
 
         if( ! send( commands )) {
-            return callback( "Error in Commands send." );
+            callback( "Error in Commands send." );
+            return "";
         }
-        return callback( null );
+
+        callback( null );
+
+        // return the json for logging
+        return JSON.stringify( commands );
     }
 
     //-------------------------------------------------------------------------
@@ -162,16 +167,19 @@ class Command {
         console.log('Command: sendStop() called')
 
         var commands = { 
-            deviceID: DEVICE_ID,
+            deviceID: user.DEVICE_ID,
             commands: []        // a empty JSON array of commands
         };
 
         addStopTreatment( commands, TREATMENT_ID ); 
 
         if( ! send( commands )) {
-            return callback( "Error in Commands send." );
+            callback( "Error in Commands send." );
+            return "";
         }
-        return callback( null );
+
+        callback( null );
+        return JSON.stringify( commands );
     }
 
     //-------------------------------------------------------------------------
@@ -180,16 +188,19 @@ class Command {
         console.log('Command: sendStatus() called')
 
         var commands = { 
-            deviceID: DEVICE_ID,
+            deviceID: user.DEVICE_ID,
             commands: []        // a empty JSON array of commands
         };
 
         addStatus( commands, TREATMENT_ID ); 
 
         if( ! send( commands )) {
-            return callback( "Error in Commands send." );
+            callback( "Error in Commands send." );
+            return "";
         }
-        return callback( null );
+
+        callback( null );
+        return JSON.stringify( commands );
     }
 }
 

@@ -11,6 +11,9 @@ class User {
         this.username = undefined;  // displayable user name
         this.password = undefined;  // encrypted password
         this.openag = false;        // privileged user?
+
+        // TOTAL hack!  debugrob TODO.  later have an array of devices user manages
+        this.DEVICE_ID = '288b5931-d089-43f0-b91f-32392ae72afb';
     }
 
     //-------------------------------------------------------------------------

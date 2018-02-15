@@ -1,0 +1,15 @@
+[
+    {
+        "description": "<deviceId>~<userId>~<created UTC TS> NO TILDES IN FIELDS ALLOWED",
+        "name": "id",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "description": "Command message (JSON)",
+        "name": "message",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    }
+]
+
