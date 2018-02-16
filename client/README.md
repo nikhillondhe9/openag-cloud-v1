@@ -1,24 +1,17 @@
-# Python publish and subscribe client scripts
+# Python subscribe test scripts
+The latest (production) subscribe code is in the brain/python repo:
+`https://github.com/OpenAgInitiative/openag_brain_v2.git`
+
+The latest publish code is in this repo, in the Node commands.js class.
 
 ## One time setup
 ```
 ./one_time_setup.sh
 ```
 
-## Run the command subscriber
+## Run the testing command subscriber (just prints raw JSON)
 ```
 ./run_command_subscriber.sh
-```
-
-## Send a command from the command line (can also do from console - publish a message to the topic from)  
-```
-./send_command.sh
-```
-
-## Send a data Value to our PubSub service (is it running locally or on GAE?)
-```
-./send_value.sh --help
-./send_value.sh --value 1 --variableName Temp
 ```
 
 ## Query for the last 5 Values in BigQuery

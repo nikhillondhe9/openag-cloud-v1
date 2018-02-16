@@ -1,35 +1,12 @@
-<!doctype html>
-<html>
-<head>
-    <title>OpenAg console</title>
-    <meta charset="UTF-8">
-    <meta name="google" content="notranslate">
-    <meta http-equiv="Content-Language" content="en">
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <style>
-        body { padding-top:80px; word-wrap:break-word; }
-    </style>
-</head>
-<body>
-<div class="container">
+<% include header.html %>
 
-    <div class="page-header text-center">
-        <h1>
-            <span class="fa fa-heart-o"></span>
-            <%= user.username %> Food Computer 
-            <span class="fa fa-leaf"></span>
-        </h1>
-        <a href="/logout" class="btn btn-default btn-sm">Logout</a>
-    </div>
-
-    <div class="row">
 
 <!--debugrob how to continually update values? -->
-<!--debugrob just add refresh button (lame)? -->
+<!--debugrob just use refresh button (lame)? -->
 
 <!-- columns are from 1 to 12 units wide.  using col-sm-6 would be two columns.
 see: http://bootstrapdocs.com/v3.0.2/docs/css/
+//debugrob: update this to bootstrap 4 (below is bootstrap 3)
 -->
       <div class="col-sm-12">
 <!--
@@ -53,9 +30,8 @@ see: http://bootstrapdocs.com/v3.0.2/docs/css/
                 <th style="text-align: left;"> 
                   <span class="fa fa-thermometer-half"></span> Value </th>
               </tr> 
-<!-- debugrob, use ejs tags to loop over an array of users -->
-              <% for( i=0; i < user.envVars.length; i++ ) { 
-                   e = user.envVars[i];
+              <% for( i=0; i < envVars.length; i++ ) { 
+                   e = envVars[i];
               %>
               <tr> 
                 <td style="text-align: left;"> <%= e.experiment %> </td>
@@ -68,19 +44,8 @@ see: http://bootstrapdocs.com/v3.0.2/docs/css/
               <% } %>
 
             </table>
-                    
-<!--debugrob this is a button that calls code in app/routes.js in User class
-                <a href="/unlink/local" class="btn btn-default">Unlink</a>
--->
 
         </div>
       </div>
-    </div>
 
-    <div class="text-center">
-        <p>OpenAg license and linkz</p>
-    </div>
-
-</div>
-</body>
-</html>
+<% include footer.html %>

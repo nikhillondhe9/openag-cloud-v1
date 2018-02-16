@@ -41,6 +41,7 @@ export COM_TABLE=com
 export DEV_TABLE=dev
 export GCM_TABLE=gcms
 export MOL_TABLE=mol
+
 export EXP_TABLE_DESC="Experiments, the top level table. Comprised of a set of Treatments to compare against each other."
 export TRE_TABLE_DESC="Each Treatment is a run of a Climate Recipe and post harvest results."
 export VAL_TABLE_DESC="Values are generic name/value/location objects." 
@@ -64,11 +65,14 @@ export ID_KEY_DEV=Dev
 #------------------------------------------------------------------------------
 export USER_TABLE=user
 export REC_TABLE=rec
+export CMD_TABLE=cmd
+
 export USER_TABLE_DESC="User profiles."
 export REC_TABLE_DESC="Climate Recipes."
+export CMD_TABLE_DESC="Commands sent to devices."
 
 # bash arrays of tables for the UI dataset that we can loop over.
-export UI_TABLES=($USER_TABLE $REC_TABLE)
-export UI_TABLE_DESCS=("$USER_TABLE_DESC" "$REC_TABLE_DESC")
+export UI_TABLES=($USER_TABLE $REC_TABLE $CMD_TABLE)
+export UI_TABLE_DESCS=("$USER_TABLE_DESC" "$REC_TABLE_DESC" "$CMD_TABLE_DESC")
 
 

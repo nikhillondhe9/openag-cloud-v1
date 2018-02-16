@@ -1,12 +1,12 @@
 // server.js
 
-//debugrob: Optimizations for later:
-//  Add DB class for BQ code.  Make streaming and batch DB methods.
-
 //debugrob: Need for perf?: 
 //  Upon startup, check memcache, if empty, load all users from BQ.
 //  change my DB class to be a write-through memcache to BQ.
 //  change my DB class to only read from memcache (for speed).
+
+
+let SESSION_TIMEOUT_MINUTES = 15 
 
 
 // set up ======================================================================
@@ -22,6 +22,7 @@ var bodyParser     = require( 'body-parser');
 var session        = require( 'express-session'); 
 var MemcachedStore = require( 'connect-memjs')( session );
 
+
 // configuration ===============================================================
 require( './config/passport')( passport ); // pass passport for configuration
 
@@ -30,6 +31,7 @@ app.use( morgan( 'dev')); // log every request to the console
 app.use( cookieParser()); // read cookies (needed for auth)
 app.use( bodyParser.json()); // get information from html forms
 app.use( bodyParser.urlencoded({ extended: true }));
+app.use( express.static( __dirname + '/public' )); // local files in ./public
 
 app.set( 'view engine', 'ejs'); // set up ejs for templating
 
@@ -45,30 +47,58 @@ if( process.env.USE_GAE_MEMCACHE ) {
     console.log('Using session cache: ' + MEMCACHE_URL );
 }
 
-app.use(session({
-    secret: '1LoveF00dDoY00L00eF000Organ1cYummyF000', // session secret
-    cookie: { maxAge: 300000 }, // 5 minute session timeout
-    key: 'view:count',
-    proxy: 'true',
-    resave: 'true',
-    saveUninitialized: 'true',
-    store: new MemcachedStore({
+// set up session storage in the memcached
+const SESSION_SECRET = '1LoveF00dDoY00L00eF000Organ1cYummyF000';
+var sessionStore = new MemcachedStore( {
         servers: [MEMCACHE_URL], 
         username: [process.env.MEMCACHE_USERNAME],
         password: [process.env.MEMCACHE_PASSWORD]
-    })
-}));
+    });
+
+var expressSession = new session( {
+        secret: SESSION_SECRET, 
+        cookie: { maxAge: SESSION_TIMEOUT_MINUTES * 60 * 1000 }, // in ms
+        key: 'openag.sid',
+        proxy: 'true',
+        resave: 'true',
+        saveUninitialized: 'true',
+        store: sessionStore
+    });
+app.use( expressSession ); // attach session
 
 // set up passport
-app.use( passport.initialize());
-app.use( passport.session()); // persistent login sessions
-app.use( flash()); // use connect-flash for flash messages stored in session
+app.use( passport.initialize() );
+app.use( passport.session() ); // persistent login sessions
+app.use( flash() ); // use connect-flash for flash messages stored in session
 
 // load our routes and pass in our app and fully configured passport
-require( './app/routes.js')( app, passport ); 
+require( './app/routes.js' )( app, passport ); 
+
+app.listen( port, function() {
+  console.log( 'listening on port:' + port );
+});
+
+// if using io, comment the above line.
+/* interactive data sockets! ==================================================
+var http             = require( 'http' ).Server( app );
+var io               = require( 'socket.io' )( http );
+
+io.on('connection', function( socket ) {
+    console.log('>>>  a user connected');
+    // send a message to client
+    io.emit( 'status', 'hi from server' ); // sends to anyone connected
+    socket.on( 'msgToServer', function( msg ) {
+        console.log('>>>  message from client: ' + msg);
+    });
+});
+
+io.on('disconnect', function(socket){
+    console.log('>>>  a user disconnected');
+});
 
 // launch ======================================================================
-app.listen( port );
-console.log( 'open http://localhost:' + port );
-
+http.listen( port, function(){
+  console.log('listening on port:' + port);
+});
+*/
 

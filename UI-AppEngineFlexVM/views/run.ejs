@@ -1,0 +1,77 @@
+<% include header.html %>
+
+<%
+    var var1 = "";
+    var var2 = "";
+    var sched1 = "";
+    var sched2 = "";
+    var validConfiguration = false;
+    var hideButton = false;
+    if( 'undefined' != typeof( session )) {
+        if( 'undefined' != typeof( session.var1 )) {
+            var1 = session.var1;
+        }
+        if( 'undefined' != typeof( session.var2 )) {
+            var2 = session.var2;
+        }
+        if( 'undefined' != typeof( session.sched1 )) {
+            sched1 = session.sched1;
+        }
+        if( 'undefined' != typeof( session.sched2 )) {
+            sched2 = session.sched2;
+        }
+        if( 'undefined' != typeof( session.validConfiguration )) {
+            validConfiguration = session.validConfiguration;
+        }
+        if( 'undefined' != typeof( session.hideButton )) {
+            hideButton = session.hideButton;
+        }
+    }
+
+    if( ! validConfiguration ) { 
+        hideButton = true;
+        run_warning = "Please <b><a href='/configure'>Configure</a></b> something to Run.";
+    }
+%>
+  <form action="/run" method="post">
+    <div class="form-group text-center">
+        <table class="table">
+          <thead class="thead-light">
+            <tr> 
+              <th> Variables </th>
+              <th> Control Sets </th>
+            </tr> 
+          </thead>
+          <tbody>
+<% if( 0 < var1.length ) { %>
+            <tr> 
+              <td> <%= var1 %> </td>
+              <td> <%= sched1 %> </td>
+            </tr> 
+<% } %>
+<% if( 0 < var2.length ) { %>
+            <tr> 
+              <td> <%= var2 %> </td>
+              <td> <%= sched2 %> </td>
+            </tr> 
+<% } %>
+          </tbody>
+        </table>
+
+<% if( ! hideButton ) { %> 
+        <button type="submit" class="btn btn-primary btn-lg">
+          Run Configuration</button>
+<% } %> 
+
+    </div>
+  </form>
+
+  <% if( "undefined" != typeof( run_info ) && run_info.length > 0 ) { %>
+    <div class="alert alert-info text-center"><%- run_info %></div>
+  <% } %>
+
+  <% if( "undefined" != typeof( run_warning ) && run_warning.length > 0 ) { %>
+    <div class="alert alert-warning text-center"><%- run_warning %></div>
+  <% } %>
+
+<% include footer.html %>

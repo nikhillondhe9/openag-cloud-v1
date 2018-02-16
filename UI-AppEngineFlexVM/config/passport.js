@@ -2,33 +2,35 @@
 var LocalStrategy = require('passport-local').Strategy;
 
 // load up the user model
-var User = require('../app/models/user');
+var User = require( '../app/models/user' );
+var DB = require( '../app/models/db' );
+
 
 module.exports = function(passport) {
 
     // =========================================================================
     // passport session setup ==================================================
     // =========================================================================
-    // required for persistent login sessions
-    // passport needs ability to serialize and unserialize users out of session
+    // Required for persistent login sessions.
+    // Passport needs the ability to serialize and deserialize users 
+    // into/out of the session.
 
     // used to serialize the user for the local session
     passport.serializeUser( function( user, done) {
-        console.log('passport serialize');
-        done(null, user.id);
+        //console.log( 'passport serialize user.id:' + user.id);
+        done( null, user.id );
     });
 
     // used to deserialize the user
     passport.deserializeUser( function( id, done) {
         // This gets called right before we redirect to the /home page.
         // It ALSO gets called when we logout.  How can we tell the diff?
-        console.log('passport deserialize');
+        //console.log( 'passport deserialize id:' + id );
 
-        // The second arg (true) means get env var data.  
-        // This is the only place we want to query for env vars.
-        User.findById(id, true, function(err, user) {
-            done(err, user);
-        });
+        // Just return User with only an id.
+        var u = new User();
+        u.id = id;
+        done( null, u );
     });
 
     // =========================================================================
@@ -52,7 +54,7 @@ module.exports = function(passport) {
         // asynchronous
         process.nextTick( function() {
             console.log('passport login');
-            User.findById( email, false, function( err, user ) {
+            DB.findUserById( email, function( err, user ) {
                 // if there are any errors, return the error
                 if( err ) {
                     console.log('passport login error');
@@ -72,7 +74,6 @@ module.exports = function(passport) {
                         req.flash( 'loginMessage', 'Oops! Wrong password.'));
                 } 
 
-                // else, all is well, return user
                 console.log('passport login success');
                 return done( null, user );
             });
@@ -84,7 +85,8 @@ module.exports = function(passport) {
     // LOCAL SIGNUP ============================================================
     // =========================================================================
     passport.use('local-signup', new LocalStrategy({
-        // by default, local strategy uses username and password, we will override with email
+        // by default, local strategy uses username and password, 
+        // we will override with email
         usernameField : 'email',
         passwordField : 'password',
         // allows us to pass in the req from our route 
@@ -104,46 +106,44 @@ module.exports = function(passport) {
             // if the user is not already logged in:
             if (!req.user) {
                 console.log('passport signup');
-                User.findById( email, false, function(err, user) {
+                DB.findUserById( email, function( err, user ) {
                     // if there are any errors, return the error
-                    if (err)
-                        return done(err);
+                    if( err ) {
+                        return done( err );
+                    }
 
                     // check to see if theres already a user with that email
-                    if (user) {
+                    if( user ) {
                         return done(null, false, req.flash('signupMessage', 
                             'That email is already taken.'));
                     } else {
-
                         // create the user
                         var newUser      = new User();
                         newUser.id       = email;
                         newUser.username = req.body.username;
                         newUser.password = newUser.generateHash( password );
 
-                        newUser.save(function(err) {
-                            if (err)
-                                return done(err);
+                        DB.saveUser( newUser, function( err ) {
+                            if( err ) {
+                                return done( err );
+                            }
 
-                            return done(null, newUser);
+                            return done( null, newUser );
                         });
                     }
-
                 });
-/*debugrob I don't think we ever hit this case, so removing for now
-*/
+
             // if the user is logged in but has no local account...
             } else if ( !req.user.id ) {
                 // ...presumably they're trying to connect a local account
                 // BUT let's check if the email used to connect a local account
                 // is being used by another user
-                User.findById( email, false, function(err, user) {
-                    if (err)
-                        console.log('passport login no local accnt error');
-                        return done(err);
+                DB.findUserById( email, function( err, user ) {
+                    if( err ) {
+                        return done( err );
+                    }
                     
-                    if (user) {
-                        console.log('passport login no local accnt email taken');
+                    if( user ) {
                         return done(null, false, req.flash('loginMessage', 
                             'That email is already taken.'));
                     } else {
@@ -151,12 +151,11 @@ module.exports = function(passport) {
                         user.id = email;
                         user.username = username;
                         user.password = user.generateHash( password );
-                        user.save(function (err) {
-                            if (err)
-                                return done(err);
-                            
-                            console.log('passport login no local accnt success');
-                            return done(null,user);
+                        user.save( function( err ) {
+                            if( err ) {
+                                return done( err );
+                            }
+                            return done( null, user );
                         });
                     }
                 });

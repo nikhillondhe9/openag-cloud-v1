@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>OpenAg console</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="google" content="notranslate">
+    <meta name="author" content="rbaynes">
+    <meta http-equiv="Content-Language" content="en">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <!-- Icons -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- Custom styles (loads faster than using a link to static css file) -->
+    <style>
+        /* Top navbar styles */
+        .topnav {
+            background-color: #e3f2fd;
+        }
+        /* Sticky footer styles */
+        html {
+            position: relative;
+            min-height: 100%;
+        }
+        body {
+            /* Margin bottom by footer height */
+            margin-bottom: 60px;
+        }
+        .footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            /* Set the fixed height of the footer here */
+            height: 60px;
+            line-height: 60px; /* Vertically center the text there */
+            background-color: #f5f5f5;
+        }
+        /* Custom page CSS */
+        body > .container {
+            padding: 60px 15px 0;
+        }
+        .footer > .container {
+            padding-right: 15px;
+            padding-left: 15px;
+        }
+        code {
+            font-size: 80%;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Automatically show menu on auth'd pages -->
+<% if( pageName ) { 
+     dataActive = "";
+     title = "";
+     if( 'data' == pageName ) {
+        dataActive = "active";
+        title = "Recent environmental variables";
+     }
+
+     configureActive = "";
+     if( 'configure' == pageName ) {
+        configureActive = "active";
+        title = "Configure your Food Computer";
+     }
+
+     runActive = "";
+     if( 'run' == pageName ) {
+        runActive = "active";
+        title = "Run your Food Computer";
+     }
+
+     stopActive = "";
+     if( 'stop' == pageName ) {
+        stopActive = "active";
+        title = "Stop your Food Computer";
+     }
+
+     statusActive = "";
+     if( 'status' == pageName ) {
+        statusActive = "active";
+        title = "Status of your Food Computer";
+     }
+%>
+
+  <header>
+      <nav class="navbar navbar-expand-md navbar-light fixed-top topnav">
+        <span class="navbar-brand">OpenAg™</span> 
+        <!-- if view port gets too small, show menu button -->
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+              <a class="nav-link <%= dataActive %>" href="/data">Data</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link <%= configureActive %>" 
+                  href="/configure">Configure</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link <%= runActive %>" href="/run">Run</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link <%= stopActive %>" href="/stop">Stop</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link <%= statusActive %>" href="/status">Status</a>
+            </li>
+          </ul>
+          <ul class="navbar-nav mt-2 mt-md-0">
+            <li class="nav-item my-2 my-sm-0">
+              <a class="nav-link" href="/logout">Logout</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+  </header>
+<% } %> 
+
+
+<!-- Begin page content -->
+<main role="main" class="container">
+
+<% if( pageName ) { %>
+<div class="text-center">
+      <small class="text-muted"><%= title %></small>
+</div>
+<% } %> 
+
