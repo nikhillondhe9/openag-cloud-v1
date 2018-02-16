@@ -30,6 +30,53 @@ class DB {
     }
 
     //-------------------------------------------------------------------------
+    // getDeviceStatus( email, deviceId, function(err, status) {} )
+    static getDeviceStatus( email, deviceId, callback ) {
+        if( typeof email === 'undefined' ) {
+            console.log( "DB.getDeviceStatus ERROR: Passed invalid email." );
+            return callback( "error", "" );
+        }
+        if( typeof deviceId === 'undefined' ) {
+            console.log( "DB.getDeviceStatus ERROR: Passed invalid deviceId." );
+            return callback( "error", "" );
+        }
+
+        var sql = "SELECT sval, " +
+            " FORMAT_TIMESTAMP( '%c', TIMESTAMP( "+
+            "   REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)')), "+
+            "    'America/New_York') as Time "+
+            " FROM " + dataDatasetName + "." + valueTableName +
+            " WHERE " +
+            " REGEXP_EXTRACT(id, r'(?:[^\~]*\~){3}([^~]*)') = 'status' AND " +
+            " REGEXP_EXTRACT(id, r'(?:[^\~]*\~){5}([^~]*)') = '" + 
+            deviceId + "' ORDER BY " +
+            " REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)') DESC LIMIT 1";
+      
+        const options = {
+            query: sql,
+            timeoutMs: 15000,     // Time out after 15 seconds.
+            useLegacySql: false,  // Use standard SQL syntax for queries.
+        };
+
+        // This is an ASYNCHRONOUS query, 
+        // so you must wait and process the query results inside the 
+        // dynamic callback function when it is eventually called.
+        BQ.query( options, function( err, rows ) {
+            if( err ) {
+                console.error('DB.getDeviceStatus ERROR:', err);
+                return callback( err, "" );
+            }
+            if( rows.length == 0 ) {
+                return callback( null, "" );
+            }
+            // We have at least one row 
+            const row = rows[0];
+            const stat = row.Time + "  " + row.sval;
+            return callback( stat, "" );
+        });
+    }
+
+    //-------------------------------------------------------------------------
     // saveCommand( email, deviceId, commandStr, function(err) {} )
     static saveCommand( email, deviceId, commandStr, callback ) {
 
@@ -159,6 +206,7 @@ class DB {
      "    REGEXP_EXTRACT(id, r'(?:[^\~]*\~){5}([^~]*)') as DeviceID, "+
      "    getValAsStr(type,fval,ival,sval) as Value "+
      "  FROM " + dataDatasetName + "." + valueTableName +
+     "  WHERE 'status' != REGEXP_EXTRACT(id, r'(?:[^\~]*\~){3}([^~]*)') "+
      "  ORDER BY REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)') DESC "+
      "  LIMIT 5 ";
 

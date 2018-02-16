@@ -4,7 +4,8 @@ const User = require( '../app/models/user' );
 const Command = require( '../app/models/command' );
 
 
-module.exports = function(app, passport) {
+module.exports = function( app, passport ) 
+{
 
 // normal routes ===============================================================
 
@@ -253,6 +254,7 @@ module.exports = function(app, passport) {
             session : req.session,
             status_info : "",
             status_warning : "",
+            status_device : "",
             pageName : 'status' 
         });
     });
@@ -276,12 +278,22 @@ module.exports = function(app, passport) {
                 infoMsg = "";
             }
         });
-        res.render( 'status.ejs', {
-            user : req.user,
-            session : req.session,
-            status_info : infoMsg,
-            status_warning : warningMsg,
-            pageName : 'status' 
+
+        DB.getDeviceStatus( req.user.id, req.user.DEVICE_ID, 
+                function( err, status ) {
+            if( err ) {
+                warningMsg = err;
+                infoMsg = "";
+                status = "";
+            }
+            res.render( 'status.ejs', {
+                user : req.user,
+                session : req.session,
+                status_info : infoMsg,
+                status_warning : warningMsg,
+                status_device : status,
+                pageName : 'status' 
+            });
         });
     });
 

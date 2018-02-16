@@ -1,8 +1,5 @@
 // server.js
 
-//debugrob: Optimizations for later:
-//  Add DB class for BQ code.  Make streaming and batch DB methods.
-
 //debugrob: Need for perf?: 
 //  Upon startup, check memcache, if empty, load all users from BQ.
 //  change my DB class to be a write-through memcache to BQ.
@@ -24,6 +21,7 @@ var cookieParser   = require( 'cookie-parser');
 var bodyParser     = require( 'body-parser');
 var session        = require( 'express-session'); 
 var MemcachedStore = require( 'connect-memjs')( session );
+
 
 // configuration ===============================================================
 require( './config/passport')( passport ); // pass passport for configuration
@@ -50,19 +48,23 @@ if( process.env.USE_GAE_MEMCACHE ) {
 }
 
 // set up session storage in the memcached
-app.use( session({
-    secret: '1LoveF00dDoY00L00eF000Organ1cYummyF000', // session secret
-    cookie: { maxAge: SESSION_TIMEOUT_MINUTES * 60 * 1000 }, // in ms
-    key: 'view:count',
-    proxy: 'true',
-    resave: 'true',
-    saveUninitialized: 'true',
-    store: new MemcachedStore({
+const SESSION_SECRET = '1LoveF00dDoY00L00eF000Organ1cYummyF000';
+var sessionStore = new MemcachedStore( {
         servers: [MEMCACHE_URL], 
         username: [process.env.MEMCACHE_USERNAME],
         password: [process.env.MEMCACHE_PASSWORD]
-    })
-}));
+    });
+
+var expressSession = new session( {
+        secret: SESSION_SECRET, 
+        cookie: { maxAge: SESSION_TIMEOUT_MINUTES * 60 * 1000 }, // in ms
+        key: 'openag.sid',
+        proxy: 'true',
+        resave: 'true',
+        saveUninitialized: 'true',
+        store: sessionStore
+    });
+app.use( expressSession ); // attach session
 
 // set up passport
 app.use( passport.initialize() );
@@ -72,9 +74,31 @@ app.use( flash() ); // use connect-flash for flash messages stored in session
 // load our routes and pass in our app and fully configured passport
 require( './app/routes.js' )( app, passport ); 
 
+app.listen( port, function() {
+  console.log( 'listening on port:' + port );
+});
+
+// if using io, comment the above line.
+/* interactive data sockets! ==================================================
+var http             = require( 'http' ).Server( app );
+var io               = require( 'socket.io' )( http );
+
+io.on('connection', function( socket ) {
+    console.log('>>>  a user connected');
+    // send a message to client
+    io.emit( 'status', 'hi from server' ); // sends to anyone connected
+    socket.on( 'msgToServer', function( msg ) {
+        console.log('>>>  message from client: ' + msg);
+    });
+});
+
+io.on('disconnect', function(socket){
+    console.log('>>>  a user disconnected');
+});
 
 // launch ======================================================================
-app.listen( port );
-console.log( 'listening on port:' + port );
-
+http.listen( port, function(){
+  console.log('listening on port:' + port);
+});
+*/
 
