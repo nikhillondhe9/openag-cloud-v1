@@ -41,7 +41,7 @@ module.exports = function( app, passport )
                         "temp_humidity_htu20d",
                         "temp_humidity_sht25" ];
     const schedules = [ "",
-                        "measure every 10 sec",
+                        "measure every minute",
                         "LED disco set points",
                         "light control 800 LUX" ];
     app.get( '/configure', isLoggedIn, function(req, res) {
@@ -58,7 +58,7 @@ module.exports = function( app, passport )
     });
 
     // process (validate) the configure form
-    app.post( '/configure', function(req, res) {
+    app.post( '/configure', isLoggedIn, function(req, res) {
         //console.log('post configure' + JSON.stringify(req.body, null, 2));
         // store the form fields on the current session
         req.session.var1 = req.body.var1;
@@ -150,7 +150,7 @@ module.exports = function( app, passport )
     });
 
     // process the run form
-    app.post( '/run', function( req, res ) {
+    app.post( '/run', isLoggedIn, function( req, res ) {
         if( ! req.session.validConfiguration ) {
             req.session.hideButton = true;
             res.render( 'run.ejs', {
@@ -215,7 +215,7 @@ module.exports = function( app, passport )
     });
 
     // process the stop form
-    app.post( '/stop', function( req, res ) {
+    app.post( '/stop', isLoggedIn, function( req, res ) {
         infoMsg = "Stop sent to your device!";
         warningMsg = "";
 
@@ -260,7 +260,7 @@ module.exports = function( app, passport )
     });
 
     // process the status form
-    app.post( '/status', function( req, res ) {
+    app.post( '/status', isLoggedIn, function( req, res ) {
         infoMsg = "Status request sent to your device!";
         warningMsg = "";
 

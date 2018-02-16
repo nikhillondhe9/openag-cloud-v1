@@ -12,7 +12,7 @@ const TREATMENT_ID = '0';
 
 // temporary JSON recipes
 const recipes = [ 
-'{ "dtype": "4", "measurement_period_ms": "10000", "num_cycles": "1", "curr_cycle": "0", "cycles": [ { "num_steps": "1", "num_repeats": "20", "curr_step": "0", "curr_repeat": "0", "steps": [ { "set_point": "0.000000", "duration": "50" } ] } ] }',  // measure every 10 sec
+'{ "dtype": "4", "measurement_period_ms": "60000", "num_cycles": "1", "curr_cycle": "0", "cycles": [ { "num_steps": "1", "num_repeats": "20", "curr_step": "0", "curr_repeat": "0", "steps": [ { "set_point": "0.000000", "duration": "120" } ] } ] }',  // measure every minute
 '{ "dtype": "10", "measurement_period_ms": "500", "num_cycles": "1", "curr_cycle": "0", "cycles": [ { "num_steps": "43", "num_repeats": "1", "curr_step": "0", "curr_repeat": "0", "steps": [ { "set_point": ["255","255","255","255","255","255"], "duration": "5" }, { "set_point": ["255",  "0",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": ["200",  "0",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": ["155",  "0",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": ["100",  "0",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [ "55",  "0",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0","255",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0","200",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0","155",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0","100",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0", "55",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0","255",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0","200",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0","155",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0","100",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0", "55",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0","255",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0","200",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0","155",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0","100",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0", "55",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0","255",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0","200",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0","155",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0","100",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0", "55",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0","255"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0","200"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0","155"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0","100"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0", "55"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": ["255","255","255","255","255","255"], "duration": "1" }, { "set_point": ["200","200","200","200","200","200"], "duration": "1" }, { "set_point": ["155","155","155","155","155","155"], "duration": "1" }, { "set_point": ["100","100","100","100","100","100"], "duration": "1" }, { "set_point": [ "55", "55", "55", "55", "55", "55"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0",  "0"], "duration": "1" } ] } ] }', // LED disco set points
 '{ "dtype": "4", "measurement_period_ms": "4000", "num_cycles": "1", "curr_cycle": "0", "cycles": [ { "num_steps": "2", "num_repeats": "10", "curr_step": "0", "curr_repeat": "0", "steps": [ { "set_point": "800", "duration": "360" }, { "set_point": "0", "duration": "60" } ] } ] }'  // light control 800 LUX 
 ];
@@ -124,7 +124,7 @@ class Command {
 
         if( 0 < var1.length && 0 < sched1.length ) {
             var recipe = "";
-            if( "measure every 10 sec" == sched1 ) {
+            if( "measure every minute" == sched1 ) {
                 recipe = recipes[0];
             } else if( "LED disco set points" == sched1 ) {
                 recipe = recipes[1];
@@ -137,7 +137,7 @@ class Command {
 
         if( 0 < var2.length && 0 < sched2.length ) {
             var recipe = "";
-            if( "measure every 10 sec" == sched2 ) {
+            if( "measure every minute" == sched2 ) {
                 recipe = recipes[0];
             } else if( "LED disco set points" == sched2 ) {
                 recipe = recipes[1];
