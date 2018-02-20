@@ -1,1 +1,1 @@
-#id,userid,message
+#id, type, messageId, senderId, message
