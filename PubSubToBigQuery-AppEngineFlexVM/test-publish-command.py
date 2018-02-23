@@ -22,8 +22,10 @@ if __name__ == '__main__':
                          default='Status')
     parser.add_argument( '--arg0', type=str, help='arg0', default='0' )
     parser.add_argument( '--arg1', type=str, help='arg1', default='0' )
-    parser.add_argument( '--deviceID', type=str, help='Device UUID',
+    parser.add_argument( '--deviceId', type=str, help='Device UUID',
                          default='288b5931-d089-43f0-b91f-32392ae72afb')
+    parser.add_argument( '--messageId', type=str, help='Unique messageId',
+                         default='0')
     args = parser.parse_args()
 
     print( "Pubishing to %s" % PUBSUB_TOPIC )
@@ -32,7 +34,8 @@ if __name__ == '__main__':
 
 # JSON commands array
 #{ 
-#    "deviceID": "<deviceID>", 
+#    "messageId": "<messageId>", 
+#    "deviceId": "<deviceId>", 
 #    "commands": [
 #        { 
 #            "command": "<command>", 
@@ -48,7 +51,8 @@ if __name__ == '__main__':
 #}
 
     message_obj = {} # a python dict
-    message_obj['deviceID'] = str( args.deviceID )
+    message_obj['messageId'] = str( args.messageId )
+    message_obj['deviceId'] = str( args.deviceId )
 
     cmd = {} 
     cmd['command'] = str( args.command )

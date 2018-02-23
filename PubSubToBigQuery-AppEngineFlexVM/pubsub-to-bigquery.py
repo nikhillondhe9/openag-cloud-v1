@@ -1,16 +1,19 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """ This script reads data from a PubSub topic, 
     and stores it in BiqQuery using the BigQuery batch API.
 """
 
-import base64
-import datetime
-import json
-import os
-import time
+import base64, datetime, json, os, time, logging, sys, signal
 
-import utils
+import utils # local module
+
+# Handle the user pressing Control-C
+def signal_handler(signal, frame):
+    logging.critical( 'Exiting.' )
+    sys.exit(0)
+signal.signal( signal.SIGINT, signal_handler )
+
 
 # Get environment variables that are set by the app.yaml file.
 PROJECT_ID = os.environ['PROJECT_ID']
@@ -28,7 +31,7 @@ def fqrn(resource_type, project, resource):
 # Creates a new subscription to a given topic.
 # Handles subscriptions that already exist.
 def create_subscription(client, project_name, sub_name):
-    print( "Using pubsub topic: %s" % PUBSUB_TOPIC )
+    logging.info( "Using pubsub topic: %s" % PUBSUB_TOPIC )
     name = get_full_subscription_name(project_name, sub_name)
     body = {'topic': PUBSUB_TOPIC}
     subscription = ''
@@ -36,12 +39,12 @@ def create_subscription(client, project_name, sub_name):
     try:
         subscription = client.projects().subscriptions().get(
             subscription=name ).execute( num_retries=NUM_RETRIES )
-        print( 'Subscription {} exists.'.format(subscription['name']))
+        logging.info( 'Subscription {} exists.'.format(subscription['name']))
     except Exception as e:
         # sub doesn't exist, so create it
         subscription = client.projects().subscriptions().create(
             name=name, body=body ).execute( num_retries=NUM_RETRIES )
-        print( 'Subscription {} was created.'.format(subscription['name']))
+        logging.info( 'Subscription {} was created.'.format(subscription['name']))
 
 
 #------------------------------------------------------------------------------
@@ -65,7 +68,7 @@ def pull_messages(client, project_name, sub_name):
                 subscription=subscription, body=body).execute(
                         num_retries=NUM_RETRIES)
     except Exception as e:
-        print( "Exception: %s" % e)
+        logging.critical( "Exception: %s" % e)
         time.sleep(0.5)
         return
     receivedMessages = resp.get('receivedMessages')
@@ -94,44 +97,47 @@ def write_to_bq( pubsub, sub_name, bigquery ):
     # If no data on the subscription, the time to sleep in seconds
     # before checking again.
     WAIT = 2
-    tweet = None
 
     # run forever!
     while True:
+        try:
+            # accumulate values
+            while len( values ) < CHUNK:
+                msgs = pull_messages( pubsub, PROJECT_ID, sub_name )
+                if msgs:
+                    for msg in msgs:
+                        # Each value must be a JSON object that matches the 
+                        # table schema.
+                        logging.info( 'received pubsub message data %s' % msg)
+                        val = None
+                        try:
+                            val = json.loads( msg ) # JSON str to py dict
+                        except Exception as e:
+                            logging.critical( e )
+                            continue
+                        values.append( val )
+                else:
+                    # pause before checking again
+                    logging.info( 'sleeping...')
+                    time.sleep(WAIT)
 
-        # accumulate values
-        while len(values) < CHUNK:
-            twmessages = pull_messages(pubsub, PROJECT_ID, sub_name)
-            if twmessages:
-                for res in twmessages:
-                    # Each value must be a JSON object that matches the 
-                    # table schema.
-                    #print( 'received pubsub message data: ', res )
-                    val = None
-                    try:
-                        val = json.loads(res)
-                    except Exception as e:
-                        print( 'ERROR:', e )
-                        continue
-                    values.append( val )
-            else:
-                # pause before checking again
-                print( 'sleeping...')
-                time.sleep(WAIT)
+            # data validation and insertion into the DB
+            response = utils.bq_data_insert( bigquery, PROJECT_ID, values )
 
-        # data validation and insertion into the DB
-        response = utils.bq_data_insert( bigquery, PROJECT_ID, 
-            os.environ['BQ_DATASET'], os.environ['BQ_TABLE'], values )
-        values = []
+            values = [] # reset the values list
+
+        except Exception as e:
+            logging.critical( "write_to_bq: Exception: %s" % e)
 
 
 
 #------------------------------------------------------------------------------
 if __name__ == '__main__':
+    logging.basicConfig( level=logging.INFO ) # can only call once
     topic_info = PUBSUB_TOPIC.split('/')
     topic_name = topic_info[-1]
     sub_name = "values-%s" % topic_name
-    print( "Subscribing and writing to BigQuery...")
+    logging.info( "Subscribing and writing to BigQuery...")
     credentials = utils.get_credentials()
     bigquery = utils.create_bigquery_client(credentials)
     pubsub = utils.create_pubsub_client(credentials)
@@ -139,9 +145,9 @@ if __name__ == '__main__':
         # TODO: check if subscription exists first
         subscription = create_subscription(pubsub, PROJECT_ID, sub_name)
     except Exception as e:
-        print( e )
+        logging.critical( e )
     # loop forever
     write_to_bq( pubsub, sub_name, bigquery )
-    print( 'exited write loop' )
+    logging.critical( 'exited write loop' )
 
 

@@ -31,7 +31,9 @@ def main():
     'SELECT REGEXP_EXTRACT(id, r\"[^~]+\") as name '
     'FROM ' + args.dataset + '.' + os.getenv("EXP_TABLE") + ' '
     'ORDER BY id' )
-  for row in cli.query_rows( EQ ):
+  job = cli.query( EQ )
+  results_iter = job.result() # access iterator to send query to API
+  for row in results_iter:
     exp = row.name 
     print( exp )
 

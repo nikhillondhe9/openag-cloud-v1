@@ -66,13 +66,15 @@ export ID_KEY_DEV=Dev
 export USER_TABLE=user
 export REC_TABLE=rec
 export CMD_TABLE=cmd
+export STATUS_TABLE=status
 
 export USER_TABLE_DESC="User profiles."
 export REC_TABLE_DESC="Climate Recipes."
 export CMD_TABLE_DESC="Commands sent to devices and replies from devices."
+export STATUS_TABLE_DESC="Device status."
 
 # bash arrays of tables for the UI dataset that we can loop over.
-export UI_TABLES=($USER_TABLE $REC_TABLE $CMD_TABLE)
-export UI_TABLE_DESCS=("$USER_TABLE_DESC" "$REC_TABLE_DESC" "$CMD_TABLE_DESC")
+export UI_TABLES=($USER_TABLE $REC_TABLE $CMD_TABLE $STATUS_TABLE)
+export UI_TABLE_DESCS=("$USER_TABLE_DESC" "$REC_TABLE_DESC" "$CMD_TABLE_DESC" "$STATUS_TABLE_DESC")
 
 

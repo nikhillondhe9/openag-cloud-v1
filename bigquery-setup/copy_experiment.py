@@ -82,9 +82,9 @@ def main():
     '#standardsql \n'
     'SELECT id FROM ' + args.sourceDS + '.exp ' 
     'WHERE REGEXP_EXTRACT(id, r\'[^~]+\') = \'' + args.experiment + '\'' )
-  results_iter = cli.query_rows( EQ )
-  results_list = list( results_iter ) # access iterator to send query to API
-  if 1 != results_iter.num_results:
+  job = cli.query( EQ )
+  results_iter = job.result() # access iterator to send query to API
+  if 1 != results_iter.total_rows:
     print( 'ERROR: Experiment ' + args.experiment + ' does not exist.' )
     exit( 1 )
 

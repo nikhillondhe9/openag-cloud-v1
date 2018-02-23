@@ -13,7 +13,7 @@ const TREATMENT_ID = '0';
 // temporary JSON recipes
 const recipes = [ 
 '{ "dtype": "4", "measurement_period_ms": "60000", "num_cycles": "1", "curr_cycle": "0", "cycles": [ { "num_steps": "1", "num_repeats": "20", "curr_step": "0", "curr_repeat": "0", "steps": [ { "set_point": "0.000000", "duration": "120" } ] } ] }',  // measure every minute
-'{ "dtype": "10", "measurement_period_ms": "500", "num_cycles": "1", "curr_cycle": "0", "cycles": [ { "num_steps": "43", "num_repeats": "1", "curr_step": "0", "curr_repeat": "0", "steps": [ { "set_point": ["255","255","255","255","255","255"], "duration": "5" }, { "set_point": ["255",  "0",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": ["200",  "0",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": ["155",  "0",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": ["100",  "0",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [ "55",  "0",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0","255",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0","200",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0","155",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0","100",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0", "55",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0","255",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0","200",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0","155",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0","100",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0", "55",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0","255",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0","200",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0","155",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0","100",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0", "55",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0","255",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0","200",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0","155",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0","100",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0", "55",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0","255"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0","200"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0","155"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0","100"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0", "55"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0",  "0"], "duration": "1" }, { "set_point": ["255","255","255","255","255","255"], "duration": "1" }, { "set_point": ["200","200","200","200","200","200"], "duration": "1" }, { "set_point": ["155","155","155","155","155","155"], "duration": "1" }, { "set_point": ["100","100","100","100","100","100"], "duration": "1" }, { "set_point": [ "55", "55", "55", "55", "55", "55"], "duration": "1" }, { "set_point": [  "0",  "0",  "0",  "0",  "0",  "0"], "duration": "1" } ] } ] }', // LED disco set points
+'{ "dtype": "10", "measurement_period_ms": "500", "num_cycles": "1", "curr_cycle": "0", "cycles": [ { "num_steps": "62", "num_repeats": "60", "curr_step": "0", "curr_repeat": "0", "steps": [ { "set_point": ["255","255","255","255","255","255"], "duration": "1" }, { "set_point": ["255","180","255","255","255","255"], "duration": "1" }, { "set_point": ["255","150","255","255","255","255"], "duration": "1" }, { "set_point": ["255","100","255","255","255","255"], "duration": "1" }, { "set_point": ["255","50","255","255","255","255"], "duration": "1" }, { "set_point": ["255","0","255","255","255","255"], "duration": "1" }, { "set_point": ["255","50","255","255","255","255"], "duration": "1" }, { "set_point": ["255","100","255","255","255","255"], "duration": "1" }, { "set_point": ["255","150","255","255","255","255"], "duration": "1" }, { "set_point": ["255","180","255","255","255","255"], "duration": "1" }, { "set_point": ["255","255","255","255","255","255"], "duration": "1" }, { "set_point": ["255","255","180","255","255","255"], "duration": "1" }, { "set_point": ["255","255","150","255","255","255"], "duration": "1" }, { "set_point": ["255","255","100","255","255","255"], "duration": "1" }, { "set_point": ["255","255","50","255","255","255"], "duration": "1" }, { "set_point": ["255","255","0","255","255","255"], "duration": "1" }, { "set_point": ["255","255","50","255","255","255"], "duration": "1" }, { "set_point": ["255","255","100","255","255","255"], "duration": "1" }, { "set_point": ["255","255","150","255","255","255"], "duration": "1" }, { "set_point": ["255","255","180","255","255","255"], "duration": "1" }, { "set_point": ["255","255","255","255","255","255"], "duration": "1" }, { "set_point": ["255","255","255","180","255","255"], "duration": "1" }, { "set_point": ["255","255","255","150","255","255"], "duration": "1" }, { "set_point": ["255","255","255","100","255","255"], "duration": "1" }, { "set_point": ["255","255","255","50","255","255"], "duration": "1" }, { "set_point": ["255","255","255","0","255","255"], "duration": "1" }, { "set_point": ["255","255","255","50","255","255"], "duration": "1" }, { "set_point": ["255","255","255","100","255","255"], "duration": "1" }, { "set_point": ["255","255","255","150","255","255"], "duration": "1" }, { "set_point": ["255","255","255","180","255","255"], "duration": "1" }, { "set_point": ["255","255","255","255","255","255"], "duration": "1" }, { "set_point": ["255","255","255","255","180","255"], "duration": "1" }, { "set_point": ["255","255","255","255","150","255"], "duration": "1" }, { "set_point": ["255","255","255","255","100","255"], "duration": "1" }, { "set_point": ["255","255","255","255","50","255"], "duration": "1" }, { "set_point": ["255","255","255","255","0","255"], "duration": "1" }, { "set_point": ["255","255","255","255","50","255"], "duration": "1" }, { "set_point": ["255","255","255","255","100","255"], "duration": "1" }, { "set_point": ["255","255","255","255","150","255"], "duration": "1" }, { "set_point": ["255","255","255","255","180","255"], "duration": "1" }, { "set_point": ["255","255","255","255","255","255"], "duration": "1" }, { "set_point": ["255","255","255","255","255","180"], "duration": "1" }, { "set_point": ["255","255","255","255","255","150"], "duration": "1" }, { "set_point": ["255","255","255","255","255","100"], "duration": "1" }, { "set_point": ["255","255","255","255","255","50"], "duration": "1" }, { "set_point": ["255","255","255","255","255","0"], "duration": "1" }, { "set_point": ["255","255","255","255","255","50"], "duration": "1" }, { "set_point": ["255","255","255","255","255","100"], "duration": "1" }, { "set_point": ["255","255","255","255","255","150"], "duration": "1" }, { "set_point": ["255","255","255","255","255","180"], "duration": "1" }, { "set_point": ["255","255","255","255","255","255"], "duration": "1" }, { "set_point": ["180","255","255","255","255","255"], "duration": "1" }, { "set_point": ["150","255","255","255","255","255"], "duration": "1" }, { "set_point": ["100","255","255","255","255","255"], "duration": "1" }, { "set_point": ["50","255","255","255","255","255"], "duration": "1" }, { "set_point": ["0","255","255","255","255","255"], "duration": "1" }, { "set_point": ["50","255","255","255","255","255"], "duration": "1" }, { "set_point": ["100","255","255","255","255","255"], "duration": "1" }, { "set_point": ["150","255","255","255","255","255"], "duration": "1" }, { "set_point": ["150","255","255","255","255","255"], "duration": "1" }, { "set_point": ["255","255","255","255","255","255"], "duration": "1" }, { "set_point": ["255","255","255","255","255","255"], "duration": "1" } ] } ] }', // LED disco set points
 '{ "dtype": "4", "measurement_period_ms": "4000", "num_cycles": "1", "curr_cycle": "0", "cycles": [ { "num_steps": "2", "num_repeats": "10", "curr_step": "0", "curr_repeat": "0", "steps": [ { "set_point": "800", "duration": "360" }, { "set_point": "0", "duration": "60" } ] } ] }'  // light control 800 LUX 
 ];
 
@@ -31,7 +31,7 @@ function sleep( ms ) {
 ////////////////////////////////
 
 //-----------------------------------------------------------------------------
-/* send a commands array of commands.
+/* send an array of commands.
 { 
     "deviceID": "<deviceID>", 
     "commands": [
@@ -52,7 +52,7 @@ function send( commands ) {
     var jstr = JSON.stringify( commands );
     //console.log('send() ' + jstr );
     const data = Buffer.from( jstr );
-    PUBLISHER.publish( data, function( err, messageId ) {
+    PUBLISHER.publish( data, function( err, internalPubSubMessageId ) {
         if( err ) {
             console.log( 'Error: Command: send(): ' + err );
             return false;
@@ -112,11 +112,13 @@ class Command {
     //-------------------------------------------------------------------------
     // Send all the necessary commands to set up and run.
     // Returns the JSON string that is sent.
-    static sendCommands( user, var1, var2, sched1, sched2, callback ) {
+    static sendCommands( user, var1, var2, sched1, sched2, messageId, 
+                         callback ) {
         console.log('Command: sendCommands() called')
 
         var commands = { 
-            deviceID: user.DEVICE_ID,
+            messageId: messageId,
+            deviceId: user.DEVICE_ID,
             commands: []        // a empty JSON array of commands
         };
 
@@ -163,11 +165,12 @@ class Command {
 
     //-------------------------------------------------------------------------
     // Send the stop command.
-    static sendStop( user, callback ) {
+    static sendStop( user, messageId, callback ) {
         console.log('Command: sendStop() called')
 
         var commands = { 
-            deviceID: user.DEVICE_ID,
+            messageId: messageId,
+            deviceId: user.DEVICE_ID,
             commands: []        // a empty JSON array of commands
         };
 
@@ -184,11 +187,12 @@ class Command {
 
     //-------------------------------------------------------------------------
     // Send the status command.
-    static sendStatus( user, callback ) {
+    static sendStatus( user, messageId, callback ) {
         console.log('Command: sendStatus() called')
 
         var commands = { 
-            deviceID: user.DEVICE_ID,
+            messageId: messageId,
+            deviceId: user.DEVICE_ID,
             commands: []        // a empty JSON array of commands
         };
 

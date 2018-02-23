@@ -39,7 +39,9 @@ def printComments( cli, ds, exp, key, treat, label ):
   CQ += treat           # for the current treatment
   CQ += "~.*\") "       # ignore userid and timestamp
   CQ += "ORDER BY id"
-  for row in cli.query_rows( CQ ): 
+  job = cli.query( CQ )
+  results_iter = job.result() # access iterator to send query to API
+  for row in results_iter:
     print( label+row.username, row.text, sep=', ' )
 
 
@@ -76,7 +78,9 @@ def main():
       'SELECT REGEXP_EXTRACT(id, r\"[^~]+\") as name '
       'FROM ' + args.dataset + '.' + os.getenv("EXP_TABLE") + ' '
       'ORDER BY id' )
-    for row in cli.query_rows( EQ ):
+    job = cli.query( EQ )
+    results_iter = job.result() # access iterator to send query to API
+    for row in results_iter:
       exps.append( row.name )
   else:                         # only show the experiment the user specified
     # Verify that the experiment exists
@@ -84,9 +88,9 @@ def main():
       '#standardsql \n'
       'SELECT id FROM ' + args.dataset + '.' + os.getenv("EXP_TABLE") + ' '
       'WHERE REGEXP_EXTRACT(id, r\'[^~]+\') = \'' + args.experiment + '\'' )
-    results_iter = cli.query_rows( EQ )
-    results_list = list( results_iter ) # access iterator to send query to API
-    if 1 != results_iter.num_results:
+    job = cli.query( EQ )
+    results_iter = job.result() # access iterator to send query to API
+    if 1 != results_iter.total_rows:
       print( 'ERROR: Experiment ' + args.experiment + ' does not exist in '
              'dataset ' + args.dataset )
       exit( 1 )
@@ -111,7 +115,9 @@ def main():
     TQ += exp
     TQ += "\") AND userid = user.id "
     TQ += "ORDER BY t.id "
-    for row in cli.query_rows( TQ ):
+    job = cli.query( TQ )
+    results_iter = job.result() # access iterator to send query to API
+    for row in results_iter:
       treat = row.name
       username = row.username
       recipe = row.recipe
@@ -152,7 +158,9 @@ def main():
         VQ += treat
         VQ += "~.*\") "
         VQ += "  ORDER BY id "
-        for row in cli.query_rows( VQ ):
+        job = cli.query( VQ )
+        results_iter = job.result() # access iterator to send query to API
+        for row in results_iter:
           print( "      Value: " + row.Name, str(row.Value), sep=', ' )
 
         # Also print all GCMS sample data
@@ -169,7 +177,9 @@ def main():
         '    "' + exp + '" = experiment AND '
         '    "' + treat + '" = treatment '
         '  ORDER BY sample, LOWER( molecule ) ' )
-        for row in cli.query_rows( GQ ):
+        job = cli.query( GQ )
+        results_iter = job.result() # access iterator to send query to API
+        for row in results_iter:
           print( "      GCMS Sample: " + row.sample, row.molecule, \
                  str(row.RT), str(row.abundance), sep=', ' )
 
@@ -185,7 +195,9 @@ def main():
         VQ += treat
         VQ += "~.*\") "
         numValues = "0" # default
-        for row in cli.query_rows( VQ ): # should only be one row
+        job = cli.query( VQ )
+        results_iter = job.result() # access iterator to send query to API
+        for row in results_iter:
             numValues = str(row.num) # convert int to string
 
         # get count of GCMS samples
@@ -198,7 +210,9 @@ def main():
         GQ += treat
         GQ += "~.*\") "
         numGCMS = "0" # default
-        for row in cli.query_rows( GQ ): # should only be one row
+        job = cli.query( GQ )
+        results_iter = job.result() # access iterator to send query to API
+        for row in results_iter: # should only be one row
             numGCMS = str(row.num) # convert int to string
         print( "    " + treat, username, recipe, 
                "Values="+numValues, "GCMSsamples="+numGCMS, sep=', ' )
@@ -211,7 +225,9 @@ def main():
            'SELECT location,type,warehouse,container,rack,tray FROM ' + 
            args.dataset + '.' + os.getenv("DEV_TABLE") + ' '
            'WHERE id = "' + device + '"' )
-      for row in cli.query_rows( DQ ):
+      job = cli.query( DQ )
+      results_iter = job.result() # access iterator to send query to API
+      for row in results_iter:
         print( "      Device: " + device, row.location, row.type, 
           str(row.warehouse) + '.' + str(row.container) + '.' + 
           str(row.rack) + '.' + str(row.tray), sep=' ' )

@@ -18,11 +18,11 @@ from google.cloud import bigquery
 cli = bigquery.Client()
 
 for ds in cli.list_datasets():
-  d = cli.get_dataset( ds ) # get full object
+  d = cli.get_dataset( ds.reference ) # get full object
   print( d.dataset_id )
   #print( "  description:", d.description )
-  for tbl in cli.list_dataset_tables( ds ):
-    t = cli.get_table( tbl ) # get full object
+  for tbl in cli.list_dataset_tables( ds.reference ):
+    t = cli.get_table( tbl.reference ) # get full object
     print( "    table:", t.table_id );
     #print( "      description:", t.description )
     print( "      rows:", t.num_rows )

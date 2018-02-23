@@ -1,0 +1,21 @@
+[
+    {
+        "description": "<deviceId>~<created UTC TS>",
+        "name": "id",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "description": "Unique per message ID",
+        "name": "messageId",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "description": "Status (JSON)",
+        "name": "status",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    }
+]
+

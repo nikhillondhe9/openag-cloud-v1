@@ -168,12 +168,16 @@ module.exports = function( app, passport )
         infoMsg = "Configuration sent to your device!";
         warningMsg = "";
 
+        // current UTC time in seconds is our unique messageId
+        var messageId = getUTCsecs(); 
+
         // Send the commands to the device and display result to user.
         cmds = Command.sendCommands( req.user,
                                      req.session.var1,
                                      req.session.var2,
                                      req.session.sched1,
                                      req.session.sched2,
+                                     messageId, 
                                      function( err ) {
             if( err ) {
                 warningMsg = err;
@@ -182,6 +186,7 @@ module.exports = function( app, passport )
         });
 
         DB.saveCommand( req.user.id, req.user.DEVICE_ID, 
+                        'command', messageId, 'UI',
                         cmds, function( err ) {
             if( err ) {
                 warningMsg = err;
@@ -219,14 +224,19 @@ module.exports = function( app, passport )
         infoMsg = "Stop sent to your device!";
         warningMsg = "";
 
+        var messageId = getUTCsecs(); 
+
         // Send the commands to the device and display result to user.
-        cmds = Command.sendStop( req.user, function( err ) {
+        cmds = Command.sendStop( req.user, 
+                                 messageId, 
+                                 function( err ) {
             if( err ) {
                 infoMsg = "";
                 warningMsg = err;
             }
         });
         DB.saveCommand( req.user.id, req.user.DEVICE_ID, 
+                        'command', messageId, 'UI',
                         cmds, function( err ) {
             if( err ) {
                 warningMsg = err;
@@ -264,14 +274,19 @@ module.exports = function( app, passport )
         infoMsg = "Status request sent to your device!";
         warningMsg = "";
 
+        var messageId = getUTCsecs(); 
+
         // Send the commands to the device and display result to user.
-        cmds = Command.sendStatus( req.user, function( err ) {
+        cmds = Command.sendStatus( req.user, 
+                                   messageId, 
+                                   function( err ) {
             if( err ) {
                 infoMsg = "";
                 warningMsg = err;
             }
         });
         DB.saveCommand( req.user.id, req.user.DEVICE_ID, 
+                        'command', messageId, 'UI',
                         cmds, function( err ) {
             if( err ) {
                 warningMsg = err;
@@ -279,7 +294,8 @@ module.exports = function( app, passport )
             }
         });
 
-        DB.getDeviceStatus( req.user.id, req.user.DEVICE_ID, 
+        // Get the status message from the DB with the same messageId
+        DB.getDeviceStatus( req.user.id, req.user.DEVICE_ID, messageId,
                 function( err, status ) {
             if( err ) {
                 warningMsg = err;
@@ -357,4 +373,15 @@ function isLoggedIn( req, res, next ) {
     res.redirect( '/' );
 }
 
+
+// Return UTC seconds include millis as a float.
+function getUTCsecsWithMillisAsFloat() {
+    var d = new Date();
+    return d.getTime() / 1000;
+}
+
+// Return UTC seconds as int.
+function getUTCsecs() {
+    return Math.trunc( getUTCsecsWithMillisAsFloat()); // makes an int
+}
 

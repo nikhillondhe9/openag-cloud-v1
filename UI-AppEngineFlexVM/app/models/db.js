@@ -29,18 +29,25 @@ class DB {
     constructor() {
     }
 
+//debugrob: find status by using new messageId in query
     //-------------------------------------------------------------------------
-    // getDeviceStatus( email, deviceId, function(err, status) {} )
-    static getDeviceStatus( email, deviceId, callback ) {
+    // getDeviceStatus( email, deviceId, messageId, function(err, status) {} )
+    static getDeviceStatus( email, deviceId, messageId, callback ) {
         if( typeof email === 'undefined' ) {
             console.log( "DB.getDeviceStatus ERROR: Passed invalid email." );
             return callback( "error", "" );
         }
         if( typeof deviceId === 'undefined' ) {
-            console.log( "DB.getDeviceStatus ERROR: Passed invalid deviceId." );
+            console.log( "DB.getDeviceStatus ERROR: Passed invalid deviceId.");
+            return callback( "error", "" );
+        }
+        if( typeof messageId === 'undefined' ) {
+            console.log( "DB.getDeviceStatus ERROR: Passed invalid messageId.");
             return callback( "error", "" );
         }
 
+//debugrob: now query for messageId in the .._webui.status table
+//  BQ_STATUS_TABLE: status
         var sql = "SELECT sval, " +
             " FORMAT_TIMESTAMP( '%c', TIMESTAMP( "+
             "   REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)')), "+
@@ -77,8 +84,10 @@ class DB {
     }
 
     //-------------------------------------------------------------------------
-    // saveCommand( email, deviceId, commandStr, function(err) {} )
-    static saveCommand( email, deviceId, commandStr, callback ) {
+    // saveCommand( email, deviceId, type, messageId, senderId, 
+    //              commandStr, function(err) {} )
+    static saveCommand( email, deviceId, type, messageId, senderId,
+                        commandStr, callback ) {
 
         if( 'string' != typeof(commandStr) || 0 == commandStr.length ) {
             console.log( "Error: invalid commandStr" );
@@ -93,7 +102,11 @@ class DB {
         var key = deviceId + '~' + email + '~' + utc;
 
         // Make JSON row of data.
-        const rows = [{ id: key, message: commandStr }];
+        const rows = [{ id: key, 
+                        type: type,
+                        messageId: messageId,
+                        senderId: senderId,
+                        message: commandStr }];
 
         // This is a STREAMING insert, which means that the data can't be 
         // deleted or updated in BQ for 24 hours. OK for a log.

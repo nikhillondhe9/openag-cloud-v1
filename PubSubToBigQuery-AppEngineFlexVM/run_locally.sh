@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# deactivate any current python virtual environment we may be running
+if ! [ -z "${VIRTUAL_ENV}" ] ; then
+    echo "deactivate"
+fi
+
 if [[ -z "${TOP_DIR}" ]]; then
   # gcloud_env.bash has not been sourced.
   export TOP_DIR="${PWD}/.."
@@ -11,6 +16,10 @@ export PROJECT_ID=$GCLOUD_PROJECT
 export PUBSUB_TOPIC="projects/openag-cloud-v1/topics/environmental-data"
 export BQ_DATASET="test"
 export BQ_TABLE="val"
-export PUBSUB_VERIFICATION_TOKEN="SpaceLettuce123"
+export BQ_USER_DATASET="openag_private_webui"
+export BQ_STATUS_TABLE="status"
+export BQ_COMMAND_TABLE="cmd"
+
+source pubsub_env/bin/activate
 
 python pubsub-to-bigquery.py

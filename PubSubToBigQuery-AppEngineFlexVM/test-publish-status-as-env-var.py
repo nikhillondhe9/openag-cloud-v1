@@ -26,10 +26,10 @@ if __name__ == '__main__':
     parser.add_argument( '--experiment', type=str, help='Experiment name',
                          default='TestExp')
     parser.add_argument( '--treatment', type=str, help='Treatment name',
-                         default='TestTreat')
+                         default='status')
     parser.add_argument( '--variableName', type=str, help='Env var name',
-                         default='CO2')
-    parser.add_argument( '--value', type=float, help='Value of env var',
+                         default='status')
+    parser.add_argument( '--value', type=str, help='Status message',
                          required=True )
     args = parser.parse_args()
 
@@ -48,7 +48,7 @@ if __name__ == '__main__':
     message_obj['exp'] = args.experiment
     message_obj['treat'] = args.treatment
     message_obj['var'] = args.variableName
-    message_obj['type'] = 'float'
+    message_obj['type'] = 'string'
     message_obj['value'] = str( args.value )
     message_obj['messageId'] = '0'
 
