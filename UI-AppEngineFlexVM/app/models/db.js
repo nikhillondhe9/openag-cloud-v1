@@ -11,14 +11,16 @@ const projectId = process.env.PROJECT_ID;
 const userDatasetName = process.env.BQ_USER_DATASET;
 const userTableName = process.env.BQ_USER_TABLE;
 const cmdTableName = process.env.BQ_CMD_TABLE;
-const dataDatasetName = process.env.BQ_DATA_DATASET
-const valueTableName = process.env.BQ_VALUE_TABLE
+const statusTableName = process.env.BQ_STATUS_TABLE;
+const dataDatasetName = process.env.BQ_DATA_DATASET;
+const valueTableName = process.env.BQ_VALUE_TABLE;
 const BQ = BigQuery({ projectId: projectId });
 
 console.log('DB: PROJECT_ID:'+ projectId );
 console.log('DB: BQ_USER_DATASET:'+ userDatasetName );
 console.log('DB: BQ_USER_TABLE:'+ userTableName );
 console.log('DB: BQ_CMD_TABLE:'+ cmdTableName );
+console.log('DB: BQ_STATUS_TABLE:'+ statusTableName );
 console.log('DB: BQ_DATA_DATASET:'+ dataDatasetName );
 console.log('DB: BQ_VALUE_TABLE:'+ valueTableName );
 
@@ -29,7 +31,6 @@ class DB {
     constructor() {
     }
 
-//debugrob: find status by using new messageId in query
     //-------------------------------------------------------------------------
     // getDeviceStatus( email, deviceId, messageId, function(err, status) {} )
     static getDeviceStatus( email, deviceId, messageId, callback ) {
@@ -46,18 +47,21 @@ class DB {
             return callback( "error", "" );
         }
 
-//debugrob: now query for messageId in the .._webui.status table
-//  BQ_STATUS_TABLE: status
-        var sql = "SELECT sval, " +
+        // Just get the latest status by device and messageId.
+        var sql = "SELECT s.status as Message, " +
             " FORMAT_TIMESTAMP( '%c', TIMESTAMP( "+
-            "   REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)')), "+
+            "   REGEXP_EXTRACT(s.id, r'(?:[^\~]*\~){1}([^~]*)')), "+
             "    'America/New_York') as Time "+
-            " FROM " + dataDatasetName + "." + valueTableName +
+            " FROM " + userDatasetName + "." + statusTableName + " as s " +
             " WHERE " +
-            " REGEXP_EXTRACT(id, r'(?:[^\~]*\~){3}([^~]*)') = 'status' AND " +
-            " REGEXP_EXTRACT(id, r'(?:[^\~]*\~){5}([^~]*)') = '" + 
-            deviceId + "' ORDER BY " +
-            " REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)') DESC LIMIT 1";
+            " REGEXP_EXTRACT(s.id, r'(?:[^\~]*\~){0}([^~]*)') = '" + 
+                deviceId + "' " +
+            " ORDER BY s.messageId DESC " +
+            " LIMIT 1";
+
+// right now it takes many seconds for the status command to go to the device,
+// the device to repond, the pub-sub service to insert into the DB...
+//            " AND messageId = '" + messageId + "' " +
       
         const options = {
             query: sql,
@@ -78,7 +82,7 @@ class DB {
             }
             // We have at least one row 
             const row = rows[0];
-            const stat = row.Time + "  " + row.sval;
+            const stat = row.Time + "  " + row.Message;
             return callback( stat, "" );
         });
     }

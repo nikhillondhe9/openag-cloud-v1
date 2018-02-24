@@ -296,18 +296,18 @@ module.exports = function( app, passport )
 
         // Get the status message from the DB with the same messageId
         DB.getDeviceStatus( req.user.id, req.user.DEVICE_ID, messageId,
-                function( err, status ) {
+                function( err, statusMessage ) {
             if( err ) {
                 warningMsg = err;
                 infoMsg = "";
-                status = "";
+                statusMessage = "";
             }
             res.render( 'status.ejs', {
                 user : req.user,
                 session : req.session,
                 status_info : infoMsg,
                 status_warning : warningMsg,
-                status_device : status,
+                status_device : statusMessage,
                 pageName : 'status' 
             });
         });

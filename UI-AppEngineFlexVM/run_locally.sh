@@ -18,6 +18,7 @@ export BQ_USER_DATASET=openag_private_webui
 export BQ_USER_TABLE=user
 export BQ_RECIPE_TABLE=rec
 export BQ_CMD_TABLE=cmd
+export BQ_STATUS_TABLE=status
 
 export BQ_DATA_DATASET=test
 export BQ_VALUE_TABLE=val
