@@ -78,6 +78,7 @@ treat_KEY = 'treat'
 var_KEY = 'var'
 type_KEY = 'type'
 value_KEY = 'value'
+value2_KEY = 'value2'
 
 # keys for messageType='Status'
 status_KEY = 'status'
@@ -121,6 +122,8 @@ def makeEnvVarDict( valueDict, envVarList ):
     valueTypeKey = 'sval' # default
     if 'float' == varType:
         valueTypeKey = 'fval'
+    if 'float[]' == varType:
+        valueTypeKey = 'sval' # store an array of floats as CSV for now
     if 'int' == varType:
         valueTypeKey = 'ival'
     # <expName>~<KEY>~<treatName>~<valName>~<created UTC TS>~<deviceID>
@@ -128,8 +131,15 @@ def makeEnvVarDict( valueDict, envVarList ):
     schemaDict['id'] = ID.format( treatName, varName, 
         time.strftime( '%Y-%m-%dT%H:%M:%SZ', time.gmtime() ))
     schemaDict['type'] = varType
+
+#debugrob: this is a hack for now.
+    # optional value, gets written as string CSV of the values
+    if validDictKey( valueDict, value2_KEY ):
+        varValue += ', ' + valueDict[ value2_KEY ]
+
     schemaDict[ valueTypeKey ] = varValue
     envVarList.append( schemaDict )
+
 
 
 #------------------------------------------------------------------------------
@@ -241,21 +251,22 @@ def bq_data_insert( bigquery, project_id, values ):
         for valueDict in values:
 
             # only one of these temporary lists will be added to
-            tmpEnvVar = []
+            tmpEnvVars = []
             tmpStatus = []
             tmpCommandReply = []
             # process each value here to make it table schema compatible
-            makeDict( valueDict, tmpEnvVar, tmpStatus, tmpCommandReply )
+            makeDict( valueDict, tmpEnvVars, tmpStatus, tmpCommandReply )
 
-            if 1 == len( tmpEnvVar ):
-                item_row = {"json": tmpEnvVar[0]}
-                envVarList.append( item_row )
+            if 0 < len( tmpEnvVars ):
+                for envVar in tmpEnvVars:
+                    item_row = {"json": envVar}
+                    envVarList.append( item_row )
 
-            if 1 == len( tmpStatus ):
+            if 0 < len( tmpStatus ):
                 item_row = {"json": tmpStatus[0]}
                 statusList.append( item_row )
 
-            if 1 == len( tmpCommandReply ):
+            if 0 < len( tmpCommandReply ):
                 item_row = {"json": tmpCommandReply[0]}
                 commandReplyList.append( item_row )
 
