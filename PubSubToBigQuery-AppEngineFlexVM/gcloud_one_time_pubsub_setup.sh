@@ -22,15 +22,7 @@ gcloud config set compute/zone $GCLOUD_ZONE
 gcloud pubsub topics create $GCLOUD_TOPIC
 gcloud pubsub subscriptions create --topic $GCLOUD_TOPIC $GCLOUD_SUBS
 
-# topic and subscription name match
-gcloud pubsub topics create $GCLOUD_REG
-gcloud pubsub subscriptions create --topic $GCLOUD_REG $GCLOUD_REG
-
-
-# SOON: per-device command topic/subscription that are created by the UI.
-# Name format: <$GCLOUD_CMDS>_<deviceId>
-
-# TEMPORARY everyone-uses-the-same-topic for commands.
+# everyone uses the same topic for commands.
 gcloud pubsub topics create $GCLOUD_CMDS
 gcloud pubsub subscriptions create --topic $GCLOUD_CMDS $GCLOUD_CMDS
 
