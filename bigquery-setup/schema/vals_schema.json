@@ -1,0 +1,26 @@
+[
+    {
+        "description": "<expName>~<KEY>~<treatName>~<valName>~<created UTC TS>~<DeviceID> NO TILDES IN FIELDS ALLOWED",
+        "name": "id",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "description": "JSON string of values",
+        "name": "values",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "plant X location in tray",
+        "name": "X",
+        "type": "INTEGER",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "plant Y location in tray",
+        "name": "Y",
+        "type": "INTEGER",
+        "mode": "NULLABLE"
+    }
+]

@@ -8,26 +8,33 @@ source $TOP_DIR/bigquery-setup/bq_env.bash
 
 #------------------------------------------------------------------------------
 # Create only the test dataset.
-  DS=$TEST_DS
-  DESC=$TEST_DS_DESC
-  mk_dataset $DS "$DESC"
+DS=$TEST_DS
+DESC=$TEST_DS_DESC
+mk_dataset $DS "$DESC"
+if [ $? -eq 1 ]; then
+  echo "Exiting script."
+  exit 1
+fi
+
+# Create all DATA tables for the DATA dataset. (diff tables for webui)
+TCOUNT=${#DATA_TABLES[@]}
+let TCOUNT-=1
+for T in `seq 0 $TCOUNT`; do
+  TBL=${DATA_TABLES[ $T ]}
+  DESC=${DATA_TABLE_DESCS[ $T ]}
+  mk_schema $DS $TBL "$DESC" 
   if [ $? -eq 1 ]; then
     echo "Exiting script."
     exit 1
   fi
+done
 
-  # Create all DATA tables for the DATA dataset. (diff tables for webui)
-  TCOUNT=${#DATA_TABLES[@]}
-  let TCOUNT-=1
-  for T in `seq 0 $TCOUNT`; do
-    TBL=${DATA_TABLES[ $T ]}
-    DESC=${DATA_TABLE_DESCS[ $T ]}
-    mk_schema $DS $TBL "$DESC" 
-    if [ $? -eq 1 ]; then
-      echo "Exiting script."
-      exit 1
-    fi
-  done
-
-# No need to load any data to this test DS
+# Load saved data
+for TBL in "${DATA_TABLES[@]}"; do
+  load_data $DS $TBL
+  if [ $? -eq 1 ]; then
+    echo "Exiting script."
+    exit 1
+  fi
+done
 

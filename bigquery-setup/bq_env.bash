@@ -36,7 +36,7 @@ export DATASET_DESCS=("$DATA_DS_DESC" "$PUBLIC_DATA_DS_DESC" "$PUBLIC_USER_DATA_
 #------------------------------------------------------------------------------
 export EXP_TABLE=exp
 export TRE_TABLE=treat
-export VAL_TABLE=val
+export VAL_TABLE=vals
 export COM_TABLE=com
 export DEV_TABLE=dev
 export GCM_TABLE=gcms

@@ -76,9 +76,7 @@ deviceId_KEY = 'deviceId'
 exp_KEY = 'exp'
 treat_KEY = 'treat'
 var_KEY = 'var'
-type_KEY = 'type'
-value_KEY = 'value'
-value2_KEY = 'value2'
+values_KEY = 'values'
 
 # keys for messageType='Status'
 status_KEY = 'status'
@@ -100,8 +98,7 @@ def makeEnvVarDict( valueDict, envVarList ):
        not validDictKey( valueDict, exp_KEY ) or \
        not validDictKey( valueDict, treat_KEY ) or \
        not validDictKey( valueDict, var_KEY ) or \
-       not validDictKey( valueDict, type_KEY ) or \
-       not validDictKey( valueDict, value_KEY ):
+       not validDictKey( valueDict, values_KEY ):
         logging.critical('Invalid key in dict.')
         return
 
@@ -109,8 +106,7 @@ def makeEnvVarDict( valueDict, envVarList ):
     expName =   valueDict[ exp_KEY ]
     treatName = valueDict[ treat_KEY ]
     varName =   valueDict[ var_KEY ]
-    varType =   valueDict[ type_KEY ]
-    varValue =  valueDict[ value_KEY ]
+    values =  valueDict[ values_KEY ]
 
     # clean / scrub / check the values.  
     deviceID = deviceID.replace( '~', '' ) 
@@ -118,26 +114,16 @@ def makeEnvVarDict( valueDict, envVarList ):
     treatName = treatName.replace( '~', '' ) 
     varName = varName.replace( '~', '' ) 
 
-    schemaDict = {}
-    valueTypeKey = 'sval' # default
-    if 'float' == varType:
-        valueTypeKey = 'fval'
-    if 'float[]' == varType:
-        valueTypeKey = 'sval' # store an array of floats as CSV for now
-    if 'int' == varType:
-        valueTypeKey = 'ival'
     # <expName>~<KEY>~<treatName>~<valName>~<created UTC TS>~<deviceID>
     ID = expName + '~Env~{}~{}~{}~' + deviceID
-    schemaDict['id'] = ID.format( treatName, varName, 
+
+    schemaDict = {}
+    schemaDict[ 'id' ] = ID.format( treatName, varName, 
         time.strftime( '%Y-%m-%dT%H:%M:%SZ', time.gmtime() ))
-    schemaDict['type'] = varType
+    schemaDict[ 'values' ] = values
 
-#debugrob: this is a hack for now.
-    # optional value, gets written as string CSV of the values
-    if validDictKey( valueDict, value2_KEY ):
-        varValue += ', ' + valueDict[ value2_KEY ]
+    # NOTE: X, Y not being sent from device, so not stored in DB.
 
-    schemaDict[ valueTypeKey ] = varValue
     envVarList.append( schemaDict )
 
 
@@ -241,8 +227,6 @@ def bq_data_insert( bigquery, project_id, values ):
         statusTable = os.environ['BQ_STATUS_TABLE']
         commandTable = os.environ['BQ_COMMAND_TABLE']
 
-#debugrob: check if user has 'valid' flag True on their account.
-
         # Generate the data that will be sent to BigQuery for insertion.
         # Each value must be a JSON object that matches the table schema.
         envVarList = []
@@ -303,12 +287,8 @@ def bq_data_insert( bigquery, project_id, values ):
 
 #debugrob: I need to validate the user / openag flag, to know the correct DS.
 
-#debugrob: use a JOB here, not a streaming insertAll() which blocks deletion/updates for 24 hours.
-
 #debugrob: new bigquery api: (still streaming)
 #    def insert_rows(self, table, rows, selected_fields=None, **kwargs):
-
-#debugrob TODO: 'invalid field' errors can be detected here.
 
         return 
 

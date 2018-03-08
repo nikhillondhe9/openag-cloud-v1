@@ -32,4 +32,4 @@ done
 
 
 echo "Go look at bucket: $BUCKET"
-echo "https://console.cloud.google.com/storage/browser/openag-cloud-v1-data?project=openag-cloud-v1"
+echo "https://console.cloud.google.com/storage/browser/?project=openag-v1"

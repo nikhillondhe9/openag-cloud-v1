@@ -15,7 +15,7 @@ fi
 export PROJECT_ID=$GCLOUD_PROJECT
 export PUBSUB_TOPIC="projects/openag-cloud-v1/topics/environmental-data"
 export BQ_DATASET="test"
-export BQ_TABLE="val"
+export BQ_TABLE="vals"
 export BQ_USER_DATASET="openag_private_webui"
 export BQ_STATUS_TABLE="status"
 export BQ_COMMAND_TABLE="cmd"
