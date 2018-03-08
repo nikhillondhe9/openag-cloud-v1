@@ -30,11 +30,11 @@ for T in `seq 0 $TCOUNT`; do
 done
 
 # Load saved data
-for TBL in "${DATA_TABLES[@]}"; do
-  load_data $DS $TBL
-  if [ $? -eq 1 ]; then
-    echo "Exiting script."
-    exit 1
-  fi
-done
+#for TBL in "${DATA_TABLES[@]}"; do
+#  load_data $DS $TBL
+#  if [ $? -eq 1 ]; then
+#    echo "Exiting script."
+#    exit 1
+#  fi
+#done
 
