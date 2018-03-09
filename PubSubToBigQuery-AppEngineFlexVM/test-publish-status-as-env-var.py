@@ -14,7 +14,7 @@ import utils
 
 # hard coded project and topic.
 PROJECT_ID = 'openag-cloud-v1'
-PUBSUB_TOPIC = 'projects/openag-cloud-v1/topics/environmental-data'
+PUBSUB_TOPIC = 'projects/openag-v1/topics/environmental-data'
 NUM_RETRIES = 3
 
 

@@ -13,7 +13,6 @@ export GCLOUD_REGION=us-east1
 # gcloud compute zones list
 export GCLOUD_ZONE=us-east1-b
 export GOOGLE_APPLICATION_CREDENTIALS=$TOP_DIR/service_account.json
-export GOOGLE_STORAGE_DATA_BUCKET=openag-v1-data
 
 # for data
 export GCLOUD_TOPIC=environmental-data

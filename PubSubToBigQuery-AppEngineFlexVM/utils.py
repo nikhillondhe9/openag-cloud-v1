@@ -68,31 +68,18 @@ def validDictKey( d, key ):
 # keys common to all messages
 messageType_KEY = 'messageType'
 messageType_EnvVar = 'EnvVar'
-messageType_Status = 'Status'
 messageType_CommandReply = 'CommandReply'
 
-# keys for messageType='EnvVar'
+# keys for messageType='EnvVar' (and also 'CommandReply')
 deviceId_KEY = 'deviceId'
 exp_KEY = 'exp'
 treat_KEY = 'treat'
 var_KEY = 'var'
 values_KEY = 'values'
 
-# keys for messageType='Status'
-status_KEY = 'status'
-messageId_KEY = 'messageId'
-# plus deviceId_KEY from above
-
-# keys for messageType='CommandReply'
-command_KEY = 'command'
-senderId_KEY = 'senderId'
-userId_KEY = 'userId'
-# plus deviceId_KEY from above
-# plus messageId_KEY from above
-
 
 #------------------------------------------------------------------------------
-def makeEnvVarDict( valueDict, envVarList ):
+def makeEnvVarDict( valueDict, envVarList, idKey ):
     # each received EnvVar type message must have these fields
     if not validDictKey( valueDict, deviceId_KEY ) or \
        not validDictKey( valueDict, exp_KEY ) or \
@@ -115,7 +102,7 @@ def makeEnvVarDict( valueDict, envVarList ):
     varName = varName.replace( '~', '' ) 
 
     # <expName>~<KEY>~<treatName>~<valName>~<created UTC TS>~<deviceID>
-    ID = expName + '~Env~{}~{}~{}~' + deviceID
+    ID = expName + '~' + idKey + '~{}~{}~{}~' + deviceID
 
     schemaDict = {}
     schemaDict[ 'id' ] = ID.format( treatName, varName, 
@@ -127,88 +114,19 @@ def makeEnvVarDict( valueDict, envVarList ):
     envVarList.append( schemaDict )
 
 
-
 #------------------------------------------------------------------------------
-def makeStatusDict( valueDict, statusList ):
-    # each received dict must have these fields
-    if not validDictKey( valueDict, status_KEY ) or \
-       not validDictKey( valueDict, messageId_KEY ) or \
-       not validDictKey( valueDict, deviceId_KEY ):
-        logging.critical('Invalid key in dict.')
-        return
-
-    status =    valueDict[ status_KEY ]
-    messageId = valueDict[ messageId_KEY ]
-    deviceID =  valueDict[ deviceId_KEY ]
-
-    # clean / scrub / check the values.  
-    deviceID = deviceID.replace( '~', '' ) 
-
-    schemaDict = {}
-
-    # build a DB row that matches the table schema
-    # <deviceId>~<created UTC TS>
-    ID = deviceID + '~{}'
-    schemaDict['id'] = ID.format( 
-        time.strftime( '%Y-%m-%dT%H:%M:%SZ', time.gmtime() ))
-    schemaDict['status'] = status
-    schemaDict['messageId'] = messageId
-    statusList.append( schemaDict )
-
-
-#------------------------------------------------------------------------------
-def makeCommandReplyDict( valueDict, commandReplyList ):
-    # each received dict must have these fields
-    if not validDictKey( valueDict, command_KEY ) or \
-       not validDictKey( valueDict, senderId_KEY ) or \
-       not validDictKey( valueDict, deviceId_KEY ) or \
-       not validDictKey( valueDict, userId_KEY ) or \
-       not validDictKey( valueDict, messageId_KEY ):
-        logging.critical('Invalid key in dict.')
-        return
-
-    command =   valueDict[ command_KEY ]
-    senderId =  valueDict[ senderId_KEY ]
-    deviceID =  valueDict[ deviceId_KEY ]
-    userID =    valueDict[ userId_KEY ]
-    messageId = valueDict[ messageId_KEY ]
-
-    # clean / scrub / check the values.  
-    deviceID = deviceID.replace( '~', '' ) 
-    userID = userID.replace( '~', '' ) 
-
-    schemaDict = {}
-
-    # build a DB row that matches the table schema
-    # <deviceId>~<userId>~<created UTC TS>
-    ID = deviceID + '~' + userID + '~{}'
-    schemaDict['id'] = ID.format( 
-        time.strftime( '%Y-%m-%dT%H:%M:%SZ', time.gmtime() ))
-    schemaDict['type'] = 'reply'
-    schemaDict['messageId'] = messageId
-    schemaDict['senderId'] = senderId
-    schemaDict['message'] = command # needs to be JSON?
-    commandReplyList.append( schemaDict )
-
-
-
-#------------------------------------------------------------------------------
-def makeDict( valueDict, envVarList, statusList, commandReplyList ):
+def makeDict( valueDict, envVarList ):
 
     if not validDictKey( valueDict, messageType_KEY ):
         logging.critical('Missing key %s' % messageType_KEY )
         return
 
     if messageType_EnvVar == valueDict[ messageType_KEY ]:
-        makeEnvVarDict( valueDict, envVarList )
-        return
-
-    if messageType_Status == valueDict[ messageType_KEY ]:
-        makeStatusDict( valueDict, statusList )
+        makeEnvVarDict( valueDict, envVarList, 'Env' )
         return
 
     if messageType_CommandReply == valueDict[ messageType_KEY ]:
-        makeCommandReplyDict( valueDict, commandReplyList )
+        makeEnvVarDict( valueDict, envVarList, 'Cmd' )
         return
 
 
@@ -222,37 +140,21 @@ def bq_data_insert( bigquery, project_id, values ):
         # for env. vars
         varDS = os.environ['BQ_DATASET'] 
         varTable = os.environ['BQ_TABLE']
-        # for status
-        userDS = os.environ['BQ_USER_DATASET'] 
-        statusTable = os.environ['BQ_STATUS_TABLE']
-        commandTable = os.environ['BQ_COMMAND_TABLE']
 
         # Generate the data that will be sent to BigQuery for insertion.
         # Each value must be a JSON object that matches the table schema.
         envVarList = []
-        statusList = []
-        commandReplyList = []
         for valueDict in values:
 
             # only one of these temporary lists will be added to
             tmpEnvVars = []
-            tmpStatus = []
-            tmpCommandReply = []
             # process each value here to make it table schema compatible
-            makeDict( valueDict, tmpEnvVars, tmpStatus, tmpCommandReply )
+            makeDict( valueDict, tmpEnvVars )
 
             if 0 < len( tmpEnvVars ):
                 for envVar in tmpEnvVars:
                     item_row = {"json": envVar}
                     envVarList.append( item_row )
-
-            if 0 < len( tmpStatus ):
-                item_row = {"json": tmpStatus[0]}
-                statusList.append( item_row )
-
-            if 0 < len( tmpCommandReply ):
-                item_row = {"json": tmpCommandReply[0]}
-                commandReplyList.append( item_row )
 
         if 0 < len( envVarList ):
             body = {"rows": envVarList}
@@ -261,26 +163,6 @@ def bq_data_insert( bigquery, project_id, values ):
             response = bigquery.tabledata().insertAll(
                 projectId=project_id, datasetId=varDS,
                 tableId=varTable, body=body ).execute( 
-                        num_retries=NUM_RETRIES )
-            logging.info( "bq resp: %s %s" % 
-                    ( datetime.datetime.now(), response ))
-
-        if 0 < len( statusList ):
-            body = {"rows": statusList}
-            logging.info( "bq sending status: %s" % ( body ))
-            response = bigquery.tabledata().insertAll(
-                projectId=project_id, datasetId=userDS,
-                tableId=statusTable, body=body ).execute( 
-                        num_retries=NUM_RETRIES )
-            logging.info( "bq resp: %s %s" % 
-                    ( datetime.datetime.now(), response ))
-
-        if 0 < len( commandReplyList ):
-            body = {"rows": commandReplyList}
-            logging.info( "bq sending command reply: %s" % ( body ))
-            response = bigquery.tabledata().insertAll(
-                projectId=project_id, datasetId=userDS,
-                tableId=commandTable, body=body ).execute( 
                         num_retries=NUM_RETRIES )
             logging.info( "bq resp: %s %s" % 
                     ( datetime.datetime.now(), response ))

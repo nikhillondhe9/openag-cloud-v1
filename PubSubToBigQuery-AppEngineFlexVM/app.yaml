@@ -7,9 +7,6 @@ runtime_config:
 
 env_variables:
   PROJECT_ID: openag-v1
-  PUBSUB_TOPIC: projects/openag-cloud-v1/topics/environmental-data
+  PUBSUB_TOPIC: projects/openag-v1/topics/environmental-data
   BQ_DATASET: test
   BQ_TABLE: vals
-  BQ_USER_DATASET: openag_private_webui
-  BQ_STATUS_TABLE: status
-  BQ_COMMAND_TABLE: cmd

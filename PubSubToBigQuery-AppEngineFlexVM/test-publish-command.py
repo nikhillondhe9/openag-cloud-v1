@@ -9,7 +9,7 @@ import utils
 
 # hard coded project and topic.
 PROJECT_ID = 'openag-cloud-v1'
-PUBSUB_TOPIC = 'projects/openag-cloud-v1/topics/commands'
+PUBSUB_TOPIC = 'projects/openag-v1/topics/commands'
 NUM_RETRIES = 3
 
 
@@ -25,7 +25,7 @@ if __name__ == '__main__':
     parser.add_argument( '--deviceId', type=str, help='Device UUID',
                          default='288b5931-d089-43f0-b91f-32392ae72afb')
     parser.add_argument( '--messageId', type=str, help='Unique messageId',
-                         default='0')
+                         default='123')
     args = parser.parse_args()
 
     print( "Pubishing to %s" % PUBSUB_TOPIC )
