@@ -21,3 +21,8 @@ export GCLOUD_SUBS=values-environmental-data
 # both a topic and a subscription
 export GCLOUD_CMDS=commands
 
+# for IoT device registration
+export GCLOUD_DEV_EVENTS=device-events
+export GCLOUD_DEV_REG=device-registry
+
+
