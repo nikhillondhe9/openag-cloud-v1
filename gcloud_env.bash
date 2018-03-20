@@ -22,6 +22,7 @@ export GCLOUD_SUBS=values-environmental-data
 export GCLOUD_CMDS=commands
 
 # for IoT device registration
+export GCLOUD_DEV_UNCLAIMED=device-unclaimed-keys
 export GCLOUD_DEV_EVENTS=device-events
 export GCLOUD_DEV_REG=device-registry
 

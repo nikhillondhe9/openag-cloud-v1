@@ -8,10 +8,8 @@ if ! [ -z "${VIRTUAL_ENV}" ] ; then
     echo "deactivate"
 fi
 
-echo "source iot_env/bin/activate"
-echo "source ../../gcloud_env.bash"
-echo "source ../iot.bash"
-echo ""
+echo "source pubsub_env/bin/activate"
+echo "source ../gcloud_env.bash"
 echo ""
 
 

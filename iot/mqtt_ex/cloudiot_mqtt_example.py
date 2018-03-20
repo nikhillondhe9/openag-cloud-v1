@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Copyright 2017 Google Inc.
 #
@@ -28,6 +28,7 @@ import os
 import random
 import ssl
 import time
+import logging
 
 import jwt
 import paho.mqtt.client as mqtt
@@ -117,19 +118,23 @@ def on_message(unused_client, unused_userdata, message):
     print('Received message \'{}\' on topic \'{}\' with Qos {}'.format(
             payload, message.topic, str(message.qos)))
 
+# debugrob
+def on_log(unused_client, unused_userdata, level, buf):
+    print('LOG: \'{}\' {}'.format(buf, level))
+
 
 def get_client(
         project_id, cloud_region, registry_id, device_id, private_key_file,
         algorithm, ca_certs, mqtt_bridge_hostname, mqtt_bridge_port):
     """Create our MQTT client. The client_id is a unique string that identifies
     this device. For Google Cloud IoT Core, it must be in the format below."""
-    client = mqtt.Client(
-            client_id=('projects/{}/locations/{}/registries/{}/devices/{}'
-                       .format(
-                               project_id,
-                               cloud_region,
-                               registry_id,
-                               device_id)))
+
+    # projects/openag-v1/locations/us-central1/registries/device-registry/devices/my-python-device
+    client_id=('projects/{}/locations/{}/registries/{}/devices/{}'.format(
+        project_id, cloud_region, registry_id, device_id))
+    print('debugrob client_id={}'.format(client_id))
+
+    client = mqtt.Client( client_id=client_id )
 
     # With Google Cloud IoT Core, the username field is ignored, and the
     # password field is used to transmit a JWT to authorize the device.
@@ -148,6 +153,7 @@ def get_client(
     client.on_publish = on_publish
     client.on_disconnect = on_disconnect
     client.on_message = on_message
+    #client.on_log = on_log # debugrob
 
     # Connect to the Google MQTT bridge.
     client.connect(mqtt_bridge_hostname, mqtt_bridge_port)
@@ -221,6 +227,8 @@ def parse_command_line_args():
 # [START iot_mqtt_run]
 def main():
     global minimum_backoff_time
+    #logging.basicConfig( level=logging.DEBUG ) # debugrob
+    #logging.getLogger().setLevel( level=logging.DEBUG )
 
     args = parse_command_line_args()
 
@@ -228,6 +236,7 @@ def main():
     sub_topic = 'events' if args.message_type == 'event' else 'state'
 
     mqtt_topic = '/devices/{}/{}'.format(args.device_id, sub_topic)
+    print('debugrob mqtt_topic={}'.format(mqtt_topic))
 
     jwt_iat = datetime.datetime.utcnow()
     jwt_exp_mins = args.jwt_expires_minutes
@@ -235,6 +244,7 @@ def main():
         args.project_id, args.cloud_region, args.registry_id, args.device_id,
         args.private_key_file, args.algorithm, args.ca_certs,
         args.mqtt_bridge_hostname, args.mqtt_bridge_port)
+    #client.enable_logger() # debugrob
 
     # Publish num_messages mesages to the MQTT bridge once per second.
     for i in range(1, args.num_messages + 1):
