@@ -21,7 +21,7 @@ export BQ_CMD_TABLE=cmd
 export BQ_STATUS_TABLE=status
 
 export BQ_DATA_DATASET=test
-export BQ_VALUE_TABLE=val
+export BQ_VALUE_TABLE=vals
 
 export PUBSUB_TOPIC=projects/openag-cloud-v1/topics/commands
 

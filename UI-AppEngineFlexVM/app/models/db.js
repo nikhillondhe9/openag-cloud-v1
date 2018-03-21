@@ -194,25 +194,6 @@ class DB {
 //debugrob: later get for userId & deviceId(s)
         // get the most recent env vars 
         var sql = 
-     "CREATE TEMPORARY FUNCTION  "+
-     "  isFloat(type STRING) AS (TRIM(type) = 'float'); "+
-     "CREATE TEMPORARY FUNCTION  "+
-     "  getFloatAsStr(fval FLOAT64, ival INT64, sval STRING) AS  "+
-     "    (CAST( fval AS STRING)); "+
-     "CREATE TEMPORARY FUNCTION  "+
-     "  isInt(type STRING) AS (TRIM(type) = 'int'); "+
-     "CREATE TEMPORARY FUNCTION  "+
-     "  getIntAsStr(fval FLOAT64, ival INT64, sval STRING) AS  "+
-     "    (CAST( ival AS STRING)); "+
-     "CREATE TEMPORARY FUNCTION  "+
-     "  isString(type STRING) AS (TRIM(type) = 'string'); "+
-     "CREATE TEMPORARY FUNCTION  "+
-     "  getString(fval FLOAT64, ival INT64, sval STRING) AS (TRIM(sval)); "+
-     "CREATE TEMPORARY FUNCTION  "+
-     "  getValAsStr(type STRING, fval FLOAT64, ival INT64, sval STRING) AS ( "+
-     "  IF( isFloat(type), getFloatAsStr(fval,ival,sval),  "+
-     "    IF( isInt(type), getIntAsStr(fval,ival,sval), "+
-     "      IF( isString(type), getString(fval, ival, sval), NULL)))); "+
      "SELECT "+
      "    REGEXP_EXTRACT(id, r'(?:[^\~]*\~){0}([^~]*)') as Experiment, "+
      "    REGEXP_EXTRACT(id, r'(?:[^\~]*\~){2}([^~]*)') as Treatment, "+
@@ -221,7 +202,7 @@ class DB {
      "      REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)')), "+
      "        'America/New_York') as Time, "+
      "    REGEXP_EXTRACT(id, r'(?:[^\~]*\~){5}([^~]*)') as DeviceID, "+
-     "    getValAsStr(type,fval,ival,sval) as Value "+
+     "    JSON_EXTRACT_SCALAR(values, '$.values[0].value') as Value "+
      "  FROM " + dataDatasetName + "." + valueTableName +
      "  WHERE 'status' != REGEXP_EXTRACT(id, r'(?:[^\~]*\~){3}([^~]*)') "+
      "  ORDER BY REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)') DESC "+

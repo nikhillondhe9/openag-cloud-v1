@@ -16,7 +16,7 @@ env_variables:
   BQ_CMD_TABLE: cmd
   BQ_STATUS_TABLE: status
   BQ_DATA_DATASET: test
-  BQ_VALUE_TABLE: val
+  BQ_VALUE_TABLE: vals
 
   PUBSUB_TOPIC: projects/openag-cloud-v1/topics/commands
 
