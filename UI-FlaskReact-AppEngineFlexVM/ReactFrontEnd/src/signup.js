@@ -33,18 +33,29 @@ export class SignUp extends Component {
     }
 
     signupUser() {
-        return fetch('https://flaskapi-dot-openag-v1.appspot.com/signup/', {
+
+
+        return fetch('http://127.0.0.1:5000/signup/', {
             method: 'POST',
             headers: {
-                Accept: 'application/json',
+                'Accept': 'application/json',
                 'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
             },
-            body: JSON.stringify(this.state)
+            body: JSON.stringify({
+                'username': this.state.name,
+                'password': this.state.password,
+                'email_address': this.state.email_address
+            })
         })
             .then((response) => response.json())
             .then((responseJson) => {
                 console.log(responseJson)
-                return responseJson;
+                if (responseJson["response_code"]== 200){
+                    console.log("Succesfully signed up - redirecting page")
+                    this.props.history.push("/login")
+                }
+
             })
             .catch((error) => {
                 console.error(error);
