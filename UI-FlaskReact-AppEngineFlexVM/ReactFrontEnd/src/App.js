@@ -3,6 +3,7 @@ import './App.css';
 import {BrowserRouter as Router, Route, Link} from "react-router-dom";
 import {SignUp} from "./signup";
 import login from "./login";
+import Home from "./home";
 
 class App extends Component {
     constructor(props) {
@@ -35,6 +36,7 @@ class App extends Component {
                 <div>
                     <Route path='/login' component={login}/>
                     <Route path='/signup' component={SignUp}/>
+                    <Route path='/home' component={Home}/>
                 </div>
             </Router>
         );

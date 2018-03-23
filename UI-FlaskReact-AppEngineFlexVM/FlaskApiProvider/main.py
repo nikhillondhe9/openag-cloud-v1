@@ -21,3 +21,12 @@ def signup():
     })
     result = Response(data, status=200, mimetype='application/json')
     return result
+
+
+@app.route('/login/',methods=['GET', 'POST'])
+def login():
+    data = json.dumps({
+        "response_code":200
+    })
+    result = Response(data, status=200, mimetype='application/json')
+    return result

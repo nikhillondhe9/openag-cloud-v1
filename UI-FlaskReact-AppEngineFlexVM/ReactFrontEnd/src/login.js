@@ -22,10 +22,37 @@ class login extends Component {
 
     handleSubmit(event) {
 
-        alert('A login form was submitted: ' + this.state);
+        console.log('A login form was submitted: ' + this.state);
+        this.loginUser()
         event.preventDefault();
     }
 
+    loginUser() {
+        return fetch('http://127.0.0.1:5000/login/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({
+                'username': this.state.username,
+                'password': this.state.password
+            })
+        })
+            .then((response) => response.json())
+            .then((responseJson) => {
+                console.log(responseJson)
+                if (responseJson["response_code"]== 200){
+                    console.log("Succesfully login. Redirecting to the main dashboard")
+                    this.props.history.push("/home")
+                }
+
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }
 
     render() {
 
