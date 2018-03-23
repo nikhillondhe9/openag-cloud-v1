@@ -1,5 +1,5 @@
 runtime: python27
-service: flask
+service: flaskapi
 api_version: 1
 threadsafe: true
 
