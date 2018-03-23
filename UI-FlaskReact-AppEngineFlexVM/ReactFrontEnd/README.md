@@ -1,0 +1,4 @@
+We use a combination of Flask and React for driving our UI's. All UI's whether they are native apps on Android and iOS or if they are desktop/browser based apps will communuicate with our databse through a bunch of http requests. Flask is a python framework for building API's - it can receive these requests from the front end and handle the logic to return data to the front end
+
+## Flask for Middleware
+We use Flask as our middleware that connects to the databases. It's a python based scripting language.  
