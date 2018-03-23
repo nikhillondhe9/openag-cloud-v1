@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
-import './App.css';
+import './home.css';
 import {BrowserRouter as Router, Route, Link} from "react-router-dom";
+import logo from './logo.png';
 
 class Home extends Component {
     constructor(props) {
@@ -11,7 +12,14 @@ class Home extends Component {
 
     render() {
         return (
-            <p>I am home</p>
+            <div className="container home-container">
+                <div className="row image-row">
+                    <img src={logo}></img>
+                </div>
+
+
+            </div>
+
         );
     }
 }

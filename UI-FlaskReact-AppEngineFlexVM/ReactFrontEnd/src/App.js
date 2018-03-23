@@ -4,6 +4,7 @@ import {BrowserRouter as Router, Route, Link} from "react-router-dom";
 import {SignUp} from "./signup";
 import login from "./login";
 import Home from "./home";
+import recipes from "./recipes";
 
 class App extends Component {
     constructor(props) {
@@ -33,11 +34,53 @@ class App extends Component {
 
         return (
             <Router>
-                <div>
+                    <header className="header">
+                    <div className="row header-row">
+
+                        <div className="col-md-3 icon-holder">
+                            <Link to="/home">
+                            <div className="load-1">
+                                <div className="line"></div>
+                                <div className="line"></div>
+                                <div className="line"></div>
+                                <div className="label">Home</div>
+                            </div>
+                            </Link>
+                        </div>
+                        <div className="col-md-3 icon-holder">
+                            <div className="load-1">
+                                <div className="line"></div>
+                                <div className="line"></div>
+                                <div className="line"></div>
+                                <div className="label">My PFC</div>
+                            </div>
+                        </div>
+                        <div className="col-md-3 icon-holder" >
+                            <Link to="/recipes">
+                            <div className="load-1">
+                                <div className="line"></div>
+                                <div className="line"></div>
+                                <div className="line"></div>
+                                <div className="label">Recipes</div>
+                            </div>
+                            </Link>
+                        </div>
+                        <div className="col-md-3 icon-holder">
+                            <div className="load-1">
+                                <div className="line"></div>
+                                <div className="line"></div>
+                                <div className="line"></div>
+                                <div className="label">Profile</div>
+                            </div>
+                        </div>
+                    </div>
+                    <Route path='/recipes' component={recipes}/>
                     <Route path='/login' component={login}/>
                     <Route path='/signup' component={SignUp}/>
                     <Route path='/home' component={Home}/>
-                </div>
+                </header>
+
+
             </Router>
         );
     }
