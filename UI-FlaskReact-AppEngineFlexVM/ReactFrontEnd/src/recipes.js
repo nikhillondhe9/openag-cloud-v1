@@ -11,7 +11,9 @@ class recipes extends Component {
 
     render() {
 
-    return (<div>f</div>)
+    return (<div>
+        <h1>Select from the following recipes</h1>
+    </div>)
     }
 }
 

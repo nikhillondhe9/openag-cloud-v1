@@ -74,10 +74,10 @@ class App extends Component {
                             </div>
                         </div>
                     </div>
-                    <Route path='/recipes' component={recipes}/>
-                    <Route path='/home' component={Home}/>
-                    <Route path='/login' component={login}/>
-                    <Route path='/signup' component={SignUp}/>
+                    <Route path='/recipes' component={recipes} />
+                    <Route path='/home/:username' component={Home} />
+                    <Route path='/login' component={login} />
+                    <Route path='/signup' component={SignUp} />
                 </header>
 
             </Router>

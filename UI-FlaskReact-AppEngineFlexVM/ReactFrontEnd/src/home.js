@@ -6,7 +6,8 @@ import logo from './logo.png';
 class Home extends Component {
     constructor(props) {
         super(props);
-
+        //Start Fetching data
+        this.username = this.props.match.params.username
 
     }
 
@@ -14,10 +15,12 @@ class Home extends Component {
         return (
             <div className="container home-container">
                 <div className="row image-row">
-                    <img src={logo}></img>
+                    Welcome, {this.username}!
                 </div>
 
-
+                <div>
+                    Your current Device Status
+                </div>
             </div>
 
         );
