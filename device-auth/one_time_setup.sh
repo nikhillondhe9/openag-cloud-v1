@@ -7,9 +7,16 @@ if ! [ -z "${VIRTUAL_ENV}" ] ; then
     deactivate
 fi
 
-sudo pip install --upgrade virtualenv
-virtualenv --python python3 pubsub_env
-source pubsub_env/bin/activate
+rm -fr pyenv
+
+#sudo pip install --upgrade virtualenv
+virtualenv --python python3 pyenv
+source pyenv/bin/activate
+
 pip install --upgrade google-api-python-client
-pip install python-dateutil
+pip install --upgrade google-auth
+pip install --upgrade google-auth-httplib2
+
+pip install --upgrade firebase-admin
+pip install --upgrade google-cloud-firestore
 

@@ -1,24 +1,30 @@
 #!/bin/bash
 
-# deactivate any current python virtual environment we may be running
 if ! [ -z "${VIRTUAL_ENV}" ] ; then
     echo "deactivate"
 fi
 
-if [[ -z "${TOP_DIR}" ]]; then
-  # gcloud_env.bash has not been sourced.
-  export TOP_DIR="${PWD}/.."
-  source $TOP_DIR/gcloud_env.bash
-fi
+# firebase only runs in this region while its in beta
+GCLOUD_REGION=us-central1
 
-# MUST use the central region / zone for beta IoT product.
-export GCLOUD_REGION=us-central1
-export GCLOUD_ZONE=us-central1-c
 
-# These env vars live in app.yaml for the gcloud GAE deployed app:
-export PROJECT_ID=$GCLOUD_PROJECT
-export PUBSUB_TOPIC="projects/$GCLOUD_PROJECT/topics/device-events"
+# Firebase project key
+FB_SA=fb-func-test-service-account.json
 
-source pubsub_env/bin/activate
+# IoT key are registry for our openag-v1 project
+IOT_SA=../service_account.json
+GCLOUD_DEV_REG=device-registry
+# this is the firebase project (not our GCP one!)
+GCLOUD_PROJECT=openag-v1
 
-python dev-auth.py
+source pyenv/bin/activate
+
+python dev-auth.py --fb_service_account $FB_SA \
+                   --region $GCLOUD_REGION \
+                   --iot_project $GCLOUD_PROJECT \
+                   --iot_service_account $IOT_SA \
+                   --registry $GCLOUD_DEV_REG \
+                   --device_id test_device \
+                   --verification_code $1
+
+
