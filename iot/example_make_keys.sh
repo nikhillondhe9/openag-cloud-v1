@@ -23,15 +23,3 @@ echo "Enter this verification code in the UI:"
 sum rsa_cert.pem | cut -d ' ' -f 1
 
 
-# Moving the device registration to the cloud.
-#
-# Register a device
-# (does this have to happen on the device? or is it something the server side
-# does as part of a dev. reg. process)
-#gcloud beta iot devices create my-python-device \
-#  --project=$GCLOUD_PROJECT \
-#  --region=$GCLOUD_REGION \
-#  --registry=$GCLOUD_DEV_REG \
-#  --public-key path=rsa_cert.pem,type=rs256
-
-
