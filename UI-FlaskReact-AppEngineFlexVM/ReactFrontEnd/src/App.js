@@ -16,6 +16,7 @@ class App extends Component {
         // This binding is necessary to make `this` work in the callback
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+
     }
 
     handleChange(event) {
@@ -75,11 +76,10 @@ class App extends Component {
                         </div>
                     </div>
                     <Route path='/recipes' component={recipes}/>
+                    <Route path='/home' component={Home}/>
                     <Route path='/login' component={login}/>
                     <Route path='/signup' component={SignUp}/>
-                    <Route path='/home' component={Home}/>
                 </header>
-
 
             </Router>
         );
