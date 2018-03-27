@@ -48,7 +48,7 @@ def signup():
     job_config.query_parameters = query_params
 
     query_job= client.query(insert_user_query,job_config=job_config)
-
+    print(query_job.result())
 
     data = json.dumps({
         "response_code":200
@@ -60,9 +60,44 @@ def signup():
 
 @app.route('/login/',methods=['GET', 'POST'])
 def login():
+
+    received_form_response = json.loads(request.data)
     client = bigquery.Client()
-    data = json.dumps({
-        "response_code":200
-    })
+    username = received_form_response.get("username", None)
+    password = received_form_response.get("password", None)
+    job_config = bigquery.QueryJobConfig()
+
+    # Set use_legacy_sql to False to use standard SQL syntax.
+    # Note that queries are treated as standard SQL by default.
+    job_config.use_legacy_sql = False
+
+    if username is None or password is None:
+        result = Response({"message": "Please make sure you have added values for all the fields"}, status=500,
+                          mimetype='application/json')
+        return result
+
+    insert_user_query = """SELECT * FROM test.users WHERE username=@username AND password=@password"""
+    query_params = [
+        bigquery.ScalarQueryParameter('username', 'STRING', username),
+        bigquery.ScalarQueryParameter('password', 'STRING', password)
+    ]
+    job_config.query_parameters = query_params
+
+    query_job = client.query(insert_user_query, job_config=job_config)
+    query_result = query_job.result()
+    print("Results")
+    print(query_result)
+    if len(list(query_result)) > 0:
+        print("User found and login successful")
+        data = json.dumps({
+             "response_code": 200
+        })
+
+    else:
+        data = json.dumps({
+            "response_code":200,
+            "message":"Login failed. Please check your credentials"
+        })
+
     result = Response(data, status=200, mimetype='application/json')
     return result

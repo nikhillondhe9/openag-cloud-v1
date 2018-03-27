@@ -32,7 +32,6 @@ class App extends Component {
 
 
     render() {
-
         return (
             <Router>
                     <header className="header">

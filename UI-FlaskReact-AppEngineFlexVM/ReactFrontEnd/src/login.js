@@ -28,6 +28,7 @@ class login extends Component {
     }
 
     loginUser() {
+
         return fetch('http://127.0.0.1:5000/login/', {
             method: 'POST',
             headers: {
@@ -44,7 +45,7 @@ class login extends Component {
             .then((responseJson) => {
                 console.log(responseJson)
                 if (responseJson["response_code"]== 200){
-                    console.log("Succesfully login. Redirecting to the main dashboard")
+                    console.log("Succesfully signed up - redirecting page")
                     this.props.history.push("/home")
                 }
 
@@ -52,6 +53,7 @@ class login extends Component {
             .catch((error) => {
                 console.error(error);
             });
+
     }
 
     render() {
