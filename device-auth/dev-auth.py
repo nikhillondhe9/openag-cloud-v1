@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import os, time, json, argparse, logging
+import os, time, json, argparse, logging, uuid
 
 from google.oauth2 import service_account
 from googleapiclient import discovery
@@ -8,6 +8,8 @@ from googleapiclient import discovery
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
+
+from google.cloud import bigquery
 
 
 #------------------------------------------------------------------------------
@@ -43,6 +45,15 @@ def getFirestoreClient( service_account_json ):
 
 
 #------------------------------------------------------------------------------
+# Works on OSX and Debian/ARM.
+# Returns the MAC address of the default (in use) interface.
+# For example: f4-0f-24-19-fe-ba
+def getMAC():
+    mac_addr = hex(uuid.getnode()).replace('0x', '')
+    return '-'.join(mac_addr[i : i + 2] for i in range(0, 11, 2))
+
+
+#------------------------------------------------------------------------------
 def main():
 
     # default log file and level
@@ -67,9 +78,9 @@ def main():
             help='GClouod IoT service account JSON file.' )
     parser.add_argument( '--registry', required=True, type=str, 
             help='GCloud IoT device registry.' )
-    parser.add_argument( '--device_id', required=True, type=str, 
-            help='GCloud IoT device name in the registry.' )
 
+    parser.add_argument( '--user_email', required=True, type=str, 
+            help='User email/ID used with UI account.' )
     parser.add_argument( '--verification_code', required=True, type=str, 
             help='Device verification code from registration script.' )
     args = parser.parse_args()
@@ -99,8 +110,8 @@ def main():
         #    print('key={}, cksum={}, state={}'.format(key,cksum,state))
 
         # query the collection for the users code
-        doc_ref = keys_ref.where( u'cksum', u'==', args.verification_code )
-        docs = doc_ref.get()
+        query = keys_ref.where( u'cksum', u'==', args.verification_code )
+        docs = query.get() # doc iterator
         docs_list = list( docs )
         len_docs = len( docs_list )
         if 0 == len_docs:
@@ -118,10 +129,13 @@ def main():
         print('doc_id={}, cksum={}, state={}'.format( doc_id, cksum, state ))
         print('public_key:\n{}'.format( public_key ))
 
+	# generate a unique device id from code + MAC
+        device_id = '{}-{}'.format( args.verification_code, getMAC() )
+        print('device_id={}'.format( device_id ))
 
         # register this device using its public key we got from the DB
         device_template = {
-            'id': args.device_id,
+            'id': device_id,
             'credentials': [{
                 'publicKey': {
                     'format': 'RSA_X509_PEM',
@@ -141,18 +155,33 @@ def main():
         devices = iotClient.projects().locations().registries().devices()
         devices.create( parent=registry_name, body=device_template ).execute()
         print('Device {} added to the {} registry.'.format( 
-            args.device_id, args.registry )
+            device_id, args.registry ))
 
-#debugrob:fix this!
         # mark device state as verified
-        field_updates = collections.OrderedDict((
-            ('state', 'verified')
-        ))
-        doc.update( field_updates )
-        #doc.update( {u'state': u'verfied'} )
+        # (can only call update on a DocumentReference)
+        doc_ref = doc.reference
+        doc_ref.update( {u'state': u'verified'} )
 
-#debugrob: pass user id (email) as arg.  where are we storing user profile?
         # associate the device with a user
+        bq = bigquery.Client()
+
+        dataset = 'test'
+        ds_ref = bq.dataset( dataset )
+
+        table = 'dev'
+        tab_ref = ds_ref.table( table )
+        tab = bq.get_table( tab_ref )
+
+        idkey = u'PFC_EDU~' + device_id + '~' + \
+            time.strftime( '%Y-%m-%dT%H:%M:%SZ', time.gmtime() )
+        # required fields: id, userid, type
+        row_data = [
+            ( idkey, args.user_email, u'PFC_EDU' )
+        ]
+        print('BQ row_data: {}'.format( row_data ))
+        errs = bq.insert_rows( table=tab, rows=row_data )
+
+        print('BQ insert response: {}'.format( errs ))
 
     except( Exception ) as e:
         logging.critical( "Exception", e )

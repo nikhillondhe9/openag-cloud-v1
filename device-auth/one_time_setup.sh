@@ -13,10 +13,5 @@ rm -fr pyenv
 virtualenv --python python3 pyenv
 source pyenv/bin/activate
 
-pip install --upgrade google-api-python-client
-pip install --upgrade google-auth
-pip install --upgrade google-auth-httplib2
-
-pip install --upgrade firebase-admin
-pip install --upgrade google-cloud-firestore
-
+# use "pip freeze" to produce the list of reqs.
+pip install -r requirements.txt
