@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import './App.css';
-import {BrowserRouter as Router, Route, Link} from "react-router-dom";
+import {BrowserRouter as Router, Route, Link, Switch} from "react-router-dom";
 import {SignUp} from "./signup";
 import login from "./login";
 import Home from "./home";
@@ -16,7 +16,11 @@ class App extends Component {
         // This binding is necessary to make `this` work in the callback
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.showHideHeader = this.showHideHeader.bind(this);
+        if (window.location.href.indexOf('login') > 0 || window.location.href.indexOf('signup') > 0) {
+            this.authentication_page = true
 
+        }
     }
 
     handleChange(event) {
@@ -30,57 +34,81 @@ class App extends Component {
         event.preventDefault();
     }
 
+    showHideHeader() {
+        if (this.authentication_page) {
+            return (<Router>
+                <main>
+                    <Switch>
+                        <Route path='/login' component={login}/>
+                        <Route path='/signup' component={SignUp}/>
+                    </Switch>
+                </main>
+            </Router>)
+        }
+        else {
+            return (
+                <Router>
+
+                    <main>
+                        <header className="header">
+                        <div className="row header-row">
+
+                            <div className="col-md-3 icon-holder" onClick={() => this.props.history.push('home')}>
+
+                                <div className="load-1">
+                                    <div className="line"></div>
+                                    <div className="line"></div>
+                                    <div className="line"></div>
+                                    <div className="label">Home</div>
+                                </div>
+
+                            </div>
+                            <div className="col-md-3 icon-holder" onClick={() => this.props.history.push('mypfc')}>
+                                <div className="load-1">
+                                    <div className="line"></div>
+                                    <div className="line"></div>
+                                    <div className="line"></div>
+                                    <div className="label">My PFC</div>
+                                </div>
+                            </div>
+                            <div className="col-md-3 icon-holder" onClick={() => this.props.history.push('recipes')}>
+                                <Link to="/recipes">
+                                    <div className="load-1">
+                                        <div className="line"></div>
+                                        <div className="line"></div>
+                                        <div className="line"></div>
+                                        <div className="label">Recipes</div>
+                                    </div>
+                                </Link>
+                            </div>
+                            <div className="col-md-3 icon-holder" onClick={() => this.props.history.push('profile')}>
+                                <div className="load-1">
+                                    <div className="line"></div>
+                                    <div className="line"></div>
+                                    <div className="line"></div>
+                                    <div className="label">Profile</div>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+                        <Switch>
+                            <Route path='/recipes' component={recipes}/>
+                            <Route path='/home/:username' component={Home}/>
+                            <Route path='/login' component={login}/>
+                            <Route path='/signup' component={SignUp}/>
+                        </Switch>
+                    </main>
+                </Router>
+            )
+        }
+    }
 
     render() {
         return (
-            <Router>
-                    <header className="header">
-                    <div className="row header-row">
+            <div>
+                {this.showHideHeader()}
+            </div>
 
-                        <div className="col-md-3 icon-holder">
-                            <Link to="/home">
-                            <div className="load-1">
-                                <div className="line"></div>
-                                <div className="line"></div>
-                                <div className="line"></div>
-                                <div className="label">Home</div>
-                            </div>
-                            </Link>
-                        </div>
-                        <div className="col-md-3 icon-holder">
-                            <div className="load-1">
-                                <div className="line"></div>
-                                <div className="line"></div>
-                                <div className="line"></div>
-                                <div className="label">My PFC</div>
-                            </div>
-                        </div>
-                        <div className="col-md-3 icon-holder" >
-                            <Link to="/recipes">
-                            <div className="load-1">
-                                <div className="line"></div>
-                                <div className="line"></div>
-                                <div className="line"></div>
-                                <div className="label">Recipes</div>
-                            </div>
-                            </Link>
-                        </div>
-                        <div className="col-md-3 icon-holder">
-                            <div className="load-1">
-                                <div className="line"></div>
-                                <div className="line"></div>
-                                <div className="line"></div>
-                                <div className="label">Profile</div>
-                            </div>
-                        </div>
-                    </div>
-                    <Route path='/recipes' component={recipes} />
-                    <Route path='/home/:username' component={Home} />
-                    <Route path='/login' component={login} />
-                    <Route path='/signup' component={SignUp} />
-                </header>
-
-            </Router>
         );
     }
 }
