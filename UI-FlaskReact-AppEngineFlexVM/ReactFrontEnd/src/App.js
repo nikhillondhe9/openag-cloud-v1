@@ -51,46 +51,52 @@ class App extends Component {
 
                     <main>
                         <header className="header">
-                        <div className="row header-row">
+                            <div className="row header-row">
 
-                            <div className="col-md-3 icon-holder" onClick={() => this.props.history.push('home')}>
+                                <div className="col-md-3 icon-holder">
+                                    <Link to="/home">
+                                        <div className="load-1">
+                                            <div className="line"></div>
+                                            <div className="line"></div>
+                                            <div className="line"></div>
+                                            <div className="label">Home</div>
 
-                                <div className="load-1">
-                                    <div className="line"></div>
-                                    <div className="line"></div>
-                                    <div className="line"></div>
-                                    <div className="label">Home</div>
+                                        </div>
+                                    </Link>
+
                                 </div>
-
-                            </div>
-                            <div className="col-md-3 icon-holder" onClick={() => this.props.history.push('mypfc')}>
-                                <div className="load-1">
-                                    <div className="line"></div>
-                                    <div className="line"></div>
-                                    <div className="line"></div>
-                                    <div className="label">My PFC</div>
-                                </div>
-                            </div>
-                            <div className="col-md-3 icon-holder" onClick={() => this.props.history.push('recipes')}>
-                                <Link to="/recipes">
+                                <div className="col-md-3 icon-holder">
+                                    <Link to="/mypfc">
                                     <div className="load-1">
                                         <div className="line"></div>
                                         <div className="line"></div>
                                         <div className="line"></div>
-                                        <div className="label">Recipes</div>
+                                        <div className="label">My PFC</div>
                                     </div>
-                                </Link>
-                            </div>
-                            <div className="col-md-3 icon-holder" onClick={() => this.props.history.push('profile')}>
-                                <div className="load-1">
-                                    <div className="line"></div>
-                                    <div className="line"></div>
-                                    <div className="line"></div>
-                                    <div className="label">Profile</div>
+                                    </Link>
+                                </div>
+                                <div className="col-md-3 icon-holder">
+                                    <Link to="/recipes">
+                                        <div className="load-1">
+                                            <div className="line"></div>
+                                            <div className="line"></div>
+                                            <div className="line"></div>
+                                            <div className="label">Recipes</div>
+                                        </div>
+                                    </Link>
+                                </div>
+                                <div className="col-md-3 icon-holder">
+                                    <Link to="/profile">
+                                    <div className="load-1">
+                                        <div className="line"></div>
+                                        <div className="line"></div>
+                                        <div className="line"></div>
+                                        <div className="label">Profile</div>
+                                    </div>
+                                    </Link>
                                 </div>
                             </div>
-                        </div>
-                    </header>
+                        </header>
                         <Switch>
                             <Route path='/recipes' component={recipes}/>
                             <Route path='/home/:username' component={Home}/>

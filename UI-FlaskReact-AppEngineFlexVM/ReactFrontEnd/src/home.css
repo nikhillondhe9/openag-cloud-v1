@@ -4,12 +4,7 @@
 {
     background: white;
 }
-.container
-{
-    position: fixed;
-    background: white;
-    overflow-y: scroll;
-}
+
 
 
 .title {
@@ -20,5 +15,31 @@
 .home-container
 {
    top:100px;
+    width: 100%;
+    padding-top: 20px;
+    margin-left: 20px;
+    position: fixed;
+    background: white;
+    overflow-y: scroll;
+
 }
 
+.name-row
+{
+    margin-left:15px;
+}
+.card
+{
+    width: 100%;
+}
+
+.card-row
+{
+    margin-top:20px;
+    margin-left: 5px;
+}
+
+.card:hover
+{
+    height:300px;
+}
