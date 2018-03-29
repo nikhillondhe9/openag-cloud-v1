@@ -11,8 +11,12 @@ class Home extends Component {
         this.state = {
             showModal: false
         };
+        this.addDevice = this.addDevice.bind(this)
     }
-
+    addDevice()
+    {
+        this.props.history.push("/addDevice")
+    }
     render() {
 
         return (
@@ -22,10 +26,12 @@ class Home extends Component {
                         <div className="col-md-10 cell-col">
                             <h2>Your current food computers </h2>
                         </div>
-                        <div className="col-md-2 cell-col">
+
+                        <div className="col-md-2 cell-col" onClick={this.addDevice}>
                             <a href="#" className="fancy-button bg-gradient1"><span><i
                                 className="fa fa-ticket"></i>Add Device</span></a>
                         </div>
+
                     </div>
                     <div className="row card-row">
 

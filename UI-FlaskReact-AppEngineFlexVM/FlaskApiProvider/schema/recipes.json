@@ -1,0 +1,32 @@
+[
+    {
+        "description": "recipe name optional",
+        "name": "recipe_name",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "recipe json",
+        "name": "recipe_json",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "user who made this recipe",
+        "name": "user_id",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+     "description": "recipe from which this new recipe is created - 0 for the base tempalte",
+        "name": "previous_recipe_id",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "recipe added at",
+        "name": "date_added",
+        "type": "TIMESTAMP",
+        "mode": "NULLABLE"
+    }
+]

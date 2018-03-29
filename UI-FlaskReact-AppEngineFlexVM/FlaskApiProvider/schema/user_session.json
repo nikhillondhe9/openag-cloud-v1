@@ -1,0 +1,14 @@
+[
+    {
+        "description": "user to whom this session belongs to ",
+        "name": "user_id",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "When the session started login the token and expire a token after 24 hours",
+        "name": "session_start",
+        "type": "TIMESTAMP",
+        "mode": "NULLABLE"
+    }
+]

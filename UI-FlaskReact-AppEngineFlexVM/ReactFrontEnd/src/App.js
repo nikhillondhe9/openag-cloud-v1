@@ -5,6 +5,7 @@ import {SignUp} from "./signup";
 import login from "./login";
 import Home from "./home";
 import recipes from "./recipes";
+import addDevice from "./add_device";
 
 class App extends Component {
     constructor(props) {
@@ -104,6 +105,7 @@ class App extends Component {
                             <Route path='/home/:username' component={Home}/>
                             <Route path='/login' component={login}/>
                             <Route path='/signup' component={SignUp}/>
+                            <Route path='/addDevice/:username' component={addDevice}/>
                         </Switch>
                     </main>
                 </Router>

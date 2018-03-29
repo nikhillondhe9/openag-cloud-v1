@@ -1,0 +1,20 @@
+[
+    {
+        "description": "device to which this device session belongs to ",
+        "name": "device_id",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "recipe id the device is currently running",
+        "name": "recipe_id",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "When the recipe was applied to this device",
+        "name": "date_applied",
+        "type": "TIMESTAMP",
+        "mode": "NULLABLE"
+    }
+]
