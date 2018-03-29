@@ -51,51 +51,53 @@ class App extends Component {
 
                     <main>
                         <header className="header">
-                            <div className="row header-row">
 
-                                <div className="col-md-3 icon-holder">
-                                    <Link to="/home">
-                                        <div className="load-1">
-                                            <div className="line"></div>
-                                            <div className="line"></div>
-                                            <div className="line"></div>
-                                            <div className="label">Home</div>
+
+                                    <div className="row header-row">
+
+                                        <div className="col-md-3 icon-holder">
+                                            <Link to="/home">
+                                                <div className="load-1">
+                                                    <div className="line"></div>
+                                                    <div className="line"></div>
+                                                    <div className="line"></div>
+                                                    <div className="label">Home</div>
+
+                                                </div>
+                                            </Link>
 
                                         </div>
-                                    </Link>
-
-                                </div>
-                                <div className="col-md-3 icon-holder">
-                                    <Link to="/mypfc">
-                                    <div className="load-1">
-                                        <div className="line"></div>
-                                        <div className="line"></div>
-                                        <div className="line"></div>
-                                        <div className="label">My PFC</div>
-                                    </div>
-                                    </Link>
-                                </div>
-                                <div className="col-md-3 icon-holder">
-                                    <Link to="/recipes">
-                                        <div className="load-1">
-                                            <div className="line"></div>
-                                            <div className="line"></div>
-                                            <div className="line"></div>
-                                            <div className="label">Recipes</div>
+                                        <div className="col-md-3 icon-holder">
+                                            <Link to="/mypfc">
+                                                <div className="load-1">
+                                                    <div className="line"></div>
+                                                    <div className="line"></div>
+                                                    <div className="line"></div>
+                                                    <div className="label">My PFC</div>
+                                                </div>
+                                            </Link>
                                         </div>
-                                    </Link>
-                                </div>
-                                <div className="col-md-3 icon-holder">
-                                    <Link to="/profile">
-                                    <div className="load-1">
-                                        <div className="line"></div>
-                                        <div className="line"></div>
-                                        <div className="line"></div>
-                                        <div className="label">Profile</div>
+                                        <div className="col-md-3 icon-holder">
+                                            <Link to="/recipes">
+                                                <div className="load-1">
+                                                    <div className="line"></div>
+                                                    <div className="line"></div>
+                                                    <div className="line"></div>
+                                                    <div className="label">Recipes</div>
+                                                </div>
+                                            </Link>
+                                        </div>
+                                        <div className="col-md-3 icon-holder">
+                                            <Link to="/profile">
+                                                <div className="load-1">
+                                                    <div className="line"></div>
+                                                    <div className="line"></div>
+                                                    <div className="line"></div>
+                                                    <div className="label">Profile</div>
+                                                </div>
+                                            </Link>
+                                        </div>
                                     </div>
-                                    </Link>
-                                </div>
-                            </div>
                         </header>
                         <Switch>
                             <Route path='/recipes' component={recipes}/>
@@ -105,18 +107,18 @@ class App extends Component {
                         </Switch>
                     </main>
                 </Router>
-            )
+        )
         }
-    }
+        }
 
-    render() {
-        return (
+        render() {
+            return (
             <div>
-                {this.showHideHeader()}
+            {this.showHideHeader()}
             </div>
 
-        );
-    }
-}
+            );
+        }
+        }
 
-export default App;
+        export default App;
