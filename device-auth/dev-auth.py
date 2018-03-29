@@ -88,8 +88,7 @@ def main():
     # user specified log level
     numeric_level = getattr( logging, args.log.upper(), None )
     if not isinstance( numeric_level, int ):
-        logging.critical('publisher: Invalid log level: %s' % \
-                args.log )
+        logging.critical('publisher: Invalid log level: %s' % args.log )
         numeric_level = getattr( logging, 'ERROR', None )
     logging.getLogger().setLevel( level=numeric_level )
 

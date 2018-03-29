@@ -6,9 +6,16 @@ authentication. After connecting, by default the device publishes messages
 to the device's MQTT topic at a rate of one per second, and then exits.
 """
 
-import argparse, datetime, os, random, ssl, time, logging
+import argparse, datetime, os, random, ssl, time, logging, sys, signal
 import jwt
 import paho.mqtt.client as mqtt
+
+
+# Handle the user pressing Control-C
+def signal_handler(signal, frame):
+    logging.critical( 'Exiting.' )
+    sys.exit(0)
+signal.signal( signal.SIGINT, signal_handler )
 
 
 # The initial backoff time after a disconnection occurs, in seconds.
@@ -19,6 +26,9 @@ MAXIMUM_BACKOFF_TIME = 32
 
 # Whether to wait with exponential backoff before publishing.
 should_backoff = False
+
+# Default logging level, also used to turn on paho debugging
+numeric_level = logging.ERROR 
 
 
 #------------------------------------------------------------------------------
@@ -88,20 +98,26 @@ def on_disconnect(unused_client, unused_userdata, rc):
 #------------------------------------------------------------------------------
 """Paho callback when a message is sent to the broker."""
 def on_publish(unused_client, unused_userdata, unused_mid):
-    print('on_publish')
+    logging.debug( 'on_publish' )
 
 
 #------------------------------------------------------------------------------
 """Callback when the device receives a message on a subscription."""
-def on_message(unused_client, unused_userdata, message):
-    payload = str(message.payload)
-    print('Received message \'{}\' on topic \'{}\' with Qos {}'.format(
-            payload, message.topic, str(message.qos)))
+def on_message( unused_client, unused_userdata, message ):
+    payload = str( message.payload )
+    print('Received message:\n  {}\n  topic={}\n  Qos={}\n  mid={}\n  retain={}\n'.format(
+        payload, message.topic, str( message.qos ), str( message.mid ),
+        str( message.retain ) ))
+
 
 #------------------------------------------------------------------------------
-def on_log(unused_client, unused_userdata, level, buf):
-    #debugrob: use python logging?
-    print('LOG: \'{}\' {}'.format(buf, level))
+def on_log( unused_client, unused_userdata, level, buf ):
+    logging.debug('\'{}\' {}'.format(buf, level))
+
+
+#------------------------------------------------------------------------------
+def on_subscribe( unused_client, unused_userdata, mid, granted_qos ):
+    logging.debug('on_subscribe')
 
 
 #------------------------------------------------------------------------------
@@ -116,7 +132,7 @@ def get_client(
     # projects/openag-v1/locations/us-central1/registries/device-registry/devices/my-python-device
     client_id=('projects/{}/locations/{}/registries/{}/devices/{}'.format(
         project_id, cloud_region, registry_id, device_id ))
-    print('debugrob client_id={}'.format( client_id ))
+    logging.debug('client_id={}'.format( client_id ))
 
     client = mqtt.Client( client_id=client_id )
 
@@ -137,20 +153,29 @@ def get_client(
     client.on_publish = on_publish
     client.on_disconnect = on_disconnect
     client.on_message = on_message
-    #client.on_log = on_log # debugrob
+    client.on_subscribe = on_subscribe
+    client.on_log = on_log 
 
     # Connect to the Google MQTT bridge.
     client.connect( mqtt_bridge_hostname, mqtt_bridge_port )
 
     # This is the topic that the device will receive configuration updates on.
     mqtt_config_topic = '/devices/{}/config'.format( device_id )
-    print('debugrob mqtt_config_topic={}'.format( mqtt_config_topic ))
+    logging.debug('mqtt_config_topic={}'.format( mqtt_config_topic ))
 
     # Subscribe to the config topic.
     client.subscribe( mqtt_config_topic, qos=1 )
 
-#debugrob: try subscribing to the command topic?
-# When the broker has acknowledged the subscription, an on_subscribe() callback will be generated.
+#debugrob: 
+
+# !! Can I use the config topic to send commands to a single device?
+#       mqtt_config_topic = '/devices/{device_id}/config'
+
+# >> how can I ACK a config message - I keep getting the same ones?
+# do I need to keep track of them by internal ID and ignore ones I've seen?
+
+# >> write a backend IoT sample to send a config (JSON commands) to a device
+# https://cloud.google.com/iot/docs/how-tos/config/configuring-devices
 
     return client
 
@@ -208,23 +233,38 @@ def parse_command_line_args():
             default=20,
             type=int,
             help=('Expiration time, in minutes, for JWT tokens.'))
+    parser.add_argument( 
+            '--log', 
+            default='error',
+            type=str, 
+            help='Log level: debug, info, warning, error, critical' )
 
     return parser.parse_args()
 
 
 #------------------------------------------------------------------------------
 def main():
-    global minimum_backoff_time
-    #logging.basicConfig( level=logging.DEBUG ) # debugrob
-    #logging.getLogger().setLevel( level=logging.DEBUG )
+    # default log file and level
+    logging.basicConfig( level=logging.ERROR ) # can only call once
 
+    global minimum_backoff_time
+
+    # parse command line args
     args = parse_command_line_args()
+
+    # user specified log level
+    global numeric_level 
+    numeric_level = getattr( logging, args.log.upper(), None )
+    if not isinstance( numeric_level, int ):
+        logging.critical('publisher: Invalid log level: %s' % args.log )
+        numeric_level = getattr( logging, 'ERROR', None )
+    logging.getLogger().setLevel( level=numeric_level )
 
     # Publish to the events or state topic based on the flag.
     sub_topic = 'events' if args.message_type == 'event' else 'state'
 
     mqtt_topic = '/devices/{}/{}'.format(args.device_id, sub_topic)
-    print('debugrob mqtt_topic={}'.format(mqtt_topic))
+    logging.debug('mqtt_topic={}'.format(mqtt_topic))
 
     jwt_iat = datetime.datetime.utcnow()
     jwt_exp_mins = args.jwt_expires_minutes
@@ -232,7 +272,10 @@ def main():
         args.project_id, args.cloud_region, args.registry_id, args.device_id,
         args.private_key_file, args.algorithm, args.ca_certs,
         args.mqtt_bridge_hostname, args.mqtt_bridge_port )
-    #client.enable_logger() # debugrob
+
+    # Turn on paho debugging if debug log enabled on command line.
+    if numeric_level == logging.DEBUG:
+        client.enable_logger() 
 
     # Publish num_messages mesages to the MQTT bridge once per second.
     for i in range(1, args.num_messages + 1):
@@ -278,10 +321,12 @@ def main():
         # Send events every second. State should not be updated as often
         time.sleep( 1 if args.message_type == 'event' else 5 )
 
-    # Blocking call that processes network traffic, dispatches callbacks and
-    # handles reconnecting.
-    # Other loop*() functions are available that give a threaded interface and a
-    # manual interface.
+    # Blocking call that processes network traffic, dispatches callbacks and 
+    # handles reconnecting.  This is a blocking form of the network loop and
+    # will not return until the client calls disconnect(). 
+    # It automatically handles reconnecting.
+    # Other loop*() functions are available that give a threaded interface and
+    # a manual interface.
     print('looping forever, use Ctrl-C to exit')
     client.loop_forever()
 

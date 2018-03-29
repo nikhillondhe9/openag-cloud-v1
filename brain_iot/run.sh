@@ -30,3 +30,4 @@ python3 iot_mqtt_example.py \
    --num_messages 2
 
 
+#   --log debug \
