@@ -4,12 +4,12 @@ This code will be used in the new flask/django/python UI.
 
 
 ### Programatically add a device to the registry:
-- `https://cloud.google.com/iot/docs/how-tos/devices#creating_a_device_registry_with_multiple_pubsub_topics`
-- `https://cloud.google.com/iot/docs/samples/device-manager-samples#iot-core-create-es256-python`
+- https://cloud.google.com/iot/docs/how-tos/devices#creating_a_device_registry_with_multiple_pubsub_topics
+- https://cloud.google.com/iot/docs/samples/device-manager-samples#iot-core-create-es256-python
 
 ### Firestore doc db access:
-- `https://github.com/GoogleCloudPlatform/google-cloud-python/tree/master/firestore`
-- `https://googlecloudplatform.github.io/google-cloud-python/latest/firestore/client.html`
+- https://github.com/GoogleCloudPlatform/google-cloud-python/tree/master/firestore
+- https://googlecloudplatform.github.io/google-cloud-python/latest/firestore/client.html
 
 ### Insert a device into the BiqQuery dev table associated with a user id.
-- `https://googlecloudplatform.github.io/google-cloud-python/latest/bigquery/reference.html`
+- https://googlecloudplatform.github.io/google-cloud-python/latest/bigquery/reference.html

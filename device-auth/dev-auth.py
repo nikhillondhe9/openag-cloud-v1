@@ -128,7 +128,7 @@ def main():
         print('doc_id={}, cksum={}, state={}'.format( doc_id, cksum, state ))
         print('public_key:\n{}'.format( public_key ))
 
-	# generate a unique device id from code + MAC
+        # generate a unique device id from code + MAC
         device_id = '{}-{}'.format( args.verification_code, getMAC() )
         print('device_id={}'.format( device_id ))
 
