@@ -56,7 +56,7 @@ class App extends Component {
 
                                     <div className="row header-row">
 
-                                        <div className="col-md-3 icon-holder">
+                                        <div className="col-md-4 icon-holder">
                                             <Link to="/home">
                                                 <div className="load-1">
                                                     <div className="line"></div>
@@ -68,17 +68,7 @@ class App extends Component {
                                             </Link>
 
                                         </div>
-                                        <div className="col-md-3 icon-holder">
-                                            <Link to="/mypfc">
-                                                <div className="load-1">
-                                                    <div className="line"></div>
-                                                    <div className="line"></div>
-                                                    <div className="line"></div>
-                                                    <div className="label">My PFC</div>
-                                                </div>
-                                            </Link>
-                                        </div>
-                                        <div className="col-md-3 icon-holder">
+                                        <div className="col-md-4 icon-holder">
                                             <Link to="/recipes">
                                                 <div className="load-1">
                                                     <div className="line"></div>
@@ -88,7 +78,7 @@ class App extends Component {
                                                 </div>
                                             </Link>
                                         </div>
-                                        <div className="col-md-3 icon-holder">
+                                        <div className="col-md-4 icon-holder">
                                             <Link to="/profile">
                                                 <div className="load-1">
                                                     <div className="line"></div>

@@ -1,12 +1,12 @@
+#!/usr/bin/env python3
+
 from flask import Flask, render_template, request
-from flask_cors import CORS
 from flask import Response
 import json
-from google.cloud import bigquery
 from calendar import timegm
+from flask_cors import CORS
 from datetime import datetime
-
-
+from google.cloud import bigquery
 app = Flask(__name__)
 
 # Remove this later - Only use it for testing purposes. Not safe to leave it here
@@ -17,10 +17,55 @@ CORS(app)
 def hell_world():
     return 'Hello, World!'
 
-@app.route('/signup/',methods=['GET', 'POST'])
-def signup():
+
+@app.route('/api/register/',methods=['GET', 'POST'])
+def register():
     received_form_response = json.loads(request.data)
     client = bigquery.Client()
+    username = received_form_response.get("username",None)
+    deviceNumber = received_form_response.get("deviceNumber",None)
+    deviceName = received_form_response.get("deviceName",None)
+    deviceDescription = received_form_response.get("deviceDescription", None)
+    time_stamp = datetime.now()
+    job_config = bigquery.QueryJobConfig()
+
+    # Set use_legacy_sql to False to use standard SQL syntax.
+    # Note that queries are treated as standard SQL by default.
+    job_config.use_legacy_sql = False
+
+    if username is None or deviceNumber is None:
+        result = Response({"message":"Please make sure you have added values for all the fields"}, status=500, mimetype='application/json')
+        return result
+
+    insert_user_query = """INSERT INTO test.devices (user_id, device_id, device_notes,date_added,device_name) VALUES (@username, @deviceNumber, @deviceDescription,@date_added,@deviceName)"""
+    query_params = [
+        bigquery.ScalarQueryParameter('username', 'STRING', username),
+        bigquery.ScalarQueryParameter('deviceNumber', 'STRING', deviceNumber),
+        bigquery.ScalarQueryParameter('deviceDescription', 'STRING', deviceDescription),
+        bigquery.ScalarQueryParameter('deviceName', 'STRING', deviceName),
+        bigquery.ScalarQueryParameter(
+            'date_added',
+            'TIMESTAMP',
+            time_stamp)
+    ]
+    job_config.query_parameters = query_params
+
+    query_job= client.query(insert_user_query,job_config=job_config)
+    print(query_job.result())
+
+    data = json.dumps({
+        "response_code":200
+    })
+
+    result = Response(data, status=200, mimetype='application/json')
+    return result
+
+
+@app.route('/signup/',methods=['GET', 'POST'])
+def signup():
+    client = bigquery.Client()
+    received_form_response = json.loads(request.data)
+
     username = received_form_response.get("username",None)
     email_address = received_form_response.get("email_address",None)
     password = received_form_response.get("password",None)
@@ -97,6 +142,81 @@ def login():
         data = json.dumps({
             "response_code":200,
             "message":"Login failed. Please check your credentials"
+        })
+
+    result = Response(data, status=200, mimetype='application/json')
+    return result
+
+
+@app.route('/api/get_user_devices/',methods=['GET', 'POST'])
+def get_user_devices():
+
+    received_form_response = json.loads(request.data)
+    client = bigquery.Client()
+    username = received_form_response.get("username", None)
+    job_config = bigquery.QueryJobConfig()
+
+    # Set use_legacy_sql to False to use standard SQL syntax.
+    # Note that queries are treated as standard SQL by default.
+    job_config.use_legacy_sql = False
+
+    if username is None:
+        result = Response({"message": "Please make sure you have added values for all the fields"}, status=500,
+                          mimetype='application/json')
+        return result
+
+    insert_user_query = """SELECT * FROM test.devices WHERE user_id=@username"""
+    query_params = [
+        bigquery.ScalarQueryParameter('username', 'STRING', username)
+    ]
+    job_config.query_parameters = query_params
+
+    query_job = client.query(insert_user_query, job_config=job_config)
+    query_result = query_job.result()
+    print("Results")
+    print(query_result)
+    if len(list(query_result)) > 0:
+
+        data = json.dumps({
+             "response_code": 200
+        })
+
+    else:
+        data = json.dumps({
+            "response_code":200,
+            "message":"Please check your credentials"
+        })
+
+    result = Response(data, status=200, mimetype='application/json')
+    return result
+
+
+@app.route('/api/get_all_recipes/',methods=['GET', 'POST'])
+def get_user_devices():
+
+    received_form_response = json.loads(request.data)
+    client = bigquery.Client()
+    job_config = bigquery.QueryJobConfig()
+
+    # Set use_legacy_sql to False to use standard SQL syntax.
+    # Note that queries are treated as standard SQL by default.
+    job_config.use_legacy_sql = False
+
+    selct_all_recipes_query = """SELECT * FROM test.recipes"""
+    query_job = client.query(selct_all_recipes_query, job_config=job_config)
+    query_result = query_job.result()
+    print("Results")
+    print(query_result)
+    if len(list(query_result)) > 0:
+
+        data = json.dumps({
+             "response_code": 200
+        })
+
+    else:
+        data = json.dumps({
+            "response_code":200,
+            "message":"Please check your credentials"
         })
 
     result = Response(data, status=200, mimetype='application/json')

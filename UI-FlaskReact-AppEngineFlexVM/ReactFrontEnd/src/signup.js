@@ -33,7 +33,7 @@ export class SignUp extends Component {
     }
 
     signupUser() {
-        return fetch('http://127.0.0.1:5000/signup/', {
+        return fetch('https://flaskapi-dot-openag-v1.appspot.com/signup/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',

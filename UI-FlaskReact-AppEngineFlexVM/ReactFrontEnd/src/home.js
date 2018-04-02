@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {BrowserRouter as Router, Route, Link} from "react-router-dom";
 import './home.css';
+import {Button, Modal, ModalHeader, ModalBody, ModalFooter,Form, FormGroup,Label,Input} from 'reactstrap';
 
 class Home extends Component {
     constructor(props) {
@@ -9,14 +10,102 @@ class Home extends Component {
         super(props);
         this.username = this.props.match.params.username
         this.state = {
-            showModal: false
+            modal: false,
+            deviceNumber:'',
+            deviceName:'',
+            deviceDescription:''
         };
-        this.addDevice = this.addDevice.bind(this)
+
+        this.getUserDevices();
+        this.toggle = this.toggle.bind(this);
+        this.registerDevice = this.registerDevice.bind(this);
+        // This binding is necessary to make `this` work in the callback
+        this.handleChange = this.handleChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
     }
-    addDevice()
+
+    handleChange(event) {
+        this.setState({[event.target.name]: event.target.value});
+        event.preventDefault();
+    }
+
+    handleSubmit(event) {
+
+        console.log('A register device form was submitted');
+        this.registerDevice()
+        event.preventDefault();
+    }
+
+    toggle() {
+        this.setState({
+            modal: !this.state.modal
+        });
+    }
+
+    getUserDevices()
     {
-        this.props.history.push("/addDevice")
+        console.log( JSON.stringify({
+                'username': this.username
+            }))
+        return fetch('https://flaskapi-dot-openag-v1.appspot.com/api/get_user_devices/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({
+                'username': this.username
+            })
+        })
+            .then((response) => response.json())
+            .then((responseJson) => {
+                console.log(responseJson)
+                if (responseJson["response_code"]== 200){
+
+                }
+
+            })
+            .catch((error) => {
+                console.error(error);
+            });
     }
+
+    registerDevice()
+    {
+        console.log( JSON.stringify({
+                'username': this.username,
+                'deviceNumber': this.state.deviceNumber,
+                'deviceName': this.state.deviceName,
+                'deviceDescription': this.state.deviceDescription
+            }))
+        return fetch('https://flaskapi-dot-openag-v1.appspot.com/api/register/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({
+                'username': this.username,
+                'deviceNumber': this.state.deviceNumber,
+                'deviceName': this.state.deviceName,
+                'deviceDescription': this.state.deviceDescription
+            })
+        })
+            .then((response) => response.json())
+            .then((responseJson) => {
+                console.log(responseJson)
+                if (responseJson["response_code"]== 200){
+
+                }
+
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }
+
     render() {
 
         return (
@@ -27,7 +116,7 @@ class Home extends Component {
                             <h2>Your current food computers </h2>
                         </div>
 
-                        <div className="col-md-2 cell-col" onClick={this.addDevice}>
+                        <div className="col-md-2 cell-col" onClick={this.toggle}>
                             <a href="#" className="fancy-button bg-gradient1"><span><i
                                 className="fa fa-ticket"></i>Add Device</span></a>
                         </div>
@@ -75,7 +164,35 @@ class Home extends Component {
                             </div>
                         </div>
                     </div>
-
+                    <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
+                        <ModalHeader toggle={this.toggle}>New Device Registration</ModalHeader>
+                        <ModalBody>
+                            <Form>
+                                <FormGroup>
+                                    <Label for="deviceName">Device name :</Label>
+                                    <Input type="text" name="deviceName" id="deviceName"
+                                           placeholder="E.g rob's FC" value={this.state.deviceName}
+                               onChange={this.handleChange}/>
+                                </FormGroup>
+                                <FormGroup>
+                                    <Label for="deviceNumber">Device Number :</Label>
+                                    <Input type="text" name="deviceNumber" id="deviceNumber"
+                                           placeholder="Six digit code" value={this.state.deviceNumber}
+                               onChange={this.handleChange}/>
+                                </FormGroup>
+                                <FormGroup>
+                                    <Label for="deviceDescription">Device Notes :</Label>
+                                    <Input type="text" name="deviceDescription" id="deviceDescription"
+                                           placeholder="(Optional)" value={this.state.deviceDescription}
+                               onChange={this.handleChange}/>
+                                </FormGroup>
+                            </Form>
+                        </ModalBody>
+                        <ModalFooter>
+                            <Button color="primary" onClick={this.handleSubmit}>Register Device</Button>{' '}
+                            <Button color="secondary" onClick={this.toggle}>Cancel</Button>
+                        </ModalFooter>
+                    </Modal>
                 </div>
             </Router>
 
