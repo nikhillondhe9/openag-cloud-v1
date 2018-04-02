@@ -6,6 +6,7 @@ import login from "./login";
 import Home from "./home";
 import recipes from "./recipes";
 import addDevice from "./add_device";
+import EditRecipe from './edit_recipe';
 
 class App extends Component {
     constructor(props) {
@@ -95,7 +96,7 @@ class App extends Component {
                             <Route path='/home/:username' component={Home}/>
                             <Route path='/login' component={login}/>
                             <Route path='/signup' component={SignUp}/>
-                            <Route path='/addDevice/:username' component={addDevice}/>
+                            <Route path='/edit_recipe/:recipe_id' component={EditRecipe}/>
                         </Switch>
                     </main>
                 </Router>

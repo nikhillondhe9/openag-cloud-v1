@@ -3,25 +3,25 @@
         "description": "recipe name optional",
         "name": "recipe_name",
         "type": "STRING",
-        "mode": "NULLABLE"
+        "mode": "REQUIRED"
     },
     {
         "description": "recipe json",
         "name": "recipe_json",
         "type": "STRING",
-        "mode": "NULLABLE"
+        "mode": "REQUIRED"
     },
     {
         "description": "user who made this recipe",
         "name": "user_id",
         "type": "STRING",
-        "mode": "NULLABLE"
+        "mode": "REQUIRED"
     },
     {
      "description": "recipe from which this new recipe is created - 0 for the base tempalte",
         "name": "previous_recipe_id",
         "type": "STRING",
-        "mode": "NULLABLE"
+        "mode": "REQUIRED"
     },
     {
         "description": "recipe added at",

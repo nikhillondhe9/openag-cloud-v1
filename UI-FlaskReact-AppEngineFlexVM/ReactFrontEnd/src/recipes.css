@@ -20,7 +20,8 @@
 
 .recipes-container
 {
-   top:100px;
+   top:100px;  margin-bottom:20px;
+
 }
 
 .input-row
@@ -36,3 +37,7 @@ input {
   width:250px;
 }
 
+.home-container
+{
+    padding-bottom:100px;
+}

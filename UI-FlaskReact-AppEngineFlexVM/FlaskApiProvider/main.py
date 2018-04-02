@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 
 from flask import Flask, render_template, request
 from flask import Response
@@ -8,7 +7,10 @@ from flask_cors import CORS
 from datetime import datetime
 from google.cloud import bigquery
 app = Flask(__name__)
+import uuid
 
+import os
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = './authenticate.json'
 # Remove this later - Only use it for testing purposes. Not safe to leave it here
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 CORS(app)
@@ -61,7 +63,7 @@ def register():
     return result
 
 
-@app.route('/signup/',methods=['GET', 'POST'])
+@app.route('/api/signup/',methods=['GET', 'POST'])
 def signup():
     client = bigquery.Client()
     received_form_response = json.loads(request.data)
@@ -150,7 +152,7 @@ def login():
 
 @app.route('/api/get_user_devices/',methods=['GET', 'POST'])
 def get_user_devices():
-
+    print("Fetching all the user deivces")
     received_form_response = json.loads(request.data)
     client = bigquery.Client()
     username = received_form_response.get("username", None)
@@ -173,12 +175,24 @@ def get_user_devices():
 
     query_job = client.query(insert_user_query, job_config=job_config)
     query_result = query_job.result()
-    print("Results")
-    print(query_result)
-    if len(list(query_result)) > 0:
 
+    results_array = []
+    for row in list(query_result):
+        print("Printing row")
+        print(row[0])
+        row_json = {
+            "user_id":row[0],
+            "device_id":row[1],
+            "date_added":str(row[2]),
+            "device_notes":row[3],
+            "device_name":row[4]
+        }
+        results_array.append(row_json)
+
+    if len(results_array) > 0:
         data = json.dumps({
-             "response_code": 200
+             "response_code": 200,
+             "results":results_array
         })
 
     else:
@@ -192,7 +206,7 @@ def get_user_devices():
 
 
 @app.route('/api/get_all_recipes/',methods=['GET', 'POST'])
-def get_user_devices():
+def get_all_recipes():
 
     received_form_response = json.loads(request.data)
     client = bigquery.Client()

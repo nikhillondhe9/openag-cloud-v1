@@ -1,0 +1,53 @@
+.recipe-container
+{
+    top:100px;
+    width: 100%;
+    padding-top: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    background: white;
+    overflow-y: scroll;
+    max-width: 100%;
+    position:relative;
+
+}
+
+.recipe-form
+
+{
+    display: block;
+    margin-left:auto;
+    margin-right:auto;
+    width:80%;
+}
+
+.temp-card
+{
+    width:300px;
+    margin:20px;
+}
+
+.led-card
+{
+    margin-left:20px;
+}
+
+.paddedcol
+{
+    margin-right: 60px;
+}
+
+.smallInput
+{
+    width:130px;
+}
+
+.padded-row
+{
+    margin-top: 10px;
+}
+
+.small-input-row
+{
+    padding-left:20px;
+}

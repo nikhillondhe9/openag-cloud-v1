@@ -29,7 +29,7 @@ class login extends Component {
 
     loginUser() {
 
-        return fetch('https://flaskapi-dot-openag-v1.appspot.com/login/', {
+        return fetch('http://127.0.0.1:5000/login/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',

@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {BrowserRouter as Router, Route, Link} from "react-router-dom";
 import './home.css';
-import {Button, Modal, ModalHeader, ModalBody, ModalFooter,Form, FormGroup,Label,Input} from 'reactstrap';
+import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input} from 'reactstrap';
 
 class Home extends Component {
     constructor(props) {
@@ -11,17 +11,24 @@ class Home extends Component {
         this.username = this.props.match.params.username
         this.state = {
             modal: false,
-            deviceNumber:'',
-            deviceName:'',
-            deviceDescription:''
+            deviceNumber: '',
+            deviceName: '',
+            deviceDescription: '',
+            user_devices:[]
         };
 
-        this.getUserDevices();
+
         this.toggle = this.toggle.bind(this);
         this.registerDevice = this.registerDevice.bind(this);
         // This binding is necessary to make `this` work in the callback
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.getUserDevices = this.getUserDevices.bind(this);
+    }
+
+    componentDidMount() {
+        console.log("Mouting component")
+        this.getUserDevices()
     }
 
     handleChange(event) {
@@ -42,12 +49,8 @@ class Home extends Component {
         });
     }
 
-    getUserDevices()
-    {
-        console.log( JSON.stringify({
-                'username': this.username
-            }))
-        return fetch('https://flaskapi-dot-openag-v1.appspot.com/api/get_user_devices/', {
+    getUserDevices() {
+        return fetch('http://127.0.0.1:5000/api/get_user_devices/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -61,8 +64,8 @@ class Home extends Component {
             .then((response) => response.json())
             .then((responseJson) => {
                 console.log(responseJson)
-                if (responseJson["response_code"]== 200){
-
+                if (responseJson["response_code"] == 200) {
+                    this.setState({user_devices:responseJson["results"]})
                 }
 
             })
@@ -71,15 +74,14 @@ class Home extends Component {
             });
     }
 
-    registerDevice()
-    {
-        console.log( JSON.stringify({
-                'username': this.username,
-                'deviceNumber': this.state.deviceNumber,
-                'deviceName': this.state.deviceName,
-                'deviceDescription': this.state.deviceDescription
-            }))
-        return fetch('https://flaskapi-dot-openag-v1.appspot.com/api/register/', {
+    registerDevice() {
+        console.log(JSON.stringify({
+            'username': this.username,
+            'deviceNumber': this.state.deviceNumber,
+            'deviceName': this.state.deviceName,
+            'deviceDescription': this.state.deviceDescription
+        }))
+        return fetch('http://127.0.0.1:5000/api/register/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -96,8 +98,10 @@ class Home extends Component {
             .then((response) => response.json())
             .then((responseJson) => {
                 console.log(responseJson)
-                if (responseJson["response_code"]== 200){
-
+                if (responseJson["response_code"] == 200) {
+                    this.setState({
+                        modal: false
+                    });
                 }
 
             })
@@ -107,6 +111,23 @@ class Home extends Component {
     }
 
     render() {
+        let listDevices = <p>Loading</p>
+        if(this.state.user_devices.length > 0 )
+        {
+            listDevices = this.state.user_devices.map((device)=>{
+            return <div className="col-md-3" key={device.device_id}> <div  className="card">
+                            <div className="card-body">
+                                <h5 className="card-title">{device.device_id}</h5>
+                                <h6 className="card-subtitle mb-2 text-muted">{device.device_name}</h6>
+                                <p className="card-text">{device.device_notes}</p>
+                                <p className="card-text">This device is currently running the recipe id : {device.device_notes}</p>
+                                <p className="card-text"> Device Status: OK</p>
+                                <a href="#" className="card-link">Device Homepage</a>
+                            </div>
+            </div> </div>
+        });
+
+        }
 
         return (
             <Router>
@@ -123,46 +144,7 @@ class Home extends Component {
 
                     </div>
                     <div className="row card-row">
-
-                        <div className="col-md-3">
-                            <div className="card">
-                                <div className="card-body">
-                                    <h5 className="card-title">Card title</h5>
-                                    <h6 className="card-subtitle mb-2 text-muted">Card subtitle</h6>
-                                    <p className="card-text">Some quick example text to build on the card title and make
-                                        up the
-                                        bulk of the card's content.</p>
-                                    <a href="#" className="card-link">Go to device</a>
-
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-md-3">
-                            <div className="card">
-                                <div className="card-body">
-                                    <h5 className="card-title">Card title</h5>
-                                    <h6 className="card-subtitle mb-2 text-muted">Card subtitle</h6>
-                                    <p className="card-text">Some quick example text to build on the card title and make
-                                        up the
-                                        bulk of the card's content.</p>
-                                    <a href="#" className="card-link">Go to device</a>
-
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-md-3">
-                            <div className="card">
-                                <div className="card-body">
-                                    <h5 className="card-title">Card title</h5>
-                                    <h6 className="card-subtitle mb-2 text-muted">Card subtitle</h6>
-                                    <p className="card-text">Some quick example text to build on the card title and make
-                                        up the
-                                        bulk of the card's content.</p>
-                                    <a href="#" className="card-link">Go to device</a>
-
-                                </div>
-                            </div>
-                        </div>
+                        {listDevices}
                     </div>
                     <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
                         <ModalHeader toggle={this.toggle}>New Device Registration</ModalHeader>
@@ -171,20 +153,20 @@ class Home extends Component {
                                 <FormGroup>
                                     <Label for="deviceName">Device name :</Label>
                                     <Input type="text" name="deviceName" id="deviceName"
-                                           placeholder="E.g rob's FC" value={this.state.deviceName}
-                               onChange={this.handleChange}/>
+                                           placeholder="E.g Caleb's FC" value={this.state.deviceName}
+                                           onChange={this.handleChange}/>
                                 </FormGroup>
                                 <FormGroup>
                                     <Label for="deviceNumber">Device Number :</Label>
                                     <Input type="text" name="deviceNumber" id="deviceNumber"
                                            placeholder="Six digit code" value={this.state.deviceNumber}
-                               onChange={this.handleChange}/>
+                                           onChange={this.handleChange}/>
                                 </FormGroup>
                                 <FormGroup>
                                     <Label for="deviceDescription">Device Notes :</Label>
                                     <Input type="text" name="deviceDescription" id="deviceDescription"
                                            placeholder="(Optional)" value={this.state.deviceDescription}
-                               onChange={this.handleChange}/>
+                                           onChange={this.handleChange}/>
                                 </FormGroup>
                             </Form>
                         </ModalBody>
