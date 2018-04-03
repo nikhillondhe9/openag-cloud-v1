@@ -108,6 +108,7 @@ class App extends Component {
                             <Route path='/recipes' component={recipes}/>
                             <Route path='/login' component={login}/>
                             <Route path='/signup' component={SignUp}/>
+                            <Route path='/edit_recipe/:recipe_uuid' component={EditRecipe}/>
                             <Route path='/' component={Home}/>
                             <Route path='/home/:user_uuid' component={Home} />
                         </Switch>

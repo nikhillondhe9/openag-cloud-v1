@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {BrowserRouter as Router} from "react-router-dom";
 import './edit_recipe.css';
 import {Form, FormGroup, Input} from 'reactstrap';
+import ReactDOM from 'react-dom';
 
 class EditRecipe extends Component {
     constructor(props) {
@@ -21,6 +22,73 @@ class EditRecipe extends Component {
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleClear = this.handleClear.bind(this);
+        this.buildForm = this.buildForm.bind(this);
+        this.getRecipeComponents = this.getRecipeComponents.bind(this);
+    }
+
+    componentDidMount() {
+        console.log("Mounting component")
+        this.getRecipeComponents()
+    }
+
+    getRecipeComponents() {
+        return fetch('http://127.0.0.1:5000/api/get_recipe_components/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({
+                'recipe_id': '0'
+            })
+        })
+            .then((response) => response.json())
+            .then((responseJson) => {
+                console.log(responseJson)
+                if (responseJson["response_code"] == 200) {
+                    let components = responseJson["results"]
+                    this.buildForm(components)
+                }
+
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }
+
+    createTitle(title) {
+        return (<h6 key={title}>
+            {title}
+        </h6>)
+    }
+
+    createInputFields(fields_json) {
+        var list_of_fields = fields_json.map((field_json) => {
+            if(field_json["key"] === "publishResult_Value")
+            {
+                var key = field_json["key"]
+                return (
+                    <div key={key} className="smallInput"><Input type="text" name={key} id={key} placeholder=""
+                                                                                   value={this.state.co2_t6713}
+                                                                                   onChange={this.handleChange}/>
+
+                    </div>
+                )
+            }
+        });
+        return list_of_fields
+
+    }
+
+    buildForm(components) {
+        var container = this.refs.container;
+        var cards = [<div key='Me'>Me</div>]
+        for (let component of components) {
+            cards.push(this.createTitle(component["component_description"]));
+            cards.push(this.createInputFields(component["fields_json"]));
+        }
+        ReactDOM.render(<div>{cards}</div>, container);
     }
 
     handleChange(event) {
@@ -54,194 +122,8 @@ class EditRecipe extends Component {
     }
 
     render() {
-        return (
-            <Router>
-                <div className="recipe-container">
-                    <Form className="recipe-form">
-                        <div className="row card-row">
-                            <FormGroup className="col-md-3 paddedcol">
-                                <div className="card temp-card">
-                                    <div className="card-body">
-                                        <h5 className="card-title">Temperate and Humidity</h5>
-                                        <h6 className="card-subtitle mb-2 text-muted">Type: Sensor</h6>
-                                        <div>Publish values of this sensor every
-                                            <div className="row">
-                                                <div className="col-md-6">
-                                                    <div className="smallInput"><Input type="text"
-                                                                                       name="temp_humidity_sht25"
-                                                                                       id="temp_humidity_sht25"
-                                                                                       placeholder=""
-                                                                                       value={this.state.temp_humidity_sht25}
-                                                                                       onChange={this.handleChange}/>
 
-                                                    </div>
-                                                </div>
-                                                <div className="col-md-6">
-                                                    <select className="form-control">
-                                                        <option value="seconds">Seconds</option>
-                                                        <option value="minutes">Minutes</option>
-                                                        <option value="hours">Hours</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </FormGroup>
-                            <FormGroup className="col-md-3 paddedcol">
-                                <div className="card temp-card">
-                                    <div className="card-body">
-                                        <h5 className="card-title">C02 sensor</h5>
-                                        <h6 className="card-subtitle mb-2 text-muted">Type: Sensor</h6>
-                                        <div>Publish values of this sensor every
-                                            <div className="row">
-                                                <div className="col-md-6">
-                                                    <div className="smallInput"><Input type="text"
-                                                                                       name="co2_t6713"
-                                                                                       id="co2_t6713"
-                                                                                       placeholder=""
-                                                                                       value={this.state.co2_t6713}
-                                                                                       onChange={this.handleChange}/>
-
-                                                    </div>
-                                                </div>
-                                                <div className="col-md-6">
-                                                    <select className="form-control">
-                                                        <option value="seconds">Seconds</option>
-                                                        <option value="minutes">Minutes</option>
-                                                        <option value="hours">Hours</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </FormGroup>
-                        </div>
-
-                        <div className="row card-row">
-
-                            <FormGroup className="col-md-12 paddedcol">
-                                <div className="card led-card">
-                                    <div className="card-body">
-                                        <h5 className="card-title">6 channel (spectrum) LED panel</h5>
-                                        <h6 className="card-subtitle mb-2 text-muted">Type: Actuator</h6>
-                                        <h6 className="card-title">Step 1: Lights ON </h6>
-
-                                        <div className="row small-input-row">Publish values of this sensor every
-                                            <div className="col-md-6">
-                                                <div className="smallInput"><Input type="text"
-                                                                                   name="co2_t6713"
-                                                                                   id="co2_t6713"
-                                                                                   placeholder=""
-                                                                                   value={this.state.co2_t6713}
-                                                                                   onChange={this.handleChange}/>
-
-                                                </div>
-                                            </div>
-                                            <div className="col-md-6">
-                                                <select className="form-control smallInput">
-                                                    <option value="seconds">Seconds</option>
-                                                    <option value="minutes">Minutes</option>
-                                                    <option value="hours">Hours</option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-
-                                        <div className="row padded-row">
-                                            <div className="col-md-6"><h6>Far Red</h6></div>
-                                            <div className="col-md-6"><Input type="text" name="far_red" id="far_red"
-                                                                             placeholder="" value={this.state.far_red}
-                                                                             onChange={this.handleChange}/></div>
-                                        </div>
-
-                                        <div className="row padded-row">
-                                            <div className="col-md-6"><h6>Red</h6></div>
-                                            <div className="col-md-6"><Input type="text" name="red" id="red"
-                                                                             placeholder="" value={this.state.red}
-                                                                             onChange={this.handleChange}/></div>
-                                        </div>
-
-                                        <div className="row padded-row">
-                                            <div className="col-md-6"><h6>Warm White</h6></div>
-                                            <div className="col-md-6"><Input type="text" name="warm_white"
-                                                                             id="warm_white"
-                                                                             placeholder=""
-                                                                             value={this.state.warm_white}
-                                                                             onChange={this.handleChange}/></div>
-                                        </div>
-
-                                        <div className="row padded-row">
-                                            <div className="col-md-6"><h6>Green</h6></div>
-                                            <div className="col-md-6"><Input type="text" name="green" id="green"
-                                                                             placeholder="" value={this.state.green}
-                                                                             onChange={this.handleChange}/></div>
-                                        </div>
-
-                                        <div className="row padded-row">
-                                            <div className="col-md-6"><h6>Cool white</h6></div>
-                                            <div className="col-md-6"><Input type="text" name="cool_white"
-                                                                             id="cool_white" placeholder=""
-                                                                             value={this.state.cool_white}
-                                                                             onChange={this.handleChange}/></div>
-                                        </div>
-
-                                        <div className="row padded-row">
-                                            <div className="col-md-6"><h6>Blue</h6></div>
-                                            <div className="col-md-6"><Input type="text" name="blue" id="blue"
-                                                                             placeholder="" value={this.state.blue}
-                                                                             onChange={this.handleChange}/></div>
-                                        </div>
-
-
-                                        <h6 className="card-title">Step 2: Lights OFF </h6>
-
-                                        <div className="row small-input-row">Turn the lights of for
-                                            <div className="col-md-6">
-                                                <div className="smallInput"><Input type="text"
-                                                                                   name="co2_t6713"
-                                                                                   id="co2_t6713"
-                                                                                   placeholder=""
-                                                                                   value={this.state.co2_t6713}
-                                                                                   onChange={this.handleChange}/>
-
-                                                </div>
-                                            </div>
-                                            <div className="col-md-6">
-                                                <select className="form-control smallInput">
-                                                    <option value="seconds">Seconds</option>
-                                                    <option value="minutes">Minutes</option>
-                                                    <option value="hours">Hours</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-
-
-                                </div>
-                            </FormGroup>
-
-                        </div>
-                    </Form>
-                    <div className="col-md-2 cell-col" onClick={this.handleSubmit}>
-                        <a href="#" className="fancy-button bg-gradient1"><span><i
-                            className="fa fa-ticket"></i>Submit Recipe</span></a>
-                    </div>
-                    <div className="col-md-2 cell-col" onClick={this.handleClear}>
-                        <a href="#" className="fancy-button bg-gradient1"><span><i
-                            className="fa fa-ticket"></i>Reset</span></a>
-                    </div>
-
-                </div>
-
-            </Router>
-
-        );
+        return <div className="recipe-container" ref="container"/>;
     }
 }
 

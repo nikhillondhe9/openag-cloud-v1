@@ -254,3 +254,43 @@ def get_all_recipes():
 
     result = Response(data, status=200, mimetype='application/json')
     return result
+
+
+@app.route('/api/get_recipe_components/', methods=['GET', 'POST'])
+def get_recipe_components():
+    print("Fetching components related to a recipe")
+    received_form_response = json.loads(request.data)
+
+    datastore_client = datastore.Client(cloud_project_id)
+    query = datastore_client.query(kind='Components')
+    query_result = list(query.fetch())
+
+    results = list(query_result)
+    print("My results")
+    print(results)
+    results_array = []
+    if len(results) > 0:
+        for result_row in results:
+            result_json = {
+                'component_description': result_row.get("component_description", ""),
+                'component_id': result_row.get("component_id", ""),
+                'component_name': result_row.get("component_name", ""),
+                'component_type': result_row.get("component_type", ""),
+                'fields_json': result_row.get("fields_json", {}),
+                'modified_at': result_row.get("modified_at", "").strftime("%Y-%m-%d %H:%M:%S")
+            }
+            results_array.append(result_json)
+
+        data = json.dumps({
+            "response_code": 200,
+            "results": results_array
+        })
+        result = Response(data, status=200, mimetype='application/json')
+        return result
+    else:
+        data = json.dumps({
+            "response_code": 500,
+            "results": results_array
+        })
+        result = Response(data, status=500, mimetype='application/json')
+        return result
