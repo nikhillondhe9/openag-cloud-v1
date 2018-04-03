@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import logo from './logo.svg';
 import './App.css';
 import {Link} from "react-router-dom";
+import {Cookies, withCookies} from "react-cookie";
 
 class login extends Component {
     constructor(props) {
@@ -46,7 +47,8 @@ class login extends Component {
                 console.log(responseJson)
                 if (responseJson["response_code"]== 200){
                     console.log("Succesfully signed up - redirecting page")
-                    this.props.history.push("/home")
+                    this.props.cookies.set('user_token',responseJson['user_token'])
+                    window.location.href = "/home/"+(this.state.username).toString()
                 }
 
             })
@@ -82,4 +84,4 @@ class login extends Component {
     }
 }
 
-export default login;
+export default withCookies(login);

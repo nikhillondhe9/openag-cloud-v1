@@ -2,21 +2,20 @@ import React, {Component} from 'react';
 import {BrowserRouter as Router, Route, Link} from "react-router-dom";
 import './home.css';
 import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input} from 'reactstrap';
+import {Cookies, withCookies} from "react-cookie";
 
 class Home extends Component {
     constructor(props) {
-
-
         super(props);
         this.username = this.props.match.params.username
         this.state = {
+            user_token: props.cookies.get('user_token') || '',
             modal: false,
             deviceNumber: '',
             deviceName: '',
             deviceDescription: '',
             user_devices:[]
         };
-
 
         this.toggle = this.toggle.bind(this);
         this.registerDevice = this.registerDevice.bind(this);
@@ -26,6 +25,12 @@ class Home extends Component {
         this.getUserDevices = this.getUserDevices.bind(this);
     }
 
+    componentWillMount()
+    {
+        if (this.props.cookies.get('user_token') === '' || this.props.cookies.get('user_token') === undefined) {
+            window.location.href="/login"
+        }
+    }
     componentDidMount() {
         console.log("Mouting component")
         this.getUserDevices()
@@ -184,4 +189,4 @@ class Home extends Component {
     }
 }
 
-export default Home;
+export default withCookies(Home);

@@ -9,7 +9,8 @@ export class SignUp extends Component {
         this.state = {
             name: '',
             password: '',
-            email_address: ''
+            email_address: '',
+            organization:''
         };
         // This binding is necessary to make `this` work in the callback
         this.handleChange = this.handleChange.bind(this);
@@ -42,7 +43,8 @@ export class SignUp extends Component {
             body: JSON.stringify({
                 'username': this.state.name,
                 'password': this.state.password,
-                'email_address': this.state.email_address
+                'email_address': this.state.email_address,
+                'organization':this.state.organization
             })
         })
             .then((response) => response.json())
@@ -68,12 +70,16 @@ export class SignUp extends Component {
                     </div>
                     <form className="register-form" onSubmit={this.handleSubmit}>
                         <input type="text" placeholder="name" name="name" value={this.state.name}
-                               onChange={this.handleChange}/>
+                               onChange={this.handleChange} required />
                         <input type="password" placeholder="password" name="password" value={this.state.password}
-                               onChange={this.handleChange}/>
+                               onChange={this.handleChange} required/>
                         <input type="text" placeholder="email address" name="email_address"
                                value={this.state.email_address}
+                               onChange={this.handleChange} required/>
+                        <input type="text" placeholder="organization" name="organization"
+                               value={this.state.organization}
                                onChange={this.handleChange}/>
+
                         <button>create</button>
                         <p className="message">Already registered? <Link to="login"> Sign In </Link></p>
                     </form>

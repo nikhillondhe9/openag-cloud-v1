@@ -1,18 +1,25 @@
 import React, {Component} from 'react';
 import {BrowserRouter as Router, Route} from "react-router-dom";
 import './recipes.css';
+import {Cookies, withCookies} from "react-cookie";
+
 
 class recipes extends Component {
     constructor(props) {
         super(props);
 
-        // this.editRecipe = this.editRecipe.bind(this);
     }
     editRecipe(recipe_id)
     {
         console.log(recipe_id)
         window.location.href = '/edit_recipe/'+('0').toString()
 
+    }
+    componentWillMount()
+    {
+        if (this.props.cookies.get('user_token') === '') {
+            window.location.href="/login"
+        }
     }
     render() {
         return (
@@ -37,4 +44,4 @@ class recipes extends Component {
     }
 }
 
-export default recipes;
+export default withCookies(recipes);

@@ -5,20 +5,31 @@ import {SignUp} from "./signup";
 import login from "./login";
 import Home from "./home";
 import recipes from "./recipes";
-import addDevice from "./add_device";
 import EditRecipe from './edit_recipe';
+import {instanceOf} from 'prop-types';
+import {Cookies, withCookies} from "react-cookie";
+
 
 class App extends Component {
+
+    static propTypes = {
+        cookies: instanceOf(Cookies).isRequired
+    };
+
     constructor(props) {
         super(props);
         this.state = {
+            user_token: props.cookies.get('user-token') || '',
             username: '',
             password: ''
         };
+
+
         // This binding is necessary to make `this` work in the callback
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.showHideHeader = this.showHideHeader.bind(this);
+
         if (window.location.href.indexOf('login') > 0 || window.location.href.indexOf('signup') > 0) {
             this.authentication_page = true
 
@@ -35,6 +46,7 @@ class App extends Component {
         alert('A login form was submitted: ' + this.state);
         event.preventDefault();
     }
+
 
     showHideHeader() {
         if (this.authentication_page) {
@@ -55,63 +67,64 @@ class App extends Component {
                         <header className="header">
 
 
-                                    <div className="row header-row">
+                            <div className="row header-row">
 
-                                        <div className="col-md-4 icon-holder">
-                                            <Link to="/home">
-                                                <div className="load-1">
-                                                    <div className="line"></div>
-                                                    <div className="line"></div>
-                                                    <div className="line"></div>
-                                                    <div className="label">Home</div>
-
-                                                </div>
-                                            </Link>
+                                <div className="col-md-4 icon-holder">
+                                    <Link to="/home">
+                                        <div className="load-1">
+                                            <div className="line"></div>
+                                            <div className="line"></div>
+                                            <div className="line"></div>
+                                            <div className="label">Home</div>
 
                                         </div>
-                                        <div className="col-md-4 icon-holder">
-                                            <Link to="/recipes">
-                                                <div className="load-1">
-                                                    <div className="line"></div>
-                                                    <div className="line"></div>
-                                                    <div className="line"></div>
-                                                    <div className="label">Recipes</div>
-                                                </div>
-                                            </Link>
+                                    </Link>
+
+                                </div>
+                                <div className="col-md-4 icon-holder">
+                                    <Link to="/recipes">
+                                        <div className="load-1">
+                                            <div className="line"></div>
+                                            <div className="line"></div>
+                                            <div className="line"></div>
+                                            <div className="label">Recipes</div>
                                         </div>
-                                        <div className="col-md-4 icon-holder">
-                                            <Link to="/profile">
-                                                <div className="load-1">
-                                                    <div className="line"></div>
-                                                    <div className="line"></div>
-                                                    <div className="line"></div>
-                                                    <div className="label">Profile</div>
-                                                </div>
-                                            </Link>
+                                    </Link>
+                                </div>
+                                <div className="col-md-4 icon-holder">
+                                    <Link to="/profile">
+                                        <div className="load-1">
+                                            <div className="line"></div>
+                                            <div className="line"></div>
+                                            <div className="line"></div>
+                                            <div className="label">Profile</div>
                                         </div>
-                                    </div>
+                                    </Link>
+                                </div>
+                            </div>
                         </header>
                         <Switch>
                             <Route path='/recipes' component={recipes}/>
-                            <Route path='/home/:username' component={Home}/>
                             <Route path='/login' component={login}/>
                             <Route path='/signup' component={SignUp}/>
                             <Route path='/edit_recipe/:recipe_id' component={EditRecipe}/>
+                            <Route path='/' component={Home}/>
+                            <Route path='/home/:username' component={Home}/>
                         </Switch>
                     </main>
                 </Router>
-        )
+            )
         }
-        }
+    }
 
-        render() {
-            return (
+    render() {
+        return (
             <div>
-            {this.showHideHeader()}
+                {this.showHideHeader()}
             </div>
 
-            );
-        }
-        }
+        );
+    }
+}
 
-        export default App;
+export default withCookies(App);
