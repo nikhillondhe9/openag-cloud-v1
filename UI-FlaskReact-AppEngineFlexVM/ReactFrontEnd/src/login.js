@@ -46,9 +46,9 @@ class login extends Component {
             .then((responseJson) => {
                 console.log(responseJson)
                 if (responseJson["response_code"]== 200){
-                    console.log("Succesfully signed up - redirecting page")
+                    let user_uuid = responseJson["user_uuid"]
                     this.props.cookies.set('user_token',responseJson['user_token'])
-                    window.location.href = "/home/"+(this.state.username).toString()
+                    window.location.href = "/home/"+(user_uuid).toString()
                 }
 
             })

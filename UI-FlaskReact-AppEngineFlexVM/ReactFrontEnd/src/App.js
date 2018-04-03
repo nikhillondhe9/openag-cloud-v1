@@ -21,6 +21,7 @@ class App extends Component {
         this.state = {
             user_token: props.cookies.get('user-token') || '',
             username: '',
+            user_uuid:'',
             password: ''
         };
 
@@ -107,9 +108,8 @@ class App extends Component {
                             <Route path='/recipes' component={recipes}/>
                             <Route path='/login' component={login}/>
                             <Route path='/signup' component={SignUp}/>
-                            <Route path='/edit_recipe/:recipe_id' component={EditRecipe}/>
                             <Route path='/' component={Home}/>
-                            <Route path='/home/:username' component={Home}/>
+                            <Route path='/home/:user_uuid' component={Home} />
                         </Switch>
                     </main>
                 </Router>

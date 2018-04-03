@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {BrowserRouter as Router, Route, Link} from "react-router-dom";
+import {BrowserRouter as Router, Route, Link, withRouter} from "react-router-dom";
 import './home.css';
 import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input} from 'reactstrap';
 import {Cookies, withCookies} from "react-cookie";
@@ -7,14 +7,16 @@ import {Cookies, withCookies} from "react-cookie";
 class Home extends Component {
     constructor(props) {
         super(props);
-        this.username = this.props.match.params.username
+        this.user_uuid = this.props.location.pathname.replace("/home/","").replace("#","")
         this.state = {
             user_token: props.cookies.get('user_token') || '',
             modal: false,
-            deviceNumber: '',
-            deviceName: '',
-            deviceDescription: '',
-            user_devices:[]
+            device_name: '',
+            device_reg_no: '',
+            device_notes: '',
+            user_uuid: this.user_uuid,
+            device_type: 'PFC_EDU',
+            user_devices: []
         };
 
         this.toggle = this.toggle.bind(this);
@@ -25,12 +27,12 @@ class Home extends Component {
         this.getUserDevices = this.getUserDevices.bind(this);
     }
 
-    componentWillMount()
-    {
-        if (this.props.cookies.get('user_token') === '' || this.props.cookies.get('user_token') === undefined) {
-            window.location.href="/login"
+    componentWillMount() {
+        if (this.props.cookies.get('user_token') === '' || this.props.cookies.get('user_token') === undefined || this.props.cookies.get('user_token') === "undefined") {
+            window.location.href = "/login"
         }
     }
+
     componentDidMount() {
         console.log("Mouting component")
         this.getUserDevices()
@@ -63,14 +65,14 @@ class Home extends Component {
                 'Access-Control-Allow-Origin': '*'
             },
             body: JSON.stringify({
-                'username': this.username
+                'user_uuid': this.state.user_uuid
             })
         })
             .then((response) => response.json())
             .then((responseJson) => {
                 console.log(responseJson)
                 if (responseJson["response_code"] == 200) {
-                    this.setState({user_devices:responseJson["results"]})
+                    this.setState({user_devices: responseJson["results"]})
                 }
 
             })
@@ -81,11 +83,12 @@ class Home extends Component {
 
     registerDevice() {
         console.log(JSON.stringify({
-            'username': this.username,
-            'deviceNumber': this.state.deviceNumber,
-            'deviceName': this.state.deviceName,
-            'deviceDescription': this.state.deviceDescription
-        }))
+                'user_uuid': this.state.user_uuid,
+                'device_name': this.state.device_name,
+                'device_reg_no': this.state.device_reg_no,
+                'device_notes': this.state.device_notes,
+                'device_type': this.state.device_type
+            }))
         return fetch('http://127.0.0.1:5000/api/register/', {
             method: 'POST',
             headers: {
@@ -94,10 +97,11 @@ class Home extends Component {
                 'Access-Control-Allow-Origin': '*'
             },
             body: JSON.stringify({
-                'username': this.username,
-                'deviceNumber': this.state.deviceNumber,
-                'deviceName': this.state.deviceName,
-                'deviceDescription': this.state.deviceDescription
+                'user_uuid': this.state.user_uuid,
+                'device_name': this.state.device_name,
+                'device_reg_no': this.state.device_reg_no,
+                'device_notes': this.state.device_notes,
+                'device_type': this.state.device_type
             })
         })
             .then((response) => response.json())
@@ -108,7 +112,7 @@ class Home extends Component {
                         modal: false
                     });
                 }
-
+                this.getUserDevices()
             })
             .catch((error) => {
                 console.error(error);
@@ -117,20 +121,22 @@ class Home extends Component {
 
     render() {
         let listDevices = <p>Loading</p>
-        if(this.state.user_devices.length > 0 )
-        {
-            listDevices = this.state.user_devices.map((device)=>{
-            return <div className="col-md-3" key={device.device_id}> <div  className="card">
-                            <div className="card-body">
-                                <h5 className="card-title">{device.device_id}</h5>
-                                <h6 className="card-subtitle mb-2 text-muted">{device.device_name}</h6>
-                                <p className="card-text">{device.device_notes}</p>
-                                <p className="card-text">This device is currently running the recipe id : {device.device_notes}</p>
-                                <p className="card-text"> Device Status: OK</p>
-                                <a href="#" className="card-link">Device Homepage</a>
-                            </div>
-            </div> </div>
-        });
+        if (this.state.user_devices.length > 0) {
+            listDevices = this.state.user_devices.map((device) => {
+                return <div className="col-md-3" key={device.device_reg_no}>
+                    <div className="card">
+                        <div className="card-body">
+                            <h5 className="card-title">{device.device_reg_no}</h5>
+                            <h6 className="card-subtitle mb-2 text-muted">{device.device_name} ({device.device_type})</h6>
+                            <p className="card-text">{device.device_notes}</p>
+                            <p className="card-text">This device is currently running the recipe id
+                                : {device.device_notes}</p>
+                            <p className="card-text"> Device Status: OK</p>
+                            <a href="#" className="card-link">Device Homepage</a>
+                        </div>
+                    </div>
+                </div>
+            });
 
         }
 
@@ -156,22 +162,30 @@ class Home extends Component {
                         <ModalBody>
                             <Form>
                                 <FormGroup>
-                                    <Label for="deviceName">Device name :</Label>
-                                    <Input type="text" name="deviceName" id="deviceName"
-                                           placeholder="E.g Caleb's FC" value={this.state.deviceName}
+                                    <Label for="device_name">Device name :</Label>
+                                    <Input type="text" name="device_name" id="device_name"
+                                           placeholder="E.g Caleb's FC" value={this.state.device_name}
                                            onChange={this.handleChange}/>
                                 </FormGroup>
                                 <FormGroup>
-                                    <Label for="deviceNumber">Device Number :</Label>
-                                    <Input type="text" name="deviceNumber" id="deviceNumber"
-                                           placeholder="Six digit code" value={this.state.deviceNumber}
+                                    <Label for="device_reg_no">Device Number :</Label>
+                                    <Input type="text" name="device_reg_no" id="device_reg_no"
+                                           placeholder="Six digit code" value={this.state.device_reg_no}
                                            onChange={this.handleChange}/>
                                 </FormGroup>
                                 <FormGroup>
-                                    <Label for="deviceDescription">Device Notes :</Label>
-                                    <Input type="text" name="deviceDescription" id="deviceDescription"
-                                           placeholder="(Optional)" value={this.state.deviceDescription}
+                                    <Label for="device_notes">Device Notes :</Label>
+                                    <Input type="text" name="device_notes" id="device_notes"
+                                           placeholder="(Optional)" value={this.state.device_notes}
                                            onChange={this.handleChange}/>
+                                </FormGroup>
+                                <FormGroup>
+                                    <Label for="device_type">Device Type :</Label>
+                                    <select className="form-control smallInput" name="device_type" id="device_type" onChange={this.handleChange}
+                                            value={this.state.device_type}>
+                                        <option value="PFC_EDU">Personal Food Computer+EDU</option>
+                                        <option value="Food_Server">Food Server</option>
+                                    </select>
                                 </FormGroup>
                             </Form>
                         </ModalBody>
