@@ -84,3 +84,26 @@ hr.small{
     margin-left: 15px;
 }
 
+.buttona {
+
+    width:50%;
+  position: absolute;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  padding: 1.2em 2em;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+  color: white;
+}
+.buttona {
+  position: relative;
+  background: linear-gradient(135deg, #883c63, #cc5e7b);
+  border-radius: 4px;
+}
+

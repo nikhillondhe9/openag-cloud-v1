@@ -184,7 +184,7 @@ class EditRecipe extends Component {
                             </div>
                         </div>
                     </div>
-                    <hr/>
+
                 </div>)
             }
         });
@@ -247,8 +247,9 @@ class EditRecipe extends Component {
                     <h2>Let's build a recipe</h2>
                 </div>
                 <hr/>
-                <div class="spacer"></div>
+                <div className="spacer"></div>
                 <div ref="container"/>
+                <a className="buttona" href="#">Submit Recipe</a>
             </div>);
     }
 }
