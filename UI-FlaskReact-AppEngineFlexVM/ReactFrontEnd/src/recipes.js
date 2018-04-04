@@ -24,7 +24,7 @@ class recipes extends Component {
     render() {
         return (
             <Router>
-                <div className="home-container">
+                <div className="recipe-container">
                     <div className="row card-row">
                         <div className="col-md-3">
                             <div className="card">
