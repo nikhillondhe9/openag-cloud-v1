@@ -99,6 +99,7 @@ class Home extends Component {
             },
             body: JSON.stringify({
                 'user_uuid': this.state.user_uuid,
+                'user_token': this.props.cookies.get('user_token'),
                 'device_name': this.state.device_name,
                 'device_reg_no': this.state.device_reg_no,
                 'device_notes': this.state.device_notes,
