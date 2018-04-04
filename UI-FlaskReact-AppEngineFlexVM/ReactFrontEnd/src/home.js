@@ -59,14 +59,14 @@ class Home extends Component {
     getUserDevices() {
         return fetch('http://food.computer.com:5000/api/get_user_devices/', {
             method: 'POST',
-            credentials: "same-origin",
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*'
             },
             body: JSON.stringify({
-                'user_uuid': this.state.user_uuid
+                'user_uuid': this.state.user_uuid,
+                'user_token': this.props.cookies.get('user_token')
             })
         })
             .then((response) => response.json())

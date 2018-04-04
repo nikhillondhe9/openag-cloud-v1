@@ -178,18 +178,25 @@ def login():
 @app.route('/api/get_user_devices/', methods=['GET', 'POST'])
 def get_user_devices():
     print("Fetching all the user deivces")
-    print(request.cookies.get('user_token'))
+
     received_form_response = json.loads(request.data)
 
-    user_uuid = received_form_response.get("user_uuid", None)
+    user_token = received_form_response.get("user_token",None)
 
-    if user_uuid is None:
+    if user_token is None:
         result = Response({"message": "Please make sure you have added values for all the fields"}, status=500,
                           mimetype='application/json')
         return result
 
     datastore_client = datastore.Client(cloud_project_id)
     query = datastore_client.query(kind='Devices')
+    query_session = datastore_client.query(kind="UserSession")
+    query_session.add_filter('session_token','=',user_token)
+    query_session_result = list(query_session.fetch())
+    user_uuid = None
+    if len(query_session_result) > 0:
+        user_uuid = query_session_result[0].get("user_uuid",None)
+
     query.add_filter('user_uuid', '=', user_uuid)
     query_result = list(query.fetch())
 
@@ -208,8 +215,6 @@ def get_user_devices():
                 'device_name': result_row.get("device_name", "")
             }
             results_array.append(result_json)
-
-
 
         data = json.dumps({
             "response_code": 200,
