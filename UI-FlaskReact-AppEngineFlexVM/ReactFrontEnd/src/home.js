@@ -132,7 +132,7 @@ class Home extends Component {
                             <h6 className="card-subtitle mb-2 text-muted">{device.device_name} ({device.device_type})</h6>
                             <p className="card-text">{device.device_notes}</p>
                             <p className="card-text">This device is currently running the recipe id
-                                : {device.device_notes}</p>
+                                : None </p>
                             <p className="card-text"> Device Status: OK</p>
                             <a href="#" className="card-link">Device Homepage</a>
                         </div>
@@ -151,8 +151,7 @@ class Home extends Component {
                         </div>
 
                         <div className="col-md-2 cell-col" onClick={this.toggle}>
-                            <a href="#" className="fancy-button bg-gradient1"><span><i
-                                className="fa fa-ticket"></i>Add Device</span></a>
+                            <div className="plus" id="plus"> <div className="plus__line plus__line--v"></div><div className="plus__line plus__line--h"></div></div>
                         </div>
 
                     </div>

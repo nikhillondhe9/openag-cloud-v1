@@ -1,3 +1,5 @@
+@import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700|Roboto:400,300,700,500,100);
+
 .recipe-container
 {
     top:100px;
@@ -9,6 +11,8 @@
     overflow-y: scroll;
     max-width: 100%;
     position:relative;
+    font-family: "Roboto", sans-serif;
+
 
 }
 
@@ -37,5 +41,46 @@
 .smallInput
 {
     width:150px;
+}
+
+.colorInput
+{
+    width:100px;
+    margin-right:4px;
+}
+
+h2
+{
+    display: block;
+    margin-left: auto;
+    margin-right:auto;
+    width:auto;
+    font-family: "Roboto", sans-serif;
+    font-weight: 700;
+}
+
+.spacer {
+  height: 1px;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid rgba(0,0,0,0.5);
+  padding: 0;
+}
+
+hr.small{
+    width:100px;
+}
+.color-field-row
+{
+    margin-top:10px;
+    margin-bottom:10px;
+
+}
+
+.padded-col
+{
+    margin-left: 15px;
 }
 

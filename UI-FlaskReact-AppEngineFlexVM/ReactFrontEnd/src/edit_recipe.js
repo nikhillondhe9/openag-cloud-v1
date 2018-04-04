@@ -61,7 +61,7 @@ class EditRecipe extends Component {
 
     timePickerChange(name, value) {
         this.setState({
-            [name]:value.format('hh:mm')
+            [name]: value.format('hh:mm')
         }, () => {
             console.log("New state in ASYNC callback:", this.state);
         });
@@ -73,20 +73,23 @@ class EditRecipe extends Component {
         var list_of_fields = fields_json.map((field_json) => {
             if (field_json["type"] === "publisherPair") {
                 return (
+                    <div className="row field-row" key={component_key}>
+                        <div className="col-md-3">
+                            {field_json["label"]}
+                        </div>
+                        <div className="col-md-9">
+                            <div class="row">
 
-                    <div className="card temp-card" key={component_key}>
-                        <div className="card-body">
-                            <div className="row">{field_json["label"]}
-                                <div className="col-md-6">
-                                    <div className="smallInput"><Input type="text"
-                                                                       name={component_key + '_time'}
-                                                                       id={component_key + '_time'}
-                                                                       placeholder=""
-                                                                       value={this.state[component_key + '_time']}
-                                                                       onChange={this.handleChange}/>
+                                <div className="smallInput"><Input type="text"
+                                                                   name={component_key + '_time'}
+                                                                   id={component_key + '_time'}
+                                                                   placeholder=""
+                                                                   value={this.state[component_key + '_time']}
+                                                                   onChange={this.handleChange}/>
 
-                                    </div>
+
                                 </div>
+
                                 <div className="col-md-6">
                                     <select className="form-control smallInput" name={component_key + '_unit'}
                                             id={component_key + '_unit'} value={this.state[component_key + '_unit']}
@@ -103,26 +106,32 @@ class EditRecipe extends Component {
             }
 
             if (field_json["type"] === "timerPair") {
-                return (<div>
-                    <div className="card-title">{field_json["label"]}</div>
-                    <div className="card-body">
-                        <div className="row">
-                            <div className="col-md-6">
-                                <div className="smallInput"> from
-                                    <TimePicker
-                                        name={field_json["key"] + "_from"}
-                                        id={field_json["key"] + "_from"}
-                                        showSecond={false}
-                                        defaultValue={now}
-                                        className="xxx"
-                                        onChange={this.timePickerChange.bind(null, field_json["key"] + "_from")}
-                                        format={format}
-                                        use12Hours
-                                        inputReadOnly
-                                    /></div>
-                            </div>
-                            <div className="col-md-6">
-                                <div className="smallInput"> to
+                return (
+                    <div className="row field-row" key={component_key}>
+                        <div className="col-md-3">
+                            {field_json["label"]}
+                        </div>
+                        <div className="col-md-9">
+                            <div class="row">
+
+                                <div className="smallInput"><TimePicker
+                                    name={field_json["key"] + "_from"}
+                                    id={field_json["key"] + "_from"}
+                                    showSecond={false}
+                                    defaultValue={now}
+                                    className="xxx"
+                                    onChange={this.timePickerChange.bind(null, field_json["key"] + "_from")}
+                                    format={format}
+                                    use12Hours
+                                    inputReadOnly
+                                />
+
+
+                                </div>
+                                <div>
+                                    to
+                                </div>
+                                <div className="col-md-6">
                                     <TimePicker
                                         name={field_json["key"] + "_to"}
                                         id={field_json["key"] + "_to"}
@@ -137,32 +146,46 @@ class EditRecipe extends Component {
                             </div>
                         </div>
                     </div>
-                </div>)
+
+
+                )
             }
 
             if (field_json["type"] === "color_panel_led") {
                 var all_color_inputs = []
-
                 var colors_array = ["far_red", "red", "warm_white", "cool_white", "blue", "green"]
                 for (let color of colors_array) {
                     let color_name = color.replace("_", " ")
-                    let colorInput = <div className="card-body">
-                        <div className="row">{color_name[0].toUpperCase() + color_name.substr(1)}
-                            <div className="col-md-6">
-                                <div className="smallInput"><Input type="text"
-                                                                   name={field_json["key"] + "_" + color}
-                                                                   id={field_json["key"] + "_" + color}
-                                                                   placeholder=""
-                                                                   value={this.state[field_json["key"] + "_" + color]}
-                                                                   onKeyUp={this.handleChange}/>
+                    let colorInput =
 
-                                </div>
+
+                            <div className="colorInput">{color_name[0].toUpperCase() + color_name.substr(1)}<Input type="text"
+                                                               name={field_json["key"] + "_" + color}
+                                                               id={field_json["key"] + "_" + color}
+                                                               placeholder="(0-255)"
+                                                               value={this.state[field_json["key"] + "_" + color]}
+                                                               min="0"
+                                                               max="255"
+                                                               onKeyUp={this.handleChange}/>
+
+                            </div>
+
+
+                    all_color_inputs.push(colorInput)
+                }
+                return (<div>
+                    <div className="row color-field-row" key={component_key}>
+                        <div className="col-md-3">
+                            Set color points
+                        </div>
+                        <div className="col-md-9">
+                            <div class="row">
+                            {all_color_inputs}
                             </div>
                         </div>
                     </div>
-                    all_color_inputs.push(colorInput)
-                }
-                return (all_color_inputs)
+                    <hr/>
+                </div>)
             }
         });
 
@@ -177,6 +200,7 @@ class EditRecipe extends Component {
             let fields_json = JSON.parse(component["fields_json"])
             cards.push(<h6>{component['component_description']}</h6>)
             cards.push(this.createInputFields(fields_json, component["component_name"], component["component_description"]));
+            cards.push(<hr/>)
         }
         ReactDOM.render(<div>{cards}</div>, container);
     }
@@ -217,7 +241,15 @@ class EditRecipe extends Component {
 
     render() {
 
-        return <div className="recipe-container" ref="container"/>;
+        return (
+            <div className="recipe-container">
+                <div className="row title-row">
+                    <h2>Let's build a recipe</h2>
+                </div>
+                <hr/>
+                <div class="spacer"></div>
+                <div ref="container"/>
+            </div>);
     }
 }
 
