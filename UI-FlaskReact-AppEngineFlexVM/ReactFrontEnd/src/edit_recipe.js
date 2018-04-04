@@ -7,6 +7,7 @@ import {Cookies, withCookies} from "react-cookie";
 import moment from 'moment';
 import TimePicker from 'rc-time-picker';
 import 'rc-time-picker/assets/index.css';
+
 const format = 'h:mm a';
 
 const now = moment().hour(0).minute(0);
@@ -58,11 +59,13 @@ class EditRecipe extends Component {
             });
     }
 
-    timePickerChange(name,value) {
-            console.log(value ,name);
-            this.setState({[name]: value.format('hh:mm')});
-            console.log(this.state)
-        }
+    timePickerChange(name, value) {
+        this.setState({
+            [name]:value.format('hh:mm')
+        }, () => {
+            console.log("New state in ASYNC callback:", this.state);
+        });
+    }
 
 
     createInputFields(fields_json, component_key, component_description) {
@@ -105,32 +108,32 @@ class EditRecipe extends Component {
                     <div className="card-body">
                         <div className="row">
                             <div className="col-md-6">
-                               <div className="smallInput"> from
-                                <TimePicker
-                                    name={field_json["key"]+"_from" }
-                                    id={field_json["key"]+"_from" }
-                                    showSecond={false}
-                                    defaultValue={now}
-                                    className="xxx"
-                                    onChange={this.timePickerChange.bind(null,field_json["key"]+"_from")}
-                                    format={format}
-                                    use12Hours
-                                    inputReadOnly
-                                /></div>
+                                <div className="smallInput"> from
+                                    <TimePicker
+                                        name={field_json["key"] + "_from"}
+                                        id={field_json["key"] + "_from"}
+                                        showSecond={false}
+                                        defaultValue={now}
+                                        className="xxx"
+                                        onChange={this.timePickerChange.bind(null, field_json["key"] + "_from")}
+                                        format={format}
+                                        use12Hours
+                                        inputReadOnly
+                                    /></div>
                             </div>
                             <div className="col-md-6">
-                               <div className="smallInput"> to
-                                <TimePicker
-                                    name={field_json["key"]+"_to" }
-                                    id={field_json["key"]+"_to" }
-                                    showSecond={false}
-                                    defaultValue={now}
-                                    className="xxx"
-                                    onChange={this.timePickerChange.bind(null,field_json["key"]+"_to")}
-                                    format={format}
-                                    use12Hours
-                                    inputReadOnly
-                                /></div>
+                                <div className="smallInput"> to
+                                    <TimePicker
+                                        name={field_json["key"] + "_to"}
+                                        id={field_json["key"] + "_to"}
+                                        showSecond={false}
+                                        defaultValue={now}
+                                        className="xxx"
+                                        onChange={this.timePickerChange.bind(null, field_json["key"] + "_to")}
+                                        format={format}
+                                        use12Hours
+                                        inputReadOnly
+                                    /></div>
                             </div>
                         </div>
                     </div>
@@ -147,10 +150,10 @@ class EditRecipe extends Component {
                         <div className="row">{color_name[0].toUpperCase() + color_name.substr(1)}
                             <div className="col-md-6">
                                 <div className="smallInput"><Input type="text"
-                                                                   name={field_json["key"]+"_"  + color}
-                                                                   id={field_json["key"]  +"_" + color}
+                                                                   name={field_json["key"] + "_" + color}
+                                                                   id={field_json["key"] + "_" + color}
                                                                    placeholder=""
-                                                                   value={this.state[field_json["key"] +"_" + color]}
+                                                                   value={this.state[field_json["key"] + "_" + color]}
                                                                    onKeyUp={this.handleChange}/>
 
                                 </div>
@@ -179,8 +182,11 @@ class EditRecipe extends Component {
     }
 
     handleChange(event) {
-        this.setState({[event.target.name]: event.target.value});
-        console.log(this.state)
+        this.setState({
+            [event.target.name]: event.target.value
+        }, () => {
+            console.log("New state in ASYNC callback:", this.state);
+        });
         event.preventDefault();
 
     }
