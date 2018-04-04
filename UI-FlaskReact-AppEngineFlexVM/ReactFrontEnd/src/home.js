@@ -57,8 +57,9 @@ class Home extends Component {
     }
 
     getUserDevices() {
-        return fetch('http://127.0.0.1:5000/api/get_user_devices/', {
+        return fetch('http://food.computer.com:5000/api/get_user_devices/', {
             method: 'POST',
+            credentials: "same-origin",
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',

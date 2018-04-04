@@ -178,6 +178,7 @@ def login():
 @app.route('/api/get_user_devices/', methods=['GET', 'POST'])
 def get_user_devices():
     print("Fetching all the user deivces")
+    print(request.cookies.get('user_token'))
     received_form_response = json.loads(request.data)
 
     user_uuid = received_form_response.get("user_uuid", None)
