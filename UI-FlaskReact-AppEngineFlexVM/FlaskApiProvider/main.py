@@ -26,19 +26,25 @@ cloud_project_id = "openag-v1"
 def register():
     received_form_response = json.loads(request.data)
 
-    user_uuid = received_form_response.get("user_uuid", None)
+    user_token = received_form_response.get("user_token", None)
     device_name = received_form_response.get("device_name", None)
     device_reg_no = received_form_response.get("device_reg_no", None)
     device_notes = received_form_response.get("device_notes", None)
     device_type = received_form_response.get("device_type", None)
     time_stamp = datetime.now()
-    print(user_uuid)
-    if user_uuid is None or device_reg_no is None:
+
+    if user_token is None or device_reg_no is None:
         result = Response({"message": "Please make sure you have added values for all the fields"}, status=500,
                           mimetype='application/json')
         return result
-    print("Me")
+
     datastore_client = datastore.Client(cloud_project_id)
+    query_session = datastore_client.query(kind="UserSession")
+    query_session.add_filter('session_token', '=', user_token)
+    query_session_result = list(query_session.fetch())
+    user_uuid = None
+    if len(query_session_result) > 0:
+        user_uuid = query_session_result[0].get("user_uuid", None)
 
     # Add the user to the users kind of entity
     key = datastore_client.key('Devices')
@@ -282,7 +288,7 @@ def get_recipe_components():
                 'component_id': result_row.get("component_id", ""),
                 'component_name': result_row.get("component_name", ""),
                 'component_type': result_row.get("component_type", ""),
-                'fields_json': result_row.get("fields_json", {}),
+                'fields_json': json.loads(result_row.get("fields_json", {})),
                 'modified_at': result_row.get("modified_at", "").strftime("%Y-%m-%d %H:%M:%S")
             }
             results_array.append(result_json)

@@ -23,7 +23,8 @@
 
 .temp-card
 {
-    width:300px;
+    padding:10px;
+    width:400px;
     margin:20px;
 }
 
@@ -32,22 +33,9 @@
     margin-left:20px;
 }
 
-.paddedcol
-{
-    margin-right: 60px;
-}
 
 .smallInput
 {
-    width:130px;
+    width:150px;
 }
 
-.padded-row
-{
-    margin-top: 10px;
-}
-
-.small-input-row
-{
-    padding-left:20px;
-}
