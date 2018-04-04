@@ -32,7 +32,7 @@ class EditRecipe extends Component {
     }
 
     getRecipeComponents() {
-        return fetch('http://127.0.0.1:5000/api/get_recipe_components/', {
+        return fetch('http://food.computer.com:5000/api/get_recipe_components/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',

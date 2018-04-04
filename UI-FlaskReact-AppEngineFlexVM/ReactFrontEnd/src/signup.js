@@ -34,7 +34,7 @@ export class SignUp extends Component {
     }
 
     signupUser() {
-        return fetch('http://127.0.0.1:5000/api/signup/', {
+        return fetch('http://food.computer.com:5000/api/signup/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',

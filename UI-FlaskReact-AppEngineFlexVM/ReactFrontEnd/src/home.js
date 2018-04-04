@@ -90,7 +90,7 @@ class Home extends Component {
                 'device_notes': this.state.device_notes,
                 'device_type': this.state.device_type
             }))
-        return fetch('http://127.0.0.1:5000/api/register/', {
+        return fetch('http://food.computer.com:5000/api/register/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
