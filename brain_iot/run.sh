@@ -27,7 +27,8 @@ python3 iot_mqtt_example.py \
    --algorithm=RS256 \
    --private_key_file=rsa_private.pem \
    --ca_certs=roots.pem \
-   --num_messages 2
+   --num_messages 0
 
+#   --num_messages 2
 
 #   --log debug \

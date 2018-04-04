@@ -6,7 +6,7 @@ authentication. After connecting, by default the device publishes messages
 to the device's MQTT topic at a rate of one per second, and then exits.
 """
 
-import argparse, datetime, os, random, ssl, time, logging, sys, signal
+import argparse, datetime, os, random, ssl, time, logging, sys, signal, json
 import jwt
 import paho.mqtt.client as mqtt
 
@@ -26,6 +26,9 @@ MAXIMUM_BACKOFF_TIME = 32
 
 # Whether to wait with exponential backoff before publishing.
 should_backoff = False
+
+# The last config message version we have seen (saved in config.json)
+lastConfigVersion = 1
 
 # Default logging level, also used to turn on paho debugging
 numeric_level = logging.ERROR 
@@ -104,10 +107,39 @@ def on_publish(unused_client, unused_userdata, unused_mid):
 #------------------------------------------------------------------------------
 """Callback when the device receives a message on a subscription."""
 def on_message( unused_client, unused_userdata, message ):
-    payload = str( message.payload )
-    print('Received message:\n  {}\n  topic={}\n  Qos={}\n  mid={}\n  retain={}\n'.format(
-        payload, message.topic, str( message.qos ), str( message.mid ),
-        str( message.retain ) ))
+    payload = message.payload.decode( 'utf-8' )
+    # message is a paho.mqtt.client.MQTTMessage, these are all properties:
+    print('Received message:\n  {}\n  topic={}\n  Qos={}\n  mid={}\n  '
+        'retain={}'.format(
+            payload, message.topic, str( message.qos ), str( message.mid ),
+            str( message.retain ) ))
+
+    # convert the payload to a dict and get the last config msg version
+    messageVersion = 1 # default
+    try:
+        payloadDict = json.loads( payload )
+        if 'lastConfigVersion' in payloadDict:
+            messageVersion = int( payloadDict['lastConfigVersion'] )
+    except Exception as e:
+        logging.debug('Exception parsing payload: {}'.format(e))
+
+    # The broker will keep sending config messages everytime we connect.
+    # So compare this message (if a config message) to the last config
+    # version we have seen.
+    global lastConfigVersion 
+    if messageVersion > lastConfigVersion:
+        print('Handle the commands in the config message:\n{}\n'.format(
+            payload ))
+    else:
+        print('Ignore this old config message.\n')
+
+    # write our local config file, if this version is the highest we've seen.
+    if messageVersion > lastConfigVersion:
+        lastConfigVersion = messageVersion
+        config = {'lastConfigVersion': lastConfigVersion}
+        with open( 'config.json', 'w') as f:
+            json.dump( config, f )
+
 
 
 #------------------------------------------------------------------------------
@@ -159,23 +191,12 @@ def get_client(
     # Connect to the Google MQTT bridge.
     client.connect( mqtt_bridge_hostname, mqtt_bridge_port )
 
-    # This is the topic that the device will receive configuration updates on.
+    # This is the topic that the device will receive COMMANDS on:
     mqtt_config_topic = '/devices/{}/config'.format( device_id )
     logging.debug('mqtt_config_topic={}'.format( mqtt_config_topic ))
 
     # Subscribe to the config topic.
     client.subscribe( mqtt_config_topic, qos=1 )
-
-#debugrob: 
-
-# !! Can I use the config topic to send commands to a single device?
-#       mqtt_config_topic = '/devices/{device_id}/config'
-
-# >> how can I ACK a config message - I keep getting the same ones?
-# do I need to keep track of them by internal ID and ignore ones I've seen?
-
-# >> write a backend IoT sample to send a config (JSON commands) to a device
-# https://cloud.google.com/iot/docs/how-tos/config/configuring-devices
 
     return client
 
@@ -247,7 +268,15 @@ def main():
     # default log file and level
     logging.basicConfig( level=logging.ERROR ) # can only call once
 
-    global minimum_backoff_time
+    # read our local config file if it exists
+    global lastConfigVersion 
+    try:
+        with open( 'config.json', 'r') as f:
+            config = json.load( f )
+        if 'lastConfigVersion' in config:
+            lastConfigVersion = int( config['lastConfigVersion'] )
+    except Exception as e:
+        lastConfigVersion = 1
 
     # parse command line args
     args = parse_command_line_args()
@@ -285,6 +314,7 @@ def main():
         # Wait if backoff is required.
         if should_backoff:
             # If backoff time is too large, give up.
+            global minimum_backoff_time
             if minimum_backoff_time > MAXIMUM_BACKOFF_TIME:
                 print('Exceeded maximum backoff time. Giving up.')
                 break
@@ -330,8 +360,6 @@ def main():
     print('looping forever, use Ctrl-C to exit')
     client.loop_forever()
 
-    #print('Sleeping for 30 secs to see if we get a config message from console')
-    #time.sleep( 30 )
     print('Finished.')
 
 

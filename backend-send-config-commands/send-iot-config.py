@@ -38,7 +38,6 @@ def main():
     # default log file and level
     logging.basicConfig( level=logging.ERROR ) # can only call once
 
-
     # parse command line args
     parser = argparse.ArgumentParser()
     parser.add_argument( '--log', type=str, default='error',
@@ -60,7 +59,6 @@ def main():
         logging.critical('publisher: Invalid log level: %s' % args.log )
         numeric_level = getattr( logging, 'ERROR', None )
     logging.getLogger().setLevel( level=numeric_level )
-
 
     try:
         print('device_id={}'.format( args.device_id ))
@@ -86,20 +84,28 @@ def main():
         configs = devices.configVersions().list( name=device_path 
                 ).execute().get( 'deviceConfigs', [] )
 
-        latestVersion = 1
+        latestVersion = 1 # the first / default version
         if 0 < len( configs ):
             latestVersion = configs[0].get('version')
+            print('latest version: {}\n\tcloudUpdateTime: {}\n' \
+                '\tbinaryData: {}'.format(
+                    configs[0].get('version'),
+                    configs[0].get('cloudUpdateTime'),
+                    configs[0].get('binaryData') ))
 
-        for config in configs:
-            print('version: {}\n\tcloudUpdateTime: {}\n\t binaryData: {}'.format(
-            config.get('version'),
-            config.get('cloudUpdateTime'),
-            config.get('binaryData')))
+        # print the list of configs
+        #for config in configs:
+        #    print('version: {}\n\tcloudUpdateTime: {}\n' \
+        #        '\tbinaryData: {}'.format(
+        #            config.get('version'),
+        #            config.get('cloudUpdateTime'),
+        #            config.get('binaryData') ))
         
         # send a config message to a device
         # can only update the LATEST version!  (so get it first)
         version = latestVersion
-        config = '{"key":"value", "wow":"cool json dude"}'
+        config = '{"lastConfigVersion":"' + str(version) + \
+            '", "wow":"cool json dude"}'
         config_body = {
             'versionToUpdate': version,
             'binaryData': base64.urlsafe_b64encode(
