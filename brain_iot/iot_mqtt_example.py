@@ -28,7 +28,7 @@ MAXIMUM_BACKOFF_TIME = 32
 should_backoff = False
 
 # The last config message version we have seen (saved in config.json)
-lastConfigVersion = 1
+lastConfigVersion = 0
 
 # Default logging level, also used to turn on paho debugging
 numeric_level = logging.ERROR 
@@ -277,7 +277,7 @@ def main():
         if 'lastConfigVersion' in config:
             lastConfigVersion = int( config['lastConfigVersion'] )
     except Exception as e:
-        lastConfigVersion = 1
+        lastConfigVersion = 0
 
     # parse command line args
     args = parse_command_line_args()
