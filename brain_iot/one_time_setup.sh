@@ -9,8 +9,12 @@ fi
 
 rm -fr pyenv
 
-#sudo apt-get install python3-pip
+#sudo pip install --upgrade pip
 #sudo pip install --upgrade virtualenv
+
+# Eventually this will be in our Deb9.3 image, but isn't right now
+sudo apt-get install -y openssl libffi-dev libssl-dev
+
 virtualenv --python python3 pyenv
 source pyenv/bin/activate
 

@@ -2,7 +2,7 @@
 
 FILE='rsa_cert.pem'
 if [ ! -f $FILE ]; then
-    echo "Error: The $FILE needs to be in the current directory."
+    echo "Error: The $FILE file needs to be in the current directory."
     exit 1
 fi
 
