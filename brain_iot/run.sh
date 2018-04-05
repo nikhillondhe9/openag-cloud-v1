@@ -1,5 +1,16 @@
 #!/bin/bash
 
+if [ $# -eq 0 ]; then
+    echo "Please provide your device_id on the command line."
+    exit 1
+fi
+
+FILE='rsa_private.pem'
+if [ ! -f $FILE ]; then
+    echo "Error: The $FILE file needs to be in the current directory."
+    exit 1
+fi
+
 # deactivate any current python virtual environment we may be running
 if ! [ -z "${VIRTUAL_ENV}" ] ; then
     deactivate
@@ -7,12 +18,6 @@ fi
 
 source pyenv/bin/activate
 source ../gcloud_env.bash
-
-FILE='rsa_private.pem'
-if [ ! -f $FILE ]; then
-    echo "Error: The $FILE file needs to be in the current directory."
-    exit 1
-fi
 
 # MUST use the central region / zone for beta IoT product.
 export GCLOUD_REGION=us-central1

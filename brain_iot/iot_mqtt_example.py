@@ -213,7 +213,8 @@ def parse_command_line_args():
     parser.add_argument(
             '--registry_id', required=True, help='Cloud IoT Core registry id')
     parser.add_argument(
-            '--device_id', required=True, help='Cloud IoT Core device id')
+            '--device_id', required=True, default=None,
+            help='Cloud IoT Core device id')
     parser.add_argument(
             '--private_key_file',
             required=True, help='Path to private key file.')
@@ -289,11 +290,16 @@ def main():
         numeric_level = getattr( logging, 'ERROR', None )
     logging.getLogger().setLevel( level=numeric_level )
 
+    # validate our device_id
+    if None == args.device_id or 0 == len( args.device_id ):
+        logging.error( 'Invalid device_id on the command line.' )
+        exit( 1 )
+
     # Publish to the events or state topic based on the flag.
     sub_topic = 'events' if args.message_type == 'event' else 'state'
 
-    mqtt_topic = '/devices/{}/{}'.format(args.device_id, sub_topic)
-    logging.debug('mqtt_topic={}'.format(mqtt_topic))
+    mqtt_topic = '/devices/{}/{}'.format( args.device_id, sub_topic )
+    logging.debug('mqtt_topic={}'.format( mqtt_topic))
 
     jwt_iat = datetime.datetime.utcnow()
     jwt_exp_mins = args.jwt_expires_minutes
