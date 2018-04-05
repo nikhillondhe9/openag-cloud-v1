@@ -13,9 +13,10 @@ const schema = {
   "properties": {
     "key": { "type": "string" },
     "cksum": { "type": "string" },
-    "state": { "type": "string" }
+    "state": { "type": "string" },
+    "MAC": { "type": "string" }
   },
-  "required": ["key", "cksum"],
+  "required": ["key", "cksum", "MAC"],
   "additionalProperties": false
 };
 

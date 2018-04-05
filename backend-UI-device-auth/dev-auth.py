@@ -45,12 +45,11 @@ def getFirestoreClient( service_account_json ):
 
 
 #------------------------------------------------------------------------------
-# Works on OSX and Debian/ARM.
-# Returns the MAC address of the default (in use) interface.
-# For example: f4-0f-24-19-fe-ba
-def getMAC():
-    mac_addr = hex(uuid.getnode()).replace('0x', '')
-    return '-'.join(mac_addr[i : i + 2] for i in range(0, 11, 2))
+# check that the key is in the dict, if so return True.  if not False.
+def checkDictKey( d, key ):
+    if key in d:
+        return True;
+    return False 
 
 
 #------------------------------------------------------------------------------
@@ -122,10 +121,21 @@ def main():
         doc = docs_list[0]
         key_dict = doc.to_dict()
         doc_id = doc.id
+
+        # verify all the keys we need are in the doc's dict
+        if not checkDictKey( key_dict, 'key' ) and \
+               checkDictKey( key_dict, 'cksum' ) and \
+               checkDictKey( key_dict, 'state' ) and \
+               checkDictKey( key_dict, 'MAC' ):
+            logging.error( 'Missing a required key in {}'.format( key_dict ))
+            exit( 1 )
+
         public_key = key_dict['key']
         cksum = key_dict['cksum']
         state = key_dict['state']
-        print('doc_id={}, cksum={}, state={}'.format( doc_id, cksum, state ))
+        MAC = key_dict['MAC']
+        print('doc_id={}, cksum={}, state={}, MAC={}'.format( 
+            doc_id, cksum, state, MAC ))
         print('public_key:\n{}'.format( public_key ))
 
         # Generate a unique device id from code + MAC.
@@ -133,7 +143,7 @@ def main():
         # (test ID format in the IoT core console)
         # Start and end your ID with a lowercase letter or a number. 
         # You can also include the following characters: + . % - _ ~
-        device_id = 'EDU-{}-{}'.format( args.verification_code, getMAC() )
+        device_id = 'EDU-{}-{}'.format( args.verification_code, MAC )
         print('device_id={}'.format( device_id ))
 
         # register this device using its public key we got from the DB
@@ -184,8 +194,6 @@ def main():
         row_data = [
             ( idkey, args.user_email, u'PFC_EDU' )
         ]
-
-#debugrob: "'Client' object has no attribute 'insert_rows'"
 
         print('BQ row_data: {}'.format( row_data ))
         errs = bq.insert_rows( table=tab, rows=row_data )

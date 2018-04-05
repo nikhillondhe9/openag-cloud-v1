@@ -15,4 +15,4 @@ source pyenv/bin/activate
 
 # use "pip freeze" to produce the list of reqs.
 pip install -r requirements.txt
-pip install --upgrade google-cloud
+
