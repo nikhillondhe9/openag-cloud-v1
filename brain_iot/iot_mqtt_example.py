@@ -115,7 +115,7 @@ def on_message( unused_client, unused_userdata, message ):
             str( message.retain ) ))
 
     # convert the payload to a dict and get the last config msg version
-    messageVersion = 1 # default
+    messageVersion = 0 # starts before the first config version # of 1
     try:
         payloadDict = json.loads( payload )
         if 'lastConfigVersion' in payloadDict:

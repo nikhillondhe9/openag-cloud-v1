@@ -82,6 +82,8 @@ def main():
             help='User email/ID used with UI account.' )
     parser.add_argument( '--verification_code', required=True, type=str, 
             help='Device verification code from registration script.' )
+    parser.add_argument( '--notes', type=str, default='',
+            help='Optional note string stored in the device registry.' )
     args = parser.parse_args()
 
     # user specified log level
@@ -156,7 +158,8 @@ def main():
                 }
             }],
             'metadata': {
-                'user_id': args.user_email
+                'user_id': args.user_email,
+                'notes': args.notes
             }
         }
 
