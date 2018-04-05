@@ -128,8 +128,12 @@ def main():
         print('doc_id={}, cksum={}, state={}'.format( doc_id, cksum, state ))
         print('public_key:\n{}'.format( public_key ))
 
-        # generate a unique device id from code + MAC
-        device_id = '{}-{}'.format( args.verification_code, getMAC() )
+        # Generate a unique device id from code + MAC.
+        # ID MUST start with a letter!   
+        # (test ID format in the IoT core console)
+        # Start and end your ID with a lowercase letter or a number. 
+        # You can also include the following characters: + . % - _ ~
+        device_id = 'EDU-{}-{}'.format( args.verification_code, getMAC() )
         print('device_id={}'.format( device_id ))
 
         # register this device using its public key we got from the DB
@@ -140,7 +144,10 @@ def main():
                     'format': 'RSA_X509_PEM',
                     'key': public_key
                 }
-            }]
+            }],
+            'metadata': {
+                'user_id': args.user_email
+            }
         }
 
         # path to the device registry
@@ -177,6 +184,9 @@ def main():
         row_data = [
             ( idkey, args.user_email, u'PFC_EDU' )
         ]
+
+#debugrob: "'Client' object has no attribute 'insert_rows'"
+
         print('BQ row_data: {}'.format( row_data ))
         errs = bq.insert_rows( table=tab, rows=row_data )
 

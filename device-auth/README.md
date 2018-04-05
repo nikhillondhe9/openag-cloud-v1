@@ -1,11 +1,12 @@
 ## Command line script to add a device to the registry by verification code.
 
-This code will be used in the new flask/django/python UI.
+This code will be used in the new React/Flask UI.
 
 
 ### Programatically add a device to the registry:
 - https://cloud.google.com/iot/docs/how-tos/devices#creating_a_device_registry_with_multiple_pubsub_topics
 - https://cloud.google.com/iot/docs/samples/device-manager-samples#iot-core-create-es256-python
+- https://cloud.google.com/iot/docs/reference/cloudiot/rest/v1/projects.locations.registries.devices
 
 ### Firestore doc db access:
 - https://github.com/GoogleCloudPlatform/google-cloud-python/tree/master/firestore
