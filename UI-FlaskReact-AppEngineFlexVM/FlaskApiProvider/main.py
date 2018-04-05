@@ -187,7 +187,7 @@ def get_user_devices():
 
     received_form_response = json.loads(request.data)
 
-    user_token = received_form_response.get("user_token",None)
+    user_token = received_form_response.get("user_token", None)
 
     if user_token is None:
         result = Response({"message": "Please make sure you have added values for all the fields"}, status=500,
@@ -197,11 +197,11 @@ def get_user_devices():
     datastore_client = datastore.Client(cloud_project_id)
     query = datastore_client.query(kind='Devices')
     query_session = datastore_client.query(kind="UserSession")
-    query_session.add_filter('session_token','=',user_token)
+    query_session.add_filter('session_token', '=', user_token)
     query_session_result = list(query_session.fetch())
     user_uuid = None
     if len(query_session_result) > 0:
-        user_uuid = query_session_result[0].get("user_uuid",None)
+        user_uuid = query_session_result[0].get("user_uuid", None)
 
     query.add_filter('user_uuid', '=', user_uuid)
     query_result = list(query.fetch())
@@ -239,57 +239,21 @@ def get_user_devices():
 
 @app.route('/api/get_all_recipes/', methods=['GET', 'POST'])
 def get_all_recipes():
-    received_form_response = json.loads(request.data)
-    client = bigquery.Client()
-    job_config = bigquery.QueryJobConfig()
-
-    # Set use_legacy_sql to False to use standard SQL syntax.
-    # Note that queries are treated as standard SQL by default.
-    job_config.use_legacy_sql = False
-
-    selct_all_recipes_query = """SELECT * FROM test.recipes"""
-    query_job = client.query(selct_all_recipes_query, job_config=job_config)
-    query_result = query_job.result()
-    print("Results")
-    print(query_result)
-    if len(list(query_result)) > 0:
-
-        data = json.dumps({
-            "response_code": 200
-        })
-
-    else:
-        data = json.dumps({
-            "response_code": 200,
-            "message": "Please check your credentials"
-        })
-
-    result = Response(data, status=200, mimetype='application/json')
-    return result
-
-
-@app.route('/api/get_recipe_components/', methods=['GET', 'POST'])
-def get_recipe_components():
-    print("Fetching components related to a recipe")
-    received_form_response = json.loads(request.data)
-
+    print("Fetching all the recipes")
     datastore_client = datastore.Client(cloud_project_id)
-    query = datastore_client.query(kind='Components')
+    query = datastore_client.query(kind='Recipes')
     query_result = list(query.fetch())
-
     results = list(query_result)
-    print("My results")
-    print(results)
+
     results_array = []
     if len(results) > 0:
         for result_row in results:
             result_json = {
-                'component_description': result_row.get("component_description", ""),
-                'component_id': result_row.get("component_id", ""),
-                'component_name': result_row.get("component_name", ""),
-                'component_type': result_row.get("component_type", ""),
-                'fields_json': json.loads(result_row.get("fields_json", {})),
-                'modified_at': result_row.get("modified_at", "").strftime("%Y-%m-%d %H:%M:%S")
+                'recipe_name': result_row.get("recipe_name", ""),
+                'recipe_plant': result_row.get("recipe_plant", ""),
+                'recipe_json': result_row.get("recipe_json", {}),
+                'modified_at': result_row.get("modified_at", "").strftime("%Y-%m-%d %H:%M:%S"),
+                'recipe_uuid': result_row.get("recipe_uuid", "")
             }
             results_array.append(result_json)
 
@@ -306,3 +270,143 @@ def get_recipe_components():
         })
         result = Response(data, status=500, mimetype='application/json')
         return result
+
+
+@app.route('/api/get_recipe_components/', methods=['GET', 'POST'])
+def get_recipe_components():
+    print("Fetching components related to a recipe")
+    received_form_response = json.loads(request.data)
+    recipe_uuid = str(received_form_response.get("recipe_id", '0'))
+
+    datastore_client = datastore.Client(cloud_project_id)
+    components_array = []
+    component_ids_array = []
+    recipe_json = {}
+
+    if recipe_uuid != '0':
+        recipe_query = datastore_client.query(kind='Recipes')
+        recipe_query.add_filter('recipe_uuid', '=', recipe_uuid)
+        recipe_query_result = list(recipe_query.fetch())
+        if len(recipe_query_result) == 1:
+            component_ids = recipe_query_result[0]['components']
+            recipe_json = recipe_query_result[0]['recipe_json']
+            recipe_json = json.dumps(
+                {k: v for k, v in json.loads(recipe_json).items() if k != 'components' or k != 'user_token'})
+            for component_id in component_ids:
+                component_ids_array.append(str(component_id))
+                query = datastore_client.query(kind='Components')
+                query.add_filter('component_id', '=', int(component_id))
+                query_result = list(query.fetch())
+                results = list(query_result)
+                print("My Component results")
+                print(results)
+                if len(results) > 0:
+                    for result_row in results:
+                        result_json = {
+                            'component_description': result_row.get("component_description", ""),
+                            'component_id': result_row.get("component_id", ""),
+                            'component_name': result_row.get("component_name", ""),
+                            'component_type': result_row.get("component_type", ""),
+                            'fields_json': json.loads(result_row.get("fields_json", {})),
+                            'modified_at': result_row.get("modified_at", "").strftime("%Y-%m-%d %H:%M:%S")
+                        }
+                        components_array.append(result_json)
+    else:
+        print("Get components")
+        for component_id in ["1", "2", "3"]:
+            recipe_json = json.dumps({})
+            component_ids_array.append(str(component_id))
+            query = datastore_client.query(kind='Components')
+            query.add_filter('component_id', '=', int(component_id))
+            query_result = list(query.fetch())
+            results = list(query_result)
+            print("My Component results")
+            print(results)
+            if len(results) > 0:
+                for result_row in results:
+                    result_json = {
+                        'component_description': result_row.get("component_description", ""),
+                        'component_id': result_row.get("component_id", ""),
+                        'component_name': result_row.get("component_name", ""),
+                        'component_type': result_row.get("component_type", ""),
+                        'fields_json': json.loads(result_row.get("fields_json", {})),
+                        'modified_at': result_row.get("modified_at", "").strftime("%Y-%m-%d %H:%M:%S")
+                    }
+                    components_array.append(result_json)
+    data = json.dumps({
+        "response_code": 200,
+        "results": components_array,
+        'recipe_json': recipe_json,
+        "component_ids_array": component_ids_array
+    })
+    result = Response(data, status=200, mimetype='application/json')
+    return result
+    # else:
+    #     data = json.dumps({
+    #         "response_code": 500,
+    #         "results": components_array,
+    #         'recipe_json': recipe_json,
+    #         "component_ids_array": component_ids_array
+    #     })
+    #     result = Response(data, status=500, mimetype='application/json')
+    #     return result
+
+
+@app.route('/api/save_recipe/', methods=['GET', 'POST'])
+def save_recipe():
+    received_form_response = json.loads(request.data)
+    recipe_json = json.loads(received_form_response.get("recipe_json", None))
+    recipe_name = recipe_json.get("recipe_name", None)
+    recipe_plant = recipe_json.get("plant_type", None)
+    recipe_json = recipe_json
+    recipe_uuid = str(uuid.uuid4())
+    created_from_uuid = recipe_json.get("template_recipe_uuid", None)
+    modified_at = datetime.now()
+    user_token = received_form_response.get("user_token", None)
+    components = recipe_json.get("components", [])
+    print("SAV")
+    print(components)
+    if user_token is None or recipe_json is None or recipe_name is None:
+        result = Response({"message": "Please make sure you have added values for all the fields"}, status=500,
+                          mimetype='application/json')
+        return result
+
+    datastore_client = datastore.Client(cloud_project_id)
+    query_session = datastore_client.query(kind="UserSession")
+    query_session.add_filter('session_token', '=', user_token)
+    query_session_result = list(query_session.fetch())
+    user_uuid = None
+    if len(query_session_result) > 0:
+        user_uuid = query_session_result[0].get("user_uuid", None)
+
+    # Add the user to the users kind of entity
+    key = datastore_client.key('Recipes')
+    # Indexes every other column except the description
+    device_reg_task = datastore.Entity(key, exclude_from_indexes=[])
+
+    device_reg_task.update({
+        'recipe_name': recipe_name,
+        'recipe_plant': recipe_plant,
+        'recipe_json': json.dumps(recipe_json),
+        'recipe_uuid': recipe_uuid,
+        'user_uuid': user_uuid,
+        'created_from_uuid': created_from_uuid,
+        'modified_at': modified_at,
+        'components': components
+    })
+
+    datastore_client.put(device_reg_task)
+
+    if device_reg_task.key:
+        data = json.dumps({
+            "response_code": 200
+        })
+        result = Response(data, status=200, mimetype='application/json')
+
+    else:
+        data = json.dumps({
+            "message": "Sorry something failed. Womp womp!"
+        })
+        result = Response(data, status=500, mimetype='application/json')
+
+    return result

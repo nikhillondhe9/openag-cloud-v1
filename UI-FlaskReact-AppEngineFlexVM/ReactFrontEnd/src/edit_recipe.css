@@ -108,3 +108,8 @@ hr.small{
   border-radius: 4px;
 }
 
+
+.bigInput
+{
+    width:300px;
+}

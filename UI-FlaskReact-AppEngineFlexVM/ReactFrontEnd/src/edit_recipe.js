@@ -16,22 +16,34 @@ class EditRecipe extends Component {
 
     constructor(props) {
         super(props);
+        this.template_recipe_uuid = this.props.location.pathname.replace("/edit_recipe/","").replace("#","")
+        this.state = {}
         this.state = {
-            user_token: props.cookies.get('user_token') || ''
+            user_token: props.cookies.get('user_token') || '',
+            components:[],
+            template_recipe_uuid:this.template_recipe_uuid
         };
+        this.recipe_json = {}
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleClear = this.handleClear.bind(this);
         this.buildForm = this.buildForm.bind(this);
         this.getRecipeComponents = this.getRecipeComponents.bind(this);
         this.timePickerChange = this.timePickerChange.bind(this);
+        this.saveRecipe = this.saveRecipe.bind(this);
     }
 
     componentDidMount() {
         console.log("Mounting component")
-        this.getRecipeComponents()
-    }
+          this.getRecipeComponents()
 
+    }
+    componentWillMount() {
+        if (this.props.cookies.get('user_token') === '' || this.props.cookies.get('user_token') === undefined || this.props.cookies.get('user_token') === "undefined") {
+            window.location.href = "/login"
+        }
+
+    }
     getRecipeComponents() {
         return fetch('http://food.computer.com:5000/api/get_recipe_components/', {
             method: 'POST',
@@ -41,7 +53,7 @@ class EditRecipe extends Component {
                 'Access-Control-Allow-Origin': '*'
             },
             body: JSON.stringify({
-                'recipe_id': '0'
+                'recipe_id': this.state.template_recipe_uuid
             })
         })
             .then((response) => response.json())
@@ -49,7 +61,14 @@ class EditRecipe extends Component {
                 console.log(responseJson)
                 if (responseJson["response_code"] == 200) {
                     let components = responseJson["results"]
+                    this.recipe_json = JSON.parse(responseJson["recipe_json"])
 
+
+                    for(let component of components)
+                    {
+                        this.state.components.push(component["component_id"].toString())
+                    }
+                    console.log(this.state.components,"Components on page")
                     this.buildForm(components)
                 }
 
@@ -63,7 +82,7 @@ class EditRecipe extends Component {
         this.setState({
             [name]: value.format('hh:mm')
         }, () => {
-            console.log("New state in ASYNC callback:", this.state);
+            // console.log("State", this.state);
         });
     }
 
@@ -78,14 +97,14 @@ class EditRecipe extends Component {
                             {field_json["label"]}
                         </div>
                         <div className="col-md-9">
-                            <div class="row">
+                            <div className="row">
 
-                                <div className="smallInput"><Input type="text"
+                                <div className="smallInput"><Input type="number"
                                                                    name={component_key + '_time'}
                                                                    id={component_key + '_time'}
                                                                    placeholder=""
                                                                    value={this.state[component_key + '_time']}
-                                                                   onChange={this.handleChange}/>
+                                                                   onChange={this.handleChange} defaultValue={this.recipe_json[component_key + '_time']}/>
 
 
                                 </div>
@@ -93,7 +112,7 @@ class EditRecipe extends Component {
                                 <div className="col-md-6">
                                     <select className="form-control smallInput" name={component_key + '_unit'}
                                             id={component_key + '_unit'} value={this.state[component_key + '_unit']}
-                                            onChange={this.handleChange}>
+                                            onChange={this.handleChange} defaultValue={this.recipe_json[component_key + '_unit']}>
                                         <option value="seconds">Seconds</option>
                                         <option value="minutes">Minutes</option>
                                         <option value="hours">Hours</option>
@@ -112,7 +131,7 @@ class EditRecipe extends Component {
                             {field_json["label"]}
                         </div>
                         <div className="col-md-9">
-                            <div class="row">
+                            <div className="row">
 
                                 <div className="smallInput"><TimePicker
                                     name={field_json["key"] + "_from"}
@@ -159,13 +178,14 @@ class EditRecipe extends Component {
                     let colorInput =
 
 
-                            <div className="colorInput">{color_name[0].toUpperCase() + color_name.substr(1)}<Input type="text"
+                            <div className="colorInput" key={field_json["key"] + "_" + color}>{color_name[0].toUpperCase() + color_name.substr(1)}<Input type="number"
                                                                name={field_json["key"] + "_" + color}
                                                                id={field_json["key"] + "_" + color}
                                                                placeholder="(0-255)"
+                                                               defaultValue={this.recipe_json[field_json["key"] + "_" + color]}
                                                                value={this.state[field_json["key"] + "_" + color]}
-                                                               min="0"
-                                                               max="255"
+                                                               min='0'
+                                                               max='255'
                                                                onKeyUp={this.handleChange}/>
 
                             </div>
@@ -174,12 +194,12 @@ class EditRecipe extends Component {
                     all_color_inputs.push(colorInput)
                 }
                 return (<div>
-                    <div className="row color-field-row" key={component_key}>
+                    <div className="row color-field-row" key={field_json["key"]}>
                         <div className="col-md-3">
                             Set color points
                         </div>
                         <div className="col-md-9">
-                            <div class="row">
+                            <div className="row">
                             {all_color_inputs}
                             </div>
                         </div>
@@ -195,21 +215,58 @@ class EditRecipe extends Component {
 
     buildForm(components) {
         var container = this.refs.container;
-        var cards = []
+        var cards = [<div key="name_parent"><div className="row field-row" key="recipe_name">
+                        <div className="col-md-3">
+                            <b>Name for this recipe</b>
+                        </div>
+                        <div className="col-md-9">
+                            <div className="row">
+                                <div className="bigInput"><Input type="text"
+                                                                   name="recipe_name"
+                                                                   id="recipe_name"
+                                                                   placeholder="E.g Rob's Wasabi Arugula"
+                                                                   value={this.state.recipe_name}
+                                                                   defaultValue = {this.recipe_json.recipe_name}
+                                                                   onChange={this.handleChange}/>
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div><hr/></div>,<div key="plant_type_parent"><div className="row field-row" key="plant_type">
+                        <div className="col-md-3">
+                            <b>Plant type for this recipe</b>
+                        </div>
+                        <div className="col-md-9">
+                            <div className="row">
+                                <div className="bigInput"><Input type="text"
+                                                                   name="plant_type"
+                                                                   id="plant_type"
+                                                                   placeholder="E.g Basil, Arugula"
+                                                                   value={this.state.plant_type} defaultValue = {this.recipe_json.plant_type}
+                                                                   onChange={this.handleChange}/>
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div><hr/></div>]
         for (let component of components) {
-            let fields_json = JSON.parse(component["fields_json"])
-            cards.push(<h6>{component['component_description']}</h6>)
+            console.log(component)
+            let fields_json = component["fields_json"]
+            cards.push(<h6 key={component['component_description']}>{component['component_description']}</h6>)
             cards.push(this.createInputFields(fields_json, component["component_name"], component["component_description"]));
-            cards.push(<hr/>)
+            cards.push(<hr key={component['component_name']+'_divider'}/>)
         }
-        ReactDOM.render(<div>{cards}</div>, container);
+        ReactDOM.render(<div key="component_cards">{cards}</div>, container);
     }
+
 
     handleChange(event) {
         this.setState({
             [event.target.name]: event.target.value
         }, () => {
-            console.log("New state in ASYNC callback:", this.state);
+            // console.log("State", this.state);
         });
         event.preventDefault();
 
@@ -218,8 +275,46 @@ class EditRecipe extends Component {
     handleSubmit(event) {
 
         console.log('A recipe edit form was submitted');
-        console.log(this.state)
+        this.saveRecipe(this.state,this.recipe_json)
         event.preventDefault();
+    }
+
+    saveRecipe(state_json,recipe_json)
+    {
+        let json_to_submit = {}
+        Object.keys(recipe_json).forEach(function(key) {
+            if(state_json[key] === undefined){
+                json_to_submit[key] = recipe_json[key]
+            }
+            else
+            {
+                json_to_submit[key] = state_json[key]
+            }
+        });
+        return fetch('http://food.computer.com:5000/api/save_recipe/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({
+                'recipe_json': JSON.stringify(json_to_submit),
+                'user_token': this.props.cookies.get('user_token')
+            })
+           })
+            .then((response) => response.json())
+            .then((responseJson) => {
+                console.log(responseJson)
+                if (responseJson["response_code"]== 200){
+                    console.log("Saved successfully")
+                    window.location.href = "/recipes"
+                }
+
+            })
+            .catch((error) => {
+                console.error(error);
+            });
     }
 
     handleClear(event) {
@@ -248,8 +343,9 @@ class EditRecipe extends Component {
                 </div>
                 <hr/>
                 <div className="spacer"></div>
+
                 <div ref="container"/>
-                <a className="buttona" href="#">Submit Recipe</a>
+                <a className="buttona" href="#" onClick={this.handleSubmit}>Submit Recipe</a>
             </div>);
     }
 }

@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import logo from './logo.svg';
 import './App.css';
+import './login.css';
 import {Link} from "react-router-dom";
 import {Cookies, withCookies} from "react-cookie";
 
