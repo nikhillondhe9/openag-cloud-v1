@@ -10,12 +10,19 @@ class recipes extends Component {
         this.state = {
             all_recipes: [],
             modal: false,
+            apply_to_device_modal:false,
             selected_recipe: {},
-            selected_recipe_json: {}
+            selected_recipe_json: {},
+            devices:[],
+            selected_device_uuid:'',
+            selected_recipe_uuid:''
         };
 
         this.toggle = this.toggle.bind(this);
         this.getAllRecipes = this.getAllRecipes.bind(this)
+        this.toggle_apply_to_device = this.toggle_apply_to_device.bind(this);
+        this.apply_to_device = this.apply_to_device.bind(this);
+        this.handleChange = this.handleChange.bind(this);
     }
 
     editRecipe(recipe_id) {
@@ -33,7 +40,15 @@ class recipes extends Component {
         this.getAllRecipes()
     }
 
+    handleChange(event) {
+        this.setState({
+            [event.target.name]: event.target.value
+        }, () => {
+            // console.log("State", this.state);
+        });
+        event.preventDefault();
 
+    }
     toggle(recipe, recipe_json) {
 
         var json_html_append = [];
@@ -56,6 +71,13 @@ class recipes extends Component {
             modal: !this.state.modal
         });
     }
+    toggle_apply_to_device(recipe_uuid)
+    {
+        this.setState({
+            apply_to_device_modal:!this.state.apply_to_device_modal,
+            selected_recipe_uuid:recipe_uuid
+        })
+    }
 
     getAllRecipes() {
         return fetch('http://food.computer.com:5000/api/get_all_recipes/', {
@@ -75,6 +97,7 @@ class recipes extends Component {
                 console.log(responseJson)
                 if (responseJson["response_code"] == 200) {
                     this.setState({all_recipes: responseJson["results"]})
+                    this.setState({devices:responseJson["devices"]})
                 }
 
             })
@@ -83,7 +106,39 @@ class recipes extends Component {
             });
     }
 
+    apply_to_device()
+    {
+        console.log(JSON.stringify({
+                'device_uuid':this.state.selected_device_uuid,
+                'recipe_uuid':this.state.selected_recipe_uuid,
+                'user_token': this.props.cookies.get('user_token')
+            }))
+        return fetch('http://food.computer.com:5000/api/apply_to_device/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({
+                'device_uuid':this.state.selected_device_uuid,
+                'recipe_uuid':this.state.selected_recipe_uuid,
+                'user_token': this.props.cookies.get('user_token')
+            })
+           })
+            .then((response) => response.json())
+            .then((responseJson) => {
+                console.log(responseJson)
+                if (responseJson["response_code"]== 200){
+                    console.log("Applied successfully")
+                    this.setState({apply_to_device_modal:false});
+                }
 
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }
     render() {
         let listRecipes = <p>Loading</p>
         if (this.state.all_recipes.length > 0) {
@@ -100,6 +155,8 @@ class recipes extends Component {
                                 </div>
                                 <div onClick={this.toggle.bind(this, recipe, recipe.recipe_json)} id={recipe.recipe_uuid}
                                      >View Recipe
+                                </div>
+                                <div onClick={this.toggle_apply_to_device.bind(this, recipe.recipe_uuid)} id={recipe.recipe_uuid}>Apply Recipe
                                 </div>
                             </div>
 
@@ -140,6 +197,21 @@ class recipes extends Component {
                         </ModalBody>
                         <ModalFooter>
                             <Button color="secondary" onClick={this.toggle}>Close</Button>
+                        </ModalFooter>
+                    </Modal>
+
+                    <Modal isOpen={this.state.apply_to_device_modal} toggle={this.toggle_apply_to_device} className={this.props.className}>
+                        <ModalHeader toggle={this.toggle_apply_to_device}>Select a device to apply this recipe to </ModalHeader>
+                        <ModalBody>
+                            <select className="form-control smallInput" onChange={this.handleChange} id="selected_device_uuid" name="selected_device_uuid" value={this.selected_device_uuid}>
+                                {this.state.devices.map(function(device){
+                                            return <option key={device.device_uuid} value={device.device_uuid}>{device.device_name}</option>
+                                    })}
+                            </select>
+                        </ModalBody>
+                        <ModalFooter>
+                            <Button color="primary" onClick={this.apply_to_device}>Apply to this device</Button>
+                            <Button color="secondary" onClick={this.toggle_apply_to_device}>Close</Button>
                         </ModalFooter>
                     </Modal>
                 </div>

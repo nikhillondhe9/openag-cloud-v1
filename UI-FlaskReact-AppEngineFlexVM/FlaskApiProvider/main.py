@@ -241,6 +241,35 @@ def get_user_devices():
 def get_all_recipes():
     print("Fetching all the recipes")
     datastore_client = datastore.Client(cloud_project_id)
+    received_form_response = json.loads(request.data)
+    user_token =received_form_response.get("user_token",None)
+    query_session = datastore_client.query(kind="UserSession")
+    query_session.add_filter('session_token', '=', user_token)
+    query_session_result = list(query_session.fetch())
+    user_uuid = None
+    if len(query_session_result) > 0:
+        user_uuid = query_session_result[0].get("user_uuid", None)
+    #Get the user devices and pass that information to the front end too
+    query = datastore_client.query(kind='Devices')
+    query.add_filter('user_uuid', '=', user_uuid)
+    query_result = list(query.fetch())
+    devices_results = list(query_result)
+
+    devices = []
+    if len(devices_results) > 0:
+        for result_row in devices_results:
+            device_json = {
+                'device_uuid': result_row.get("device_uuid", ""),
+                'device_notes': result_row.get("device_notes", ""),
+                'device_type': result_row.get("device_type", ""),
+                'device_reg_no': result_row.get("device_reg_no", ""),
+                'registration_date': result_row.get("registration_date", "").strftime("%Y-%m-%d %H:%M:%S"),
+                'user_uuid': result_row.get("user_uuid", ""),
+                'device_name': result_row.get("device_name", "")
+            }
+            devices.append(device_json)
+
+
     query = datastore_client.query(kind='Recipes')
     query_result = list(query.fetch())
     results = list(query_result)
@@ -259,14 +288,16 @@ def get_all_recipes():
 
         data = json.dumps({
             "response_code": 200,
-            "results": results_array
+            "results": results_array,
+            "devices":devices
         })
         result = Response(data, status=200, mimetype='application/json')
         return result
     else:
         data = json.dumps({
             "response_code": 500,
-            "results": results_array
+            "results": results_array,
+            "devices": devices
         })
         result = Response(data, status=500, mimetype='application/json')
         return result
@@ -401,6 +432,62 @@ def save_recipe():
         data = json.dumps({
             "response_code": 200
         })
+        result = Response(data, status=200, mimetype='application/json')
+
+    else:
+        data = json.dumps({
+            "message": "Sorry something failed. Womp womp!"
+        })
+        result = Response(data, status=500, mimetype='application/json')
+
+    return result
+
+
+@app.route('/api/apply_to_device/', methods=['GET', 'POST'])
+def apply_to_device():
+    received_form_response = json.loads(request.data)
+
+    device_uuid = received_form_response.get("device_uuid", None)
+    recipe_uuid = received_form_response.get("recipe_uuid", None)
+    user_token = received_form_response.get("user_token", None)
+    date_applied = datetime.now()
+
+    datastore_client = datastore.Client(cloud_project_id)
+    # Add the user to the users kind of entity
+    key = datastore_client.key('DeviceHistory')
+
+    #check if the device already has a valid history
+    # device_query = datastore_client.query(kind='DeviceHistory')
+    # device_query.add_filter('device_uuid', '=', device_uuid)
+    # #Fetch any records added before today
+    # device_query.add_filter('date_applied', '<=', datetime.now())
+    # device_query_result = list(device_query.fetch())
+    #
+    # if len(device_query_result) > 0:
+    #     for result in device_query_result:
+    #         if result["date_expired"] > datetime.now():
+    #
+    # Indexes every other column except the description
+    apply_to_device_task = datastore.Entity(key, exclude_from_indexes=[])
+
+    if device_uuid is None or recipe_uuid is None or user_token is None:
+        result = Response({"message": "Please make sure you have added values for all the fields"}, status=500,
+                          mimetype='application/json')
+        return result
+
+    apply_to_device_task.update({
+        'device_uuid': device_uuid,
+        'recipe_uuid': recipe_uuid,
+        'date_applied': date_applied,
+        'date_expires': date_applied+timedelta(days=3000)
+    })
+
+    datastore_client.put(apply_to_device_task)
+    if apply_to_device_task.key:
+        data = json.dumps({
+            "response_code": 200
+        })
+
         result = Response(data, status=200, mimetype='application/json')
 
     else:
