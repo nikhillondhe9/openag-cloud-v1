@@ -9,6 +9,7 @@ fi
 
 rm -fr pyenv
 
+#sudo apt-get install python3-pip
 #sudo pip install --upgrade virtualenv
 virtualenv --python python3 pyenv
 source pyenv/bin/activate
