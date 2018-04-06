@@ -1,8 +1,6 @@
-# Communication details for the OpenAg Food Computer 
+# Communication details for the OpenAg™ Food Computer™ 
 
-#debugrob: add TM around OA and FC
-
-## Technologies used by the OpenAg Food Computers and backend services
+## Technologies used by the OpenAg™ Food Computers™ and backend services
 - RSA public / private keys
 - Google Firebase cloud functions
 - Google Firestore document database
@@ -13,21 +11,35 @@
 - Google cloud storage for blobs (images)
 - React / Flask web / mobile UI
 
-## Step 1: Register a Food Computer
-Our standard device is a Beaglebone Black running Debian 9.3.  All our code also works on OSX.
-- On the device we generate RSA public and private keys.
-- On the device we use curl to POST the public key to a firebase cloud function.
-- The user is given a 'verification code' to enter into the UI.
-- The firebase cloud function inserts the public key into a firestore document database, along with some metadata (verification code, device MAC, user's email).
+## Step 1: Register a Food Computer™
+Our standard microcomputer is a Beaglebone Black running Debian 9.3.  All our code also runs on OSX.
+- On the device we run a script which:
+  - Generates RSA public and private keys.
+  - Uses curl to POST the public key to a firebase cloud function.
+  - The firebase cloud function inserts the public key into a firestore document database, along with some metadata (verification code, device MAC, user's email).
+  - The script prints a 'verification code' for the user to enter into the UI.
 
-## Step 2: Authenticate a Food Computer
-- Log into our web UI (or create an account).
-- On the device registration page, enter the 'verification code'. you got in step 1.
-- The web UI will find the devices public key in the firestore database and create an authorized device in our IoT MQTT registry.
-- The web UI will also make an entry in the device table in the datastore and link the device to the user's account.
+## Step 2: Authenticate a Food Computer™
+- User logs into our UI (or creates an account).
+- On the device registration page, user enters the 'verification code'. they got in step 1.
+- The UI will find the devices public key in the firestore database and create an authorized device in our IoT MQTT registry.
+- The UI will also make an entry in the device table in the datastore and link the device to the user's account.
 
-## Step 3: Run a Climate Recipe on the Food Computer
+## Step 3: Run a Climate Recipe on the Food Computer™
+- User chooses or creates a climate recipe and sends it to the Food Computer™.
+  - The climate recipe is serialized into our new JSON format.
+  - The JSON is published as an IoT config message to the Food Computer™.
+  - The Food Computer™ runs the climate recipe.
 
-## Step 4: The Food Computer publishes data
+## Step 4: The Food Computer™ publishes data
+- While a recipe is running, the Food Computer™ publishes data and images according to the schedule specified in the climate recipe.
+- Our PubSub service (running managed virtual machines) receives, validates and saves the data in a BigQuery dataset.  Images are indexed and stored in cloud storage.
 
-## Step 5: Monitor a Food Computer using the web UI
+## Step 5: Monitor a Food Computer™ using the UI
+- The UI shows the user the current state of their Food Computers™:
+  - Current and historical environmental variables.
+  - Status of the running climate recipe.
+  - Latest image (or timelaps up to now).
+  - Alerts based on ML / CV we do in the future.
+
+
