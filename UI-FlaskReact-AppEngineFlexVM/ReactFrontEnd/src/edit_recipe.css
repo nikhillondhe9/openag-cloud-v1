@@ -49,7 +49,7 @@
     margin-right:4px;
 }
 
-h2
+h2,h6
 {
     display: block;
     margin-left: auto;
@@ -112,4 +112,13 @@ hr.small{
 .bigInput
 {
     width:300px;
+}
+
+.metadata-row
+{
+    width:80%;
+    display:block;
+    margin-left:auto;
+    margin-right:auto;
+    padding:15px;
 }

@@ -1,12 +1,13 @@
-from flask import Flask, render_template, request
-from flask import Response
 import json
-from calendar import timegm
-from flask_cors import CORS
 from datetime import datetime, timedelta
-from google.cloud import bigquery
+
+from flask import Flask, request
+from flask import Response
+from flask_cors import CORS
 from google.cloud import datastore
 from passlib.hash import pbkdf2_sha256
+from FCClass.user import User
+from FCClass.user_session import UserSession
 
 app = Flask(__name__)
 import uuid
@@ -18,9 +19,11 @@ os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = './authenticate.json'
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 CORS(app)
 
+
 # Client id for datastore client
 cloud_project_id = "openag-v1"
-
+# Datastore client for Google Cloud
+datastore_client = datastore.Client(cloud_project_id)
 
 @app.route('/api/register/', methods=['GET', 'POST'])
 def register():
@@ -38,7 +41,7 @@ def register():
                           mimetype='application/json')
         return result
 
-    datastore_client = datastore.Client(cloud_project_id)
+
     query_session = datastore_client.query(kind="UserSession")
     query_session.add_filter('session_token', '=', user_token)
     query_session_result = list(query_session.fetch())
@@ -78,42 +81,23 @@ def register():
     return result
 
 
+
 @app.route('/api/signup/', methods=['GET', 'POST'])
 def signup():
     received_form_response = json.loads(request.data)
-
     username = received_form_response.get("username", None)
     email_address = received_form_response.get("email_address", None)
     password = received_form_response.get("password", None)
     organization = received_form_response.get("organization", None)
-    user_uuid = str(uuid.uuid4())
-    date_added = datetime.now()
-
-    datastore_client = datastore.Client(cloud_project_id)
-    # Add the user to the users kind of entity
-    key = datastore_client.key('Users')
-
-    # Indexes every other column except the description
-    signup_task = datastore.Entity(key, exclude_from_indexes=[])
 
     if username is None or email_address is None or password is None:
         result = Response({"message": "Please make sure you have added values for all the fields"}, status=500,
                           mimetype='application/json')
         return result
 
-    encrypted_password = pbkdf2_sha256.hash(password)
-    signup_task.update({
-        'username': username,
-        'email_address': email_address,
-        'password': encrypted_password,
-        'date_added': date_added,
-        'organization': organization,
-        'user_uuid': user_uuid,
-        'is_verified': True
-    })
+    user_uuid = User(username=username,password=password,email_address=email_address,organization=organization).insert_into_db(datastore_client)
 
-    datastore_client.put(signup_task)
-    if signup_task.key:
+    if user_uuid:
         data = json.dumps({
             "response_code": 200
         })
@@ -128,7 +112,6 @@ def signup():
 
     return result
 
-
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
     received_form_response = json.loads(request.data)
@@ -136,42 +119,22 @@ def login():
     username = received_form_response.get("username", None)
     password = received_form_response.get("password", None)
 
-    datastore_client = datastore.Client(cloud_project_id)
 
     if username is None or password is None:
         result = Response({"message": "Please make sure you have added values for all the fields"}, status=500,
                           mimetype='application/json')
         return result
 
-    query = datastore_client.query(kind='Users')
-    query.add_filter('username', '=', username)
-    query_result = list(query.fetch())
-
-    if len(list(query_result)) > 0:
-        print("User found - Verifying password")
-        is_verified = pbkdf2_sha256.verify(password, query_result[0]['password'])
-        if is_verified:
-            session_token = str(uuid.uuid4())
-            date_added = datetime.now()
-            expiration_date = date_added + timedelta(hours=24)
-            # Add the user to the UserSession kind of entity
-            key = datastore_client.key('UserSession')
-            session_task = datastore.Entity(key, exclude_from_indexes=[])
-            session_task.update({
-                'user_uuid': query_result[0]['user_uuid'],
-                'session_token': session_token,
-                'created_date': date_added,
-                'expiration_date': expiration_date
-            })
-            datastore_client.put(session_task)
+    user_uuid = User(username=username,password=password).login_user(client=datastore_client)
+    if user_uuid:
+            session_token = UserSession(user_uuid=user_uuid).insert_into_db(client=datastore_client)
             data = json.dumps({
                 "response_code": 200,
-                "user_uuid": query_result[0]['user_uuid'],
+                "user_uuid": user_uuid,
                 "user_token": session_token,
                 "message": "Login Successful"
             })
             result = Response(data, status=200, mimetype='application/json')
-
     else:
         data = json.dumps({
             "response_code": 500,
@@ -194,7 +157,7 @@ def get_user_devices():
                           mimetype='application/json')
         return result
 
-    datastore_client = datastore.Client(cloud_project_id)
+
     query = datastore_client.query(kind='Devices')
     query_session = datastore_client.query(kind="UserSession")
     query_session.add_filter('session_token', '=', user_token)
@@ -240,7 +203,7 @@ def get_user_devices():
 @app.route('/api/get_all_recipes/', methods=['GET', 'POST'])
 def get_all_recipes():
     print("Fetching all the recipes")
-    datastore_client = datastore.Client(cloud_project_id)
+
     received_form_response = json.loads(request.data)
     user_token =received_form_response.get("user_token",None)
     query_session = datastore_client.query(kind="UserSession")
@@ -309,7 +272,7 @@ def get_recipe_components():
     received_form_response = json.loads(request.data)
     recipe_uuid = str(received_form_response.get("recipe_id", '0'))
 
-    datastore_client = datastore.Client(cloud_project_id)
+
     components_array = []
     component_ids_array = []
     recipe_json = {}
@@ -334,11 +297,12 @@ def get_recipe_components():
                 if len(results) > 0:
                     for result_row in results:
                         result_json = {
-                            'component_description': result_row.get("component_description", ""),
+                            'component_key': result_row.get("component_key", ""),
                             'component_id': result_row.get("component_id", ""),
-                            'component_name': result_row.get("component_name", ""),
+                            'component_description': result_row.get("component_description", ""),
+                            'component_label': result_row.get("component_label", ""),
                             'component_type': result_row.get("component_type", ""),
-                            'fields_json': json.loads(result_row.get("fields_json", {})),
+                            'field_json': json.loads(result_row.get("field_json", {})),
                             'modified_at': result_row.get("modified_at", "").strftime("%Y-%m-%d %H:%M:%S")
                         }
                         components_array.append(result_json)
@@ -356,11 +320,12 @@ def get_recipe_components():
             if len(results) > 0:
                 for result_row in results:
                     result_json = {
-                        'component_description': result_row.get("component_description", ""),
+                        'component_key': result_row.get("component_key", ""),
                         'component_id': result_row.get("component_id", ""),
-                        'component_name': result_row.get("component_name", ""),
+                        'component_description': result_row.get("component_description", ""),
+                        'component_label': result_row.get("component_label", ""),
                         'component_type': result_row.get("component_type", ""),
-                        'fields_json': json.loads(result_row.get("fields_json", {})),
+                        'field_json': json.loads(result_row.get("field_json", {})),
                         'modified_at': result_row.get("modified_at", "").strftime("%Y-%m-%d %H:%M:%S")
                     }
                     components_array.append(result_json)
@@ -372,15 +337,6 @@ def get_recipe_components():
     })
     result = Response(data, status=200, mimetype='application/json')
     return result
-    # else:
-    #     data = json.dumps({
-    #         "response_code": 500,
-    #         "results": components_array,
-    #         'recipe_json': recipe_json,
-    #         "component_ids_array": component_ids_array
-    #     })
-    #     result = Response(data, status=500, mimetype='application/json')
-    #     return result
 
 
 @app.route('/api/save_recipe/', methods=['GET', 'POST'])
@@ -402,7 +358,7 @@ def save_recipe():
                           mimetype='application/json')
         return result
 
-    datastore_client = datastore.Client(cloud_project_id)
+
     query_session = datastore_client.query(kind="UserSession")
     query_session.add_filter('session_token', '=', user_token)
     query_session_result = list(query_session.fetch())
@@ -452,7 +408,7 @@ def apply_to_device():
     user_token = received_form_response.get("user_token", None)
     date_applied = datetime.now()
 
-    datastore_client = datastore.Client(cloud_project_id)
+
     # Add the user to the users kind of entity
     key = datastore_client.key('DeviceHistory')
 
