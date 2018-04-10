@@ -121,20 +121,25 @@ class Home extends Component {
             });
     }
 
+    goToDeviceHomePage(device_uuid)
+    {
+        console.log("I am navigating to the device home page");
+        window.location.href="/device/"+device_uuid.toString()
+    }
     render() {
         let listDevices = <p>Loading</p>
         if (this.state.user_devices.length > 0) {
             listDevices = this.state.user_devices.map((device) => {
                 return <div className="col-md-3" key={device.device_reg_no}>
-                    <div className="card">
-                        <div className="card-body">
+                    <div className="card" {device.device_uuid}>
+                        <div className="crd-body">
                             <h5 className="card-title">{device.device_reg_no}</h5>
                             <h6 className="card-subtitle mb-2 text-muted">{device.device_name} ({device.device_type})</h6>
                             <p className="card-text">{device.device_notes}</p>
                             <p className="card-text">This device is currently running the recipe id
                                 : None </p>
                             <p className="card-text"> Device Status: OK</p>
-                            <a href="#" className="card-link">Device Homepage</a>
+                            {/*<button onClick={this.goToDeviceHomePage.bind(device.device_uuid)} className="card-link">Device Homepage</button>*/}
                         </div>
                     </div>
                 </div>
@@ -150,7 +155,7 @@ class Home extends Component {
                             <h2>Your current food computers </h2>
                         </div>
 
-                        <div className="col-md-2 cell-col" onClick={this.toggle}>
+                        <div className="col-md-                      2 cell-col" onClick={this.toggle}>
                             <div className="plus" id="plus"> <div className="plus__line plus__line--v"></div><div className="plus__line plus__line--h"></div></div>
                         </div>
 

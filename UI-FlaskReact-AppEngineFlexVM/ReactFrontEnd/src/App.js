@@ -8,7 +8,7 @@ import recipes from "./recipes";
 import EditRecipe from './edit_recipe';
 import {instanceOf} from 'prop-types';
 import {Cookies, withCookies} from "react-cookie";
-
+import DeviceHomepage from "./device_homepage";
 
 class App extends Component {
 
@@ -109,6 +109,7 @@ class App extends Component {
                             <Route path='/login' component={login}/>
                             <Route path='/signup' component={SignUp}/>
                             <Route path='/edit_recipe/:recipe_uuid' component={EditRecipe}/>
+                            <Route path='/device/:device_uuid' component={DeviceHomepage}/>
                             <Route path='/' component={Home}/>
                             <Route path='/home/:user_uuid' component={Home} />
                         </Switch>
