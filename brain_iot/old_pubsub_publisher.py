@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+#debugrob: DONE copying this logic over to iot_pubsub.py
 import os, time, json, argparse, logging
 from google.cloud import pubsub
 

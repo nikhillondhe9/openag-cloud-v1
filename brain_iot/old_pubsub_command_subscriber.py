@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+
 # 1. Receive JSON commands that are published by the backend, and subscribed
 #    for by this device.
 # 2. Write binary commands to the brain input command.fifo.

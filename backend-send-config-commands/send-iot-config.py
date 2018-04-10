@@ -51,6 +51,18 @@ def main():
     parser.add_argument( '--region', required=True, type=str )
     parser.add_argument( '--registry', required=True, type=str )
     parser.add_argument( '--device_id', required=True, type=str )
+    parser.add_argument( '--command_1', required=True, type=str )
+    parser.add_argument( '--arg0_1', type=str, default='0' )
+    parser.add_argument( '--arg1_1', type=str, default='0' )
+    parser.add_argument( '--command_2', type=str, default=None )
+    parser.add_argument( '--arg0_2', type=str, default=None )
+    parser.add_argument( '--arg1_2', type=str, default=None )
+    parser.add_argument( '--command_3', type=str, default=None )
+    parser.add_argument( '--arg0_3', type=str, default=None )
+    parser.add_argument( '--arg1_3', type=str, default=None )
+    parser.add_argument( '--command_4', type=str, default=None )
+    parser.add_argument( '--arg0_4', type=str, default=None )
+    parser.add_argument( '--arg1_4', type=str, default=None )
     args = parser.parse_args()
 
     # user specified log level
@@ -101,15 +113,68 @@ def main():
         #            config.get('cloudUpdateTime'),
         #            config.get('binaryData') ))
         
-        # send a config message to a device
+# JSON commands array
+#{ 
+#    "messageId": "<messageId>",   # this is the MQTT config version!
+#    "deviceId": "<deviceId>",     
+#    "commands": [
+#        { 
+#            "command": "<command>", 
+#            "arg0": "<arg0>", 
+#            "arg1": "<arg1>"
+#        },
+#        { 
+#            "command": "<command>", 
+#            "arg0": "<arg0>", 
+#            "arg1": "<arg1>"
+#        }
+#    ]
+#}
+
         # can only update the LATEST version!  (so get it first)
         version = latestVersion
-        config = '{"lastConfigVersion":"' + str(version) + \
-            '", "wow":"cool json dude"}'
+
+        # send a config message to a device
+        config = {} # a python dict
+        config['lastConfigVersion'] = str( version )
+        config['messageId'] = str( version )
+        config['deviceId'] = str( args.device_id )
+
+        cmd = {} 
+        cmd['command'] = str( args.command_1 )
+        cmd['arg0'] = str( args.arg0_1 )
+        cmd['arg1'] = str( args.arg1_1 )
+
+        # for first command: assign a new LIST containg the first command.
+        config['commands'] = [cmd]
+
+        # append other commands if given
+        if None != args.command_2:
+            cmd = {} 
+            cmd['command'] = str( args.command_2 )
+            cmd['arg0'] = str( args.arg0_2 )
+            cmd['arg1'] = str( args.arg1_2 )
+            config['commands'].append( cmd )
+        if None != args.command_3:
+            cmd = {} 
+            cmd['command'] = str( args.command_3 )
+            cmd['arg0'] = str( args.arg0_3 )
+            cmd['arg1'] = str( args.arg1_3 )
+            config['commands'].append( cmd )
+        if None != args.command_4:
+            cmd = {} 
+            cmd['command'] = str( args.command_4 )
+            cmd['arg0'] = str( args.arg0_4 )
+            cmd['arg1'] = str( args.arg1_4 )
+            config['commands'].append( cmd )
+
+        config_json = json.dumps( config ) # dict to JSON string
+        print('config payload: {}'.format( config_json ))
+
         config_body = {
             'versionToUpdate': version,
             'binaryData': base64.urlsafe_b64encode(
-                config.encode('utf-8')).decode('ascii')
+                config_json.encode('utf-8')).decode('ascii')
         }
         res = iotClient.projects().locations().registries().devices(
                 ).modifyCloudToDeviceConfig(

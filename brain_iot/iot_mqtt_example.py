@@ -29,6 +29,7 @@ should_backoff = False
 
 # The last config message version we have seen (saved in config.json)
 lastConfigVersion = 0
+device_id = 0
 
 # Default logging level, also used to turn on paho debugging
 numeric_level = logging.ERROR 
@@ -136,7 +137,9 @@ def on_message( unused_client, unused_userdata, message ):
     # write our local config file, if this version is the highest we've seen.
     if messageVersion > lastConfigVersion:
         lastConfigVersion = messageVersion
-        config = {'lastConfigVersion': lastConfigVersion}
+        global device_id 
+        config = { 'lastConfigVersion': lastConfigVersion,
+                   'device_id': device_id }
         with open( 'config.json', 'w') as f:
             json.dump( config, f )
 
@@ -294,6 +297,8 @@ def main():
     if None == args.device_id or 0 == len( args.device_id ):
         logging.error( 'Invalid device_id on the command line.' )
         exit( 1 )
+    global device_id 
+    device_id = args.device_id
 
     # Publish to the events or state topic based on the flag.
     sub_topic = 'events' if args.message_type == 'event' else 'state'
