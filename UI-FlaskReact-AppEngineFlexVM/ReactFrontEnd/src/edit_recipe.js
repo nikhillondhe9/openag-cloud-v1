@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
-import {BrowserRouter as Router} from "react-router-dom";
 import './edit_recipe.css';
-import {Form, FormGroup, Input} from 'reactstrap';
+import {Input} from 'reactstrap';
 import ReactDOM from 'react-dom';
 import {Cookies, withCookies} from "react-cookie";
 import moment from 'moment';

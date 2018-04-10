@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import './App.css';
-import {BrowserRouter as Router, Route, Link, Switch} from "react-router-dom";
+import {BrowserRouter as Router, Link, Route, Switch} from "react-router-dom";
 import {SignUp} from "./signup";
 import login from "./login";
 import Home from "./home";
@@ -104,6 +104,7 @@ class App extends Component {
                                 </div>
                             </div>
                         </header>
+
                         <Switch>
                             <Route path='/recipes' component={recipes}/>
                             <Route path='/login' component={login}/>
@@ -111,7 +112,6 @@ class App extends Component {
                             <Route path='/edit_recipe/:recipe_uuid' component={EditRecipe}/>
                             <Route path='/device/:device_uuid' component={DeviceHomepage}/>
                             <Route path='/' component={Home}/>
-                            <Route path='/home/:user_uuid' component={Home} />
                         </Switch>
                     </main>
                 </Router>

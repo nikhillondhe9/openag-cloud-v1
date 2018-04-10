@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
-import {BrowserRouter as Router, Route, Link, withRouter} from "react-router-dom";
+import {BrowserRouter as Router} from "react-router-dom";
 import './home.css';
-import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input} from 'reactstrap';
+import {Button, Form, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader} from 'reactstrap';
 import {Cookies, withCookies} from "react-cookie";
 
 class Home extends Component {
@@ -139,7 +139,7 @@ class Home extends Component {
                             <p className="card-text">This device is currently running the recipe id
                                 : None </p>
                             <p className="card-text"> Device Status: OK</p>
-                            {/*<button onClick={this.goToDeviceHomePage.bind(device.device_uuid)} className="card-link">Device Homepage</button>*/}
+                            <button onClick={this.goToDeviceHomePage.bind(device.device_uuid)} className="card-link">Device Homepage</button>
                         </div>
                     </div>
                 </div>
