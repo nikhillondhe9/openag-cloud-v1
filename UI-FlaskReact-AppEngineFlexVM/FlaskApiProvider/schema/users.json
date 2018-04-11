@@ -1,0 +1,32 @@
+[
+    {
+        "description": "Index",
+        "name": "id",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "description": "user name",
+        "name": "username",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "user address",
+        "name": "email_address",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "user password",
+        "name": "password",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "user created at",
+        "name": "date_added",
+        "type": "TIMESTAMP",
+        "mode": "NULLABLE"
+    }
+]

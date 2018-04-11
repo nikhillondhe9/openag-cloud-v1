@@ -1,0 +1,27 @@
+{
+  "name": "food_computer",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "react": "^16.2.0",
+    "react-bootstrap": "^0.32.1",
+    "react-color": "^2.14.0",
+    "react-dom": "^16.2.0",
+    "react-navigation": "^1.5.8",
+    "react-redux": "^5.0.7",
+    "react-router-dom": "^4.2.2",
+    "react-scripts": "1.1.1",
+    "reactstrap": "^5.0.0-beta.3"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
+  "devDependencies": {
+    "bootstrap": "^4.0.0",
+    "rc-time-picker": "^3.3.1",
+    "react-cookie": "^2.1.4"
+  }
+}

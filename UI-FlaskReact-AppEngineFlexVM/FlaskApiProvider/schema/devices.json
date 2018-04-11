@@ -1,0 +1,22 @@
+
+[
+    {
+        "description": "Device registration date",
+        "name": "date_added",
+        "type": "TIMESTAMP",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "User associated with the device",
+        "name": "user_id",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "description": "Device identification",
+        "name": "device_id",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    }
+]
+
