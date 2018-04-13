@@ -11,12 +11,27 @@ if [[ -z "${TOP_DIR}" ]]; then
   source $TOP_DIR/gcloud_env.bash
 fi
 
-# These env vars live in app.yaml for the gcloud GAE deployed app:
-export PROJECT_ID=$GCLOUD_PROJECT
-export PUBSUB_TOPIC="projects/$GCLOUD_PROJECT/topics/environmental-data"
+# All env vars live in app.yaml for the gcloud GAE deployed app.
+
+# For running locally, we must override the default region/zone that is in 
+# our gcloud_env.bash included above.
+# MUST use the central region / zone for beta IoT product.
+export GCLOUD_REGION=us-central1
+export GCLOUD_ZONE=us-central1-c
+
+# BigQuery dataset and table we write to.
 export BQ_DATASET="test"
 export BQ_TABLE="vals"
 
-source pubsub_env/bin/activate
+# Has the user setup the local python environment we need?
+if ! [ -d pyenv ]; then
+  echo 'ERROR: you have not run ./local_development_one_time_setup.sh'
+  exit 1
+fi
 
-python pubsub-to-bigquery.py
+# Yes, so activate it for this bash process
+source pyenv/bin/activate
+
+# Pass along all the command line args that this script has (--log debug)
+python3 mqtt-to-bigquery.py --log debug
+#python3 mqtt-to-bigquery.py "$@"

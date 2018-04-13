@@ -4,53 +4,12 @@
     writing data to BigQuery.
 """
 
-import os, collections, datetime, time, logging
+import os, time, logging
+from google.cloud import bigquery
 
-from apiclient import discovery
-import dateutil.parser
-import httplib2
-from oauth2client.client import GoogleCredentials
-
-SCOPES = ['https://www.googleapis.com/auth/bigquery',
-          'https://www.googleapis.com/auth/pubsub']
 
 # should be enough retries to insert into BQ
 NUM_RETRIES = 3
-
-# Check for the latest API versions here:
-# https://developers.google.com/api-client-library/python/apis/
-BQ_API='bigquery'
-BQ_API_VER='v2'
-PS_API='pubsub'
-PS_API_VER='v1beta2'
-
-# Python API docs here (that match the above versions)
-# https://developers.google.com/resources/api-libraries/documentation/bigquery/v2/python/latest/
-# https://developers.google.com/resources/api-libraries/documentation/pubsub/v1beta2/python/latest/index.html
-
-#------------------------------------------------------------------------------
-# Get the Google credentials needed to access our services.
-def get_credentials():
-    credentials = GoogleCredentials.get_application_default()
-    if credentials.create_scoped_required():
-        credentials = credentials.create_scoped( SCOPES )
-    return credentials
-
-
-#------------------------------------------------------------------------------
-# Build the bigquery client using the API discovery service.
-def create_bigquery_client( credentials ):
-    http = httplib2.Http()
-    credentials.authorize( http )
-    return discovery.build( BQ_API, BQ_API_VER, http=http )
-
-
-#------------------------------------------------------------------------------
-# Build the pubsub client.
-def create_pubsub_client( credentials ):
-    http = httplib2.Http()
-    credentials.authorize(http)
-    return discovery.build( PS_API, PS_API_VER, http=http )
 
 
 #------------------------------------------------------------------------------
@@ -109,7 +68,18 @@ def makeEnvVarDict( valueDict, envVarList, idKey ):
         time.strftime( '%Y-%m-%dT%H:%M:%SZ', time.gmtime() ))
     schemaDict[ 'values' ] = values
 
-    # NOTE: X, Y not being sent from device, so not stored in DB.
+#debugrob: wasn't required before when using insertAll
+    # NOTE: X, Y not being sent from device, so use defaults
+#    schemaDict[ 'X' ] = 0
+#    schemaDict[ 'Y' ] = 0
+#    schemaDict[ 'X' ] = '0'
+#    schemaDict[ 'Y' ] = '0'
+
+#debugrob: test something simple, no deviceid
+    schemaDict[ 'id' ] = expName + '~' + idKey 
+    schemaDict[ 'values' ] = 'val'
+    schemaDict[ 'X' ] = '0'
+    schemaDict[ 'Y' ] = '0'
 
     envVarList.append( schemaDict )
 
@@ -130,52 +100,53 @@ def makeDict( valueDict, envVarList ):
         return
 
 
+"""
+example of what we receive:
+
+data=b'{"messageType": "CommandReply", "deviceId": "EDU-B90F433E-f4-0f-24-19-fe-88", "exp": "RobExp", "treat": "RobTreat", "var": "status", "values": "{\\"name\\":\\"rob\\"}"}'
+  deviceId=EDU-B90F433E-f4-0f-24-19-fe-88
+  subFolder=
+  deviceNumId=2800007269922577
+
+"""
 
 #------------------------------------------------------------------------------
-# Insert data into BQ based on its type.
-# Values is a list of dictionaries.  
-# Each must be checked to know its type to know the destination table.
-def bq_data_insert( bigquery, project_id, values ):
+# Insert data into our bigquery dataset and table.
+def bq_data_insert( BQ, pydict, deviceId, PROJECT, DS, TABLE ):
     try:
-        # for env. vars
-        varDS = os.environ['BQ_DATASET'] 
-        varTable = os.environ['BQ_TABLE']
+
+#debugrob also see ~/openag-cloud-v1/bigquery-setup/copy_experiment.py for BATCH inserts
 
         # Generate the data that will be sent to BigQuery for insertion.
         # Each value must be a JSON object that matches the table schema.
         envVarList = []
-        for valueDict in values:
+        tmpEnvVars = []
 
-            # only one of these temporary lists will be added to
-            tmpEnvVars = []
-            # process each value here to make it table schema compatible
-            makeDict( valueDict, tmpEnvVars )
+        # process the data here to make it table schema compatible
+        makeDict( pydict, tmpEnvVars )
 
-            if 0 < len( tmpEnvVars ):
-                for envVar in tmpEnvVars:
-                    item_row = {"json": envVar}
-                    envVarList.append( item_row )
+        if 0 < len( tmpEnvVars ):
+            for envVar in tmpEnvVars:
+                item_row = {"json": envVar}
+                envVarList.append( item_row )
 
         if 0 < len( envVarList ):
-            body = {"rows": envVarList}
-            logging.info( "bq sending vars: %s" % ( body ))
-            # Call the BQ streaming API for data insertion
-            response = bigquery.tabledata().insertAll(
-                projectId=project_id, datasetId=varDS,
-                tableId=varTable, body=body ).execute( 
-                        num_retries=NUM_RETRIES )
-            logging.info( "bq resp: %s %s" % 
-                    ( datetime.datetime.now(), response ))
+            rows_to_insert = {"rows": envVarList}
+            logging.info( "bq sending vars: %s" % ( rows_to_insert ))
+
+        dataset_ref = BQ.dataset( DS, project=PROJECT )
+        table_ref = dataset_ref.table( TABLE )
+        table = BQ.get_table( table_ref )               
+        response = BQ.insert_rows( table, rows_to_insert )
+
+        logging.info( 'bq resp: {}'.format( response ))
 
 #debugrob: I need to validate the user / openag flag, to know the correct DS.
-
-#debugrob: new bigquery api: (still streaming)
-#    def insert_rows(self, table, rows, selected_fields=None, **kwargs):
 
         return 
 
     except Exception as e:
-        logging.critical( "Exception: %s" % e )
+        logging.critical( "bq_data_insert: Exception: %s" % e )
 
 
 

@@ -709,6 +709,14 @@ def main():
             # Process network events.
             client.loop()
 
+#debugrob hack to send a message every 5 sec (so we don't have to mess with data.fifo)
+            publishEnvVar( client, mqtt_topic, 
+                'CommandReply',  # messageType
+                'RobExp', 
+                'RobTreat', 
+                'status', # varName = the command name
+                '{"name":"rob"}' )       # all command args and tracking info
+
             SELECT_TIMEOUT = 5 # seconds
             read_ready, wignore, xignore = \
                     select.select( [f], [], [], SELECT_TIMEOUT ) 

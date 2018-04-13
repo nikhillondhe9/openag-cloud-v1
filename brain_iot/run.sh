@@ -52,7 +52,7 @@ function kill_all_sub_procs()
     do
         kill -s TERM $proc  
     done
-    #killall python3  
+    killall python3  
 }
 trap kill_all_sub_procs SIGINT
 

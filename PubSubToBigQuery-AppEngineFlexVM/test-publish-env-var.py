@@ -13,8 +13,9 @@ import argparse
 import utils
 
 # hard coded project and topic.
-PROJECT_ID = 'openag-cloud-v1'
-PUBSUB_TOPIC = 'projects/openag-cloud-v1/topics/environmental-data'
+PROJECT_ID = 'openag-v1'
+#PUBSUB_TOPIC = 'projects/openag-cloud-v1/topics/environmental-data'
+PUBSUB_TOPIC = 'projects/openag-v1/subscriptions/device-events'
 NUM_RETRIES = 3
 
 

@@ -14,5 +14,5 @@ export GCLOUD_ZONE=us-central1-c
 export GOOGLE_APPLICATION_CREDENTIALS=service_account.json
 
 # pub sub topic and subscription that MQTT telementry 'events' are sent to
-export GCLOUD_SUBS=device-events
+export GCLOUD_DEV_EVENTS=device-events
 

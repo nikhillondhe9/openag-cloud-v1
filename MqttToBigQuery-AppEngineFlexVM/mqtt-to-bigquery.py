@@ -1,7 +1,19 @@
 #!/usr/bin/env python3
 
+""" This script reads data from the MQTT device events telemetry 
+    (actaully a PubSub) topic, 
+    and stores it in BiqQuery using the BigQuery batch API.
+"""
+
 import os, sys, time, json, argparse, traceback, tempfile, logging, signal
 from google.cloud import pubsub
+from google.cloud import bigquery
+import utils # local module
+
+
+# globals
+NUM_RETRIES = 3
+BQ = None
 
 
 #------------------------------------------------------------------------------
@@ -18,13 +30,22 @@ signal.signal( signal.SIGINT, signal_handler )
 def callback( msg ):
     try:
         msg.ack() # acknowledge to the server that we got the message
-        #print( json.loads( msg.data.decode('utf-8') )) # make a dict 
-        print( 'data={}\n  deviceId={}\n  subFolder={}\n  deviceNumId={}\n'.
+
+        logging.debug( 'data={}\n  deviceId={}\n  subFolder={}\n  '
+            'deviceNumId={}\n'.
             format( 
                 msg.data, 
                 msg.attributes['deviceId'],
                 msg.attributes['subFolder'],
                 msg.attributes['deviceNumId'] ))
+
+        pydict = json.loads( msg.data.decode('utf-8'))
+        global BQ 
+        utils.bq_data_insert( BQ, pydict, msg.attributes['deviceId'],
+                os.getenv('GCLOUD_PROJECT'),
+                os.getenv('BQ_DATASET'),
+                os.getenv('BQ_TABLE'))
+
     except Exception as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()
         logging.critical( "Exception in callback(): %s" % e)
@@ -53,16 +74,19 @@ def main():
     logging.getLogger().setLevel( level=numeric_level )
 
     # make sure our env. vars are set up
-    if None == os.getenv('GCLOUD_PROJECT') or None == os.getenv('GCLOUD_DEV_EVENTS'):
+    if None == os.getenv('GCLOUD_PROJECT') or \
+       None == os.getenv('GCLOUD_DEV_EVENTS'):
         logging.critical('Missing required environment variables.')
         exit( 1 )
 
-    # instantiate a client
-    client = pubsub.SubscriberClient()
+    # instantiate the clients we need
+    PS = pubsub.SubscriberClient()
+    global BQ 
+    BQ = bigquery.Client()
 
     # the resource path for the topic 
-    subs_path = client.subscription_path( os.getenv('GCLOUD_PROJECT'), 
-                                          os.getenv('GCLOUD_DEV_EVENTS') )
+    subs_path = PS.subscription_path( os.getenv('GCLOUD_PROJECT'), 
+                                      os.getenv('GCLOUD_DEV_EVENTS') )
 
     # subscribe for messages
     logging.info( 'Waiting for message sent to %s' % subs_path )
@@ -70,7 +94,7 @@ def main():
     # in case of subscription timeout, use a loop to resubscribe.
     while True:  
         try:
-            subscription = client.subscribe( subs_path )
+            subscription = PS.subscribe( subs_path )
             future = subscription.open( callback )
 
             # result() blocks until future is complete 
@@ -87,5 +111,6 @@ def main():
 #------------------------------------------------------------------------------
 if __name__ == "__main__":
     main()
+
 
 

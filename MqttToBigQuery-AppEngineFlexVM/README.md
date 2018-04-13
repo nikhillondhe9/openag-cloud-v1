@@ -1,15 +1,15 @@
-# openag-cloud-v1 PubSub to BigQuery AppEngine flex VM
-GCP App Engine flex env project to subscribe to a PubSub topic, validate the data and batch insert (stream) it into BigQuery.
+# openag-v1 MQTT to BigQuery AppEngine flex VM
+GCP App Engine flex env project to subscribe to an MQTT device event telemetry topic, validate the data and batch insert (stream) it into BigQuery.
 
 * One time setup to run locally:
 ```
-cd ~/openag-cloud-v1/
-./setup_pubsub_env.sh
+cd ~/openag-v1/
+./one_time_setup.sh
 ```
 
 * To run this app locally (on OSX) for testing:
 ```
-cd ~/openag-cloud-v1/PubSubToBigQuery-AppEngineFlexVM/
+cd ~/openag-v1/MqttToBigQuery-AppEngineFlexVM/
 ./run_locally.sh
 ```
 
@@ -18,19 +18,19 @@ cd ~/openag-cloud-v1/PubSubToBigQuery-AppEngineFlexVM/
 ./gcloud_deploy.sh
 ```
 
-* Manually send a message with the web console
-  * [https://console.cloud.google.com/cloudpubsub/topics/test-topic?project=openag-cloud-v1](our topic and subscription)
-  * Try typing JSON into the Message (must use double quotes in console): 
-    * ` {"data": "hello"} `
-    * ` {"id": "expName~KEY~treatName~valName~UTC", "type": "float", "fval": "2.34", "X": "1", "Y": "3"} `
-    * ` {"id": "expName~KEY~treatName~valName~UTC", "type": "string", "sval": "yummy string with comma, eh?", "X": "0", "Y": "1"} `
 
-* How can I see the python app standard out when it is deployed to GAE?  
+## How can I see the python app standard out when it is deployed to GAE?  
   * By using the console stackdriver logging
   * https://console.cloud.google.com/logs/viewer
 
-* Python API docs (dynamically built by the python code)
-  * [https://developers.google.com/resources/api-libraries/documentation/bigquery/v2/python/latest/](bigquery v2 API)
-  * [https://developers.google.com/resources/api-libraries/documentation/pubsub/v1beta2/python/latest/](pubsub v1beta2 API)
-
+## Docs 
+- https://googlecloudplatform.github.io/google-cloud-python/latest/bigquery/usage.html
+- https://googlecloudplatform.github.io/google-cloud-python/latest/bigquery/reference.html
+- https://github.com/GoogleCloudPlatform/python-docs-samples/tree/master/iot/api-client/mqtt_example
+- https://eclipse.org/paho/clients/python/docs/
+- https://github.com/eclipse/paho.mqtt.python
+- https://www.hivemq.com/blog/how-to-get-started-with-mqtt
+- https://cloud.google.com/iot/docs/how-tos/mqtt-bridge#publishing_telemetry_events_to_multiple_pubsub_topics
+- https://cloud.google.com/iot/docs/how-tos/mqtt-bridge#iot-core-mqtt-auth-run-python
+- https://cloud.google.com/iot/docs/how-tos/config/configuring-devices
 

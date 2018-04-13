@@ -6,3 +6,4 @@ Dockerfile
 .git
 .hg
 .svn
+service_account.json

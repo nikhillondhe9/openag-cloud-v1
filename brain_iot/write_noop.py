@@ -41,6 +41,21 @@ def main():
         bytestr = 'noop'.encode( 'utf-8' )
         pipe.write( bytestr )
         print( 'write_noop.py: wrote: {} to the pipe {}'.format( bytestr, args.pipe ))
+        #print( 'write_noop.py: sleeping for 2 sec' )
+        #time.sleep( 2 )
+        #bytestr = '{"command_reply": "debugrob", ' \
+        #          ' "values": ' \
+        #          '   "{\'values\': [ ' \
+        #          '      {\'name\':\'rob\', ' \
+        #          '       \'type\':\'string\', ' \
+        #          '       \'value\':\'meh\'} ' \
+        #          '      ] ' \
+        #          '   }"' \
+        #          '}'.encode( 'utf-8' )
+        #pipe.write( bytestr )
+        #logging.debug( 'write_noop.py: wrote: {} to the pipe {}'.format( bytestr, args.pipe ))
+
+
         print( 'write_noop.py: now sleeping for 10 minutes to keep the writer side of the pipe open' )
         time.sleep( 600 )
         print( 'write_noop.py: done sleeping, this may mess up the code that reads the pipe.')

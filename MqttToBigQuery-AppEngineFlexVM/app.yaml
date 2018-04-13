@@ -6,7 +6,10 @@ runtime_config:
   python_version: 3
 
 env_variables:
-  PROJECT_ID: openag-v1
-  PUBSUB_TOPIC: projects/openag-v1/topics/environmental-data
+  GCLOUD_PROJECT: openag-v1
+  GCLOUD_DEV_EVENTS: device-events
+  GCLOUD_DEV_REG: device-registry
+  GCLOUD_REGION: us-central1
+  GCLOUD_ZONE: us-central1-c
   BQ_DATASET: test
   BQ_TABLE: vals

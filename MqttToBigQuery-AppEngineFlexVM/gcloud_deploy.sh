@@ -6,9 +6,9 @@ if [[ -z "${TOP_DIR}" ]]; then
   source $TOP_DIR/gcloud_env.bash
 fi
 
-# This next command will open a browser window to verify your google account.
-# Only needed if the GOOGLE_APPLICATION_CREDENTIALS env. var. isn't set.
-#gcloud auth login
+# MUST use the central region / zone for beta IoT product.
+export GCLOUD_REGION=us-central1
+export GCLOUD_ZONE=us-central1-c
 
 # Authorize using our service account and local key.
 gcloud auth activate-service-account --key-file $GOOGLE_APPLICATION_CREDENTIALS
