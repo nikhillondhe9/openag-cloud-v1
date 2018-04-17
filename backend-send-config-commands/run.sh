@@ -9,7 +9,7 @@ IOT_SA=service_account.json
 GCLOUD_REGION=us-central1
 GCLOUD_DEV_REG=device-registry
 # this is robs mit mac
-DEVICE_ID=EDU-B6103A62-f4-0f-24-19-fe-88
+DEVICE_ID=EDU-1BE44E22-f4-0f-24-19-fe-88
 
 source pyenv/bin/activate
 
