@@ -30,7 +30,6 @@ messageType_EnvVar = 'EnvVar'
 messageType_CommandReply = 'CommandReply'
 
 # keys for messageType='EnvVar' (and also 'CommandReply')
-deviceId_KEY = 'deviceId'
 exp_KEY = 'exp'
 treat_KEY = 'treat'
 var_KEY = 'var'
@@ -38,72 +37,58 @@ values_KEY = 'values'
 
 
 #------------------------------------------------------------------------------
-def makeEnvVarDict( valueDict, envVarList, idKey ):
+def makeEnvVarRowList( valueDict, deviceId, rowsList, idKey ):
     # each received EnvVar type message must have these fields
-    if not validDictKey( valueDict, deviceId_KEY ) or \
-       not validDictKey( valueDict, exp_KEY ) or \
+    if not validDictKey( valueDict, exp_KEY ) or \
        not validDictKey( valueDict, treat_KEY ) or \
        not validDictKey( valueDict, var_KEY ) or \
        not validDictKey( valueDict, values_KEY ):
-        logging.critical('Invalid key in dict.')
+        logging.error('makeEnvVarRowList: Missing key(s) in dict.')
         return
 
-    deviceID =  valueDict[ deviceId_KEY ]
     expName =   valueDict[ exp_KEY ]
     treatName = valueDict[ treat_KEY ]
     varName =   valueDict[ var_KEY ]
-    values =  valueDict[ values_KEY ]
+    values =    valueDict[ values_KEY ]
 
     # clean / scrub / check the values.  
-    deviceID = deviceID.replace( '~', '' ) 
-    expName = expName.replace( '~', '' ) 
+    deviceId =  deviceId.replace( '~', '' ) 
+    expName =   expName.replace( '~', '' ) 
     treatName = treatName.replace( '~', '' ) 
-    varName = varName.replace( '~', '' ) 
+    varName =   varName.replace( '~', '' ) 
 
-    # <expName>~<KEY>~<treatName>~<valName>~<created UTC TS>~<deviceID>
-    ID = expName + '~' + idKey + '~{}~{}~{}~' + deviceID
+    # <expName>~<KEY>~<treatName>~<valName>~<created UTC TS>~<deviceId>
+    ID = expName + '~' + idKey + '~{}~{}~{}~' + deviceId
 
-    schemaDict = {}
-    schemaDict[ 'id' ] = ID.format( treatName, varName, 
-        time.strftime( '%Y-%m-%dT%H:%M:%SZ', time.gmtime() ))
-    schemaDict[ 'values' ] = values
+    row = ( ID.format( treatName, varName, 
+        time.strftime( '%Y-%m-%dT%H:%M:%SZ', time.gmtime() )), # id column
+        values ) # values column (no X or Y)
 
-#debugrob: wasn't required before when using insertAll
-    # NOTE: X, Y not being sent from device, so use defaults
-#    schemaDict[ 'X' ] = 0
-#    schemaDict[ 'Y' ] = 0
-#    schemaDict[ 'X' ] = '0'
-#    schemaDict[ 'Y' ] = '0'
-
-#debugrob: test something simple, no deviceid
-    schemaDict[ 'id' ] = expName + '~' + idKey 
-    schemaDict[ 'values' ] = 'val'
-    schemaDict[ 'X' ] = '0'
-    schemaDict[ 'Y' ] = '0'
-
-    envVarList.append( schemaDict )
+    rowsList.append( row )
 
 
 #------------------------------------------------------------------------------
-def makeDict( valueDict, envVarList ):
+def makeRowList( valueDict, deviceId, rowsList ):
 
     if not validDictKey( valueDict, messageType_KEY ):
-        logging.critical('Missing key %s' % messageType_KEY )
+        logging.error('Missing key %s' % messageType_KEY )
         return
 
     if messageType_EnvVar == valueDict[ messageType_KEY ]:
-        makeEnvVarDict( valueDict, envVarList, 'Env' )
+        makeEnvVarRowList( valueDict, deviceId, rowsList, 'Env' )
         return
 
     if messageType_CommandReply == valueDict[ messageType_KEY ]:
-        makeEnvVarDict( valueDict, envVarList, 'Cmd' )
+        makeEnvVarRowList( valueDict, deviceId, rowsList, 'Cmd' )
         return
 
+    logging.error('makeRowList: Invalid value {} for key {}'.format(
+        valueDict[ messageType_KEY ], messageType_KEY ))
 
 """
-example of what we receive:
+example of the MQTT device telemetry message we receive:
 
-data=b'{"messageType": "CommandReply", "deviceId": "EDU-B90F433E-f4-0f-24-19-fe-88", "exp": "RobExp", "treat": "RobTreat", "var": "status", "values": "{\\"name\\":\\"rob\\"}"}'
+data=b'{"messageType": "CommandReply", "exp": "RobExp", "treat": "RobTreat", "var": "status", "values": "{\\"name\\":\\"rob\\"}"}'
   deviceId=EDU-B90F433E-f4-0f-24-19-fe-88
   subFolder=
   deviceNumId=2800007269922577
@@ -114,34 +99,23 @@ data=b'{"messageType": "CommandReply", "deviceId": "EDU-B90F433E-f4-0f-24-19-fe-
 # Insert data into our bigquery dataset and table.
 def bq_data_insert( BQ, pydict, deviceId, PROJECT, DS, TABLE ):
     try:
-
-#debugrob also see ~/openag-cloud-v1/bigquery-setup/copy_experiment.py for BATCH inserts
-
         # Generate the data that will be sent to BigQuery for insertion.
-        # Each value must be a JSON object that matches the table schema.
-        envVarList = []
-        tmpEnvVars = []
-
-        # process the data here to make it table schema compatible
-        makeDict( pydict, tmpEnvVars )
-
-        if 0 < len( tmpEnvVars ):
-            for envVar in tmpEnvVars:
-                item_row = {"json": envVar}
-                envVarList.append( item_row )
-
-        if 0 < len( envVarList ):
-            rows_to_insert = {"rows": envVarList}
-            logging.info( "bq sending vars: %s" % ( rows_to_insert ))
+        # Each value must be a row that matches the table schema.
+        rowList = []
+        makeRowList( pydict, deviceId, rowList )
+        rows_to_insert = []
+        for row in rowList:
+            rows_to_insert.append( row )
+        logging.info( "bq insert rows: %s" % ( rows_to_insert ))
 
         dataset_ref = BQ.dataset( DS, project=PROJECT )
         table_ref = dataset_ref.table( TABLE )
         table = BQ.get_table( table_ref )               
+
         response = BQ.insert_rows( table, rows_to_insert )
+        logging.info( 'bq response: {}'.format( response ))
 
-        logging.info( 'bq resp: {}'.format( response ))
-
-#debugrob: I need to validate the user / openag flag, to know the correct DS.
+#debugrob: I need to look up the the user by deviceId, and find their openag flag (or role), to know the correct DS to write to.
 
         return 
 

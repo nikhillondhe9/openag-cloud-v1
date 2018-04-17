@@ -57,7 +57,6 @@ TREAT_ID = -1
 # some constants for parsing received commands 
 COMMANDS    = 'commands'
 MESSAGEID   = 'messageId'
-DEVICEID    = 'deviceId'
 CMD         = 'command'
 ARG0        = 'arg0'
 ARG1        = 'arg1'
@@ -284,10 +283,6 @@ def parseConfigMessage( d ):
             logging.error( 'Message is missing %s key.' % MESSAGEID )
             return 
 
-        if not validDictKey( d, DEVICEID ):
-            logging.error( 'Message is missing %s key.' % DEVICEID )
-            return 
-
         # unpack an array of commands from the dict
         for cmd in d[ COMMANDS ]:
             parseCommand( cmd, d[ MESSAGEID ] )
@@ -301,12 +296,10 @@ def parseConfigMessage( d ):
 #------------------------------------------------------------------------------
 def publishEnvVar( client, topic, messageType, experiment, treatment, 
                    varName, values ):
-    global DeviceId
     try:
         # create a python dict object, which will be serialized and published
         message_obj = {}
         message_obj['messageType'] = messageType
-        message_obj['deviceId'] = DeviceId
         message_obj['exp'] = experiment
         message_obj['treat'] = treatment
         message_obj['var'] = varName
