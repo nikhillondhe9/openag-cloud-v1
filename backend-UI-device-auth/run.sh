@@ -32,6 +32,6 @@ python3 dev-auth.py --fb_service_account $FB_SA \
                     --registry $GCLOUD_DEV_REG \
                     --user_email rbaynes@mit.edu \
                     --verification_code $1 \
-                    --notes $2
+                    --notes "$2"
 
 

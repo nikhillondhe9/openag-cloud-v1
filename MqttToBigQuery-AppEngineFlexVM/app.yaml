@@ -1,4 +1,4 @@
-service: pubsub
+service: mqtt
 runtime: custom
 env: flex
 runtime_config:
@@ -6,7 +6,6 @@ runtime_config:
   python_version: 3
 
 env_variables:
-  GCLOUD_PROJECT: openag-v1
   GCLOUD_DEV_EVENTS: device-events
   GCLOUD_DEV_REG: device-registry
   GCLOUD_REGION: us-central1

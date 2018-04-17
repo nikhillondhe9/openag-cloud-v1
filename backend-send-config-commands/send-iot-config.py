@@ -115,7 +115,7 @@ def main():
         
 # JSON commands array
 #{ 
-#    "messageId": "<messageId>",   # this is the MQTT config version!
+#    "messageId": "<messageId>",   # number of seconds since epoch
 #    "deviceId": "<deviceId>",     
 #    "commands": [
 #        { 
@@ -137,7 +137,7 @@ def main():
         # send a config message to a device
         config = {} # a python dict
         config['lastConfigVersion'] = str( version )
-        config['messageId'] = str( version )
+        config['messageId'] = str( int( time.time() )) # epoch seconds as message ID
         config['deviceId'] = str( args.device_id )
 
         cmd = {} 
