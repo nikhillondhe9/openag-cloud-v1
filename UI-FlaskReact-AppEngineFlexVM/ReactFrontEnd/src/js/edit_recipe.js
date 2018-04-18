@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {BrowserRouter as Router} from "react-router-dom";
-import '../edit_recipe.css';
+import '../css/edit_recipe.css';
 import {Form, FormGroup, Input} from 'reactstrap';
 import ReactDOM from 'react-dom';
 import {Cookies, withCookies} from "react-cookie";
@@ -57,7 +57,7 @@ class EditRecipe extends Component {
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
+                'Access-Control-Allow-Origin`   ': '*'
             },
             body: JSON.stringify({
                 'recipe_id': this.state.template_recipe_uuid

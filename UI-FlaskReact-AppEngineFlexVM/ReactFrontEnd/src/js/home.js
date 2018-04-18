@@ -120,7 +120,10 @@ class Home extends Component {
                 console.error(error);
             });
     }
-
+    goToDeviceHomePage(device_uuid)
+    {   console.log(device_uuid,"UU")
+        window.location.href="/device/"+device_uuid.toString();
+    }
     render() {
         let listDevices = <p>Loading</p>
         if (this.state.user_devices.length > 0) {
@@ -134,7 +137,7 @@ class Home extends Component {
                             <p className="card-text">This device is currently running the recipe id
                                 : None </p>
                             <p className="card-text"> Device Status: OK</p>
-                            <a href="#" className="card-link">Device Homepage</a>
+                             <button onClick={this.goToDeviceHomePage.bind(this,device.deivce_uuid)} className="card-link">Device Homepage</button>
                         </div>
                     </div>
                 </div>
