@@ -1,0 +1,9 @@
+env
+*.pyc
+__pycache__
+.dockerignore
+Dockerfile
+.git
+.hg
+.svn
+service_account.json

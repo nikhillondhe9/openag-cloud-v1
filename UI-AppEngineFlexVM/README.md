@@ -1,5 +1,8 @@
 # OpenAg Node.js UI for recipe and device management.
 
+THIS PROJECT IS DEPRECATED.  It will be deleted as soon as the real project in the UI-FlaskReact-AppEngineFlexVM folder is ready.
+
+
 ## debugrob, TBD:
 - See ToDos in app/model/user.js  and server.js
 - Email new account verification scheme.

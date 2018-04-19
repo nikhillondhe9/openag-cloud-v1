@@ -1,0 +1,14 @@
+service: mqtt
+runtime: custom
+env: flex
+runtime_config:
+  # You can also specify 2 for Python 2.7
+  python_version: 3
+
+env_variables:
+  GCLOUD_DEV_EVENTS: device-events
+  GCLOUD_DEV_REG: device-registry
+  GCLOUD_REGION: us-central1
+  GCLOUD_ZONE: us-central1-c
+  BQ_DATASET: test
+  BQ_TABLE: vals

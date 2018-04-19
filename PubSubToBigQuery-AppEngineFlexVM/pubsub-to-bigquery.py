@@ -142,12 +142,11 @@ if __name__ == '__main__':
     bigquery = utils.create_bigquery_client(credentials)
     pubsub = utils.create_pubsub_client(credentials)
     try:
-        # TODO: check if subscription exists first
         subscription = create_subscription(pubsub, PROJECT_ID, sub_name)
     except Exception as e:
         logging.critical( e )
-    # loop forever
+    # this func loops forever
     write_to_bq( pubsub, sub_name, bigquery )
-    logging.critical( 'exited write loop' )
+    logging.critical( 'exited main loop' )
 
 

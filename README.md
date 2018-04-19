@@ -1,4 +1,4 @@
 # openag-cloud-v1
-GCP test project by rbaynes
+Google Cloud Platform services and databases for the OpenAg™ backend.
 
-Ask rbaynes for the password to decrypt the service_account.json file before running this project.
+These projects are all a work in progress.

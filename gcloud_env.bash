@@ -8,16 +8,19 @@ fi
 
 #------------------------------------------------------------------------------
 export GCLOUD_PROJECT=openag-v1
+
 # gcloud compute regions list
 export GCLOUD_REGION=us-east1
+
 # gcloud compute zones list
 export GCLOUD_ZONE=us-east1-b
+
 export GOOGLE_APPLICATION_CREDENTIALS=$TOP_DIR/service_account.json
 
-# for data
-export GCLOUD_TOPIC=environmental-data
-export GCLOUD_SUBS=values-environmental-data
+# PubSub topic and subscription that MQTT telementry 'events' are sent to.
+export GCLOUD_DEV_EVENTS=device-events
 
-# both a topic and a subscription
-export GCLOUD_CMDS=commands
+# IoT device registry
+export GCLOUD_DEV_REG=device-registry
+
 
