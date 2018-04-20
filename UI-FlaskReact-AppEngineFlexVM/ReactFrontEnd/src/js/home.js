@@ -122,7 +122,9 @@ class Home extends Component {
     }
     goToDeviceHomePage(device_uuid)
     {   console.log(device_uuid,"UU")
-        window.location.href="/device/"+device_uuid.toString();
+        if (device_uuid) {
+            window.location.href = "/device/" + device_uuid.toString();
+        }
     }
     render() {
         let listDevices = <p>Loading</p>
@@ -137,7 +139,7 @@ class Home extends Component {
                             <p className="card-text">This device is currently running the recipe id
                                 : None </p>
                             <p className="card-text"> Device Status: OK</p>
-                             <button onClick={this.goToDeviceHomePage.bind(this,device.deivce_uuid)} className="card-link">Device Homepage</button>
+                             <button onClick={this.goToDeviceHomePage.bind(this,device.device_uuid)} className="card-link">Device Homepage</button>
                         </div>
                     </div>
                 </div>

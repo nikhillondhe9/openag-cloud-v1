@@ -419,7 +419,7 @@ def get_temp_details():
   #WHERE starts_with(id, "FS-2-40~Cmd")
   AND 'temp_humidity_sht25' = REGEXP_EXTRACT(id, r'(?:[^\~]*\~){3}([^~]*)')
   ORDER BY REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)') DESC 
-  LIMIT 50"""
+  LIMIT 200"""
     query_job = bigquery_client.query(insert_user_query, job_config=job_config)
     result = None
     query_result = query_job.result()
