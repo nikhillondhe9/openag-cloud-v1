@@ -36,6 +36,15 @@
   text-align: center;
   height: 12.5rem;
 }
+.colors-graph
+
+{
+    width: 80%;
+    position:relative;
+    display: table;
+   margin: 0 auto 0;
+    padding-bottom:5px;
+}
 
 .graph_media {
   max-height: 12rem;
@@ -68,7 +77,7 @@ h3{
 
 .top{
     margin-bottom: 10px;
-    background-color: #3f5175;
+    /*background-color: #3f5175;*/
     border-radius:4px;
     height: 400px;
     box-shadow: 1px 1px 1px 0px rgba(37,41,51,1);
@@ -115,7 +124,7 @@ h3{
 
 .line {
     fill: none;
-    stroke: #7dc7f4;
+    /*stroke: #7dc7f4;*/
     stroke-width: 5px;
 
 }
@@ -144,4 +153,27 @@ h3{
 
 .default-svg{
 
+}
+.colors-row
+{
+    width:100%;
+}
+
+.colors-card
+{
+    max-height:600px;
+}
+.dropdown {
+  display: inline-block;
+  margin-right: 20px;
+}
+.dropdown-row
+{
+    padding-bottom: 5px;
+    padding-left: 30px;
+}
+
+.rc-slider
+{
+        margin-top: 5px;
 }

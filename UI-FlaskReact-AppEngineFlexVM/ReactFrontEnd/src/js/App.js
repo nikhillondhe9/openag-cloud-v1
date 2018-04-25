@@ -66,11 +66,11 @@ class App extends Component {
 
                     <main>
                         <header className="header">
-
+                           <script async src="https://platform.twitter.com/widgets.js" charSet="utf-8">d</script>
 
                             <div className="row header-row">
 
-                                <div className="col-md-4 icon-holder">
+                                <div className="col-md-3 icon-holder">
                                     <Link to="/home">
                                         <div className="load-1">
                                             <div className="line"></div>
@@ -82,7 +82,7 @@ class App extends Component {
                                     </Link>
 
                                 </div>
-                                <div className="col-md-4 icon-holder">
+                                <div className="col-md-3 icon-holder">
                                     <Link to="/recipes">
                                         <div className="load-1">
                                             <div className="line"></div>
@@ -92,7 +92,17 @@ class App extends Component {
                                         </div>
                                     </Link>
                                 </div>
-                                <div className="col-md-4 icon-holder">
+                                <div className="col-md-3 icon-holder">
+                                    <Link to="/dashboard">
+                                        <div className="load-1">
+                                            <div className="line"></div>
+                                            <div className="line"></div>
+                                            <div className="line"></div>
+                                            <div className="label">MyPFC</div>
+                                        </div>
+                                    </Link>
+                                </div>
+                                <div className="col-md-3 icon-holder">
                                     <Link to="/profile">
                                         <div className="load-1">
                                             <div className="line"></div>
@@ -108,10 +118,10 @@ class App extends Component {
                             <Route path='/recipes' component={recipes}/>
                             <Route path='/login' component={login}/>
                             <Route path='/signup' component={SignUp}/>
+                            <Route path='/dashboard' component={DeviceHomepage}/>
                             <Route path='/edit_recipe/:recipe_uuid' component={EditRecipe}/>
-                             <Route path='/device/:device_uuid' component={DeviceHomepage}/>
+                            <Route path='/device/:device_uuid' component={DeviceHomepage}/>
                             <Route path='/' component={Home}/>
-
                             <Route path='/home/:user_uuid' component={Home} />
                         </Switch>
                     </main>

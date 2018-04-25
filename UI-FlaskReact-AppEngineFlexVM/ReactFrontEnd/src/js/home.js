@@ -3,6 +3,9 @@ import {BrowserRouter as Router, Route, Link, withRouter} from "react-router-dom
 import '../css/home.css';
 import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input} from 'reactstrap';
 import {Cookies, withCookies} from "react-cookie";
+import image1 from '../1.png';
+import image2 from '../2.png';
+import TwitterTimeline from 'react-twitter-embedded-timeline';
 
 class Home extends Component {
     constructor(props) {
@@ -25,6 +28,7 @@ class Home extends Component {
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.getUserDevices = this.getUserDevices.bind(this);
+        this.postToTwitter = this.postToTwitter.bind(this)
     }
 
     componentWillMount() {
@@ -126,6 +130,32 @@ class Home extends Component {
             window.location.href = "/device/" + device_uuid.toString();
         }
     }
+    postToTwitter()
+        {
+            return fetch('http://food.computer.com:5000/api/posttwitter/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({
+                'user_uuid': this.state.user_uuid,
+                'user_token': this.props.cookies.get('user_token')
+            })
+        })
+            .then((response) => response.json())
+            .then((responseJson) => {
+                console.log(responseJson)
+                // if (responseJson["response_code"] == 200) {
+                //     // this.setState({user_devices: responseJson["results"]})
+                // }
+
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+        }
     render() {
         let listDevices = <p>Loading</p>
         if (this.state.user_devices.length > 0) {
@@ -150,19 +180,27 @@ class Home extends Component {
         return (
             <Router>
                 <div className="home-container">
-                    <div className="name-row">
-                        <div className="col-md-10 cell-col">
-                            <h2>Your current food computers </h2>
-                        </div>
+                    <div className="row">
+                         <div className="col-md-4">
 
-                        <div className="col-md-2 cell-col" onClick={this.toggle}>
-                            <div className="plus" id="plus"> <div className="plus__line plus__line--v"></div><div className="plus__line plus__line--h"></div></div>
-                        </div>
+                         </div>
+                         <div className="col-md-8">
+                             <Button className="postbutton" onClick={this.postToTwitter}>Post status to twitter</Button>
+                         </div>
+                    </div>
 
+
+                    <div className="row">
+                         <div className="col-md-4">
+                             <a className="twitter-timeline" href="https://twitter.com/food_computer?ref_src=twsrc%5Etfw">Tweets by food_computer</a> <script async src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script>
+                               <TwitterTimeline></TwitterTimeline>
+                         </div>
+                        {/*<a className="twitter-timeline" href="https://twitter.com/MITOpenAg?ref_src=twsrc%5Etfw">Tweets by MITOpenAg</a> <script async src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script>*/}
+                         <div className="col-md-8">
+                             <img src={image2} className="timelapse-img"></img>
+                        </div>
                     </div>
-                    <div className="row card-row">
-                        {listDevices}
-                    </div>
+
                     <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
                         <ModalHeader toggle={this.toggle}>New Device Registration</ModalHeader>
                         <ModalBody>

@@ -98,3 +98,13 @@
     width:65px;
     height:65px;
 }
+
+.timelapse-img{
+    width:100%;
+    float:right;
+}
+
+.postbutton
+{
+    float:right;
+}
