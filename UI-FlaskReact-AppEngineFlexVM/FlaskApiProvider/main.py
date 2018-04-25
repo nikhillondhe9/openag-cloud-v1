@@ -15,7 +15,7 @@ app = Flask(__name__)
 import uuid
 
 import os
-
+import tweepy
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = './authenticate.json'
 # Remove this later - Only use it for testing purposes. Not safe to leave it here
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
@@ -26,7 +26,19 @@ cloud_project_id = "openag-v1"
 # Datastore client for Google Cloud
 datastore_client = datastore.Client(cloud_project_id)
 
+consumer_key = 'FdGiou6z8drUL39eqg6Hn1iPV'
+consumer_secret = 'k2l8yfWlTBi94Sog1vwU1GLwYVOa1n3Nx6jHhgTKpWJvZB6RBS'
+access_token = '988446389066719232-6qseNlFGS8rvgGZhfCsMJ0KBz65vc4p'
+access_secret = 'CrmXb11uawZHjEfXNyJz4nZl6pIWKxCe0rY1mU7oN2R9X'
+#create an OAuthHandler instance
+# Twitter requires all requests to use OAuth for authentication
+auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 
+auth.set_access_token(access_token, access_secret)
+
+ #Construct the API instance
+api = tweepy.API(auth) # create an API object
+# api.update_status('Test status')
 @app.route('/api/register/', methods=['GET', 'POST'])
 def register():
     received_form_response = json.loads(request.data)
@@ -81,6 +93,17 @@ def register():
 
     return result
 
+
+@app.route('/api/posttwitter/',methods=['GET', 'POST'])
+def posttwitter():
+    received_form_response = json.loads(request.data)
+    user_uuid = received_form_response.get("user_uuid","D")
+    api.update_status('Post Test tatus for %s'%user_uuid)
+    data  = {
+        "message":"success"
+    }
+    result = Response(json.dumps(data), status=500, mimetype='application/json')
+    return result
 
 @app.route('/api/signup/', methods=['GET', 'POST'])
 def signup():
