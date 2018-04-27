@@ -11,146 +11,24 @@ import 'rc-tooltip/assets/bootstrap.css';
 import Tooltip from 'rc-tooltip';
 import Slider from 'rc-slider';
 import {Dropdown, DropdownToggle, DropdownMenu, DropdownItem} from 'reactstrap';
+import {$, jQuery} from 'jquery';
+// export for others scripts to use
+import Draggable from 'react-draggable'; // The default
+import {DraggableCore} from 'react-draggable'; // <DraggableCore>
+// import React from 'react';
+import Plot from 'react-plotly.js';
 
-const createSliderWithTooltip = Slider.createSliderWithTooltip;
-const Range = createSliderWithTooltip(Slider.Range);
-const Handle = Slider.Handle;
-
-const handle = (props) => {
-    const {value, dragging, index, ...restProps} = props;
-    return (
-        <Tooltip
-            prefixCls="rc-slider-tooltip"
-            overlay={value}
-            visible={dragging}
-            placement="top"
-            key={index}
-        >
-            <Handle value={value} {...restProps} />
-        </Tooltip>
-    );
-};
-
-var colors = ['#FD9827', '#DA3B21', '#3669C9', '#1D9524', '#971497'];
-export const coolwhite = {
-    hsl: {a: 1, h: 330, l: 96.9, s: 100.0},
-    hex: '#FFEFF7',
-    rgb: {r: 255, g: 239, b: 247, a: 1},
-    hsv: {h: 330, s: 6.3, v: 96.9, a: 1},
-};
-export const warmwhite = {
-    hsv: {a: 1, h: 35, v: 100, s: 10.2},
-    hsl: {a: 1, h: 35, l: 94.9, s: 100.0},
-    hex: '#FFF4E5',
-    rgb: {r: 255, g: 244, b: 229, a: 1}
-};
-export const blue = {
-    hsv: {a: 1, h: 240, v: 100, s: 100},
-    hsl: {a: 1, h: 240, l: 50.0, s: 100.0},
-    hex: '#0000ff',
-    rgb: {r: 0, g: 0, b: 255, a: 1}
-};
-
-
-var AxisX = createReactClass({
-    render() {
-        var data = this.props.data;
-        var margin = this.props.margin;
-        var height = this.props.height - margin.top - margin.bottom;
-        var width = this.props.width - margin.left - margin.right;
-
-        var x = d3.scaleTime()
-            .rangeRound([0, width]);
-
-        var xAxis = d3.axisBottom()
-            .scale(x);
-        x.domain(d3.extent(data, function (d) {
-            return d.time;
-        }));
-
-        d3.select(".x").attr("transform", "translate(0," + height + ")").call(xAxis);
-
-        return (
-            <g className="x axis"></g>
-        );
-    }
-});
-var AxisY = createReactClass({
-    render() {
-        var data = this.props.data;
-        var margin = this.props.margin;
-        var height = this.props.height - margin.top - margin.bottom;
-        var width = this.props.width - margin.left - margin.right;
-
-        var y = d3.scaleLinear()
-            .rangeRound([height, 0]);
-
-        var yAxis = d3.axisLeft()
-            .scale(y);
-
-        y.domain(d3.extent(data, function (d) {
-            return d.value;
-        }));
-
-        d3.select(".y").call(yAxis)
-            .append("text")
-            .attr("transform", "rotate(-90)")
-            .attr("y", 6)
-            .attr("dy", ".71em")
-            .style("text-anchor", "end")
-
-        return (
-            <g className="y axis"></g>
-        );
-    }
-});
-var Line = createReactClass({
-    render() {
-        var data = this.props.data;
-        var margin = this.props.margin;
-        var height = this.props.height - margin.top - margin.bottom;
-        var width = this.props.width - margin.left - margin.right;
-        var strokeColor = this.props.strokeColor;
-        // var scale = d3.scaleTime().domain([27.571453, 28.26054]).range([0, width]);
-        // console.log("Scale",scale(27.6322))
-        var x = d3.scaleTime()
-            .rangeRound([0, width]).domain(d3.extent(data, function (d) {
-                return d.time;
-            }));
-
-        var y = d3.scaleLinear()
-            .rangeRound([height, 0]).domain(d3.extent(data, function (d) {
-                return d.value;
-            }));
-
-        var line = d3.line()
-            .x(function (d) {
-                return x(d.time)
-            })
-            .y(function (d) {
-                return y(d.value)
-            });
-
-        // console.log("New line",n)
-        var newline = line(data);
-        console.log(newline);
-
-        return (
-
-            <path className="line shadow" stroke={strokeColor} d={newline}></path>
-
-
-        );
-    }
-});
 
 class DeviceHomepage extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            'rh_data': [],
-            'temp_data': [],
-            'led_data': [],
+            rh_data: [],
+            temp_data_x: [],
+            temp_data_y: [],
+            led_data: [],
+            temp_data: [],
+            temp_layout: {title:'Temperature',width:200,height:200},
             show_temp_line: false,
             show_rh_line: false,
             user_devices: [],
@@ -206,7 +84,7 @@ class DeviceHomepage extends Component {
                 console.log(responseJson)
                 if (responseJson["response_code"] == 200) {
                     this.setState({user_devices: responseJson["results"]})
-                    this.setState({dropDownValue:'SecondAtTest(343322)' })
+                    this.setState({dropDownValue: 'SecondAtTest(343322)'})
                     console.log("Response", responseJson["results"])
                 }
 
@@ -232,17 +110,73 @@ class DeviceHomepage extends Component {
                 if (responseJson["response_code"] == 200) {
 
                     let parseTime = d3.timeParse("%a %b %d %I:%M:%S %Y");
+                    var formatTime = d3.timeFormat("%Y-%m-%d %H:%M:%S");
                     let tempData = responseJson["results"]["temp"]
                     let RHData = responseJson["results"]["RH"]
                     tempData.forEach(function (d) {
-                        d.time = parseTime(d.time);
+                        d.time = formatTime(parseTime(d.time));
                         d.value = parseFloat(d.value);
                     });
                     RHData.forEach(function (d) {
-                        d.time = parseTime(d.time);
+                        d.time = formatTime(parseTime(d.time));
                         d.value = parseFloat(d.value)
                     });
-                    this.setState({'temp_data': tempData})
+                    let temp_data_x = []
+                    let temp_data_y = []
+                    tempData.forEach(function (d) {
+                        temp_data_x.push(d.time);
+                        temp_data_y.push(d.value);
+                    });
+                    this.setState({'temp_data_x': temp_data_x})
+                    this.setState({'temp_data_x': temp_data_y})
+                    this.setState({
+                        'temp_data': [{
+                            type: "scatter",
+                            mode: "lines",
+                            name: 'AAPL High',
+                            x: temp_data_x,
+                            y: temp_data_y,
+                            line: {color: '#17BECF'}
+                        }]
+                    });
+                    this.setState({
+                        'temp_layout': {
+                            title: 'Time Series with Rangeslider',
+                            width: 700,
+                            height: 500,
+                            xaxis: {
+                                autorange: true,
+                                range: ['2018-04-17 00:00:00', '2018-04-18 14:11:45'],
+                                rangeselector: {
+                                    buttons: [
+                                        {
+                                            count: 1,
+                                            label: '1m',
+                                            step: 'time',
+                                            stepmode: 'backward'
+                                        },
+                                        {
+                                            count: 6,
+                                            label: '6m',
+                                            step: 'time',
+                                            stepmode: 'backward'
+                                        },
+                                        {step: 'all'}
+                                    ]
+                                },
+                                rangeslider: {range: ['2018-01-17 14:11:45', '2018-10-17 14:11:45']},
+                                type: 'date',
+                                tickformat: '%Y-%m-%d %H:%M:%S'
+                            },
+                            yaxis: {
+                                autorange: true,
+                                type: 'linear'
+                            }
+                        }
+                    })
+
+
+                    console.log("x", temp_data_x)
                     this.setState({'show_temp_line': true})
                     this.setState({'rh_data': RHData})
                     // this.setState({'rh_data': responseJson["results"]['RH']})
@@ -285,7 +219,7 @@ class DeviceHomepage extends Component {
     }
 
     changeValue(e) {
-        console.log("Selected devic SecondAtTest(343322) e",e.currentTarget.textContent)
+        console.log("Selected devic SecondAtTest(343322) e", e.currentTarget.textContent)
         this.setState({dropDownValue: e.currentTarget.textContent})
     }
 
@@ -300,189 +234,60 @@ class DeviceHomepage extends Component {
             });
 
         }
+
+
         return (
-            <div className="plot-container">
+            <div className="home-container">
                 <div className="row dropdown-row">
 
-                                        <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}
-                                                  className="row dropdow-row">
-                                            <DropdownToggle caret>
-                                                {this.state.dropDownValue}
-                                            </DropdownToggle>
-                                            <DropdownMenu>
-                                                {listDevices}
-                                            </DropdownMenu>
-                                        </Dropdown>
+                    <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}
+                              className="row dropdow-row">
+                        <DropdownToggle caret>
+                            {this.state.dropDownValue}
+                        </DropdownToggle>
+                        <DropdownMenu>
+                            {listDevices}
+                        </DropdownMenu>
+                    </Dropdown>
 
                 </div>
-                <div className="row">
-                    <div className="col-md-5">
-                        <div className="row">
-                            <div className="col-md-6">
-                                <div className="card value-card" onClick={this.toggleTempData}>
-                                    <div className="card-block">
-                                        <h4 className="card-title"> Temperature </h4>
-                                        <div className="card-text">
-                                            <div className="graph">
-                                                <div className="knob_data">89
-                                                </div>
-                                                <span className="txt_smaller"><sup>o</sup>F (Farenheit) </span>
+                <Draggable axis="y">
+
+
+                    <div className="row">
+                        <div className="col-md-2">
+                            <div className="card value-card" onClick={this.toggleTempData}>
+                                <div className="card-block">
+                                    <h4 className="card-title"> Temperature </h4>
+                                    <div className="card-text">
+                                        <div className="graph">
+                                            <div className="knob_data">89
                                             </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-md-6">
-                                <div className="card value-card" onClick={this.toggleRHData}>
-                                    <div className="card-block">
-                                        <h4 className="card-title"> Relative Humidity </h4>
-                                        <div className="card-text">
-                                            <div className="graph">
-                                                <div className="knob_data">34.43
-                                                </div>
-                                                <span className="txt_smaller">OOM
-                                                </span>
-                                            </div>
+                                            <span className="txt_smaller"><sup>o</sup>F (Farenheit) </span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div className="row value-row">
-                            <div className="col-md-12">
-                                <div className="card value-card colors-card">
-                                    <div className="card-block">
-                                        <h4 className="card-title"> LED Panel </h4>
-                                        <div className="card-text">
-                                            <div className="colors-graph"><span className="txt_smaller">State ON - LED Spectrum
-                                                </span></div>
-                                            <div className="row colors-row">
-                                                <div className="col-md-6">
-                                                    <span>Cool White</span>
-                                                </div>
-                                                <div className="col-md-6">
-                                                    <Slider min={0} max={255} defaultValue={10} handle={handle}/>
-                                                </div>
-                                            </div>
-                                            <div className="row colors-row">
-                                                <div className="col-md-6">
-                                                    <span>Warm White</span>
-                                                </div>
-                                                <div className="col-md-6">
-                                                    <Slider min={0} max={255} defaultValue={220} handle={handle}/>
-                                                </div>
-                                            </div>
-                                            <div className="row colors-row">
-                                                <div className="col-md-6">
-                                                    <span>Blue</span>
-                                                </div>
-                                                <div className="col-md-6">
-                                                    <Slider min={0} max={255} defaultValue={130} handle={handle}/>
-                                                </div>
-                                            </div>
-                                            <div className="row colors-row">
-                                                <div className="col-md-6">
-                                                    <span>Green</span>
-                                                </div>
-                                                <div className="col-md-6">
-                                                    <Slider min={0} max={255} defaultValue={130} handle={handle}/>
-                                                </div>
-                                            </div>
-                                            <div className="row colors-row">
-                                                <div className="col-md-6">
-                                                    <span>Red</span>
-                                                </div>
-                                                <div className="col-md-6">
-                                                    <Slider min={0} max={255} defaultValue={40} handle={handle}/>
-                                                </div>
-                                            </div>
-                                            <div className="row colors-row">
-                                                <div className="col-md-6">
-                                                    <span>Far Red</span>
-                                                </div>
-                                                <div className="col-md-6">
-                                                    <Slider min={0} max={255} defaultValue={20} handle={handle}/>
-                                                </div>
-                                            </div>
-                                            <div className="colors-graph"><span className="txt_smaller">State OFF - LED Spectrum
-                                                </span></div>
-                                            <div className="row colors-row">
-                                                <div className="col-md-6">
-                                                    <span>Cool White</span>
-                                                </div>
-                                                <div className="col-md-6">
-                                                    <Slider min={0} max={255} defaultValue={20} handle={handle}/>
-                                                </div>
-                                            </div>
-                                            <div className="row colors-row">
-                                                <div className="col-md-6">
-                                                    <span>Warm White</span>
-                                                </div>
-                                                <div className="col-md-6">
-                                                    <Slider min={0} max={255} defaultValue={10} handle={handle}/>
-                                                </div>
-                                            </div>
-                                            <div className="row colors-row">
-                                                <div className="col-md-6">
-                                                    <span>Blue</span>
-                                                </div>
-                                                <div className="col-md-6">
-                                                    <Slider min={0} max={255} defaultValue={0} handle={handle}/>
-                                                </div>
-                                            </div>
-                                            <div className="row colors-row">
-                                                <div className="col-md-6">
-                                                    <span>Green</span>
-                                                </div>
-                                                <div className="col-md-6">
-                                                    <Slider min={0} max={255} defaultValue={0} handle={handle}/>
-                                                </div>
-                                            </div>
-                                            <div className="row colors-row">
-                                                <div className="col-md-6">
-                                                    <span>Red</span>
-                                                </div>
-                                                <div className="col-md-6">
-                                                    <Slider min={0} max={255} defaultValue={0} handle={handle}/>
-                                                </div>
-                                            </div>
-                                            <div className="row colors-row">
-                                                <div className="col-md-6">
-                                                    <span>Far Red</span>
-                                                </div>
-                                                <div className="col-md-6">
-                                                    <Slider min={0} max={255} defaultValue={244} handle={handle}/>
-                                                </div>
-                                            </div>
-                                        </div>
+                        <div className="col-md-10">
+
+                            <div className="card value-card" onClick={this.toggleTempData}>
+                                <div className="card-block">
+                                    <h4 className="card-title"> Temperature </h4>
+                                    <div className="card-text">
+
+                                        <Plot className="graph" data={this.state.temp_data}
+                                              layout={this.state.temp_layout}
+                                              onInitialized={(figure) => this.setState(figure)}
+                                              onUpdate={(figure) => this.setState(figure)}/>
+
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div className="col-md-7">
-                        <svg height={450} width={600}>
-                            <g transform="translate(50,20)">
-                                {this.state.show_rh_line &&
-                                <AxisX width={600} height={450} margin={margin} data={this.state.rh_data}/>}
-                                {this.state.show_rh_line &&
-                                <AxisY width={600} height={450} margin={margin} data={this.state.rh_data}/>}
-                                {this.state.show_rh_line &&
-                                <Line width={600} height={450} margin={margin} data={this.state.rh_data}
-                                      strokeColor={colors[1]}/>}
 
-                                {this.state.show_temp_line &&
-                                <AxisX width={600} height={450} margin={margin} data={this.state.temp_data}/>}
-                                {this.state.show_temp_line &&
-                                <AxisY width={600} height={450} margin={margin} data={this.state.temp_data}/>}
-                                {this.state.show_temp_line &&
-                                <Line width={600} height={450} margin={margin} data={this.state.temp_data}
-                                      strokeColor={colors[2]}/>}
-                                {/*<Dots data={data} x={x} y={y}/>*/}
-                            </g>
-                        </svg>
                     </div>
-                </div>
+                </Draggable>
             </div>
         )
 
@@ -490,4 +295,3 @@ class DeviceHomepage extends Component {
 }
 
 export default withCookies(DeviceHomepage);
-

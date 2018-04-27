@@ -13,6 +13,7 @@ from google.cloud import bigquery
 bigquery_client = bigquery.Client()
 app = Flask(__name__)
 import uuid
+import datetime
 
 import os
 import tweepy
@@ -423,6 +424,12 @@ def save_recipe():
 
 @app.route('/api/get_temp_details/', methods=['GET', 'POST'])
 def get_temp_details():
+    past_day_date = (datetime.datetime.now() - datetime.timedelta(hours=24)).strftime("%a %b %d %H:%M:%S %Y")
+    current_date = datetime.datetime.now().strftime("%a %b %d %H:%M:%S %Y")
+    print("Past day date")
+    print(past_day_date)
+    print("Current date")
+    print(current_date)
     # received_form_response = json.loads(request.data)
     job_config = bigquery.QueryJobConfig()
 
@@ -437,12 +444,18 @@ def get_temp_details():
   #WHERE starts_with(id, "Exp~")
   #WHERE starts_with(id, "EDU_Basil_test_grow_1~Cmd~")
   #WHERE starts_with(id, "EDU_Basil_test_grow_1")
+  WHERE DATEDIFF(@startDate,@endDate) 
   WHERE starts_with(id, "EDU_Basil_test_grow_2")
   #WHERE starts_with(id, "FS-2-40")
   #WHERE starts_with(id, "FS-2-40~Cmd")
   AND 'temp_humidity_sht25' = REGEXP_EXTRACT(id, r'(?:[^\~]*\~){3}([^~]*)')
   ORDER BY REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)') DESC 
-  LIMIT 200"""
+  LIMIT 500"""
+    query_params = [
+        bigquery.ScalarQueryParameter('startDate', 'STRING', past_day_date),
+        bigquery.ScalarQueryParameter('endDate', 'STRING', current_date)
+    ]
+    job_config.query_parameters = query_params
     query_job = bigquery_client.query(insert_user_query, job_config=job_config)
     result = None
     query_result = query_job.result()
@@ -463,7 +476,7 @@ def get_temp_details():
                 if len(values) > 1:
                     result_json["RH"].append({'value':values[1]['value'],'time':row.eastern_time})
 
-    print(result_json)
+
     data = json.dumps({
         "response_code": 200,
         "results":result_json
