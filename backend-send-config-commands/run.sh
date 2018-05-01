@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ $# -eq 0 ]; then
+    echo "Please provide your device ID on the command line."
+    exit 1
+fi
+
 if ! [ -z "${VIRTUAL_ENV}" ] ; then
     echo "deactivate"
 fi
@@ -8,8 +13,8 @@ GCLOUD_PROJECT=openag-v1
 IOT_SA=service_account.json
 GCLOUD_REGION=us-central1
 GCLOUD_DEV_REG=device-registry
-# this is robs mit mac
-DEVICE_ID=EDU-1BE44E22-f4-0f-24-19-fe-88
+# device ID from the commadn line
+DEVICE_ID=$1
 
 source pyenv/bin/activate
 

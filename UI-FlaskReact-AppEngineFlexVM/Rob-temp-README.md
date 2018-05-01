@@ -15,6 +15,7 @@ source pyenv/bin/activate
 cd FlaskApiProvider/
 export PYTHONPATH=./lib
 export FLASK_APP=main.py
+export GOOGLE_APPLICATION_CREDENTIALS=./authenticate.json
 python3 -m flask run
 ```
 
