@@ -98,8 +98,9 @@ def register():
 @app.route('/api/posttwitter/',methods=['GET', 'POST'])
 def posttwitter():
     received_form_response = json.loads(request.data)
-    user_uuid = received_form_response.get("user_uuid","D")
-    api.update_status('Post Test tatus for %s'%user_uuid)
+    current_date = datetime.datetime.utcnow()
+    user_uuid = received_form_response.get("user_uuid","Error")
+    api.update_status('Food computer status for %s on %s'%(user_uuid,str(current_date)))
     data  = {
         "message":"success"
     }
@@ -421,11 +422,122 @@ def save_recipe():
 
     return result
 
+@app.route('/api/get_current_stats/',methods=['GET', 'POST'])
+def get_current_stats():
+    job_config = bigquery.QueryJobConfig()
+
+    job_config.use_legacy_sql = False
+    insert_user_query = """#standardsql
+        SELECT
+          FORMAT_TIMESTAMP( '%c', TIMESTAMP( REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)')), 'America/New_York') as eastern_time,
+          REGEXP_EXTRACT(id, r'(?:[^\~]*\~){3}([^~]*)') as var,
+          REGEXP_EXTRACT(id, r'(?:[^\~]*\~){5}([^~]*)') as device,  #replace the last '~' with a '-' to only show up to the -
+          values
+
+          FROM test.vals
+
+          WHERE 'co2_t6713' = REGEXP_EXTRACT(id, r'(?:[^\~]*\~){3}([^~]*)')
+
+          AND TIMESTAMP( REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)')) <= TIMESTAMP(CURRENT_DATE())
+          AND TIMESTAMP( REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)')) >= TIMESTAMP(DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY))
+
+          ORDER BY REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)') DESC 
+          LIMIT 1"""
+
+    query_job = bigquery_client.query(insert_user_query, job_config=job_config)
+    query_result = query_job.result()
+    result_json = {}
+    for row in list(query_result):
+        values_json = (ast.literal_eval(row[3]))
+        if "values" in values_json:
+            values = values_json["values"]
+            result_json["current_co2"]= values[0]['value']
+
+    temp_user_query = """#standardsql
+            SELECT
+              FORMAT_TIMESTAMP( '%c', TIMESTAMP( REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)')), 'America/New_York') as eastern_time,
+              REGEXP_EXTRACT(id, r'(?:[^\~]*\~){3}([^~]*)') as var,
+              REGEXP_EXTRACT(id, r'(?:[^\~]*\~){5}([^~]*)') as device,  #replace the last '~' with a '-' to only show up to the -
+              values
+
+              FROM test.vals
+
+              WHERE 'temp_humidity_sht25' = REGEXP_EXTRACT(id, r'(?:[^\~]*\~){3}([^~]*)') AND starts_with(id, "FS-2-40") 
+
+              AND TIMESTAMP( REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)')) <= TIMESTAMP(DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY))
+              AND TIMESTAMP( REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)')) >= TIMESTAMP(DATE_SUB(CURRENT_DATE(), INTERVAL 40 DAY))
+
+              ORDER BY REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)') DESC 
+              LIMIT 2000"""
+    query_job = bigquery_client.query(temp_user_query, job_config=job_config)
+    query_result = query_job.result()
+    for row in list(query_result):
+        values_json = (ast.literal_eval(row[3]))
+        if "values" in values_json:
+            values = values_json["values"]
+            if len(values) >0 :
+                result_json["current_temp"] = values[0]['value']
+                if len(values) > 1:
+                    result_json["current_rh"] = values[0]['value']
+
+    data = json.dumps({
+        "response_code": 200,
+        "results": result_json
+    })
+
+    result = Response(data, status=200, mimetype='application/json')
+    return result
+
+@app.route('/api/get_co2_details/',methods=['GET', 'POST'])
+def get_co2_details():
+    past_day_date = (datetime.datetime.now() - datetime.timedelta(hours=24))
+    current_date = datetime.datetime.utcnow()
+    # received_form_response = json.loads(request.data)
+    job_config = bigquery.QueryJobConfig()
+
+    job_config.use_legacy_sql = False
+    insert_user_query = """#standardsql
+    SELECT
+      FORMAT_TIMESTAMP( '%c', TIMESTAMP( REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)')), 'America/New_York') as eastern_time,
+      REGEXP_EXTRACT(id, r'(?:[^\~]*\~){3}([^~]*)') as var,
+      REGEXP_EXTRACT(id, r'(?:[^\~]*\~){5}([^~]*)') as device,  #replace the last '~' with a '-' to only show up to the -
+      values
+
+      FROM test.vals
+
+      WHERE 'co2_t6713' = REGEXP_EXTRACT(id, r'(?:[^\~]*\~){3}([^~]*)')
+
+      AND TIMESTAMP( REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)')) <= TIMESTAMP(CURRENT_DATE())
+      AND TIMESTAMP( REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)')) >= TIMESTAMP(DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY))
+
+      ORDER BY REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)') DESC 
+      LIMIT 500"""
+    query_params = [
+        bigquery.ScalarQueryParameter('startDate', 'STRING', str(past_day_date)),
+        bigquery.ScalarQueryParameter('endDate', 'STRING', str(current_date))
+    ]
+    job_config.query_parameters = query_params
+    query_job = bigquery_client.query(insert_user_query, job_config=job_config)
+    query_result = query_job.result()
+    results = []
+    for row in list(query_result):
+        values_json = (ast.literal_eval(row[3]))
+        if "values" in values_json:
+            values = values_json["values"]
+            results.append({'value': values[0]['value'], 'time': row.eastern_time})
+
+    data = json.dumps({
+        "response_code": 200,
+        "results": results
+    })
+
+    result = Response(data, status=200, mimetype='application/json')
+    return result
 
 @app.route('/api/get_temp_details/', methods=['GET', 'POST'])
 def get_temp_details():
-    past_day_date = (datetime.datetime.now() - datetime.timedelta(hours=24)).strftime("%a %b %d %H:%M:%S %Y")
-    current_date = datetime.datetime.now().strftime("%a %b %d %H:%M:%S %Y")
+    past_day_date = (datetime.datetime.now() - datetime.timedelta(hours=24))
+    current_date = datetime.datetime.utcnow()
     print("Past day date")
     print(past_day_date)
     print("Current date")
@@ -434,26 +546,25 @@ def get_temp_details():
     job_config = bigquery.QueryJobConfig()
 
     job_config.use_legacy_sql = False
-    insert_user_query = """SELECT
+    insert_user_query = """#standardsql
+SELECT
   FORMAT_TIMESTAMP( '%c', TIMESTAMP( REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)')), 'America/New_York') as eastern_time,
   REGEXP_EXTRACT(id, r'(?:[^\~]*\~){3}([^~]*)') as var,
-  REGEXP_EXTRACT(id, r'(?:[^\~]*\~){5}([^-]*)') as device,  #matches up to first '-' in the id, to not show the random UUID stuff.
-  values as row_values
-  # , id
+  REGEXP_EXTRACT(id, r'(?:[^\~]*\~){5}([^~]*)') as device,  #replace the last '~' with a '-' to only show up to the -
+  values
+
   FROM test.vals
-  #WHERE starts_with(id, "Exp~")
-  #WHERE starts_with(id, "EDU_Basil_test_grow_1~Cmd~")
-  #WHERE starts_with(id, "EDU_Basil_test_grow_1")
-  WHERE DATEDIFF(@startDate,@endDate) 
-  WHERE starts_with(id, "EDU_Basil_test_grow_2")
-  #WHERE starts_with(id, "FS-2-40")
-  #WHERE starts_with(id, "FS-2-40~Cmd")
-  AND 'temp_humidity_sht25' = REGEXP_EXTRACT(id, r'(?:[^\~]*\~){3}([^~]*)')
+
+  WHERE 'temp_humidity_sht25' = REGEXP_EXTRACT(id, r'(?:[^\~]*\~){3}([^~]*)')
+ 
+  AND TIMESTAMP( REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)')) <= TIMESTAMP(CURRENT_DATE())
+  AND TIMESTAMP( REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)')) >= TIMESTAMP(DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY))
+
   ORDER BY REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)') DESC 
   LIMIT 500"""
     query_params = [
-        bigquery.ScalarQueryParameter('startDate', 'STRING', past_day_date),
-        bigquery.ScalarQueryParameter('endDate', 'STRING', current_date)
+        bigquery.ScalarQueryParameter('startDate', 'STRING', str(past_day_date)),
+        bigquery.ScalarQueryParameter('endDate', 'STRING', str(current_date))
     ]
     job_config.query_parameters = query_params
     query_job = bigquery_client.query(insert_user_query, job_config=job_config)
@@ -465,10 +576,10 @@ def get_temp_details():
         'RH':humidity_array,
         'temp':temp_array
     }
-    for row in query_result:
+    for row in list(query_result):
         # print("{} : {} views".format(row.row_values,row.eastern_time))
-
-        values_json = (ast.literal_eval(row.row_values))
+        print(row[3])
+        values_json = (ast.literal_eval(row[3]))
         if "values" in values_json:
             values = values_json["values"]
             if len(values) >0 :

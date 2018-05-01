@@ -5,8 +5,7 @@ import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Lab
 import {Cookies, withCookies} from "react-cookie";
 import image1 from '../1.png';
 import image2 from '../2.png';
-import TwitterTimeline from 'react-twitter-embedded-timeline';
-
+import { Timeline } from 'react-twitter-widgets'
 class Home extends Component {
     constructor(props) {
         super(props);
@@ -192,8 +191,16 @@ class Home extends Component {
 
                     <div className="row">
                          <div className="col-md-4">
-                             <a className="twitter-timeline" href="https://twitter.com/food_computer?ref_src=twsrc%5Etfw">Tweets by food_computer</a> <script async src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script>
-                               <TwitterTimeline></TwitterTimeline>
+                              <Timeline
+    dataSource={{
+      sourceType: 'profile',
+      screenName: 'food_computer'
+    }}
+    options={{
+      username: 'FoodComputer'
+    }}
+    onLoad={() => console.log('Timeline is loaded!')}
+  />
                          </div>
                         {/*<a className="twitter-timeline" href="https://twitter.com/MITOpenAg?ref_src=twsrc%5Etfw">Tweets by MITOpenAg</a> <script async src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script>*/}
                          <div className="col-md-8">

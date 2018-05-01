@@ -1,16 +1,29 @@
 import React, {Component} from 'react';
-import {BrowserRouter as Router} from "react-router-dom";
 import '../css/edit_recipe.css';
 import {Form, FormGroup, Input} from 'reactstrap';
 import ReactDOM from 'react-dom';
+import Slider from 'rc-slider';
+import Tooltip from 'rc-tooltip';
 import {Cookies, withCookies} from "react-cookie";
-import moment from 'moment';
-import TimePicker from 'rc-time-picker';
-import 'rc-time-picker/assets/index.css';
+const createSliderWithTooltip = Slider.createSliderWithTooltip;
+const Range = createSliderWithTooltip(Slider.Range);
+const Handle = Slider.Handle;
+const handle = (props) => {
+    const {value, dragging, index, ...restProps} = props;
+    return (
+        <Tooltip
+            prefixCls="rc-slider-tooltip"
+            overlay={value}
+            visible={dragging}
+            placement="top"
+            key={index}
+        >
+            <Handle value={value} {...restProps} />
+        </Tooltip>
+    );
+};
 
-const format = 'h:mm a';
 
-const now = moment().hour(0).minute(0);
 
 class EditRecipe extends Component {
 
@@ -52,15 +65,16 @@ class EditRecipe extends Component {
     }
 
     getRecipeComponents() {
-        return fetch('http://food.computer.com:5000/api/get_recipe_components/', {
+        return fetch("http://food.computer.com:5000/api/get_recipe_components/", {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin`   ': '*'
+                'Access-Control-Allow-Origin': '*'
             },
             body: JSON.stringify({
-                'recipe_id': this.state.template_recipe_uuid
+                'recipe_id': this.state.template_recipe_uuid,
+                'user_token': this.props.cookies.get('user_token')
             })
         })
             .then((response) => response.json())
@@ -95,6 +109,106 @@ class EditRecipe extends Component {
 
     buildComponent(component) {
         var input_field = []
+        console.log("Component",component)
+        if (component['field_json']['field_type'] === "led_panel") {
+            input_field.push(<div key={component['field_json']['field_key']}  className=""><div className=""><p>LED ON</p><div className="row colors-row">
+                                                <div className="col-md-6">
+                                                    <span>Cool White</span>
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <Slider min={0} max={255} defaultValue={10} handle={handle}/>
+                                                </div>
+                                            </div>
+                                            <div className="row colors-row">
+                                                <div className="col-md-6">
+                                                    <span>Warm White</span>
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <Slider min={0} max={255} defaultValue={220} handle={handle}/>
+                                                </div>
+                                            </div>
+                                            <div className="row colors-row">
+                                                <div className="col-md-6">
+                                                    <span>Blue</span>
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <Slider min={0} max={255} defaultValue={130} handle={handle}/>
+                                                </div>
+                                            </div>
+                                            <div className="row colors-row">
+                                                <div className="col-md-6">
+                                                    <span>Green</span>
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <Slider min={0} max={255} defaultValue={130} handle={handle}/>
+                                                </div>
+                                            </div>
+                                            <div className="row colors-row">
+                                                <div className="col-md-6">
+                                                    <span>Red</span>
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <Slider min={0} max={255} defaultValue={40} handle={handle}/>
+                                                </div>
+                                            </div>
+                                            <div className="row colors-row">
+                                                <div className="col-md-6">
+                                                    <span>Far Red</span>
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <Slider min={0} max={255} defaultValue={20} handle={handle}/>
+                                                </div>
+                                            </div>
+                                            </div><div className=""><p>LED OFF</p><div className="row colors-row">
+                                                <div className="col-md-6">
+                                                    <span>Cool White</span>
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <Slider min={0} max={255} defaultValue={10} handle={handle}/>
+                                                </div>
+                                            </div>
+                                            <div className="row colors-row">
+                                                <div className="col-md-6">
+                                                    <span>Warm White</span>
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <Slider min={0} max={255} defaultValue={220} handle={handle}/>
+                                                </div>
+                                            </div>
+                                            <div className="row colors-row">
+                                                <div className="col-md-6">
+                                                    <span>Blue</span>
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <Slider min={0} max={255} defaultValue={130} handle={handle}/>
+                                                </div>
+                                            </div>
+                                            <div className="row colors-row">
+                                                <div className="col-md-6">
+                                                    <span>Green</span>
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <Slider min={0} max={255} defaultValue={130} handle={handle}/>
+                                                </div>
+                                            </div>
+                                            <div className="row colors-row">
+                                                <div className="col-md-6">
+                                                    <span>Red</span>
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <Slider min={0} max={255} defaultValue={40} handle={handle}/>
+                                                </div>
+                                            </div>
+                                            <div className="row colors-row">
+                                                <div className="col-md-6">
+                                                    <span>Far Red</span>
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <Slider min={0} max={255} defaultValue={20} handle={handle}/>
+                                                </div>
+                                            </div>
+                                            </div></div> )
+        }
         if (component['field_json']['field_type'] === "input") {
             input_field.push(<Input key={component['field_json']['field_key']} className="form-control"
                                     id={component['field_json']['field_key']}
@@ -267,6 +381,7 @@ class EditRecipe extends Component {
                 <div className="row title-row">
                     <h6>COMPONENTS ATTACHED TO THE FOOD COMPUTER</h6>
                 </div>
+
                 <hr/>
                 <div id="container" ref="container"/>
                 <a className="buttona" href="#" onClick={this.handleSubmit}>Submit Recipe</a>

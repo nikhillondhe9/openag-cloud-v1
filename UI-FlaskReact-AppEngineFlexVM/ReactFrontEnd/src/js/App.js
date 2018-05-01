@@ -88,12 +88,13 @@ class App extends Component {
                                             <div className="line"></div>
                                             <div className="line"></div>
                                             <div className="line"></div>
-                                            <div className="label">Recipes</div>
+                                            <div className="label">Climate Recipes</div>
                                         </div>
                                     </Link>
                                 </div>
                                 <div className="col-md-3 icon-holder">
                                     <Link to="/dashboard">
+
                                         <div className="load-1">
                                             <div className="line"></div>
                                             <div className="line"></div>
