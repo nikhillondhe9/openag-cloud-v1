@@ -5,14 +5,15 @@ import os, time, json, argparse, logging, uuid, base64
 from google.oauth2 import service_account
 from googleapiclient import discovery
 
-import firebase_admin
-from firebase_admin import credentials
+# don't need
+#import firebase_admin
+#from firebase_admin import credentials
 
 
 #------------------------------------------------------------------------------
 # Returns an authorized API client by discovering the IoT API 
-# using the service account credentials JSON.
-def getIoTclient( service_account_json ):
+# using the service account credentials JSON file.
+def getIoTclient( path_to_service_account_json ):
     api_scopes = ['https://www.googleapis.com/auth/cloud-platform']
     api_version = 'v1'
     discovery_api = 'https://cloudiot.googleapis.com/$discovery/rest'
@@ -113,7 +114,7 @@ def main():
         #            config.get('cloudUpdateTime'),
         #            config.get('binaryData') ))
         
-# JSON commands array
+# JSON commands array we send to the device
 #{ 
 #    "messageId": "<messageId>",   # number of seconds since epoch
 #    "deviceId": "<deviceId>",     

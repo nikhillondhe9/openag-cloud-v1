@@ -1,29 +1,37 @@
-import json
+import os, time, json, uuid, base64
 from datetime import datetime, timedelta
 import ast
+
+import tweepy
+
 from flask import Flask, request
 from flask import Response
 from flask_cors import CORS
-from google.cloud import datastore
+
 from passlib.hash import pbkdf2_sha256
 from FCClass.user import User
 from FCClass.user_session import UserSession
+
+from google.oauth2 import service_account
+from googleapiclient import discovery
+from google.cloud import datastore
 from google.cloud import bigquery
 
 bigquery_client = bigquery.Client()
-app = Flask(__name__)
-import uuid
-import datetime
 
-import os
-import tweepy
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = './authenticate.json'
+app = Flask(__name__)
+
+
+# Environment variables, set locally for testing and when deployed to gcloud.
+path_to_google_service_account = os.environ['GOOGLE_APPLICATION_CREDENTIALS'] 
+cloud_project_id = os.environ['GCLOUD_PROJECT'] 
+cloud_region = os.environ['GCLOUD_REGION']
+device_registry = os.environ['GCLOUD_DEV_REG']
+
 # Remove this later - Only use it for testing purposes. Not safe to leave it here
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 CORS(app)
 
-# Client id for datastore client
-cloud_project_id = "openag-v1"
 # Datastore client for Google Cloud
 datastore_client = datastore.Client(cloud_project_id)
 
@@ -31,14 +39,185 @@ consumer_key = 'FdGiou6z8drUL39eqg6Hn1iPV'
 consumer_secret = 'k2l8yfWlTBi94Sog1vwU1GLwYVOa1n3Nx6jHhgTKpWJvZB6RBS'
 access_token = '988446389066719232-6qseNlFGS8rvgGZhfCsMJ0KBz65vc4p'
 access_secret = 'CrmXb11uawZHjEfXNyJz4nZl6pIWKxCe0rY1mU7oN2R9X'
+
 #create an OAuthHandler instance
 # Twitter requires all requests to use OAuth for authentication
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-
 auth.set_access_token(access_token, access_secret)
-
- #Construct the API instance
+# Construct the API instance
 api = tweepy.API(auth) # create an API object
+
+
+#------------------------------------------------------------------------------
+# Returns an authorized API client by discovering the IoT API 
+# using the service account credentials JSON file.
+def get_IoT_client( path_to_service_account_json ):
+    api_scopes = ['https://www.googleapis.com/auth/cloud-platform']
+    api_version = 'v1'
+    discovery_api = 'https://cloudiot.googleapis.com/$discovery/rest'
+    service_name = 'cloudiotcore'
+
+    creds = service_account.Credentials.from_service_account_file(
+            path_to_service_account_json )
+    scoped_credentials = creds.with_scopes( api_scopes )
+
+    discovery_url = '{}?version={}'.format(
+            discovery_api, api_version )
+
+    return discovery.build(
+            service_name,
+            api_version,
+            discoveryServiceUrl=discovery_url,
+            credentials=scoped_credentials )
+
+
+#------------------------------------------------------------------------------
+# Get an IoT client using the GCP project (NOT firebase proj!)
+iot_client = get_IoT_client( path_to_google_service_account )
+
+
+#------------------------------------------------------------------------------
+# Convert the UI display fields into a command set for the device.
+# Returns a list of commands.
+def convert_UI_recipe_to_commands( recipe_dict ):
+    print('debugrob convert_UI_recipe_to_commands: recipe_dict={}'.format( recipe_dict ))
+    try:
+
+"""
+#debugrob: what we get from the doc DB query
+recipe_json={'user_token': '212f8049-b423-4e4b-a672-d51bcea682f1', 'components': ['1', '2', '3', '4'], 'template_recipe_uuid': 'db8b5962-9497-41d4-a11a-a4f468914f4f', 'plant_description': 'Not you usual arugula', 'recipe_description': 'Grows Arugula', 'plant_type': 'Wasabi Arugula', 'recipe_name': "Rob's Arugula 2", 'temp_humidity_sht25': '120', 'co2_t6713': '240', 'light_intensity_par': '430', 'undefinedoff_from': '02:00', 'undefinedoff_to': '01:00', 'LED_panel_off_far_red': '23', 'LED_panel_off_red': '13', 'LED_panel_off_warm_white': '13', 'LED_panel_off_green': '14', 'LED_panel_off_cool_white': '14', 'LED_panel_off_blue': '45', 'undefinedon_from': '12:04', 'undefinedon_to': '02:00', 'LED_panel_on_far_red': '24', 'LED_panel_on_red': '23', 'LED_panel_on_warm_white': '13', 'LED_panel_on_green': '13', 'LED_panel_on_cool_white': '134', 'LED_panel_on_blue': '134'}
+
+"""
+
+#debugrob: look for the following fields in the recipe_dict (OK if missing)
+# temp_humidity_sht25 (val is publish secs)
+# co2_t6713 (val is publish secs)
+#
+# LED vals are 0 to 254
+# LED_panel_off_far_red
+# LED_panel_off_red
+# LED_panel_off_warm_white
+# LED_panel_off_green
+# LED_panel_off_cool_white
+# LED_panel_off_blue
+# 
+# LED_panel_on_far_red
+# LED_panel_on_red
+# LED_panel_on_warm_white
+# LED_panel_on_green
+# LED_panel_on_cool_white
+# LED_panel_on_blue
+#
+# undefinedoff_from (val is off time)
+# undefinedon_from (val is on time)
+
+#debugrob: returning this hard coded set of commands WORKS!  yay
+        return_list = []
+        cmd = {} 
+        cmd['command'] = 'RESET'  # always the first command.
+        cmd['arg0'] = '0'
+        cmd['arg1'] = '0'
+        return_list = [cmd]
+
+        cmd = {} 
+        cmd['command'] = 'LoadRecipeIntoVariable'
+        cmd['arg0'] = 'co2_t6713'
+        cmd['arg1'] = '{ "dtype": "4", "measurement_period_ms": "60000", "num_cycles": "1", "cycles": [ { "num_steps": "1", "num_repeats": "28", "steps": [ { "set_point": "0", "duration": "86400" } ] } ] }' 
+        return_list.append( cmd )
+
+        cmd = {} 
+        cmd['command'] = 'AddVariableToTreatment'
+        cmd['arg0'] = '0'
+        cmd['arg1'] = 'co2_t6713'
+        return_list.append( cmd )
+
+        cmd = {} 
+        cmd['command'] = 'LoadRecipeIntoVariable'
+        cmd['arg0'] = 'LED_panel'
+        cmd['arg1'] = '{ "dtype": "10", "measurement_period_ms": "500", "num_cycles": "1", "curr_cycle": "0", "cycles": [ { "num_steps": "62", "num_repeats": "60", "curr_step": "0", "curr_repeat": "0", "steps": [ { "set_point": ["255","255","255","255","255","255"], "duration": "1" }, { "set_point": ["255","180","255","255","255","255"], "duration": "1" }, { "set_point": ["255","150","255","255","255","255"], "duration": "1" }, { "set_point": ["255","100","255","255","255","255"], "duration": "1" }, { "set_point": ["255","50","255","255","255","255"], "duration": "1" }, { "set_point": ["255","0","255","255","255","255"], "duration": "1" }, { "set_point": ["255","50","255","255","255","255"], "duration": "1" }, { "set_point": ["255","100","255","255","255","255"], "duration": "1" }, { "set_point": ["255","150","255","255","255","255"], "duration": "1" }, { "set_point": ["255","180","255","255","255","255"], "duration": "1" }, { "set_point": ["255","255","255","255","255","255"], "duration": "1" }, { "set_point": ["255","255","180","255","255","255"], "duration": "1" }, { "set_point": ["255","255","150","255","255","255"], "duration": "1" }, { "set_point": ["255","255","100","255","255","255"], "duration": "1" }, { "set_point": ["255","255","50","255","255","255"], "duration": "1" }, { "set_point": ["255","255","0","255","255","255"], "duration": "1" }, { "set_point": ["255","255","50","255","255","255"], "duration": "1" }, { "set_point": ["255","255","100","255","255","255"], "duration": "1" }, { "set_point": ["255","255","150","255","255","255"], "duration": "1" }, { "set_point": ["255","255","180","255","255","255"], "duration": "1" }, { "set_point": ["255","255","255","255","255","255"], "duration": "1" }, { "set_point": ["255","255","255","180","255","255"], "duration": "1" }, { "set_point": ["255","255","255","150","255","255"], "duration": "1" }, { "set_point": ["255","255","255","100","255","255"], "duration": "1" }, { "set_point": ["255","255","255","50","255","255"], "duration": "1" }, { "set_point": ["255","255","255","0","255","255"], "duration": "1" }, { "set_point": ["255","255","255","50","255","255"], "duration": "1" }, { "set_point": ["255","255","255","100","255","255"], "duration": "1" }, { "set_point": ["255","255","255","150","255","255"], "duration": "1" }, { "set_point": ["255","255","255","180","255","255"], "duration": "1" }, { "set_point": ["255","255","255","255","255","255"], "duration": "1" }, { "set_point": ["255","255","255","255","180","255"], "duration": "1" }, { "set_point": ["255","255","255","255","150","255"], "duration": "1" }, { "set_point": ["255","255","255","255","100","255"], "duration": "1" }, { "set_point": ["255","255","255","255","50","255"], "duration": "1" }, { "set_point": ["255","255","255","255","0","255"], "duration": "1" }, { "set_point": ["255","255","255","255","50","255"], "duration": "1" }, { "set_point": ["255","255","255","255","100","255"], "duration": "1" }, { "set_point": ["255","255","255","255","150","255"], "duration": "1" }, { "set_point": ["255","255","255","255","180","255"], "duration": "1" }, { "set_point": ["255","255","255","255","255","255"], "duration": "1" }, { "set_point": ["255","255","255","255","255","180"], "duration": "1" }, { "set_point": ["255","255","255","255","255","150"], "duration": "1" }, { "set_point": ["255","255","255","255","255","100"], "duration": "1" }, { "set_point": ["255","255","255","255","255","50"], "duration": "1" }, { "set_point": ["255","255","255","255","255","0"], "duration": "1" }, { "set_point": ["255","255","255","255","255","50"], "duration": "1" }, { "set_point": ["255","255","255","255","255","100"], "duration": "1" }, { "set_point": ["255","255","255","255","255","150"], "duration": "1" }, { "set_point": ["255","255","255","255","255","180"], "duration": "1" }, { "set_point": ["255","255","255","255","255","255"], "duration": "1" }, { "set_point": ["180","255","255","255","255","255"], "duration": "1" }, { "set_point": ["150","255","255","255","255","255"], "duration": "1" }, { "set_point": ["100","255","255","255","255","255"], "duration": "1" }, { "set_point": ["50","255","255","255","255","255"], "duration": "1" }, { "set_point": ["0","255","255","255","255","255"], "duration": "1" }, { "set_point": ["50","255","255","255","255","255"], "duration": "1" }, { "set_point": ["100","255","255","255","255","255"], "duration": "1" }, { "set_point": ["150","255","255","255","255","255"], "duration": "1" }, { "set_point": ["150","255","255","255","255","255"], "duration": "1" }, { "set_point": ["255","255","255","255","255","255"], "duration": "1" }, { "set_point": ["255","255","255","255","255","255"], "duration": "1" } ] } ] }'
+        return_list.append( cmd )
+
+        cmd = {} 
+        cmd['command'] = 'AddVariableToTreatment'
+        cmd['arg0'] = '0'
+        cmd['arg1'] = 'LED_panel'
+        return_list.append( cmd )
+
+        cmd = {} 
+        cmd['command'] = 'RunTreatment'
+        cmd['arg0'] = '0'
+        cmd['arg1'] = '0'
+        return_list.append( cmd )
+
+        return return_list
+    except( Exception ) as e:
+        print( "Exception in convert_UI_recipe_to_commands", e )
+
+
+
+#------------------------------------------------------------------------------
+def send_recipe_to_device_via_IoT( iot_client, device_id, commands_list ):
+
+    # get the latest config version number (int) for this device
+    device_path = \
+        'projects/{}/locations/{}/registries/{}/devices/{}'.format(
+            cloud_project_id, cloud_region, device_registry, device_id )
+    devices = iot_client.projects().locations().registries().devices()
+    configs = devices.configVersions().list( name=device_path 
+            ).execute().get( 'deviceConfigs', [] )
+
+    latestVersion = 1 # the first / default version
+    if 0 < len( configs ):
+        latestVersion = configs[0].get('version')
+        print('latest version: {}\n\tcloudUpdateTime: {}\n' \
+            '\tbinaryData: {}'.format(
+                configs[0].get('version'),
+                configs[0].get('cloudUpdateTime'),
+                configs[0].get('binaryData') ))
+
+    # JSON commands array we send to the device
+    #{ 
+    #    "messageId": "<messageId>",   # number of seconds since epoch
+    #    "deviceId": "<deviceId>",     
+    #    "commands": [
+    #        { 
+    #            "command": "<command>", 
+    #            "arg0": "<arg0>", 
+    #            "arg1": "<arg1>"
+    #        },
+    #        { 
+    #            "command": "<command>", 
+    #            "arg0": "<arg0>", 
+    #            "arg1": "<arg1>"
+    #        }
+    #    ]
+    #}
+
+    # can only update the LATEST version!  (so get it first)
+    version = latestVersion
+
+    # send a config message to a device
+    config = {} # a python dict
+    config['lastConfigVersion'] = str( version )
+    config['messageId'] = str( int( time.time() )) # epoch seconds as message ID
+    config['deviceId'] = str( device_id )
+    config['commands'] = commands_list
+
+    config_json = json.dumps( config ) # dict to JSON string
+    print('config payload: {}'.format( config_json ))
+
+    config_body = {
+        'versionToUpdate': version,
+        'binaryData': base64.urlsafe_b64encode(
+            config_json.encode('utf-8')).decode('ascii')
+    }
+    res = iot_client.projects().locations().registries().devices(
+            ).modifyCloudToDeviceConfig(
+                name=device_path, body=config_body ).execute()
+    print('config update result: {}'.format( res ))
+
+
+#------------------------------------------------------------------------------
 # api.update_status('Test status')
 @app.route('/api/register/', methods=['GET', 'POST'])
 def register():
@@ -172,7 +351,7 @@ def login():
 
 @app.route('/api/get_user_devices/', methods=['GET', 'POST'])
 def get_user_devices():
-    print("Fetching all the user deivces")
+    print("Fetching all the user devices")
 
     received_form_response = json.loads(request.data)
 
@@ -199,8 +378,10 @@ def get_user_devices():
     results_array = []
     if len(results) > 0:
         for result_row in results:
+            device_id = result_row.get("device_uuid", "");
+            print('  {}'.format( device_id ))
             result_json = {
-                'device_uuid': result_row.get("device_uuid", ""),
+                'device_uuid': device_id,
                 'device_notes': result_row.get("device_notes", ""),
                 'device_type': result_row.get("device_type", ""),
                 'device_reg_no': result_row.get("device_reg_no", ""),
@@ -237,6 +418,7 @@ def get_all_recipes():
     user_uuid = None
     if len(query_session_result) > 0:
         user_uuid = query_session_result[0].get("user_uuid", None)
+
     # Get the user devices and pass that information to the front end too
     query = datastore_client.query(kind='Devices')
     query.add_filter('user_uuid', '=', user_uuid)
@@ -257,10 +439,10 @@ def get_all_recipes():
             }
             devices.append(device_json)
 
+    # Get all recipes
     query = datastore_client.query(kind='Recipes')
     query_result = list(query.fetch())
     results = list(query_result)
-
     results_array = []
     if len(results) > 0:
         for result_row in results:
@@ -338,7 +520,8 @@ def get_recipe_components():
             query.add_filter('component_id', '=', int(component_id))
             query_result = list(query.fetch())
             results = list(query_result)
-
+            print("My Component results")
+            print(results)
             if len(results) > 0:
                 for result_row in results:
                     result_json = {
@@ -351,7 +534,7 @@ def get_recipe_components():
                         'modified_at': result_row.get("modified_at", "").strftime("%Y-%m-%d %H:%M:%S")
                     }
                     components_array.append(result_json)
-
+                    print("Components arrau")
     data = json.dumps({
         "response_code": 200,
         "results": components_array,
@@ -374,7 +557,9 @@ def save_recipe():
     modified_at = datetime.now()
     user_token = received_form_response.get("user_token", None)
     components = recipe_json.get("components", [])
-
+    print("SAV")
+    print("")
+    print(components)
     if user_token is None or recipe_json is None or recipe_name is None:
         result = Response({"message": "Please make sure you have added values for all the fields"}, status=500,
                           mimetype='application/json')
@@ -535,7 +720,10 @@ def get_co2_details():
 def get_temp_details():
     past_day_date = (datetime.datetime.now() - datetime.timedelta(hours=24))
     current_date = datetime.datetime.utcnow()
-
+    print("Past day date")
+    print(past_day_date)
+    print("Current date")
+    print(current_date)
     # received_form_response = json.loads(request.data)
     job_config = bigquery.QueryJobConfig()
 
@@ -572,7 +760,7 @@ SELECT
     }
     for row in list(query_result):
         # print("{} : {} views".format(row.row_values,row.eastern_time))
-
+        print(row[3])
         values_json = (ast.literal_eval(row[3]))
         if "values" in values_json:
             values = values_json["values"]
@@ -619,6 +807,7 @@ def get_led_panel():
     temp_array = []
     result_json = []
     for row in query_result:
+        # print("{} : {} views".format(row.row_values,row.eastern_time))
 
         values_json = (ast.literal_eval(row.row_values))
         if "values" in values_json:
@@ -626,7 +815,7 @@ def get_led_panel():
             if len(values) >0 :
                 result_json.append({'value':values[0]['value'],'time':row.eastern_time})
 
-
+    print(result_json)
     data = json.dumps({
         "response_code": 200,
         "results":result_json
@@ -636,6 +825,29 @@ def get_led_panel():
     return result
 
 
+#------------------------------------------------------------------------------
+# Send the current recipe to the device.
+def send_recipe_to_device( device_id, recipe_uuid ):
+    print('send_recipe_to_device: dev={} rec={}'.format( 
+        device_id, recipe_uuid ))
+    # Get the specified recipe
+    query = datastore_client.query( kind='Recipes' )
+    query.add_filter( 'recipe_uuid', '=', recipe_uuid )
+    query_result = list( query.fetch())
+    results = list( query_result )
+    recipe_json = {} # empty dict
+    if len( results ) == 0:
+        return
+    # Process the result
+    recipe_json = results[0].get( "recipe_json", {} )
+    recipe_dict = json.loads( recipe_json )
+    # UI components of a climate recipe into what the Cbrain expects
+    commands_list = convert_UI_recipe_to_commands( recipe_dict )
+    send_recipe_to_device_via_IoT( iot_client, device_id, commands_list )
+
+
+#------------------------------------------------------------------------------
+# Save the device history.
 @app.route('/api/apply_to_device/', methods=['GET', 'POST'])
 def apply_to_device():
     received_form_response = json.loads(request.data)
@@ -645,9 +857,24 @@ def apply_to_device():
     user_token = received_form_response.get("user_token", None)
     date_applied = datetime.now()
 
+    # send the recipe to the device
+    send_recipe_to_device( device_uuid, recipe_uuid )
+
     # Add the user to the users kind of entity
     key = datastore_client.key('DeviceHistory')
 
+    # check if the device already has a valid history
+    # device_query = datastore_client.query(kind='DeviceHistory')
+    # device_query.add_filter('device_uuid', '=', device_uuid)
+    # #Fetch any records added before today
+    # device_query.add_filter('date_applied', '<=', datetime.now())
+    # device_query_result = list(device_query.fetch())
+    #
+    # if len(device_query_result) > 0:
+    #     for result in device_query_result:
+    #         if result["date_expired"] > datetime.now():
+    #
+    # Indexes every other column except the description
     apply_to_device_task = datastore.Entity(key, exclude_from_indexes=[])
 
     if device_uuid is None or recipe_uuid is None or user_token is None:

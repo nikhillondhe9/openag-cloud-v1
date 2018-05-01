@@ -97,9 +97,15 @@ class recipes extends Component {
                 console.log(responseJson)
                 if (responseJson["response_code"] == 200) {
                     this.setState({all_recipes: responseJson["results"]})
-                    this.setState({devices:responseJson["devices"]})
-                }
+                    this.setState({devices: responseJson["devices"]})
 
+                    var devs = [];                  // make array
+                    devs = responseJson["devices"]; // assign array
+                    if( devs.length > 0 ) {         // if we have devices
+                        // default the selected device to the first/only dev.
+                        this.state.selected_device_uuid = devs[0].device_uuid;
+                    }
+                }
             })
             .catch((error) => {
                 console.error(error);

@@ -1,7 +1,15 @@
-runtime: python27
 service: flaskapi
+runtime: custom
+env: flex
 api_version: 1
 threadsafe: true
+runtime_config:
+  python_version: 3
+
+env_variables:
+  GCLOUD_PROJECT: openag-v1
+  GCLOUD_DEV_REG: device-registry
+  GCLOUD_REGION: us-central1
 
 handlers:
 - url: /static
