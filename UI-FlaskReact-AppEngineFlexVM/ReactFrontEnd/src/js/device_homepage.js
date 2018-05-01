@@ -1,21 +1,14 @@
 import React, {Component} from 'react';
-
 import '../css/device_homepage.css';
 import {Cookies, withCookies} from "react-cookie";
-// import Plot from 'react-plotly.js';
 import * as d3 from "d3";
-import createReactClass from "create-react-class";
-import PropTypes from "prop-types";
 import 'rc-slider/assets/index.css';
 import 'rc-tooltip/assets/bootstrap.css';
 import Tooltip from 'rc-tooltip';
 import Slider from 'rc-slider';
-import {Dropdown, DropdownToggle, DropdownMenu, DropdownItem} from 'reactstrap';
+import {Dropdown, DropdownItem, DropdownMenu, DropdownToggle} from 'reactstrap';
 import {$, jQuery} from 'jquery';
-// export for others scripts to use
-import Draggable from 'react-draggable'; // The default
-import {DraggableCore} from 'react-draggable'; // <DraggableCore>
-// import React from 'react';
+import Draggable from 'react-draggable';
 import Plot from 'react-plotly.js';
 
 const createSliderWithTooltip = Slider.createSliderWithTooltip;
@@ -451,7 +444,7 @@ class DeviceHomepage extends Component {
         return (
             <div className="home-container">
                 <div className="row dropdown-row">
-
+            <div className="col-md6">
                     <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}
                               className="row dropdow-row">
                         <DropdownToggle caret>
@@ -461,7 +454,8 @@ class DeviceHomepage extends Component {
                             {listDevices}
                         </DropdownMenu>
                     </Dropdown>
-
+            </div>
+                    <div className="col-md6"><button>Apply Changes</button></div>
                 </div>
                 <div className="row graphs-row">
                     <Draggable cancel="strong">

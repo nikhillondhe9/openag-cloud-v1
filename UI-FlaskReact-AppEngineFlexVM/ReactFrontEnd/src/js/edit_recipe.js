@@ -1,10 +1,11 @@
 import React, {Component} from 'react';
 import '../css/edit_recipe.css';
-import {Form, FormGroup, Input} from 'reactstrap';
+import {Input} from 'reactstrap';
 import ReactDOM from 'react-dom';
 import Slider from 'rc-slider';
 import Tooltip from 'rc-tooltip';
 import {Cookies, withCookies} from "react-cookie";
+
 const createSliderWithTooltip = Slider.createSliderWithTooltip;
 const Range = createSliderWithTooltip(Slider.Range);
 const Handle = Slider.Handle;
