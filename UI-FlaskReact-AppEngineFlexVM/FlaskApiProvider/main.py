@@ -338,8 +338,7 @@ def get_recipe_components():
             query.add_filter('component_id', '=', int(component_id))
             query_result = list(query.fetch())
             results = list(query_result)
-            print("My Component results")
-            print(results)
+
             if len(results) > 0:
                 for result_row in results:
                     result_json = {
@@ -352,7 +351,7 @@ def get_recipe_components():
                         'modified_at': result_row.get("modified_at", "").strftime("%Y-%m-%d %H:%M:%S")
                     }
                     components_array.append(result_json)
-                    print("Components arrau")
+
     data = json.dumps({
         "response_code": 200,
         "results": components_array,
@@ -375,9 +374,7 @@ def save_recipe():
     modified_at = datetime.now()
     user_token = received_form_response.get("user_token", None)
     components = recipe_json.get("components", [])
-    print("SAV")
-    print("")
-    print(components)
+
     if user_token is None or recipe_json is None or recipe_name is None:
         result = Response({"message": "Please make sure you have added values for all the fields"}, status=500,
                           mimetype='application/json')
@@ -538,10 +535,7 @@ def get_co2_details():
 def get_temp_details():
     past_day_date = (datetime.datetime.now() - datetime.timedelta(hours=24))
     current_date = datetime.datetime.utcnow()
-    print("Past day date")
-    print(past_day_date)
-    print("Current date")
-    print(current_date)
+
     # received_form_response = json.loads(request.data)
     job_config = bigquery.QueryJobConfig()
 
@@ -578,7 +572,7 @@ SELECT
     }
     for row in list(query_result):
         # print("{} : {} views".format(row.row_values,row.eastern_time))
-        print(row[3])
+
         values_json = (ast.literal_eval(row[3]))
         if "values" in values_json:
             values = values_json["values"]
@@ -625,7 +619,6 @@ def get_led_panel():
     temp_array = []
     result_json = []
     for row in query_result:
-        # print("{} : {} views".format(row.row_values,row.eastern_time))
 
         values_json = (ast.literal_eval(row.row_values))
         if "values" in values_json:
@@ -633,7 +626,7 @@ def get_led_panel():
             if len(values) >0 :
                 result_json.append({'value':values[0]['value'],'time':row.eastern_time})
 
-    print(result_json)
+
     data = json.dumps({
         "response_code": 200,
         "results":result_json
@@ -655,18 +648,6 @@ def apply_to_device():
     # Add the user to the users kind of entity
     key = datastore_client.key('DeviceHistory')
 
-    # check if the device already has a valid history
-    # device_query = datastore_client.query(kind='DeviceHistory')
-    # device_query.add_filter('device_uuid', '=', device_uuid)
-    # #Fetch any records added before today
-    # device_query.add_filter('date_applied', '<=', datetime.now())
-    # device_query_result = list(device_query.fetch())
-    #
-    # if len(device_query_result) > 0:
-    #     for result in device_query_result:
-    #         if result["date_expired"] > datetime.now():
-    #
-    # Indexes every other column except the description
     apply_to_device_task = datastore.Entity(key, exclude_from_indexes=[])
 
     if device_uuid is None or recipe_uuid is None or user_token is None:
