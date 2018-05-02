@@ -40,21 +40,21 @@ const handle = (props) => {
 const showSecond = true;
 const str = showSecond ? 'HH:mm:ss' : 'HH:mm';
 const displayNamesLookup = {
-    "cool_white":"Cool White",
-    "warm_white":"Warm White",
+    "cool_white": "Cool White",
+    "warm_white": "Warm White",
     "blue": "Blue",
-    "far_red":"Far Red",
-    "green":"Green",
-    "red":"Red",
-    "sensor_rh":"Relative Humidity Publish Frequency",
-    "sensor_temp":"Temperature Publish Frequency",
-    "sensor_co2":"CO2 Sensor Publish Frequency",
-    "led_on_from":"LED ON From",
-    "led_on_to":"LED ON to",
-    "led_off_from":"LED OFF From",
-    "led_off_to":"LED OFF To",
-    "led_on_data":"LED ON",
-    "led_off_data":"LED OFF"
+    "far_red": "Far Red",
+    "green": "Green",
+    "red": "Red",
+    "sensor_rh": "Relative Humidity Publish Frequency",
+    "sensor_temp": "Temperature Publish Frequency",
+    "sensor_co2": "CO2 Sensor Publish Frequency",
+    "led_on_from": "LED ON From",
+    "led_on_to": "LED ON to",
+    "led_off_from": "LED OFF From",
+    "led_off_to": "LED OFF To",
+    "led_on_data": "LED ON",
+    "led_off_data": "LED OFF"
 
 }
 
@@ -88,6 +88,7 @@ class DeviceHomepage extends Component {
             led_data: [],
             temp_data: [],
             temp_layout: {title: '', width: 1, height: 1},
+            led_layout: {title: '', width: 1, height: 1},
             rh_layout: {title: '', width: 1, height: 1},
             co2_layout: {title: '', width: 1, height: 1},
             show_temp_line: false,
@@ -98,7 +99,7 @@ class DeviceHomepage extends Component {
             recipe_name: '',
             recipe_link: '',
             modal: false,
-            changes:{}
+            changes: {}
         };
         this.child = {
             console: Console
@@ -147,7 +148,7 @@ class DeviceHomepage extends Component {
         this.getTempDetails();
         this.getCO2Details();
         this.getCurrentStats();
-        // this.getLEDPanel();
+        this.getLEDPanel();
     }
 
     sliderChange(led_data_type, color_channel, value) {
@@ -178,7 +179,7 @@ class DeviceHomepage extends Component {
         }
         this.changes[e.target.name] = e.target.value;
         this.setState({changes: this.changes})
-        console.log("I set to ",this.changes)
+        console.log("I set to ", this.changes)
         this.setState({[e.target.name]: e.target.value})
 
     }
@@ -239,7 +240,7 @@ class DeviceHomepage extends Component {
 
                     var devs = [];                  // make array
                     devs = responseJson["results"]; // assign array
-                    if( devs.length > 0 ) {         // if we have devices
+                    if (devs.length > 0) {         // if we have devices
                         // default the selected device to the first/only dev.
                         this.state.selected_device_uuid = devs[0].device_uuid;
                     }
@@ -301,32 +302,14 @@ class DeviceHomepage extends Component {
 
                     this.setState({
                         'co2_layout': {
-
                             width: 650,
-                            height: 500,
+                            height: 520,
                             xaxis: {
                                 autorange: true,
-                                range: ['2018-03-27 14:11:45', '2018-04-28 14:11:45'],
-                                rangeselector: {
-                                    buttons: [
-                                        {
-                                            count: 30,
-                                            label: 'Last Month',
-                                            step: 'time',
-                                            stepmode: 'backward'
-                                        },
-                                        {
-                                            count: 7,
-                                            label: 'Last Week',
-                                            step: 'time',
-                                            stepmode: 'backward'
-                                        },
-                                        {step: 'all'}
-                                    ]
-                                },
-                                rangeslider: {range: ['2018-03-28 14:11:45', '2018-04-28 14:11:45']},
-                                type: 'date',
-                                tickformat: '%Y-%m-%d %H:%M:%S'
+                                tickformat: '%Y-%m-%d %H:%M:%S',
+                                rangeslider: {
+                                    type: 'date'
+                                }
                             },
                             yaxis: {
                                 autorange: true,
@@ -362,6 +345,11 @@ class DeviceHomepage extends Component {
                     var formatTime = d3.timeFormat("%Y-%m-%d %H:%M:%S");
                     let tempData = responseJson["results"]["temp"]
                     let RHData = responseJson["results"]["RH"]
+                    let temp_min = formatTime(parseTime(responseJson["temp_min"]))
+                    let temp_max = formatTime(parseTime((responseJson["temp_max"])))
+                    let rh_min = formatTime(parseTime(responseJson["rh_min"]))
+                    let rh_max = formatTime(parseTime((responseJson["rh_max"])))
+
                     tempData.forEach(function (d) {
                         d.time = formatTime(parseTime(d.time));
                         d.value = parseFloat(d.value);
@@ -391,32 +379,14 @@ class DeviceHomepage extends Component {
 
                     this.setState({
                         'rh_layout': {
-
                             width: 650,
-                            height: 500,
+                            height: 520,
                             xaxis: {
                                 autorange: true,
-                                range: ['2018-03-20 14:11:45', '2018-04-20 14:11:45'],
-                                rangeselector: {
-                                    buttons: [
-                                        {
-                                            count: 30,
-                                            label: 'Last Month',
-                                            step: 'time',
-                                            stepmode: 'backward'
-                                        },
-                                        {
-                                            count: 7,
-                                            label: 'Last Week',
-                                            step: 'time',
-                                            stepmode: 'backward'
-                                        },
-                                        {step: 'all'}
-                                    ]
-                                },
-                                rangeslider: {range: ['2018-03-20 14:11:45', '2018-04-20 14:11:45']},
-                                type: 'date',
-                                tickformat: '%Y-%m-%d %H:%M:%S'
+                                tickformat: '%Y-%m-%d %H:%M:%S',
+                                rangeslider: {
+                                    type: 'date'
+                                }
                             },
                             yaxis: {
                                 autorange: true,
@@ -446,30 +416,13 @@ class DeviceHomepage extends Component {
                     this.setState({
                         'temp_layout': {
                             width: 650,
-                            height: 500,
+                            height: 520,
                             xaxis: {
                                 autorange: true,
-                                range: ['2018-03-27 14:11:45', '2018-04-28 14:11:45'],
-                                rangeselector: {
-                                    buttons: [
-                                        {
-                                            count: 30,
-                                            label: 'Last Month',
-                                            step: 'time',
-                                            stepmode: 'backward'
-                                        },
-                                        {
-                                            count: 7,
-                                            label: 'Last Week',
-                                            step: 'time',
-                                            stepmode: 'backward'
-                                        },
-                                        {step: 'all'}
-                                    ]
-                                },
-                                rangeslider: {range: ['2018-03-28 14:11:45', '2018-04-28 14:11:45']},
-                                type: 'date',
-                                tickformat: '%Y-%m-%d %H:%M:%S'
+                                tickformat: '%Y-%m-%d %H:%M:%S',
+                                rangeslider: {
+                                    type: 'date'
+                                }
                             },
                             yaxis: {
                                 autorange: true,
@@ -478,11 +431,9 @@ class DeviceHomepage extends Component {
                         }
                     });
 
-
-                    console.log("x", temp_data_x)
                     this.setState({'show_temp_line': true})
                     this.setState({'rh_data': RHData})
-                    // this.setState({'rh_data': responseJson["results"]['RH']})
+
                 }
 
             })
@@ -502,11 +453,100 @@ class DeviceHomepage extends Component {
         })
             .then((response) => response.json())
             .then((responseJson) => {
-                console.log(responseJson)
+                console.log("LED DATA",responseJson["results"])
                 if (responseJson["response_code"] == 200) {
-                    console.log("led panel", responseJson["results"])
-                }
 
+                    let parseTime = d3.timeParse("%a %b %d %I:%M:%S %Y");
+                    var formatTime = d3.timeFormat("%Y-%m-%d %H:%M:%S");
+                    let ledData = responseJson["results"]
+                    ledData.forEach(function (d) {
+                        d.time = formatTime(parseTime(d.time));
+                        d.value = [d.cool_white,d.warm_white,d.blue,d.red,d.green,d.far_red];
+                    });
+
+                    let led_data_x = []
+                    let led_data_cool_white = []
+                    let led_data_warm_white = []
+                    let led_data_blue = []
+                    let led_data_red = []
+                    let led_data_green = []
+                    let led_data_far_red = []
+
+                    ledData.forEach(function (d) {
+                        led_data_x.push(d.time);
+                        led_data_cool_white.push(d.cool_white);
+                        led_data_warm_white.push(d.warm_white);
+                        led_data_blue.push(d.blue);
+                        led_data_red.push(d.red);
+                        led_data_green.push(d.green);
+                        led_data_far_red.push(d.far_red);
+                    });
+
+                    this.setState({
+                        'led_data': [{
+                            type: "scatter",
+                            mode: "lines+markers",
+                            name: 'AAPL High',
+                            x: led_data_x,
+                            y: led_data_cool_white,
+                            line: {color: '#f5f5f5'}
+                        },{
+                            type: "scatter",
+                            mode: "lines+markers",
+                            name: 'AAPL High',
+                            x: led_data_x,
+                            y: led_data_warm_white,
+                            line: {color: '#efebd8'}
+                        },{
+                            type: "scatter",
+                            mode: "lines+markers",
+                            name: 'AAPL High',
+                            x: led_data_x,
+                            y: led_data_blue,
+                            line: {color: '#0000ff'}
+                        },{
+                            type: "scatter",
+                            mode: "lines+markers",
+                            name: 'AAPL High',
+                            x: led_data_x,
+                            y: led_data_red,
+                            line: {color: '#ff0000'}
+                        },{
+                            type: "scatter",
+                            mode: "lines+markers",
+                            name: 'AAPL High',
+                            x: led_data_x,
+                            y: led_data_green,
+                            line: {color: '#00ff00'}
+                        },{
+                            type: "scatter",
+                            mode: "lines+markers",
+                            name: 'AAPL High',
+                            x: led_data_x,
+                            y: led_data_far_red,
+                            line: {color: '#960000'}
+                        }]
+                    });
+
+                    this.setState({
+                        'led_layout': {
+                            width: 650,
+                            height: 520,
+                            xaxis: {
+                                autorange: true,
+                                tickformat: '%Y-%m-%d %H:%M:%S',
+                                rangeslider: {
+                                    type: 'date'
+                                }
+                            },
+                            yaxis: {
+                                autorange: true,
+                                type: 'linear'
+                            }
+                        }
+                    });
+
+                }
             })
             .catch((error) => {
                 console.error(error);
@@ -547,8 +587,7 @@ class DeviceHomepage extends Component {
         console.log("Current State", this.state)
     }
 
-    handleApplySubmit()
-    {
+    handleApplySubmit() {
         return fetch('http://food.computer.com:5000/api/submit_recipe_change/', {
             method: 'POST',
             headers: {
@@ -560,7 +599,7 @@ class DeviceHomepage extends Component {
                 'user_uuid': this.state.user_uuid,
                 'user_token': this.props.cookies.get('user_token'),
                 "recipe_state": this.state,
-                "selected_device_uuid": this.state.selected_device_uuid 
+                "selected_device_uuid": this.state.selected_device_uuid
             })
         })
             .then((response) => response.json())
@@ -572,6 +611,7 @@ class DeviceHomepage extends Component {
                 console.error(error);
             });
     }
+
     render() {
         const margin = {top: 20, right: 20, bottom: 30, left: 50};
         let listDevices = <p>Loading</p>
@@ -584,22 +624,22 @@ class DeviceHomepage extends Component {
 
         }
         let changesList = []
-        let changeJson  = this.state.changes;
-        if(this.state.changes) {
+        let changeJson = this.state.changes;
+        if (this.state.changes) {
             changesList = Object.keys(changeJson).map(function (keyName, keyIndex) {
 
-                if(keyName !== "led_on_data" && keyName !== "led_off_data") {
-                    return <div className="row"><p key={keyName}>{displayNamesLookup[keyName]} : {changeJson[keyName].toString()}</p><br/></div>
+                if (keyName !== "led_on_data" && keyName !== "led_off_data") {
+                    return <div className="row"><p key={keyName}>{displayNamesLookup[keyName]}
+                        : {changeJson[keyName].toString()}</p><br/></div>
                 }
-                else if((keyName === "led_on_data" || keyName === "led_off_data") && changeJson[keyName])
-                {
+                else if ((keyName === "led_on_data" || keyName === "led_off_data") && changeJson[keyName]) {
 
 
                     let list_led = [<p key={keyName}>Color channel information for {displayNamesLookup[keyName]}</p>]
                     let json_data = changeJson[keyName]
                     let colorsJson = []
                     colorsJson = Object.keys(json_data).map(function (keyName, keyIndex) {
-                        return <p key={keyName} >{displayNamesLookup[keyName]} : {json_data[keyName]}</p>
+                        return <p key={keyName}>{displayNamesLookup[keyName]} : {json_data[keyName]}</p>
                     })
                     list_led.push(colorsJson);
                     return list_led
@@ -1007,8 +1047,8 @@ class DeviceHomepage extends Component {
                                     <h4 className="card-title "> Relative Humidity Sensor </h4>
 
                                     <div className="row">
-                                        <strong className="no-cursor"> <Plot data={this.state.temp_data}
-                                                                             layout={this.state.temp_layout}
+                                        <strong className="no-cursor"> <Plot data={this.state.rh_data}
+                                                                             layout={this.state.rh_layout}
                                                                              onInitialized={(figure) => this.setState(figure)}
                                                                              onUpdate={(figure) => this.setState(figure)}/>
                                         </strong>
@@ -1037,6 +1077,24 @@ class DeviceHomepage extends Component {
                             </div>
                         </div>
                     </Draggable>
+                    <Draggable cancel="strong">
+                        <div className="col-md-6">
+                            <div className="card value-card">
+                                <div className="card-block">
+                                    <h4 className="card-title "> LED Panel History </h4>
+
+                                    <div className="row">
+                                        <strong className="no-cursor"> <Plot data={this.state.led_data}
+                                                                             layout={this.state.led_layout}
+                                                                             onInitialized={(figure) => this.setState(figure)}
+                                                                             onUpdate={(figure) => this.setState(figure)}
+                                                                             config={this.state.config}/>
+                                        </strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </Draggable>
                 </div>
                 <Modal isOpen={this.state.modal} toggle={this.modalToggle} className={this.props.className}>
                     <ModalHeader toggle={this.toggle}>Apply Recipe Changes</ModalHeader>
@@ -1044,7 +1102,7 @@ class DeviceHomepage extends Component {
                     <ModalBody>
                         Are you sure you want to apply these changes to your device ?
                         <div>
-                        {changesList}
+                            {changesList}
                         </div>
 
                     </ModalBody>

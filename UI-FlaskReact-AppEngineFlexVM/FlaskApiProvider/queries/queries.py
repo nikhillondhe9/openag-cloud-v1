@@ -65,3 +65,20 @@ fetch_led_panel_history = """SELECT
   AND 'LED_panel' = REGEXP_EXTRACT(id, r'(?:[^\~]*\~){3}([^~]*)')
   ORDER BY REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)') DESC 
   LIMIT 50"""
+
+current_status_query = """#standardsql
+        SELECT
+          FORMAT_TIMESTAMP( '%c', TIMESTAMP( REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)')), 'America/New_York') as eastern_time,
+          REGEXP_EXTRACT(id, r'(?:[^\~]*\~){3}([^~]*)') as var,
+          REGEXP_EXTRACT(id, r'(?:[^\~]*\~){5}([^~]*)') as device,  #replace the last '~' with a '-' to only show up to the -
+          values
+
+          FROM test.vals
+
+          WHERE 'co2_t6713' = REGEXP_EXTRACT(id, r'(?:[^\~]*\~){3}([^~]*)')
+
+          AND TIMESTAMP( REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)')) <= TIMESTAMP(CURRENT_DATE())
+          AND TIMESTAMP( REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)')) >= TIMESTAMP(DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY))
+
+          ORDER BY REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)') DESC 
+          LIMIT 1"""

@@ -565,8 +565,7 @@ def get_recipe_components():
                 query.add_filter('component_id', '=', int(component_id))
                 query_result = list(query.fetch())
                 results = list(query_result)
-                print("My Component results")
-                print(results)
+
                 if len(results) > 0:
                     for result_row in results:
                         result_json = {
@@ -580,7 +579,6 @@ def get_recipe_components():
                         }
                         components_array.append(result_json)
     else:
-        print("Get components")
         for component_id in ["1", "2", "3"]:
             recipe_json = json.dumps({})
             component_ids_array.append(str(component_id))
@@ -588,8 +586,7 @@ def get_recipe_components():
             query.add_filter('component_id', '=', int(component_id))
             query_result = list(query.fetch())
             results = list(query_result)
-            print("My Component results")
-            print(results)
+
             if len(results) > 0:
                 for result_row in results:
                     result_json = {
@@ -602,7 +599,7 @@ def get_recipe_components():
                         'modified_at': result_row.get("modified_at", "").strftime("%Y-%m-%d %H:%M:%S")
                     }
                     components_array.append(result_json)
-                    print("Components arrau")
+
     data = json.dumps({
         "response_code": 200,
         "results": components_array,
@@ -625,9 +622,7 @@ def save_recipe():
     modified_at = datetime.now()
     user_token = received_form_response.get("user_token", None)
     components = recipe_json.get("components", [])
-    print("SAV")
-    print("")
-    print(components)
+
     if user_token is None or recipe_json is None or recipe_name is None:
         result = Response({"message": "Please make sure you have added values for all the fields"}, status=500,
                           mimetype='application/json')
@@ -677,9 +672,9 @@ def get_current_stats():
     job_config = bigquery.QueryJobConfig()
 
     job_config.use_legacy_sql = False
-    insert_user_query = queries.insert_user_query
+    current_status_query = queries.current_status_query
 
-    query_job = bigquery_client.query(insert_user_query, job_config=job_config)
+    query_job = bigquery_client.query(current_status_query, job_config=job_config)
     query_result = query_job.result()
     result_json = {}
     for row in list(query_result):
@@ -756,8 +751,6 @@ def get_temp_details():
         'temp':temp_array
     }
     for row in list(query_result):
-        # print("{} : {} views".format(row.row_values,row.eastern_time))
-        print(row[3])
         values_json = (ast.literal_eval(row[3]))
         if "values" in values_json:
             values = values_json["values"]
@@ -766,6 +759,13 @@ def get_temp_details():
                 if len(values) > 1:
                     result_json["RH"].append({'value':values[1]['value'],'time':row.eastern_time})
 
+    temp_seq = [x['time'] for x in result_json["temp"]]
+    result_json["temp_max"] = max(temp_seq)
+    result_json["temp_min"] = min(temp_seq)
+
+    rh_seq = [x['time'] for x in result_json["RH"]]
+    result_json["rh_max"] = max(rh_seq)
+    result_json["rh_min"] = min(rh_seq)
 
     data = json.dumps({
         "response_code": 200,
@@ -777,27 +777,28 @@ def get_temp_details():
 
 @app.route('/api/get_led_panel/', methods=['GET', 'POST'])
 def get_led_panel():
-    # received_form_response = json.loads(request.data)
     job_config = bigquery.QueryJobConfig()
 
     job_config.use_legacy_sql = False
     led_panel_history = queries.fetch_led_panel_history
     query_job = bigquery_client.query(led_panel_history, job_config=job_config)
-    result = None
     query_result = query_job.result()
-    humidity_array = []
-    temp_array = []
     result_json = []
     for row in query_result:
-        # print("{} : {} views".format(row.row_values,row.eastern_time))
 
         values_json = (ast.literal_eval(row.row_values))
         if "values" in values_json:
             values = values_json["values"]
             if len(values) >0 :
-                result_json.append({'value':values[0]['value'],'time':row.eastern_time})
+                result_json.append({'cool_white':int(values[0]['value'].split(',')[0],16),
+                                    'warm_white':int(values[0]['value'].split(',')[1],16),
+                                    'blue':int(values[0]['value'].split(',')[2],16),
+                                    'green':int(values[0]['value'].split(',')[3],16),
+                                    'red':int(values[0]['value'].split(',')[4],16),
+                                    'far_red':int(values[0]['value'].split(',')[5],16),
+                                    'time':row.eastern_time})
 
-    print(result_json)
+
     data = json.dumps({
         "response_code": 200,
         "results":result_json
