@@ -77,24 +77,109 @@ iot_client = get_IoT_client( path_to_google_service_account )
 
 
 #------------------------------------------------------------------------------
+def validDictKey( d, key ):
+    if key in d:
+        return True
+    else:
+        return False
+
+
+#------------------------------------------------------------------------------
 # Convert the UI display fields into a command set for the device.
 # Returns a list of commands.
 def convert_UI_recipe_to_commands( recipe_dict ):
-    print('debugrob convert_UI_recipe_to_commands: recipe_dict={}'.format( recipe_dict ))
     try:
+        # value is publish secs
+        temp_humidity_sht25 = '60'
+        if validDictKey( recipe_dict, 'temp_humidity_sht25' ):
+            temp_humidity_sht25 = recipe_dict[ 'temp_humidity_sht25' ]
+        temp_humidity_sht25 += '000' # convert secs to msecs
+
+        co2_t6713 = '60'
+        if validDictKey( recipe_dict, 'co2_t6713' ):
+            co2_t6713 = recipe_dict[ 'co2_t6713' ]
+        co2_t6713 += '000'
+
+        # make a json schedule for the sensors
+        temp_humidity_sht25_sched = \
+            '{ "dtype": "4", "measurement_period_ms": "' + \
+            temp_humidity_sht25 + \
+            '", "num_cycles": "1", "cycles": [ { "num_steps": "1", "num_repeats": "28", "steps": [ { "set_point": "0", "duration": "86400" } ] } ] }'
+
+        co2_t6713_sched = \
+            '{ "dtype": "4", "measurement_period_ms": "' + \
+            co2_t6713 + \
+            '", "num_cycles": "1", "cycles": [ { "num_steps": "1", "num_repeats": "28", "steps": [ { "set_point": "0", "duration": "86400" } ] } ] }'
+
+        # The 6 LED string vals are "0" to "255" (off) in the order below:
+        LED_panel_off_far_red = "255"  # off
+        LED_panel_off_red = "255"
+        LED_panel_off_warm_white = "255"
+        LED_panel_off_green = "255"
+        LED_panel_off_cool_white = "255"
+        LED_panel_off_blue = "255"
+        LED_panel_on_far_red = "0" # full on
+        LED_panel_on_red = "0"
+        LED_panel_on_warm_white = "0"
+        LED_panel_on_green = "0"
+        LED_panel_on_cool_white = "0"
+        LED_panel_on_blue = "0"
+        if validDictKey( recipe_dict, 'LED_panel_off_far_red' ):
+            LED_panel_off_far_red = recipe_dict[ 'LED_panel_off_far_red' ]
+        if validDictKey( recipe_dict, 'LED_panel_off_red' ):
+            LED_panel_off_red = recipe_dict[ 'LED_panel_off_red' ]
+        if validDictKey( recipe_dict, 'LED_panel_off_warm_white' ):
+            LED_panel_off_warm_white = recipe_dict[ 'LED_panel_off_warm_white' ]
+        if validDictKey( recipe_dict, 'LED_panel_off_green' ):
+            LED_panel_off_green = recipe_dict[ 'LED_panel_off_green' ]
+        if validDictKey( recipe_dict, 'LED_panel_off_cool_white' ):
+            LED_panel_off_cool_white = recipe_dict[ 'LED_panel_off_cool_white' ]
+        if validDictKey( recipe_dict, 'LED_panel_off_blue' ):
+            LED_panel_off_blue = recipe_dict[ 'LED_panel_off_blue' ]
+        if validDictKey( recipe_dict, 'LED_panel_on_far_red' ):
+            LED_panel_on_far_red = recipe_dict[ 'LED_panel_on_far_red' ]
+        if validDictKey( recipe_dict, 'LED_panel_on_red' ):
+            LED_panel_on_red = recipe_dict[ 'LED_panel_on_red' ]
+        if validDictKey( recipe_dict, 'LED_panel_on_warm_white' ):
+            LED_panel_on_warm_white = recipe_dict[ 'LED_panel_on_warm_white' ]
+        if validDictKey( recipe_dict, 'LED_panel_on_green' ):
+            LED_panel_on_green = recipe_dict[ 'LED_panel_on_green' ]
+        if validDictKey( recipe_dict, 'LED_panel_on_cool_white' ):
+            LED_panel_on_cool_white = recipe_dict[ 'LED_panel_on_cool_white' ]
+        if validDictKey( recipe_dict, 'LED_panel_on_blue' ):
+            LED_panel_on_blue = recipe_dict[ 'LED_panel_on_blue' ]
+
+        # make a json schedule for the LED panel
+        LEDs_on = '"{}","{}","{}","{}","{}","{}"'.format(
+            LED_panel_on_far_red,
+            LED_panel_on_red,
+            LED_panel_on_warm_white,
+            LED_panel_on_green,
+            LED_panel_on_cool_white,
+            LED_panel_on_blue )
+        LEDs_off = '"{}","{}","{}","{}","{}","{}"'.format(
+            LED_panel_off_far_red,
+            LED_panel_off_red,
+            LED_panel_off_warm_white,
+            LED_panel_off_green,
+            LED_panel_off_cool_white,
+            LED_panel_off_blue )
+        LED_panel_sched = '{ "dtype": "10", "measurement_period_ms": "60000", "num_cycles": "1", "cycles": [ { "num_steps": "2", "num_repeats": "28", "steps": [ { "set_point": [' + LEDs_on + '], "duration": "57600" }, { "set_point": [' + LEDs_off + '], "duration": "28800" } ] } ] }'
+
+        # RESET is always the first command in the list:
         return_list = []
         cmd = {}
-        cmd['command'] = 'RESET'  # always the first command.
+        cmd['command'] = 'RESET'
         cmd['arg0'] = '0'
         cmd['arg1'] = '0'
         return_list = [cmd]
 
+        # Add commands for our two sensors to the list:
         cmd = {}
         cmd['command'] = 'LoadRecipeIntoVariable'
         cmd['arg0'] = 'co2_t6713'
-        cmd['arg1'] = '{ "dtype": "4", "measurement_period_ms": "60000", "num_cycles": "1", "cycles": [ { "num_steps": "1", "num_repeats": "28", "steps": [ { "set_point": "0", "duration": "86400" } ] } ] }'
+        cmd['arg1'] = co2_t6713_sched
         return_list.append( cmd )
-
         cmd = {}
         cmd['command'] = 'AddVariableToTreatment'
         cmd['arg0'] = '0'
@@ -103,16 +188,27 @@ def convert_UI_recipe_to_commands( recipe_dict ):
 
         cmd = {}
         cmd['command'] = 'LoadRecipeIntoVariable'
-        cmd['arg0'] = 'LED_panel'
-        cmd['arg1'] = '{ "dtype": "10", "measurement_period_ms": "500", "num_cycles": "1", "curr_cycle": "0", "cycles": [ { "num_steps": "62", "num_repeats": "60", "curr_step": "0", "curr_repeat": "0", "steps": [ { "set_point": ["255","255","255","255","255","255"], "duration": "1" }, { "set_point": ["255","180","255","255","255","255"], "duration": "1" }, { "set_point": ["255","150","255","255","255","255"], "duration": "1" }, { "set_point": ["255","100","255","255","255","255"], "duration": "1" }, { "set_point": ["255","50","255","255","255","255"], "duration": "1" }, { "set_point": ["255","0","255","255","255","255"], "duration": "1" }, { "set_point": ["255","50","255","255","255","255"], "duration": "1" }, { "set_point": ["255","100","255","255","255","255"], "duration": "1" }, { "set_point": ["255","150","255","255","255","255"], "duration": "1" }, { "set_point": ["255","180","255","255","255","255"], "duration": "1" }, { "set_point": ["255","255","255","255","255","255"], "duration": "1" }, { "set_point": ["255","255","180","255","255","255"], "duration": "1" }, { "set_point": ["255","255","150","255","255","255"], "duration": "1" }, { "set_point": ["255","255","100","255","255","255"], "duration": "1" }, { "set_point": ["255","255","50","255","255","255"], "duration": "1" }, { "set_point": ["255","255","0","255","255","255"], "duration": "1" }, { "set_point": ["255","255","50","255","255","255"], "duration": "1" }, { "set_point": ["255","255","100","255","255","255"], "duration": "1" }, { "set_point": ["255","255","150","255","255","255"], "duration": "1" }, { "set_point": ["255","255","180","255","255","255"], "duration": "1" }, { "set_point": ["255","255","255","255","255","255"], "duration": "1" }, { "set_point": ["255","255","255","180","255","255"], "duration": "1" }, { "set_point": ["255","255","255","150","255","255"], "duration": "1" }, { "set_point": ["255","255","255","100","255","255"], "duration": "1" }, { "set_point": ["255","255","255","50","255","255"], "duration": "1" }, { "set_point": ["255","255","255","0","255","255"], "duration": "1" }, { "set_point": ["255","255","255","50","255","255"], "duration": "1" }, { "set_point": ["255","255","255","100","255","255"], "duration": "1" }, { "set_point": ["255","255","255","150","255","255"], "duration": "1" }, { "set_point": ["255","255","255","180","255","255"], "duration": "1" }, { "set_point": ["255","255","255","255","255","255"], "duration": "1" }, { "set_point": ["255","255","255","255","180","255"], "duration": "1" }, { "set_point": ["255","255","255","255","150","255"], "duration": "1" }, { "set_point": ["255","255","255","255","100","255"], "duration": "1" }, { "set_point": ["255","255","255","255","50","255"], "duration": "1" }, { "set_point": ["255","255","255","255","0","255"], "duration": "1" }, { "set_point": ["255","255","255","255","50","255"], "duration": "1" }, { "set_point": ["255","255","255","255","100","255"], "duration": "1" }, { "set_point": ["255","255","255","255","150","255"], "duration": "1" }, { "set_point": ["255","255","255","255","180","255"], "duration": "1" }, { "set_point": ["255","255","255","255","255","255"], "duration": "1" }, { "set_point": ["255","255","255","255","255","180"], "duration": "1" }, { "set_point": ["255","255","255","255","255","150"], "duration": "1" }, { "set_point": ["255","255","255","255","255","100"], "duration": "1" }, { "set_point": ["255","255","255","255","255","50"], "duration": "1" }, { "set_point": ["255","255","255","255","255","0"], "duration": "1" }, { "set_point": ["255","255","255","255","255","50"], "duration": "1" }, { "set_point": ["255","255","255","255","255","100"], "duration": "1" }, { "set_point": ["255","255","255","255","255","150"], "duration": "1" }, { "set_point": ["255","255","255","255","255","180"], "duration": "1" }, { "set_point": ["255","255","255","255","255","255"], "duration": "1" }, { "set_point": ["180","255","255","255","255","255"], "duration": "1" }, { "set_point": ["150","255","255","255","255","255"], "duration": "1" }, { "set_point": ["100","255","255","255","255","255"], "duration": "1" }, { "set_point": ["50","255","255","255","255","255"], "duration": "1" }, { "set_point": ["0","255","255","255","255","255"], "duration": "1" }, { "set_point": ["50","255","255","255","255","255"], "duration": "1" }, { "set_point": ["100","255","255","255","255","255"], "duration": "1" }, { "set_point": ["150","255","255","255","255","255"], "duration": "1" }, { "set_point": ["150","255","255","255","255","255"], "duration": "1" }, { "set_point": ["255","255","255","255","255","255"], "duration": "1" }, { "set_point": ["255","255","255","255","255","255"], "duration": "1" } ] } ] }'
+        cmd['arg0'] = 'temp_humidity_sht25'
+        cmd['arg1'] = temp_humidity_sht25_sched
+        return_list.append( cmd )
+        cmd = {}
+        cmd['command'] = 'AddVariableToTreatment'
+        cmd['arg0'] = '0'
+        cmd['arg1'] = 'temp_humidity_sht25'
         return_list.append( cmd )
 
+        cmd = {}
+        cmd['command'] = 'LoadRecipeIntoVariable'
+        cmd['arg0'] = 'LED_panel'
+        cmd['arg1'] = LED_panel_sched
+        return_list.append( cmd )
         cmd = {}
         cmd['command'] = 'AddVariableToTreatment'
         cmd['arg0'] = '0'
         cmd['arg1'] = 'LED_panel'
         return_list.append( cmd )
 
+        # Last command in the list is to Run:
         cmd = {}
         cmd['command'] = 'RunTreatment'
         cmd['arg0'] = '0'
