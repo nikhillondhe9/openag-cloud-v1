@@ -49,10 +49,10 @@ const displayNamesLookup = {
     "sensor_rh":"Relative Humidity Publish Frequency",
     "sensor_temp":"Temperature Publish Frequency",
     "sensor_co2":"CO2 Sensor Publish Frequency",
-    "led_on_from":"Start time for LED ON",
-    "led_on_to":"End time for LED ON",
-    "led_off_from":"Start time for LED OFF",
-    "led_off_to":"End time for LED OFF",
+    "led_on_from":"LED ON From",
+    "led_on_to":"LED ON to",
+    "led_off_from":"LED OFF From",
+    "led_off_to":"LED OFF To",
     "led_on_data":"LED ON",
     "led_off_data":"LED OFF"
 
@@ -124,7 +124,8 @@ class DeviceHomepage extends Component {
     }
 
     timeonChange(data_type, value) {
-        this.changes['data_type'] = value._d;
+
+        this.changes[data_type] = value._d;
         this.setState({[data_type]: value._d})
         this.setState({changes: this.changes})
     }
