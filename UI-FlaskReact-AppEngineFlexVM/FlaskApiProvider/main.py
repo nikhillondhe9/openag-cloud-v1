@@ -976,4 +976,6 @@ def apply_to_device():
 # Handle Change to a recipe running on a device
 @app.route('/api/submit_recipe_change/', methods=['GET', 'POST'])
 def submit_recipe_change():
+    received_form_response = json.loads(request.data)
+    recipe_state = received_form_response.get("recipe_state",{})
     return Response({}, status=200, mimetype='application/json')
