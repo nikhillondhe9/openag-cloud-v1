@@ -970,3 +970,10 @@ def apply_to_device():
         result = Response(data, status=500, mimetype='application/json')
 
     return result
+
+
+#------------------------------------------------------------------------------
+# Handle Change to a recipe running on a device
+@app.route('/api/submit_recipe_change/', methods=['GET', 'POST'])
+def submit_recipe_change():
+    return Response({}, status=200, mimetype='application/json')

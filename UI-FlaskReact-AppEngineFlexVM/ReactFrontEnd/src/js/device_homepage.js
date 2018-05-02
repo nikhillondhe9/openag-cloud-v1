@@ -39,18 +39,35 @@ const handle = (props) => {
 
 const showSecond = true;
 const str = showSecond ? 'HH:mm:ss' : 'HH:mm';
+const displayNamesLookup = {
+    "cool_white":"Cool White",
+    "warm_white":"Warm White",
+    "blue": "Blue",
+    "far_red":"Far Red",
+    "green":"Green",
+    "red":"Red",
+    "sensor_rh":"Relative Humidity Publish Frequency",
+    "sensor_temp":"Temperature Publish Frequency",
+    "sensor_co2":"CO2 Sensor Publish Frequency",
+    "led_on_from":"Start time for LED ON",
+    "led_on_to":"End time for LED ON",
+    "led_off_from":"Start time for LED OFF",
+    "led_off_to":"End time for LED OFF",
+    "led_on_data":"LED ON",
+    "led_off_data":"LED OFF"
 
+}
 
 class DeviceHomepage extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            count:0,
-            sensor_temp_border:"",
-            sensor_co2_border:"",
-            sensor_rh_border:"",
-            led_on_border:"",
-            led_off_border:"",
+            count: 0,
+            sensor_temp_border: "",
+            sensor_co2_border: "",
+            sensor_rh_border: "",
+            led_on_border: "",
+            led_off_border: "",
             config: {'displaylogo': false},
             current_rh: "Loading",
             current_temp: "Loading",
@@ -60,8 +77,8 @@ class DeviceHomepage extends Component {
             sensor_rh: 200,
             rh_data: [],
             co2_data: [],
-            led_on_data:{cool_white:10,red:100,blue:29,green:39,warm_white:3,far_red:22},
-            led_off_data:{cool_white:10,red:100,blue:29,green:39,warm_white:3,far_red:22},
+            led_on_data: {cool_white: 10, red: 100, blue: 29, green: 39, warm_white: 3, far_red: 22},
+            led_off_data: {cool_white: 10, red: 100, blue: 29, green: 39, warm_white: 3, far_red: 22},
             temp_data_x: [],
             temp_data_y: [],
             co2_data_x: [],
@@ -80,12 +97,13 @@ class DeviceHomepage extends Component {
             dropDownValue: 'Choose a PFC',
             recipe_name: '',
             recipe_link: '',
-            modal: false
+            modal: false,
+            changes:{}
         };
         this.child = {
-		console : Console
+            console: Console
         };
-        this.changes = {led_on_data:{},led_off_data:{}}
+        this.changes = {led_on_data: {}, led_off_data: {}}
         this.getCurrentStats = this.getCurrentStats.bind(this);
         this.getTempDetails = this.getTempDetails.bind(this);
         this.getCO2Details = this.getCO2Details.bind(this);
@@ -100,18 +118,23 @@ class DeviceHomepage extends Component {
         this.echo = this.echo.bind(this);
         this.sliderChange = this.sliderChange.bind(this);
         this.applyChanges = this.applyChanges.bind(this);
-        // this.getLEDPanel = this.getLEDPanel.bind(this)
+        this.handleApplySubmit = this.handleApplySubmit.bind(this);
+        this.timeonChange = this.timeonChange.bind(this)
 
     }
 
-    timeonChange(value) {
-
+    timeonChange(data_type, value) {
+        this.changes['data_type'] = value._d;
+        this.setState({[data_type]: value._d})
+        this.setState({changes: this.changes})
     }
+
     modalToggle() {
         this.setState({
             modal: !this.state.modal
         });
     }
+
     toggle() {
         this.setState(prevState => ({
             dropdownOpen: !prevState.dropdownOpen
@@ -125,34 +148,36 @@ class DeviceHomepage extends Component {
         this.getCurrentStats();
         // this.getLEDPanel();
     }
-    sliderChange(led_data_type,color_channel,value)
-    {
+
+    sliderChange(led_data_type, color_channel, value) {
         if (led_data_type === "led_on_data") {
             let color_json = this.state.led_on_data;
             color_json[color_channel] = value;
             this.setState({led_on_data: color_json})
             this.changes['led_on_data'][color_channel] = value;
-            this.setState({["led_on_border"]:"3px solid #883c63"})
+            this.setState({["led_on_border"]: "3px solid #883c63"})
+            this.setState({changes: this.changes})
         }
-        else if(led_data_type === "led_off_data")
-        {
+        else if (led_data_type === "led_off_data") {
             let color_json = this.state.led_off_data;
             color_json[color_channel] = value;
             this.setState({led_off_data: color_json})
             this.changes['led_off_data'][color_channel] = value;
-            this.setState({["led_off_border"]:"3px solid #883c63"})
+            this.setState({["led_off_border"]: "3px solid #883c63"})
+            this.setState({changes: this.changes})
         }
     }
+
     sensorOnChange(e) {
-        if(e.target.name.indexOf("sensor") >= 0 )
-        {
-            this.setState({[e.target.name+"_border"]:"3px solid #883c63"})
+        if (e.target.name.indexOf("sensor") >= 0) {
+            this.setState({[e.target.name + "_border"]: "3px solid #883c63"})
         }
-        else
-        {
-            this.setState({[e.target.name+"_border"]:"1px solid rgba(0, 0, 0, 0.125)"})
+        else {
+            this.setState({[e.target.name + "_border"]: "1px solid rgba(0, 0, 0, 0.125)"})
         }
         this.changes[e.target.name] = e.target.value;
+        this.setState({changes: this.changes})
+        console.log("I set to ",this.changes)
         this.setState({[e.target.name]: e.target.value})
 
     }
@@ -491,26 +516,50 @@ class DeviceHomepage extends Component {
         this.setState({dropDownValue: e.currentTarget.textContent})
     }
 
-	echo(text){
+    echo(text) {
 
-		this.child.console.log(text);
-		this.setState({
-			count: this.state.count+1,
-		}, this.child.console.return);
-	}
-	promptLabel = () => {
-		return this.state.count + "> ";
-	}
-	applyChanges()
-    {
-        for (var k in this.changes) {
-            console.log("key",k)
-        }
+        this.child.console.log(text);
+        this.setState({
+            count: this.state.count + 1,
+        }, this.child.console.return);
+    }
+
+    promptLabel = () => {
+        return this.state.count + "> ";
+    }
+
+    applyChanges() {
+
 
         this.setState({
-            modal:!this.state.modal
+            modal: !this.state.modal
         });
-        console.log("Current State",this.state)
+        console.log("Current State", this.state)
+    }
+
+    handleApplySubmit()
+    {
+        return fetch('http://food.computer.com:5000/api/submit_recipe_change/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({
+                'user_uuid': this.state.user_uuid,
+                'user_token': this.props.cookies.get('user_token'),
+                "recipe_state":this.state
+            })
+        })
+            .then((response) => response.json())
+            .then((responseJson) => {
+                console.log(responseJson)
+
+            })
+            .catch((error) => {
+                console.error(error);
+            });
     }
     render() {
         const margin = {top: 20, right: 20, bottom: 30, left: 50};
@@ -523,41 +572,66 @@ class DeviceHomepage extends Component {
             });
 
         }
+        let changesList = []
+        let changeJson  = this.state.changes;
+        if(this.state.changes) {
+            changesList = Object.keys(changeJson).map(function (keyName, keyIndex) {
 
+                if(keyName !== "led_on_data" && keyName !== "led_off_data") {
+                    return <div className="row"><p key={keyName}>{displayNamesLookup[keyName]} : {changeJson[keyName].toString()}</p><br/></div>
+                }
+                else if((keyName === "led_on_data" || keyName === "led_off_data") && changeJson[keyName])
+                {
+
+
+                    let list_led = [<p key={keyName}>Color channel information for {displayNamesLookup[keyName]}</p>]
+                    let json_data = changeJson[keyName]
+                    let colorsJson = []
+                    colorsJson = Object.keys(json_data).map(function (keyName, keyIndex) {
+                        return <p key={keyName} >{displayNamesLookup[keyName]} : {json_data[keyName]}</p>
+                    })
+                    list_led.push(colorsJson);
+                    return list_led
+                }
+
+            })
+        }
 
         return (
+
             <div className="home-container">
                 {/*<div className="row">*/}
-                     {/*<div className="col-md-8">*/}
-                    <div className="row dropdown-row">
-                        <div className="col-md-6">
-                            <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}
-                                      className="row dropdow-row">
-                                <DropdownToggle caret>
-                                    {this.state.dropDownValue}
-                                </DropdownToggle>
-                                <DropdownMenu>
-                                    {listDevices}
-                                </DropdownMenu>
-                            </Dropdown>
-                        </div>
-                        <div className="col-md-6">
-                            <button className="apply-button btn btn-secondary" onClick={this.applyChanges}>Apply Changes</button>
-                        </div>
+                {/*<div className="col-md-8">*/}
+                <div className="row dropdown-row">
+                    <div className="col-md-6">
+                        <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}
+                                  className="row dropdow-row">
+                            <DropdownToggle caret>
+                                {this.state.dropDownValue}
+                            </DropdownToggle>
+                            <DropdownMenu>
+                                {listDevices}
+                            </DropdownMenu>
+                        </Dropdown>
                     </div>
-                     {/*</div>*/}
-                    {/*<div className="col-md-4">*/}
-                        {/*<Console ref={ref => this.child.console = ref}*/}
-			{/*handler={this.echo}*/}
-			{/*promptLabel={this.promptLabel}*/}
-			{/*welcomeMessage={"Use this console to manipulate the dashboard."}*/}
-			{/*autofocus={true} />*/}
-                    {/*</div>*/}
+                    <div className="col-md-6">
+                        <button className="apply-button btn btn-secondary" onClick={this.applyChanges}>Apply Changes
+                        </button>
+                    </div>
+                </div>
+                {/*</div>*/}
+                {/*<div className="col-md-4">*/}
+                {/*<Console ref={ref => this.child.console = ref}*/}
+                {/*handler={this.echo}*/}
+                {/*promptLabel={this.promptLabel}*/}
+                {/*welcomeMessage={"Use this console to manipulate the dashboard."}*/}
+                {/*autofocus={true} />*/}
+                {/*</div>*/}
                 {/*</div>*/}
                 <div className="row graphs-row">
                     <Draggable cancel="strong">
                         <div className="col-md-4">
-                            <div className="card current-stats-card" >
+                            <div className="card current-stats-card">
                                 <div className="card-block">
                                     <h4 className="card-title "> Temperature </h4>
                                     <div className="card-text">
@@ -631,7 +705,7 @@ class DeviceHomepage extends Component {
                     <Draggable cancel="strong">
                         <div className="col-md-4">
                             <div className="card current-stats-card" style={{border: this.state.sensor_rh_border}}>
-                                <div className="card-block" >
+                                <div className="card-block">
                                     <h4 className="card-title "> Relative Humidity </h4>
                                     <div className="card-text">
                                         <div className="graph">
@@ -689,7 +763,10 @@ class DeviceHomepage extends Component {
                                                         <span>Cool White</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                        <Slider min={0} max={255} defaultValue={this.state.led_on_data.cool_white} handle={handle} onChange={this.sliderChange.bind(this,'led_on_data','cool_white')}/>
+                                                        <Slider min={0} max={255}
+                                                                defaultValue={this.state.led_on_data.cool_white}
+                                                                handle={handle}
+                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'cool_white')}/>
                                                     </div>
                                                 </div>
 
@@ -698,7 +775,10 @@ class DeviceHomepage extends Component {
                                                         <span>Warm White</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                        <Slider min={0} max={255} defaultValue={this.state.led_on_data.warm_white} handle={handle} onChange={this.sliderChange.bind(this,'led_on_data','warm_white')}/>
+                                                        <Slider min={0} max={255}
+                                                                defaultValue={this.state.led_on_data.warm_white}
+                                                                handle={handle}
+                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'warm_white')}/>
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
@@ -706,7 +786,10 @@ class DeviceHomepage extends Component {
                                                         <span>Blue</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                        <Slider min={0} max={255} defaultValue={this.state.led_on_data.blue} handle={handle} onChange={this.sliderChange.bind(this,'led_on_data','blue')}/>
+                                                        <Slider min={0} max={255}
+                                                                defaultValue={this.state.led_on_data.blue}
+                                                                handle={handle}
+                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'blue')}/>
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
@@ -714,7 +797,10 @@ class DeviceHomepage extends Component {
                                                         <span>Green</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                        <Slider min={0} max={255} defaultValue={this.state.led_on_data.green} handle={handle} onChange={this.sliderChange.bind(this,'led_on_data','green')}/>
+                                                        <Slider min={0} max={255}
+                                                                defaultValue={this.state.led_on_data.green}
+                                                                handle={handle}
+                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'green')}/>
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
@@ -722,7 +808,10 @@ class DeviceHomepage extends Component {
                                                         <span>Red</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                        <Slider min={0} max={255} defaultValue={this.state.led_on_data.red} handle={handle} onChange={this.sliderChange.bind(this,'led_on_data','red')}/>
+                                                        <Slider min={0} max={255}
+                                                                defaultValue={this.state.led_on_data.red}
+                                                                handle={handle}
+                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'red')}/>
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
@@ -730,7 +819,10 @@ class DeviceHomepage extends Component {
                                                         <span>Far Red</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                        <Slider min={0} max={255} defaultValue={this.state.led_on_data.far_red} handle={handle} onChange={this.sliderChange.bind(this,'led_on_data','far_red')}/>
+                                                        <Slider min={0} max={255}
+                                                                defaultValue={this.state.led_on_data.far_red}
+                                                                handle={handle}
+                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'far_red')}/>
                                                     </div>
                                                 </div>
 
@@ -747,7 +839,7 @@ class DeviceHomepage extends Component {
                                                         showSecond={showSecond}
                                                         defaultValue={moment()}
                                                         className="xxx"
-                                                        onChange={this.timeonChange.bind("led_on_from")}
+                                                        onChange={this.timeonChange.bind(this, "led_on_from")}
                                                     />
                                                 </div>
                                                     <div className="col-md-2">
@@ -758,7 +850,7 @@ class DeviceHomepage extends Component {
                                                     showSecond={showSecond}
                                                     defaultValue={moment()}
                                                     className="xxx"
-                                                    onChange={this.timeonChange()}
+                                                    onChange={this.timeonChange.bind(this, "led_on_to")}
                                                 />
                                                 </div>
                                             </div></span>
@@ -781,7 +873,10 @@ class DeviceHomepage extends Component {
                                                         <span>Cool White</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                        <Slider min={0} max={255} defaultValue={this.state.led_off_data.cool_white} handle={handle} onChange={this.sliderChange.bind(this,'led_off_data','cool_white')}/>
+                                                        <Slider min={0} max={255}
+                                                                defaultValue={this.state.led_off_data.cool_white}
+                                                                handle={handle}
+                                                                onChange={this.sliderChange.bind(this, 'led_off_data', 'cool_white')}/>
                                                     </div>
                                                 </div>
 
@@ -790,7 +885,10 @@ class DeviceHomepage extends Component {
                                                         <span>Warm White</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                        <Slider min={0} max={255} defaultValue={this.state.led_off_data.warm_white} handle={handle} onChange={this.sliderChange.bind(this,'led_off_data','warm_white')}/>
+                                                        <Slider min={0} max={255}
+                                                                defaultValue={this.state.led_off_data.warm_white}
+                                                                handle={handle}
+                                                                onChange={this.sliderChange.bind(this, 'led_off_data', 'warm_white')}/>
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
@@ -798,7 +896,10 @@ class DeviceHomepage extends Component {
                                                         <span>Blue</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                        <Slider min={0} max={255} defaultValue={this.state.led_off_data.blue} handle={handle} onChange={this.sliderChange.bind(this,'led_off_data','blue')}/>
+                                                        <Slider min={0} max={255}
+                                                                defaultValue={this.state.led_off_data.blue}
+                                                                handle={handle}
+                                                                onChange={this.sliderChange.bind(this, 'led_off_data', 'blue')}/>
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
@@ -806,7 +907,10 @@ class DeviceHomepage extends Component {
                                                         <span>Green</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                        <Slider min={0} max={255} defaultValue={this.state.led_off_data.green} handle={handle} onChange={this.sliderChange.bind(this,'led_off_data','green')}/>
+                                                        <Slider min={0} max={255}
+                                                                defaultValue={this.state.led_off_data.green}
+                                                                handle={handle}
+                                                                onChange={this.sliderChange.bind(this, 'led_off_data', 'green')}/>
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
@@ -814,7 +918,10 @@ class DeviceHomepage extends Component {
                                                         <span>Red</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                        <Slider min={0} max={255} defaultValue={this.state.led_off_data.red} handle={handle} onChange={this.sliderChange.bind(this,'led_off_data','red')}/>
+                                                        <Slider min={0} max={255}
+                                                                defaultValue={this.state.led_off_data.red}
+                                                                handle={handle}
+                                                                onChange={this.sliderChange.bind(this, 'led_off_data', 'red')}/>
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
@@ -822,7 +929,10 @@ class DeviceHomepage extends Component {
                                                         <span>Far Red</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                        <Slider min={0} max={255} defaultValue={this.state.led_off_data.far_red} handle={handle} onChange={this.sliderChange.bind(this,'led_off_data','far_red')}/>
+                                                        <Slider min={0} max={255}
+                                                                defaultValue={this.state.led_off_data.far_red}
+                                                                handle={handle}
+                                                                onChange={this.sliderChange.bind(this, 'led_off_data', 'far_red')}/>
                                                     </div>
                                                 </div>
                                             </div>
@@ -837,7 +947,7 @@ class DeviceHomepage extends Component {
                                                         showSecond={showSecond}
                                                         defaultValue={moment()}
                                                         className="xxx"
-                                                        onChange={this.timeonChange()}
+                                                        onChange={this.timeonChange.bind(this, "led_off_from")}
                                                     />
                                                 </div>
                                                     <div className="col-md-2">
@@ -848,7 +958,7 @@ class DeviceHomepage extends Component {
                                                     showSecond={showSecond}
                                                     defaultValue={moment()}
                                                     className="xxx"
-                                                    onChange={this.timeonChange()}
+                                                    onChange={this.timeonChange.bind(this, "led_off_to")}
                                                 /> </div>
                                             </div>
                                                 </span>
@@ -917,18 +1027,21 @@ class DeviceHomepage extends Component {
                         </div>
                     </Draggable>
                 </div>
-                 <Modal isOpen={this.state.modal} toggle={this.modalToggle} className={this.props.className}>
-                        <ModalHeader toggle={this.toggle}>Apply Recipe Changes</ModalHeader>
+                <Modal isOpen={this.state.modal} toggle={this.modalToggle} className={this.props.className}>
+                    <ModalHeader toggle={this.toggle}>Apply Recipe Changes</ModalHeader>
 
-                        <ModalBody>
-                            Are you sure you want to apply these changes to your device ?
+                    <ModalBody>
+                        Are you sure you want to apply these changes to your device ?
+                        <div>
+                        {changesList}
+                        </div>
 
-                        </ModalBody>
-                        <ModalFooter>
-                            <Button color="primary" onClick={this.handleApplySubmit}>Apply</Button>{' '}
-                            <Button color="secondary" onClick={this.toggle}>Cancel</Button>
-                        </ModalFooter>
-                    </Modal>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="primary" onClick={this.handleApplySubmit}>Apply</Button>{' '}
+                        <Button color="secondary" onClick={this.modalToggle}>Cancel</Button>
+                    </ModalFooter>
+                </Modal>
             </div>
         )
 
