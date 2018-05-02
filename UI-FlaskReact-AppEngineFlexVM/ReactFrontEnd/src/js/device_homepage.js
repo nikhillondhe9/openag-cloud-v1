@@ -236,8 +236,17 @@ class DeviceHomepage extends Component {
             .then((responseJson) => {
                 console.log(responseJson)
                 if (responseJson["response_code"] == 200) {
+
+                    var devs = [];                  // make array
+                    devs = responseJson["results"]; // assign array
+                    if( devs.length > 0 ) {         // if we have devices
+                        // default the selected device to the first/only dev.
+                        this.state.selected_device_uuid = devs[0].device_uuid;
+                    }
+
                     this.setState({user_devices: responseJson["results"]})
-                    this.setState({dropDownValue: 'SecondAtTest(343322)'})
+                    this.setState({dropDownValue: this.state.selected_device_uuid})
+
                     console.log("Response", responseJson["results"])
                 }
 
@@ -550,7 +559,8 @@ class DeviceHomepage extends Component {
             body: JSON.stringify({
                 'user_uuid': this.state.user_uuid,
                 'user_token': this.props.cookies.get('user_token'),
-                "recipe_state":this.state
+                "recipe_state": this.state,
+                "selected_device_uuid": this.state.selected_device_uuid 
             })
         })
             .then((response) => response.json())

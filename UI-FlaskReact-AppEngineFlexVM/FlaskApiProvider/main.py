@@ -794,11 +794,12 @@ def get_temp_details():
     job_config = bigquery.QueryJobConfig()
 
     job_config.use_legacy_sql = False
+#debugrob: these queries need to be for a specific device_id
     insert_user_query = """#standardsql
 SELECT
   FORMAT_TIMESTAMP( '%c', TIMESTAMP( REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)')), 'America/New_York') as eastern_time,
   REGEXP_EXTRACT(id, r'(?:[^\~]*\~){3}([^~]*)') as var,
-  REGEXP_EXTRACT(id, r'(?:[^\~]*\~){5}([^~]*)') as device,  #replace the last '~' with a '-' to only show up to the -
+  REGEXP_EXTRACT(id, r'(?:[^\~]*\~){5}([^~]*)') as device,  
   values
 
   FROM test.vals
@@ -853,7 +854,7 @@ def get_led_panel():
     insert_user_query = """SELECT
   FORMAT_TIMESTAMP( '%c', TIMESTAMP( REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)')), 'America/New_York') as eastern_time,
   REGEXP_EXTRACT(id, r'(?:[^\~]*\~){3}([^~]*)') as var,
-  REGEXP_EXTRACT(id, r'(?:[^\~]*\~){5}([^-]*)') as device,  #matches up to first '-' in the id, to not show the random UUID stuff.
+  REGEXP_EXTRACT(id, r'(?:[^\~]*\~){5}([^-]*)') as device,  
   values as row_values
   # , id
   FROM test.vals
@@ -978,4 +979,33 @@ def apply_to_device():
 def submit_recipe_change():
     received_form_response = json.loads(request.data)
     recipe_state = received_form_response.get("recipe_state",{})
+
+    # Build a custom recipe dict from the dashboard values
+    recipe_dict = {}
+    recipe_dict[ 'temp_humidity_sht25' ] = str( recipe_state['sensor_temp'] )
+    recipe_dict[ 'co2_t6713' ] = str( recipe_state['sensor_co2'] )
+    led_on = recipe_state['led_on_data']
+    recipe_dict[ 'LED_panel_on_far_red' ] = str( led_on['far_red'] )
+    recipe_dict[ 'LED_panel_on_red' ] = str( led_on['red'] )
+    recipe_dict[ 'LED_panel_on_warm_white' ] = str( led_on['warm_white'] )
+    recipe_dict[ 'LED_panel_on_green' ] = str( led_on['green'] )
+    recipe_dict[ 'LED_panel_on_cool_white' ] = str( led_on['cool_white'] )
+    recipe_dict[ 'LED_panel_on_blue' ] = str( led_on['blue'] )
+    led_off = recipe_state['led_off_data']
+    recipe_dict[ 'LED_panel_off_far_red' ] = str( led_off['far_red'] )
+    recipe_dict[ 'LED_panel_off_red' ] = str( led_off['red'] )
+    recipe_dict[ 'LED_panel_off_warm_white' ] = str( led_off['warm_white'] )
+    recipe_dict[ 'LED_panel_off_green' ] = str( led_off['green'] )
+    recipe_dict[ 'LED_panel_off_cool_white' ] = str( led_off['cool_white'] )
+    recipe_dict[ 'LED_panel_off_blue' ] = str( led_off['blue'] )
+    device_id = recipe_state['selected_device_uuid']
+
+    # convert the values in the dict into what the Cbrain expects
+    commands_list = convert_UI_recipe_to_commands( recipe_dict )
+    send_recipe_to_device_via_IoT( iot_client, device_id, commands_list )
+
     return Response({}, status=200, mimetype='application/json')
+
+
+
+
