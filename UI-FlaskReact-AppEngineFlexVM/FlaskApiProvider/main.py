@@ -23,8 +23,8 @@ app = Flask(__name__)
 
 
 # Environment variables, set locally for testing and when deployed to gcloud.
-path_to_google_service_account = os.environ['GOOGLE_APPLICATION_CREDENTIALS'] 
-cloud_project_id = os.environ['GCLOUD_PROJECT'] 
+path_to_google_service_account = os.environ['GOOGLE_APPLICATION_CREDENTIALS']
+cloud_project_id = os.environ['GCLOUD_PROJECT']
 cloud_region = os.environ['GCLOUD_REGION']
 device_registry = os.environ['GCLOUD_DEV_REG']
 
@@ -82,68 +82,38 @@ iot_client = get_IoT_client( path_to_google_service_account )
 def convert_UI_recipe_to_commands( recipe_dict ):
     print('debugrob convert_UI_recipe_to_commands: recipe_dict={}'.format( recipe_dict ))
     try:
-
-"""
-#debugrob: what we get from the doc DB query
-recipe_json={'user_token': '212f8049-b423-4e4b-a672-d51bcea682f1', 'components': ['1', '2', '3', '4'], 'template_recipe_uuid': 'db8b5962-9497-41d4-a11a-a4f468914f4f', 'plant_description': 'Not you usual arugula', 'recipe_description': 'Grows Arugula', 'plant_type': 'Wasabi Arugula', 'recipe_name': "Rob's Arugula 2", 'temp_humidity_sht25': '120', 'co2_t6713': '240', 'light_intensity_par': '430', 'undefinedoff_from': '02:00', 'undefinedoff_to': '01:00', 'LED_panel_off_far_red': '23', 'LED_panel_off_red': '13', 'LED_panel_off_warm_white': '13', 'LED_panel_off_green': '14', 'LED_panel_off_cool_white': '14', 'LED_panel_off_blue': '45', 'undefinedon_from': '12:04', 'undefinedon_to': '02:00', 'LED_panel_on_far_red': '24', 'LED_panel_on_red': '23', 'LED_panel_on_warm_white': '13', 'LED_panel_on_green': '13', 'LED_panel_on_cool_white': '134', 'LED_panel_on_blue': '134'}
-
-"""
-
-#debugrob: look for the following fields in the recipe_dict (OK if missing)
-# temp_humidity_sht25 (val is publish secs)
-# co2_t6713 (val is publish secs)
-#
-# LED vals are 0 to 254
-# LED_panel_off_far_red
-# LED_panel_off_red
-# LED_panel_off_warm_white
-# LED_panel_off_green
-# LED_panel_off_cool_white
-# LED_panel_off_blue
-# 
-# LED_panel_on_far_red
-# LED_panel_on_red
-# LED_panel_on_warm_white
-# LED_panel_on_green
-# LED_panel_on_cool_white
-# LED_panel_on_blue
-#
-# undefinedoff_from (val is off time)
-# undefinedon_from (val is on time)
-
-#debugrob: returning this hard coded set of commands WORKS!  yay
         return_list = []
-        cmd = {} 
+        cmd = {}
         cmd['command'] = 'RESET'  # always the first command.
         cmd['arg0'] = '0'
         cmd['arg1'] = '0'
         return_list = [cmd]
 
-        cmd = {} 
+        cmd = {}
         cmd['command'] = 'LoadRecipeIntoVariable'
         cmd['arg0'] = 'co2_t6713'
-        cmd['arg1'] = '{ "dtype": "4", "measurement_period_ms": "60000", "num_cycles": "1", "cycles": [ { "num_steps": "1", "num_repeats": "28", "steps": [ { "set_point": "0", "duration": "86400" } ] } ] }' 
+        cmd['arg1'] = '{ "dtype": "4", "measurement_period_ms": "60000", "num_cycles": "1", "cycles": [ { "num_steps": "1", "num_repeats": "28", "steps": [ { "set_point": "0", "duration": "86400" } ] } ] }'
         return_list.append( cmd )
 
-        cmd = {} 
+        cmd = {}
         cmd['command'] = 'AddVariableToTreatment'
         cmd['arg0'] = '0'
         cmd['arg1'] = 'co2_t6713'
         return_list.append( cmd )
 
-        cmd = {} 
+        cmd = {}
         cmd['command'] = 'LoadRecipeIntoVariable'
         cmd['arg0'] = 'LED_panel'
         cmd['arg1'] = '{ "dtype": "10", "measurement_period_ms": "500", "num_cycles": "1", "curr_cycle": "0", "cycles": [ { "num_steps": "62", "num_repeats": "60", "curr_step": "0", "curr_repeat": "0", "steps": [ { "set_point": ["255","255","255","255","255","255"], "duration": "1" }, { "set_point": ["255","180","255","255","255","255"], "duration": "1" }, { "set_point": ["255","150","255","255","255","255"], "duration": "1" }, { "set_point": ["255","100","255","255","255","255"], "duration": "1" }, { "set_point": ["255","50","255","255","255","255"], "duration": "1" }, { "set_point": ["255","0","255","255","255","255"], "duration": "1" }, { "set_point": ["255","50","255","255","255","255"], "duration": "1" }, { "set_point": ["255","100","255","255","255","255"], "duration": "1" }, { "set_point": ["255","150","255","255","255","255"], "duration": "1" }, { "set_point": ["255","180","255","255","255","255"], "duration": "1" }, { "set_point": ["255","255","255","255","255","255"], "duration": "1" }, { "set_point": ["255","255","180","255","255","255"], "duration": "1" }, { "set_point": ["255","255","150","255","255","255"], "duration": "1" }, { "set_point": ["255","255","100","255","255","255"], "duration": "1" }, { "set_point": ["255","255","50","255","255","255"], "duration": "1" }, { "set_point": ["255","255","0","255","255","255"], "duration": "1" }, { "set_point": ["255","255","50","255","255","255"], "duration": "1" }, { "set_point": ["255","255","100","255","255","255"], "duration": "1" }, { "set_point": ["255","255","150","255","255","255"], "duration": "1" }, { "set_point": ["255","255","180","255","255","255"], "duration": "1" }, { "set_point": ["255","255","255","255","255","255"], "duration": "1" }, { "set_point": ["255","255","255","180","255","255"], "duration": "1" }, { "set_point": ["255","255","255","150","255","255"], "duration": "1" }, { "set_point": ["255","255","255","100","255","255"], "duration": "1" }, { "set_point": ["255","255","255","50","255","255"], "duration": "1" }, { "set_point": ["255","255","255","0","255","255"], "duration": "1" }, { "set_point": ["255","255","255","50","255","255"], "duration": "1" }, { "set_point": ["255","255","255","100","255","255"], "duration": "1" }, { "set_point": ["255","255","255","150","255","255"], "duration": "1" }, { "set_point": ["255","255","255","180","255","255"], "duration": "1" }, { "set_point": ["255","255","255","255","255","255"], "duration": "1" }, { "set_point": ["255","255","255","255","180","255"], "duration": "1" }, { "set_point": ["255","255","255","255","150","255"], "duration": "1" }, { "set_point": ["255","255","255","255","100","255"], "duration": "1" }, { "set_point": ["255","255","255","255","50","255"], "duration": "1" }, { "set_point": ["255","255","255","255","0","255"], "duration": "1" }, { "set_point": ["255","255","255","255","50","255"], "duration": "1" }, { "set_point": ["255","255","255","255","100","255"], "duration": "1" }, { "set_point": ["255","255","255","255","150","255"], "duration": "1" }, { "set_point": ["255","255","255","255","180","255"], "duration": "1" }, { "set_point": ["255","255","255","255","255","255"], "duration": "1" }, { "set_point": ["255","255","255","255","255","180"], "duration": "1" }, { "set_point": ["255","255","255","255","255","150"], "duration": "1" }, { "set_point": ["255","255","255","255","255","100"], "duration": "1" }, { "set_point": ["255","255","255","255","255","50"], "duration": "1" }, { "set_point": ["255","255","255","255","255","0"], "duration": "1" }, { "set_point": ["255","255","255","255","255","50"], "duration": "1" }, { "set_point": ["255","255","255","255","255","100"], "duration": "1" }, { "set_point": ["255","255","255","255","255","150"], "duration": "1" }, { "set_point": ["255","255","255","255","255","180"], "duration": "1" }, { "set_point": ["255","255","255","255","255","255"], "duration": "1" }, { "set_point": ["180","255","255","255","255","255"], "duration": "1" }, { "set_point": ["150","255","255","255","255","255"], "duration": "1" }, { "set_point": ["100","255","255","255","255","255"], "duration": "1" }, { "set_point": ["50","255","255","255","255","255"], "duration": "1" }, { "set_point": ["0","255","255","255","255","255"], "duration": "1" }, { "set_point": ["50","255","255","255","255","255"], "duration": "1" }, { "set_point": ["100","255","255","255","255","255"], "duration": "1" }, { "set_point": ["150","255","255","255","255","255"], "duration": "1" }, { "set_point": ["150","255","255","255","255","255"], "duration": "1" }, { "set_point": ["255","255","255","255","255","255"], "duration": "1" }, { "set_point": ["255","255","255","255","255","255"], "duration": "1" } ] } ] }'
         return_list.append( cmd )
 
-        cmd = {} 
+        cmd = {}
         cmd['command'] = 'AddVariableToTreatment'
         cmd['arg0'] = '0'
         cmd['arg1'] = 'LED_panel'
         return_list.append( cmd )
 
-        cmd = {} 
+        cmd = {}
         cmd['command'] = 'RunTreatment'
         cmd['arg0'] = '0'
         cmd['arg1'] = '0'
@@ -163,7 +133,7 @@ def send_recipe_to_device_via_IoT( iot_client, device_id, commands_list ):
         'projects/{}/locations/{}/registries/{}/devices/{}'.format(
             cloud_project_id, cloud_region, device_registry, device_id )
     devices = iot_client.projects().locations().registries().devices()
-    configs = devices.configVersions().list( name=device_path 
+    configs = devices.configVersions().list( name=device_path
             ).execute().get( 'deviceConfigs', [] )
 
     latestVersion = 1 # the first / default version
@@ -176,7 +146,7 @@ def send_recipe_to_device_via_IoT( iot_client, device_id, commands_list ):
                 configs[0].get('binaryData') ))
 
     # JSON commands array we send to the device
-    #{ 
+    #{
     #    "messageId": "<messageId>",   # number of seconds since epoch
     #    "deviceId": "<deviceId>",     
     #    "commands": [
@@ -277,7 +247,7 @@ def register():
 @app.route('/api/posttwitter/',methods=['GET', 'POST'])
 def posttwitter():
     received_form_response = json.loads(request.data)
-    current_date = datetime.datetime.utcnow()
+    current_date = datetime.utcnow()
     user_uuid = received_form_response.get("user_uuid","Error")
     api.update_status('Food computer status for %s on %s'%(user_uuid,str(current_date)))
     data  = {
@@ -633,7 +603,7 @@ def get_current_stats():
         values_json = (ast.literal_eval(row[3]))
         if "values" in values_json:
             values = values_json["values"]
-            result_json["current_co2"]= values[0]['value']
+            result_json["current_co2"]= "{0:.2f}".format(float(values[0]['value']))
 
     temp_user_query = """#standardsql
             SELECT
@@ -658,9 +628,9 @@ def get_current_stats():
         if "values" in values_json:
             values = values_json["values"]
             if len(values) >0 :
-                result_json["current_temp"] = values[0]['value']
+                result_json["current_temp"] = "{0:.2f}".format(float(values[0]['value']))
                 if len(values) > 1:
-                    result_json["current_rh"] = values[0]['value']
+                    result_json["current_rh"] =  "{0:.2f}".format(float(values[1]['value']))
 
     data = json.dumps({
         "response_code": 200,
@@ -672,8 +642,8 @@ def get_current_stats():
 
 @app.route('/api/get_co2_details/',methods=['GET', 'POST'])
 def get_co2_details():
-    past_day_date = (datetime.datetime.now() - datetime.timedelta(hours=24))
-    current_date = datetime.datetime.utcnow()
+    past_day_date = (datetime.now() - timedelta(hours=24))
+    current_date = datetime.utcnow()
     # received_form_response = json.loads(request.data)
     job_config = bigquery.QueryJobConfig()
 
@@ -718,8 +688,8 @@ def get_co2_details():
 
 @app.route('/api/get_temp_details/', methods=['GET', 'POST'])
 def get_temp_details():
-    past_day_date = (datetime.datetime.now() - datetime.timedelta(hours=24))
-    current_date = datetime.datetime.utcnow()
+    past_day_date = (datetime.now() - timedelta(hours=24))
+    current_date = datetime.utcnow()
     print("Past day date")
     print(past_day_date)
     print("Current date")
@@ -828,7 +798,7 @@ def get_led_panel():
 #------------------------------------------------------------------------------
 # Send the current recipe to the device.
 def send_recipe_to_device( device_id, recipe_uuid ):
-    print('send_recipe_to_device: dev={} rec={}'.format( 
+    print('send_recipe_to_device: dev={} rec={}'.format(
         device_id, recipe_uuid ))
     # Get the specified recipe
     query = datastore_client.query( kind='Recipes' )

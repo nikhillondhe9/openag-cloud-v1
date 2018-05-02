@@ -40,6 +40,7 @@
     "d3-transition": "^1.1.1",
     "prop-types": "^15.6.1",
     "rc-time-picker": "^3.3.1",
+    "react-console-component": "^0.6.1",
     "react-cookie": "^2.1.4"
   }
 }

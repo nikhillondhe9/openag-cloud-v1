@@ -34,6 +34,13 @@
     text-align: center;
     max-height: 200px;
 }
+.current-stats-card-edited
+{
+    padding:20px;
+    text-align: center;
+    max-height: 200px;
+    border:2px solid #883c63;
+}
 
 /*.value-card:hover*/
 /*{*/
@@ -216,4 +223,14 @@ h3{
 input
 {
     text-align:center;
+}
+
+.time-row
+{
+    padding-top:10px;
+}
+
+.apply-button
+{
+    float:right;
 }
