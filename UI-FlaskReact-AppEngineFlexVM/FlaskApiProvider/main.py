@@ -711,13 +711,9 @@ def get_co2_details():
     job_config = bigquery.QueryJobConfig()
 
     job_config.use_legacy_sql = False
-    insert_user_query = queries.fetch_co2_results_history
-    query_params = [
-        bigquery.ScalarQueryParameter('startDate', 'STRING', str(past_day_date)),
-        bigquery.ScalarQueryParameter('endDate', 'STRING', str(current_date))
-    ]
-    job_config.query_parameters = query_params
-    query_job = bigquery_client.query(insert_user_query, job_config=job_config)
+#debugrob: these queries need to be for a specific device_id
+    query_str = queries.fetch_co2_results_history
+    query_job = bigquery_client.query(query_str, job_config=job_config)
     query_result = query_job.result()
     results = []
     for row in list(query_result):
@@ -740,8 +736,8 @@ def get_temp_details():
 
     job_config.use_legacy_sql = False
 #debugrob: these queries need to be for a specific device_id
-    insert_user_query = queries.fetch_temp_results_history
-    query_job = bigquery_client.query(insert_user_query, job_config=job_config)
+    query_str = queries.fetch_temp_results_history
+    query_job = bigquery_client.query(query_str, job_config=job_config)
 
     query_result = query_job.result()
     humidity_array = []

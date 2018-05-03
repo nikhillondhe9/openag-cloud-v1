@@ -105,13 +105,13 @@ class DeviceHomepage extends Component {
             console: Console
         };
         this.changes = {led_on_data: {}, led_off_data: {}}
+        this.getUserDevices = this.getUserDevices.bind(this);
         this.getCurrentStats = this.getCurrentStats.bind(this);
         this.getTempDetails = this.getTempDetails.bind(this);
         this.getCO2Details = this.getCO2Details.bind(this);
         this.toggleRHData = this.toggleRHData.bind(this);
         this.toggleTempData = this.toggleTempData.bind(this);
         this.handleColorChange = this.handleColorChange.bind(this);
-        this.getUserDevices = this.getUserDevices.bind(this);
         this.toggle = this.toggle.bind(this);
         this.modalToggle = this.modalToggle.bind(this);
         this.changeValue = this.changeValue.bind(this);
@@ -334,8 +334,12 @@ class DeviceHomepage extends Component {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*'
-            }
+            },
+            body: JSON.stringify({
+                "selected_device_uuid": this.state.selected_device_uuid 
+            })
         })
+//debugrob: do above with all queries
 
             .then((response) => response.json())
             .then((responseJson) => {

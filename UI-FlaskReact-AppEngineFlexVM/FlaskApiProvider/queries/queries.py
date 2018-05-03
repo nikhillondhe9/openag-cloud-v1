@@ -15,6 +15,7 @@ insert_user_query = """#standardsql
           ORDER BY REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)') DESC 
           LIMIT 1"""
 
+#debugrob: these queries need to be for a specific device_id
 fetch_temp_results_history  = """#standardsql
             SELECT
               FORMAT_TIMESTAMP( '%c', TIMESTAMP( REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)')), 'America/New_York') as eastern_time,
