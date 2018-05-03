@@ -1028,7 +1028,7 @@ class DeviceHomepage extends Component {
                             <div className="card value-card">
                                 <div className="card-block">
                                     <h4 className="card-title "> Temperature Sensor </h4>
-                                    <div className="row">
+                                    <div className="row plot-row" style={{display:'block'}}>
                                         <strong className="no-cursor"> <Plot data={this.state.temp_data}
                                                                              layout={this.state.temp_layout}
                                                                              onInitialized={(figure) => this.setState(figure)}
@@ -1048,7 +1048,7 @@ class DeviceHomepage extends Component {
                                 <div className="card-block">
                                     <h4 className="card-title "> Relative Humidity Sensor </h4>
 
-                                    <div className="row">
+                                    <div className="row plot-row" style={{display:'block'}}>
                                         <strong className="no-cursor"> <Plot data={this.state.rh_data}
                                                                              layout={this.state.rh_layout}
                                                                              onInitialized={(figure) => this.setState(figure)}
@@ -1067,7 +1067,7 @@ class DeviceHomepage extends Component {
                                 <div className="card-block">
                                     <h4 className="card-title "> Carbon Dioxide Sensor </h4>
 
-                                    <div className="row">
+                                    <div className="row plot-row" style={{display:'block'}}>
                                         <strong className="no-cursor"> <Plot data={this.state.co2_data}
                                                                              layout={this.state.co2_layout}
                                                                              onInitialized={(figure) => this.setState(figure)}
@@ -1084,8 +1084,8 @@ class DeviceHomepage extends Component {
                             <div className="card value-card">
                                 <div className="card-block">
                                     <h4 className="card-title "> LED Panel History </h4>
-
-                                    <div className="row">
+                                    {/*Insert Style here to prevent style overrride*/}
+                                    <div className="row plot-row" style={{display:'block'}}>
                                         <strong className="no-cursor"> <Plot data={this.state.led_data}
                                                                              layout={this.state.led_layout}
                                                                              onInitialized={(figure) => this.setState(figure)}
@@ -1099,7 +1099,7 @@ class DeviceHomepage extends Component {
                     </Draggable>
                 </div>
                 <Modal isOpen={this.state.modal} toggle={this.modalToggle} className={this.props.className}>
-                    <ModalHeader toggle={this.toggle}>Apply Recipe Changes</ModalHeader>
+                    <ModalHeader toggle={this.modalToggle}>Apply Recipe Changes</ModalHeader>
 
                     <ModalBody>
                         Are you sure you want to apply these changes to your device ?
