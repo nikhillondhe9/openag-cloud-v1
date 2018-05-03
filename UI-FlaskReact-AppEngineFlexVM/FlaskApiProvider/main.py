@@ -855,7 +855,7 @@ def apply_to_device():
         return result
 
     apply_to_device_task.update({
-        'recipe_token':str(uuid.uuid4()),
+        'recipe_session_token':str(uuid.uuid4()), #Used to track the recipe applied to the device and modifications made to it.
         'device_uuid': device_uuid,
         'recipe_uuid': recipe_uuid,
         'date_applied': date_applied,
@@ -885,6 +885,11 @@ def apply_to_device():
 def submit_recipe_change():
     received_form_response = json.loads(request.data)
     recipe_state = received_form_response.get("recipe_state",{})
+    device_uuid = received_form_response.get("device_uuid","")
+    user_uuid = received_form_response.get("user_uuid","")
+    recipe_session_token = received_form_response.get("recipe_session_token","")
+    key = datastore_client.key('RecipeHistory')
+    device_reg_task = datastore.Entity(key, exclude_from_indexes=[])
 
     # Build a custom recipe dict from the dashboard values
     recipe_dict = {}
@@ -905,7 +910,14 @@ def submit_recipe_change():
     recipe_dict[ 'LED_panel_off_cool_white' ] = str( led_off['cool_white'] )
     recipe_dict[ 'LED_panel_off_blue' ] = str( led_off['blue'] )
     device_id = recipe_state['selected_device_uuid']
+    device_reg_task.update({
+        "device_uuid": device_uuid,
+        "user_uuid": user_uuid,
+        "recipe_session_token": recipe_session_token,
+        "recipe_state":str(recipe_dict)
+    })
 
+    datastore_client.put(device_reg_task)
     # convert the values in the dict into what the Cbrain expects
     commands_list = convert_UI_recipe_to_commands( recipe_dict )
     send_recipe_to_device_via_IoT( iot_client, device_id, commands_list )

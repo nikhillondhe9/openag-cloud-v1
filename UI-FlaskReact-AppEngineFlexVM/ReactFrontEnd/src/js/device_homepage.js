@@ -74,7 +74,7 @@ class DeviceHomepage extends Component {
             current_co2: "Loading",
             sensor_co2: 1231,
             sensor_temp: 120,
-            sensor_rh: 200,
+            sensor_rh: 120,
             rh_data: [],
             co2_data: [],
             led_on_data: {cool_white: 10, red: 100, blue: 29, green: 39, warm_white: 3, far_red: 22},
@@ -180,6 +180,7 @@ class DeviceHomepage extends Component {
         this.changes[e.target.name] = e.target.value;
         this.setState({changes: this.changes})
         console.log("I set to ", this.changes)
+
         this.setState({[e.target.name]: e.target.value})
 
     }
@@ -293,7 +294,7 @@ class DeviceHomepage extends Component {
                         'co2_data': [{
                             type: "scatter",
                             mode: "lines+markers",
-                            name: 'AAPL High',
+                            name: '',
                             x: co2_data_x,
                             y: co2_data_y,
                             line: {color: '#ECAD48'}
@@ -370,7 +371,7 @@ class DeviceHomepage extends Component {
                         'rh_data': [{
                             type: "scatter",
                             mode: "lines",
-                            name: 'AAPL High',
+                            name: '',
                             x: rh_data_x,
                             y: rh_data_y,
                             line: {color: '#95266A'}
@@ -407,7 +408,7 @@ class DeviceHomepage extends Component {
                         'temp_data': [{
                             type: "scatter",
                             mode: "lines+markers",
-                            name: 'AAPL High',
+                            name: '',
                             x: temp_data_x,
                             y: temp_data_y,
                             line: {color: '#008BC2'}
@@ -486,42 +487,42 @@ class DeviceHomepage extends Component {
                         'led_data': [{
                             type: "scatter",
                             mode: "lines+markers",
-                            name: 'AAPL High',
+                            name: 'Cool White',
                             x: led_data_x,
                             y: led_data_cool_white,
                             line: {color: '#f5f5f5'}
                         },{
                             type: "scatter",
                             mode: "lines+markers",
-                            name: 'AAPL High',
+                            name: 'Warm White',
                             x: led_data_x,
                             y: led_data_warm_white,
                             line: {color: '#efebd8'}
                         },{
                             type: "scatter",
                             mode: "lines+markers",
-                            name: 'AAPL High',
+                            name: 'Blue',
                             x: led_data_x,
                             y: led_data_blue,
                             line: {color: '#0000ff'}
                         },{
                             type: "scatter",
                             mode: "lines+markers",
-                            name: 'AAPL High',
+                            name: 'Red',
                             x: led_data_x,
                             y: led_data_red,
                             line: {color: '#ff0000'}
                         },{
                             type: "scatter",
                             mode: "lines+markers",
-                            name: 'AAPL High',
+                            name: 'Green',
                             x: led_data_x,
                             y: led_data_green,
                             line: {color: '#00ff00'}
                         },{
                             type: "scatter",
                             mode: "lines+markers",
-                            name: 'AAPL High',
+                            name: 'Far Red',
                             x: led_data_x,
                             y: led_data_far_red,
                             line: {color: '#960000'}
@@ -530,7 +531,7 @@ class DeviceHomepage extends Component {
 
                     this.setState({
                         'led_layout': {
-                            width: 650,
+                            width: 670,
                             height: 520,
                             xaxis: {
                                 autorange: true,
@@ -739,7 +740,7 @@ class DeviceHomepage extends Component {
                                         <div className="graph">
                                             <strong className="no-cursor">
                                                 <span className="txt_smaller">Publish sensor values every</span>
-                                                <div className="knob_data"><input defaultValue={this.state.sensor_temp}
+                                                <div className="knob_data"><input defaultValue={this.state.sensor_temp} value={this.state.sensor_temp}
                                                                                   onChange={this.sensorOnChange}
                                                                                   id="sensor_temp" name="sensor_temp"
                                                                                   type="text"
@@ -755,18 +756,18 @@ class DeviceHomepage extends Component {
                     </Draggable>
                     <Draggable cancel="strong">
                         <div className="col-md-4">
-                            <div className="card current-stats-card" style={{border: this.state.sensor_rh_border}}>
+                            <div className="card current-stats-card" style={{border: this.state.sensor_temp_border}}>
                                 <div className="card-block">
                                     <h4 className="card-title "> Relative Humidity </h4>
                                     <div className="card-text">
                                         <div className="graph">
                                             <strong className="no-cursor">
                                                 <span className="txt_smaller">Publish sensor values every</span>
-                                                <div className="knob_data"><input defaultValue={this.state.sensor_rh}
+                                                <div className="knob_data"><input defaultValue={this.state.sensor_temp} value={this.state.sensor_temp}
                                                                                   onChange={this.sensorOnChange}
-                                                                                  id="sensor_rh" name="sensor_rh"
+                                                                                  id="sensor_temp" name="sensor_temp"
                                                                                   type="text"
-                                                                                  ref="sensor_rh"/>
+                                                                                  ref="sensor_temp"/>
                                                 </div>
                                                 <span className="txt_smaller">seconds</span>
                                             </strong>
