@@ -610,7 +610,58 @@ def get_recipe_components():
     result = Response(data, status=200, mimetype='application/json')
     return result
 
+@app.route('/api/get_recipe_details/',methods=['GET', 'POST'])
+def get_recipe_details():
+    received_form_response = json.loads(request.data)
+    recipe_uuid = received_form_response.get("recipe_uuid",None)
+    if recipe_uuid is None:
+        return Response({"message":"Error occured"}, status=500, mimetype='application/json')
 
+    query = datastore_client.query(kind='Recipes')
+    query.add_filter('recipe_uuid', '=', recipe_uuid)
+    query_result = list(query.fetch())
+    results = list(query_result)
+    results_array = []
+    if len(results) > 0:
+        for result_row in results:
+            components_array = []
+            components = result_row.get("components", [])
+            for component_id in components:
+                component_query = datastore_client.query(kind='Components')
+                component_query.add_filter('component_id', '=', int(component_id))
+                query_result = list(component_query.fetch())
+                component_results = list(query_result)
+
+                if len(component_results) > 0:
+                    for component_result_row in component_results:
+                        result_json = {
+                            'component_key': component_result_row.get("component_key", ""),
+                            'component_id': component_result_row.get("component_id", ""),
+                            'component_description': component_result_row.get("component_description", ""),
+                            'component_label': component_result_row.get("component_label", ""),
+                            'component_type': component_result_row.get("component_type", ""),
+                            'field_json': json.loads(component_result_row.get("field_json", {})),
+                            'modified_at': component_result_row.get("modified_at", "").strftime("%Y-%m-%d %H:%M:%S")
+                        }
+                        components_array.append(result_json)
+
+            result_json = {
+                'recipe_name': result_row.get("recipe_name", ""),
+                'recipe_plant':result_row.get("recipe_plant", ""),
+                'recipe_json': result_row.get("recipe_json", {}),
+                'modified_at': result_row.get("modified_at", "").strftime("%Y-%m-%d %H:%M:%S"),
+                'recipe_uuid': result_row.get("recipe_uuid", ""),
+                "components":components_array
+            }
+            results_array.append(result_json)
+
+        data = json.dumps({
+            "response_code": 200,
+            "results": results_array
+        })
+        result = Response(data, status=200, mimetype='application/json')
+        return result
+    
 @app.route('/api/save_recipe/', methods=['GET', 'POST'])
 def save_recipe():
     received_form_response = json.loads(request.data)
