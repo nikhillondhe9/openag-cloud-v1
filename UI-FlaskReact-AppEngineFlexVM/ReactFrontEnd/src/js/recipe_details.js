@@ -157,6 +157,11 @@ class RecipeDetails extends Component {
         },this);
         return (
             <div className="home-container">
+                <div className="row">
+                    <div className="col-md-4" >
+                    <a href="/recipes"> Back to climate recipes</a>
+                    </div>
+                </div>
                 <div className="row home-row">
                     <div className="col-md-4 img-col">
                         <img src={arugula}/>
