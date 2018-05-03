@@ -145,10 +145,6 @@ class DeviceHomepage extends Component {
 
     componentDidMount() {
         this.getUserDevices()
-        this.getTempDetails();
-        this.getCO2Details();
-        this.getCurrentStats();
-        this.getLEDPanel();
     }
 
     sliderChange(led_data_type, color_channel, value) {
@@ -190,9 +186,7 @@ class DeviceHomepage extends Component {
         console.log("Color", color.hex);
     }
 
-    getCurrentStats() {
-
-
+    getCurrentStats( device_uuid ) {
         return fetch('http://food.computer.com:5000/api/get_current_stats/', {
             method: 'POST',
             headers: {
@@ -202,7 +196,8 @@ class DeviceHomepage extends Component {
             },
             body: JSON.stringify({
                 'user_uuid': this.state.user_uuid,
-                'user_token': this.props.cookies.get('user_token')
+                'user_token': this.props.cookies.get('user_token'),
+                'selected_device_uuid': device_uuid 
             })
         })
             .then((response) => response.json())
@@ -241,31 +236,43 @@ class DeviceHomepage extends Component {
 
                     var devs = [];                  // make array
                     devs = responseJson["results"]; // assign array
+                    var device_uuid = 'None'
                     if (devs.length > 0) {         // if we have devices
                         // default the selected device to the first/only dev.
-                        this.state.selected_device_uuid = devs[0].device_uuid;
+                        var name = devs[0].device_name + ' (' + 
+                            devs[0].device_reg_no + ')';
+                        this.setState({dropDownValue: name});
+                        device_uuid = devs[0].device_uuid;
+                        this.setState({selected_device_uuid: device_uuid});
                     }
 
                     this.setState({user_devices: responseJson["results"]})
-                    this.setState({dropDownValue: this.state.selected_device_uuid})
+
+                    // Now go get the data that requires a device id
+                    this.getTempDetails( device_uuid );
+                    this.getCO2Details( device_uuid );
+                    this.getCurrentStats( device_uuid );
+                    this.getLEDPanel( device_uuid );
 
                     console.log("Response", responseJson["results"])
                 }
-
             })
             .catch((error) => {
                 console.error(error);
             });
     }
 
-    getCO2Details() {
+    getCO2Details( device_uuid ) {
         return fetch('http://food.computer.com:5000/api/get_co2_details/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*'
-            }
+            },
+            body: JSON.stringify({
+                'selected_device_uuid': device_uuid 
+            })
         })
 
             .then((response) => response.json())
@@ -327,7 +334,7 @@ class DeviceHomepage extends Component {
             });
     }
 
-    getTempDetails() {
+    getTempDetails( device_uuid ) {
         return fetch('http://food.computer.com:5000/api/get_temp_details/', {
             method: 'POST',
             headers: {
@@ -336,11 +343,9 @@ class DeviceHomepage extends Component {
                 'Access-Control-Allow-Origin': '*'
             },
             body: JSON.stringify({
-                "selected_device_uuid": this.state.selected_device_uuid 
+                'selected_device_uuid': device_uuid 
             })
         })
-//debugrob: do above with all queries
-
             .then((response) => response.json())
             .then((responseJson) => {
                 console.log(responseJson)
@@ -433,25 +438,24 @@ class DeviceHomepage extends Component {
                     });
 
                     this.setState({'show_temp_line': true})
-
-
-
                 }
-
             })
             .catch((error) => {
                 console.error(error);
             });
     }
 
-    getLEDPanel() {
+    getLEDPanel( device_uuid ) {
         return fetch('http://food.computer.com:5000/api/get_led_panel/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*'
-            }
+            },
+            body: JSON.stringify({
+                'selected_device_uuid': device_uuid 
+            })
         })
             .then((response) => response.json())
             .then((responseJson) => {
@@ -564,8 +568,16 @@ class DeviceHomepage extends Component {
     }
 
     changeValue(e) {
-        console.log("Selected devic SecondAtTest(343322) e", e.currentTarget.textContent)
-        this.setState({dropDownValue: e.currentTarget.textContent})
+        this.setState({dropDownValue: e.currentTarget.textContent}) // name
+        let device_uuid = e.target.value
+        this.setState({selected_device_uuid: device_uuid}) 
+        this.setState({current_rh: "Loading"}) 
+        this.setState({current_temp: "Loading"}) 
+        this.setState({current_co2: "Loading"}) 
+        this.getTempDetails( device_uuid );
+        this.getCO2Details( device_uuid );
+        this.getCurrentStats( device_uuid );
+        this.getLEDPanel( device_uuid );
     }
 
     echo(text) {
@@ -600,14 +612,13 @@ class DeviceHomepage extends Component {
             body: JSON.stringify({
                 'user_uuid': this.state.user_uuid,
                 'user_token': this.props.cookies.get('user_token'),
-                "recipe_state": this.state,
-                "selected_device_uuid": this.state.selected_device_uuid
+                'recipe_state': this.state,
+                'selected_device_uuid': this.state.selected_device_uuid
             })
         })
             .then((response) => response.json())
             .then((responseJson) => {
                 console.log(responseJson)
-
             })
             .catch((error) => {
                 console.error(error);
@@ -620,8 +631,8 @@ class DeviceHomepage extends Component {
         if (this.state.user_devices.length > 0) {
             listDevices = this.state.user_devices.map((device) => {
                 return <DropdownItem key={device.device_uuid}
-                                     onClick={this.changeValue}>{device.device_name}
-                    ({device.device_reg_no}) </DropdownItem>
+                    value={device.device_uuid}
+                    onClick={this.changeValue}>{device.device_name} ({device.device_reg_no}) </DropdownItem>
             });
 
         }
@@ -1110,7 +1121,7 @@ class DeviceHomepage extends Component {
                     </ModalBody>
                     <ModalFooter>
                         <Button color="primary" onClick={this.handleApplySubmit}>Apply</Button>{' '}
-                        <Button color="secondary" onClick={this.modalToggle}>Cancel</Button>
+                        <Button color="secondary" onClick={this.modalToggle}>Close</Button>
                     </ModalFooter>
                 </Modal>
             </div>
