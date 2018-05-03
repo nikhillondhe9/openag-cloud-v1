@@ -237,11 +237,9 @@ def send_recipe_to_device_via_IoT( iot_client, device_id, commands_list ):
     latestVersion = 1 # the first / default version
     if 0 < len( configs ):
         latestVersion = configs[0].get('version')
-        print('latest version: {}\n\tcloudUpdateTime: {}\n' \
-            '\tbinaryData: {}'.format(
-                configs[0].get('version'),
-                configs[0].get('cloudUpdateTime'),
-                configs[0].get('binaryData') ))
+        #print('send_recipe_to_device_via_IoT: Current config version: {}' \
+        #    'Received on: {}\n'.format( latestVersion,
+        #        configs[0].get('cloudUpdateTime')))
 
     # JSON commands array we send to the device
     #{
@@ -272,7 +270,8 @@ def send_recipe_to_device_via_IoT( iot_client, device_id, commands_list ):
     config['commands'] = commands_list
 
     config_json = json.dumps( config ) # dict to JSON string
-    print('config payload: {}'.format( config_json ))
+    print('send_recipe_to_device_via_IoT: Sending commands to device: {}' \
+        .format( config_json ))
 
     config_body = {
         'versionToUpdate': version,
@@ -282,7 +281,7 @@ def send_recipe_to_device_via_IoT( iot_client, device_id, commands_list ):
     res = iot_client.projects().locations().registries().devices(
             ).modifyCloudToDeviceConfig(
                 name=device_path, body=config_body ).execute()
-    print('config update result: {}'.format( res ))
+    #print('config update result: {}'.format( res ))
 
 
 #------------------------------------------------------------------------------
@@ -422,9 +421,7 @@ def get_user_devices():
     print("Fetching all the user devices")
 
     received_form_response = json.loads(request.data)
-
     user_token = received_form_response.get("user_token", None)
-
     if user_token is None:
         result = Response({"message": "Please make sure you have added values for all the fields"}, status=500,
                           mimetype='application/json')
@@ -446,16 +443,20 @@ def get_user_devices():
     results_array = []
     if len(results) > 0:
         for result_row in results:
-            device_id = result_row.get("device_uuid", "");
-            print('  {}'.format( device_id ))
+            device_id = result_row.get("device_uuid", "")
+            device_reg_no = result_row.get("device_reg_no", "")
+            device_name = result_row.get("device_name", "")
+            print('  {}, {}, {}'.format( 
+                device_id, device_reg_no, device_name ))
             result_json = {
                 'device_uuid': device_id,
                 'device_notes': result_row.get("device_notes", ""),
                 'device_type': result_row.get("device_type", ""),
-                'device_reg_no': result_row.get("device_reg_no", ""),
-                'registration_date': result_row.get("registration_date", "").strftime("%Y-%m-%d %H:%M:%S"),
+                'device_reg_no': device_reg_no,
+                'registration_date': result_row.get("registration_date", ""
+                    ).strftime("%Y-%m-%d %H:%M:%S"),
                 'user_uuid': result_row.get("user_uuid", ""),
-                'device_name': result_row.get("device_name", "")
+                'device_name': device_name
             }
             results_array.append(result_json)
 
@@ -667,27 +668,37 @@ def save_recipe():
 
     return result
 
+
+#------------------------------------------------------------------------------
 @app.route('/api/get_current_stats/',methods=['GET', 'POST'])
 def get_current_stats():
+    received_form_response = json.loads(request.data)
+    device_uuid = received_form_response.get("selected_device_uuid", None)
+
+    if device_uuid is None:
+        device_uuid = 'None'
+
     job_config = bigquery.QueryJobConfig()
-
     job_config.use_legacy_sql = False
-    current_status_query = queries.current_status_query
 
-    query_job = bigquery_client.query(current_status_query, job_config=job_config)
+    query_str = queries.formatQuery( 
+            queries.fetch_current_co2_value, device_uuid )
+
+    query_job = bigquery_client.query( query_str, job_config=job_config)
     query_result = query_job.result()
     result_json = {}
     for row in list(query_result):
-        values_json = (ast.literal_eval(row[3]))
+        values_json = (ast.literal_eval(row[1]))
         if "values" in values_json:
             values = values_json["values"]
             result_json["current_co2"]= "{0:.2f}".format(float(values[0]['value']))
+    query_str = queries.formatQuery( 
+            queries.fetch_temp_results_history, device_uuid )
 
-    temp_user_query = queries.fetch_temp_results_history
-    query_job = bigquery_client.query(temp_user_query, job_config=job_config)
+    query_job = bigquery_client.query( query_str, job_config=job_config)
     query_result = query_job.result()
     for row in list(query_result):
-        values_json = (ast.literal_eval(row[3]))
+        values_json = (ast.literal_eval(row[1]))
         if "values" in values_json:
             values = values_json["values"]
             if len(values) >0 :
@@ -703,21 +714,29 @@ def get_current_stats():
     result = Response(data, status=200, mimetype='application/json')
     return result
 
+
+#------------------------------------------------------------------------------
 @app.route('/api/get_co2_details/',methods=['GET', 'POST'])
 def get_co2_details():
+    received_form_response = json.loads(request.data)
+    device_uuid = received_form_response.get("selected_device_uuid", None)
+
+    if device_uuid is None:
+        device_uuid = 'None'
+
     past_day_date = (datetime.now() - timedelta(hours=24))
     current_date = datetime.utcnow()
-    # received_form_response = json.loads(request.data)
     job_config = bigquery.QueryJobConfig()
-
     job_config.use_legacy_sql = False
-#debugrob: these queries need to be for a specific device_id
-    query_str = queries.fetch_co2_results_history
-    query_job = bigquery_client.query(query_str, job_config=job_config)
+
+    query_str = queries.formatQuery( 
+            queries.fetch_co2_results_history, device_uuid )
+
+    query_job = bigquery_client.query( query_str, job_config=job_config)
     query_result = query_job.result()
     results = []
     for row in list(query_result):
-        values_json = (ast.literal_eval(row[3]))
+        values_json = (ast.literal_eval(row[1]))
         if "values" in values_json:
             values = values_json["values"]
             results.append({'value': values[0]['value'], 'time': row.eastern_time})
@@ -730,14 +749,23 @@ def get_co2_details():
     result = Response(data, status=200, mimetype='application/json')
     return result
 
+
+#------------------------------------------------------------------------------
 @app.route('/api/get_temp_details/', methods=['GET', 'POST'])
 def get_temp_details():
-    job_config = bigquery.QueryJobConfig()
+    received_form_response = json.loads(request.data)
+    device_uuid = received_form_response.get("selected_device_uuid", None)
 
+    if device_uuid is None:
+        device_uuid = 'None'
+
+    job_config = bigquery.QueryJobConfig()
     job_config.use_legacy_sql = False
-#debugrob: these queries need to be for a specific device_id
-    query_str = queries.fetch_temp_results_history
-    query_job = bigquery_client.query(query_str, job_config=job_config)
+
+    query_str = queries.formatQuery( 
+            queries.fetch_temp_results_history, device_uuid )
+
+    query_job = bigquery_client.query( query_str, job_config=job_config)
 
     query_result = query_job.result()
     humidity_array = []
@@ -747,21 +775,25 @@ def get_temp_details():
         'temp':temp_array
     }
     for row in list(query_result):
-        values_json = (ast.literal_eval(row[3]))
+        values_json = (ast.literal_eval(row[1]))
         if "values" in values_json:
             values = values_json["values"]
-            if len(values) >0 :
-                result_json["temp"].append({'value':values[0]['value'],'time':row.eastern_time})
+            if len(values) > 0 :
+                result_json["temp"].append(
+                    {'value':values[0]['value'],'time':row.eastern_time})
                 if len(values) > 1:
-                    result_json["RH"].append({'value':values[1]['value'],'time':row.eastern_time})
+                    result_json["RH"].append(
+                        {'value':values[1]['value'],'time':row.eastern_time})
 
-    temp_seq = [x['time'] for x in result_json["temp"]]
-    result_json["temp_max"] = max(temp_seq)
-    result_json["temp_min"] = min(temp_seq)
+    if len( result_json["temp"] ) > 0 :
+        temp_seq = [x['time'] for x in result_json["temp"]]
+        result_json["temp_max"] = max(temp_seq)
+        result_json["temp_min"] = min(temp_seq)
 
-    rh_seq = [x['time'] for x in result_json["RH"]]
-    result_json["rh_max"] = max(rh_seq)
-    result_json["rh_min"] = min(rh_seq)
+    if len( result_json["RH"] ) > 0 :
+        rh_seq = [x['time'] for x in result_json["RH"]]
+        result_json["rh_max"] = max(rh_seq)
+        result_json["rh_min"] = min(rh_seq)
 
     data = json.dumps({
         "response_code": 200,
@@ -771,18 +803,27 @@ def get_temp_details():
     result = Response(data, status=200, mimetype='application/json')
     return result
 
+
+#------------------------------------------------------------------------------
 @app.route('/api/get_led_panel/', methods=['GET', 'POST'])
 def get_led_panel():
-    job_config = bigquery.QueryJobConfig()
+    received_form_response = json.loads(request.data)
+    device_uuid = received_form_response.get("selected_device_uuid", None)
 
+    if device_uuid is None:
+        device_uuid = 'None'
+
+    job_config = bigquery.QueryJobConfig()
     job_config.use_legacy_sql = False
-    led_panel_history = queries.fetch_led_panel_history
-    query_job = bigquery_client.query(led_panel_history, job_config=job_config)
+
+    query_str = queries.formatQuery( 
+            queries.fetch_led_panel_history, device_uuid )
+
+    query_job = bigquery_client.query( query_str, job_config=job_config)
     query_result = query_job.result()
     result_json = []
-    for row in query_result:
-
-        values_json = (ast.literal_eval(row.row_values))
+    for row in list(query_result):
+        values_json = (ast.literal_eval(row[1]))
         if "values" in values_json:
             values = values_json["values"]
             if len(values) >0 :
