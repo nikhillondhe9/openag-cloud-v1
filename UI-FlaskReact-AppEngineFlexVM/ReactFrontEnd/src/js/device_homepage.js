@@ -74,7 +74,7 @@ class DeviceHomepage extends Component {
             current_co2: "Loading",
             sensor_co2: 1231,
             sensor_temp: 120,
-            sensor_rh: 200,
+            sensor_rh: 120,
             rh_data: [],
             co2_data: [],
             led_on_data: {cool_white: 10, red: 100, blue: 29, green: 39, warm_white: 3, far_red: 22},
@@ -176,6 +176,7 @@ class DeviceHomepage extends Component {
         this.changes[e.target.name] = e.target.value;
         this.setState({changes: this.changes})
         console.log("I set to ", this.changes)
+
         this.setState({[e.target.name]: e.target.value})
 
     }
@@ -300,7 +301,7 @@ class DeviceHomepage extends Component {
                         'co2_data': [{
                             type: "scatter",
                             mode: "lines+markers",
-                            name: 'AAPL High',
+                            name: '',
                             x: co2_data_x,
                             y: co2_data_y,
                             line: {color: '#ECAD48'}
@@ -354,10 +355,6 @@ class DeviceHomepage extends Component {
                     var formatTime = d3.timeFormat("%Y-%m-%d %H:%M:%S");
                     let tempData = responseJson["results"]["temp"]
                     let RHData = responseJson["results"]["RH"]
-                    let temp_min = formatTime(parseTime(responseJson["temp_min"]))
-                    let temp_max = formatTime(parseTime((responseJson["temp_max"])))
-                    let rh_min = formatTime(parseTime(responseJson["rh_min"]))
-                    let rh_max = formatTime(parseTime((responseJson["rh_max"])))
 
                     tempData.forEach(function (d) {
                         d.time = formatTime(parseTime(d.time));
@@ -369,7 +366,7 @@ class DeviceHomepage extends Component {
                     });
                     let rh_data_x = []
                     let rh_data_y = []
-                    tempData.forEach(function (d) {
+                    RHData.forEach(function (d) {
                         rh_data_x.push(d.time);
                         rh_data_y.push(d.value);
                     });
@@ -379,7 +376,7 @@ class DeviceHomepage extends Component {
                         'rh_data': [{
                             type: "scatter",
                             mode: "lines",
-                            name: 'AAPL High',
+                            name: '',
                             x: rh_data_x,
                             y: rh_data_y,
                             line: {color: '#95266A'}
@@ -416,7 +413,7 @@ class DeviceHomepage extends Component {
                         'temp_data': [{
                             type: "scatter",
                             mode: "lines+markers",
-                            name: 'AAPL High',
+                            name: '',
                             x: temp_data_x,
                             y: temp_data_y,
                             line: {color: '#008BC2'}
@@ -441,7 +438,6 @@ class DeviceHomepage extends Component {
                     });
 
                     this.setState({'show_temp_line': true})
-                    this.setState({'rh_data': RHData})
                 }
             })
             .catch((error) => {
@@ -496,42 +492,42 @@ class DeviceHomepage extends Component {
                         'led_data': [{
                             type: "scatter",
                             mode: "lines+markers",
-                            name: 'AAPL High',
+                            name: 'Cool White',
                             x: led_data_x,
                             y: led_data_cool_white,
                             line: {color: '#f5f5f5'}
                         },{
                             type: "scatter",
                             mode: "lines+markers",
-                            name: 'AAPL High',
+                            name: 'Warm White',
                             x: led_data_x,
                             y: led_data_warm_white,
                             line: {color: '#efebd8'}
                         },{
                             type: "scatter",
                             mode: "lines+markers",
-                            name: 'AAPL High',
+                            name: 'Blue',
                             x: led_data_x,
                             y: led_data_blue,
                             line: {color: '#0000ff'}
                         },{
                             type: "scatter",
                             mode: "lines+markers",
-                            name: 'AAPL High',
+                            name: 'Red',
                             x: led_data_x,
                             y: led_data_red,
                             line: {color: '#ff0000'}
                         },{
                             type: "scatter",
                             mode: "lines+markers",
-                            name: 'AAPL High',
+                            name: 'Green',
                             x: led_data_x,
                             y: led_data_green,
                             line: {color: '#00ff00'}
                         },{
                             type: "scatter",
                             mode: "lines+markers",
-                            name: 'AAPL High',
+                            name: 'Far Red',
                             x: led_data_x,
                             y: led_data_far_red,
                             line: {color: '#960000'}
@@ -540,7 +536,7 @@ class DeviceHomepage extends Component {
 
                     this.setState({
                         'led_layout': {
-                            width: 650,
+                            width: 670,
                             height: 520,
                             xaxis: {
                                 autorange: true,
@@ -756,7 +752,7 @@ class DeviceHomepage extends Component {
                                         <div className="graph">
                                             <strong className="no-cursor">
                                                 <span className="txt_smaller">Publish sensor values every</span>
-                                                <div className="knob_data"><input defaultValue={this.state.sensor_temp}
+                                                <div className="knob_data"><input value={this.state.sensor_temp}
                                                                                   onChange={this.sensorOnChange}
                                                                                   id="sensor_temp" name="sensor_temp"
                                                                                   type="text"
@@ -772,18 +768,18 @@ class DeviceHomepage extends Component {
                     </Draggable>
                     <Draggable cancel="strong">
                         <div className="col-md-4">
-                            <div className="card current-stats-card" style={{border: this.state.sensor_rh_border}}>
+                            <div className="card current-stats-card" style={{border: this.state.sensor_temp_border}}>
                                 <div className="card-block">
                                     <h4 className="card-title "> Relative Humidity </h4>
                                     <div className="card-text">
                                         <div className="graph">
                                             <strong className="no-cursor">
                                                 <span className="txt_smaller">Publish sensor values every</span>
-                                                <div className="knob_data"><input defaultValue={this.state.sensor_rh}
+                                                <div className="knob_data"><input value={this.state.sensor_temp}
                                                                                   onChange={this.sensorOnChange}
-                                                                                  id="sensor_rh" name="sensor_rh"
+                                                                                  id="sensor_temp" name="sensor_temp"
                                                                                   type="text"
-                                                                                  ref="sensor_rh"/>
+                                                                                  ref="sensor_temp"/>
                                                 </div>
                                                 <span className="txt_smaller">seconds</span>
                                             </strong>
@@ -1043,7 +1039,7 @@ class DeviceHomepage extends Component {
                             <div className="card value-card">
                                 <div className="card-block">
                                     <h4 className="card-title "> Temperature Sensor </h4>
-                                    <div className="row">
+                                    <div className="row plot-row" style={{display:'block'}}>
                                         <strong className="no-cursor"> <Plot data={this.state.temp_data}
                                                                              layout={this.state.temp_layout}
                                                                              onInitialized={(figure) => this.setState(figure)}
@@ -1063,7 +1059,7 @@ class DeviceHomepage extends Component {
                                 <div className="card-block">
                                     <h4 className="card-title "> Relative Humidity Sensor </h4>
 
-                                    <div className="row">
+                                    <div className="row plot-row" style={{display:'block'}}>
                                         <strong className="no-cursor"> <Plot data={this.state.rh_data}
                                                                              layout={this.state.rh_layout}
                                                                              onInitialized={(figure) => this.setState(figure)}
@@ -1082,7 +1078,7 @@ class DeviceHomepage extends Component {
                                 <div className="card-block">
                                     <h4 className="card-title "> Carbon Dioxide Sensor </h4>
 
-                                    <div className="row">
+                                    <div className="row plot-row" style={{display:'block'}}>
                                         <strong className="no-cursor"> <Plot data={this.state.co2_data}
                                                                              layout={this.state.co2_layout}
                                                                              onInitialized={(figure) => this.setState(figure)}
@@ -1099,8 +1095,8 @@ class DeviceHomepage extends Component {
                             <div className="card value-card">
                                 <div className="card-block">
                                     <h4 className="card-title "> LED Panel History </h4>
-
-                                    <div className="row">
+                                    {/*Insert Style here to prevent style overrride*/}
+                                    <div className="row plot-row" style={{display:'block'}}>
                                         <strong className="no-cursor"> <Plot data={this.state.led_data}
                                                                              layout={this.state.led_layout}
                                                                              onInitialized={(figure) => this.setState(figure)}
@@ -1114,7 +1110,7 @@ class DeviceHomepage extends Component {
                     </Draggable>
                 </div>
                 <Modal isOpen={this.state.modal} toggle={this.modalToggle} className={this.props.className}>
-                    <ModalHeader toggle={this.toggle}>Apply Recipe Changes</ModalHeader>
+                    <ModalHeader toggle={this.modalToggle}>Apply Recipe Changes</ModalHeader>
 
                     <ModalBody>
                         Are you sure you want to apply these changes to your device ?

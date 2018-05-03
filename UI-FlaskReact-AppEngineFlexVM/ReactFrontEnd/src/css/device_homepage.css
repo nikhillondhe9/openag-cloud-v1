@@ -204,6 +204,7 @@ h3{
 
 .graphs-row {
     padding:5px;
+
 }
 
 .row-header
@@ -233,4 +234,8 @@ input
 .apply-button
 {
     float:right;
+}
+.plot-row
+{
+    display: block;
 }

@@ -23,6 +23,7 @@ class recipes extends Component {
         this.toggle_apply_to_device = this.toggle_apply_to_device.bind(this);
         this.apply_to_device = this.apply_to_device.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.goToRecipe = this.goToRecipe.bind(this);
     }
 
     editRecipe(recipe_id) {
@@ -48,6 +49,10 @@ class recipes extends Component {
         });
         event.preventDefault();
 
+    }
+    goToRecipe(value,e)
+    {
+        window.location.href = "/recipe_details/"+(value).toString()
     }
     toggle(recipe, recipe_json) {
 
@@ -156,10 +161,10 @@ class recipes extends Component {
                             <h5 className="card-title">{recipe.recipe_name}</h5>
                             <h6 className="card-subtitle mb-2 text-muted">{recipe.recipe_plant}</h6>
                             <div className="card-text">
-                                <div onClick={this.editRecipe.bind(this, recipe.recipe_uuid)} id={recipe.recipe_uuid}
-                                     className="card-link">Edit Recipe
-                                </div>
-                                <div onClick={this.toggle.bind(this, recipe, recipe.recipe_json)} id={recipe.recipe_uuid}
+                                {/*<div onClick={this.editRecipe.bind(this, recipe.recipe_uuid)} id={recipe.recipe_uuid}*/}
+                                     {/*className="card-link">Edit Recipe*/}
+                                {/*</div>*/}
+                                <div onClick={this.goToRecipe.bind(this,recipe.recipe_uuid)} id={recipe.recipe_uuid}
                                      >View Recipe
                                 </div>
                                 <div onClick={this.toggle_apply_to_device.bind(this, recipe.recipe_uuid)} id={recipe.recipe_uuid}>Apply Recipe
@@ -178,12 +183,12 @@ class recipes extends Component {
                         <div className="col-md-3">
                             <div className="card">
                                 <div className="card-body">
-                                    <h5 className="card-title">Standard Recipe</h5>
+                                    <h5 className="card-title">New Recipe</h5>
                                     <h6 className="card-subtitle mb-2 text-muted"></h6>
                                     <div className="card-text">Use this template recipe to create your custom recipes </div>
                                     <div className="card-text">
                                          <div onClick={this.editRecipe.bind(this, '0')}
-                                        className="card-link">Edit Recipe
+                                        className="card-link">  Create Recipe
                                  </div>
                                 </div>
                                 </div>
