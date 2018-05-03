@@ -810,12 +810,7 @@ SELECT
   AND TIMESTAMP( REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)')) >= TIMESTAMP(DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY))
 
   ORDER BY REGEXP_EXTRACT(id, r'(?:[^\~]*\~){4}([^~]*)') DESC 
-  LIMIT 500"""
-    query_params = [
-        bigquery.ScalarQueryParameter('startDate', 'STRING', str(past_day_date)),
-        bigquery.ScalarQueryParameter('endDate', 'STRING', str(current_date))
-    ]
-    job_config.query_parameters = query_params
+  LIMIT 2000"""
     query_job = bigquery_client.query(insert_user_query, job_config=job_config)
     result = None
     query_result = query_job.result()
