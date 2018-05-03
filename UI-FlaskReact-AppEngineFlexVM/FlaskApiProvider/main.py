@@ -755,14 +755,6 @@ def get_temp_details():
                 if len(values) > 1:
                     result_json["RH"].append({'value':values[1]['value'],'time':row.eastern_time})
 
-    temp_seq = [x['time'] for x in result_json["temp"]]
-    result_json["temp_max"] = max(temp_seq)
-    result_json["temp_min"] = min(temp_seq)
-
-    rh_seq = [x['time'] for x in result_json["RH"]]
-    result_json["rh_max"] = max(rh_seq)
-    result_json["rh_min"] = min(rh_seq)
-
     data = json.dumps({
         "response_code": 200,
         "results":result_json

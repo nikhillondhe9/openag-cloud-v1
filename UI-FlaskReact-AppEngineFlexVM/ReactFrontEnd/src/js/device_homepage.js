@@ -350,10 +350,6 @@ class DeviceHomepage extends Component {
                     var formatTime = d3.timeFormat("%Y-%m-%d %H:%M:%S");
                     let tempData = responseJson["results"]["temp"]
                     let RHData = responseJson["results"]["RH"]
-                    let temp_min = formatTime(parseTime(responseJson["temp_min"]))
-                    let temp_max = formatTime(parseTime((responseJson["temp_max"])))
-                    let rh_min = formatTime(parseTime(responseJson["rh_min"]))
-                    let rh_max = formatTime(parseTime((responseJson["rh_max"])))
 
                     tempData.forEach(function (d) {
                         d.time = formatTime(parseTime(d.time));
@@ -365,7 +361,7 @@ class DeviceHomepage extends Component {
                     });
                     let rh_data_x = []
                     let rh_data_y = []
-                    tempData.forEach(function (d) {
+                    RHData.forEach(function (d) {
                         rh_data_x.push(d.time);
                         rh_data_y.push(d.value);
                     });
@@ -437,7 +433,8 @@ class DeviceHomepage extends Component {
                     });
 
                     this.setState({'show_temp_line': true})
-                    this.setState({'rh_data': RHData})
+
+
 
                 }
 
@@ -744,7 +741,7 @@ class DeviceHomepage extends Component {
                                         <div className="graph">
                                             <strong className="no-cursor">
                                                 <span className="txt_smaller">Publish sensor values every</span>
-                                                <div className="knob_data"><input defaultValue={this.state.sensor_temp} value={this.state.sensor_temp}
+                                                <div className="knob_data"><input value={this.state.sensor_temp}
                                                                                   onChange={this.sensorOnChange}
                                                                                   id="sensor_temp" name="sensor_temp"
                                                                                   type="text"
@@ -767,7 +764,7 @@ class DeviceHomepage extends Component {
                                         <div className="graph">
                                             <strong className="no-cursor">
                                                 <span className="txt_smaller">Publish sensor values every</span>
-                                                <div className="knob_data"><input defaultValue={this.state.sensor_temp} value={this.state.sensor_temp}
+                                                <div className="knob_data"><input value={this.state.sensor_temp}
                                                                                   onChange={this.sensorOnChange}
                                                                                   id="sensor_temp" name="sensor_temp"
                                                                                   type="text"
