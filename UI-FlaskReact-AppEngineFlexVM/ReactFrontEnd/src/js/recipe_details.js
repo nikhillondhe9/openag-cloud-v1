@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {Cookies, withCookies} from "react-cookie";
 import "../css/recipe_details.css";
+import arugula from "../arugula.jpg";
 
 class RecipeDetails extends Component {
     constructor(props) {
@@ -158,7 +159,7 @@ class RecipeDetails extends Component {
             <div className="home-container">
                 <div className="row home-row">
                     <div className="col-md-4 img-col">
-                        <img src="http://placehold.it/500x500/f4c242/black/"/>
+                        <img src={arugula}/>
                     </div>
                     <div className="col-md-8">
                         <h4>{this.state.recipe_name} for {this.state.recipe_plant}</h4>
