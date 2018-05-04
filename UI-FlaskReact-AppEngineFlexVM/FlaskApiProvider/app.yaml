@@ -1,5 +1,4 @@
 service: flaskapi
-#runtime: custom
 runtime: python
 env: flex
 api_version: 1

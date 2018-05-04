@@ -20,7 +20,7 @@ def getIoTclient( path_to_service_account_json ):
     service_name = 'cloudiotcore'
 
     creds = service_account.Credentials.from_service_account_file(
-            service_account_json )
+            path_to_service_account_json )
     scoped_credentials = creds.with_scopes( api_scopes )
 
     discovery_url = '{}?version={}'.format(
