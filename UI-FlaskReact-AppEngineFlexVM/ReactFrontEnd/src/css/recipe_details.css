@@ -17,3 +17,8 @@
     width:100%;
 }
 
+.history-col
+{
+    overflow-y:scroll;
+    max-height:150px;
+}

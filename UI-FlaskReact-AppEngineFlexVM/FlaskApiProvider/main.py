@@ -614,18 +614,51 @@ def get_recipe_components():
 def get_recipe_details():
     received_form_response = json.loads(request.data)
     recipe_uuid = received_form_response.get("recipe_uuid",None)
-    if recipe_uuid is None:
+    user_token = received_form_response.get("user_token",None)
+    if recipe_uuid is None or user_token is None:
         return Response({"message":"Error occured"}, status=500, mimetype='application/json')
 
     query = datastore_client.query(kind='Recipes')
     query.add_filter('recipe_uuid', '=', recipe_uuid)
 
+    #Get uuid's of all devices attached with this user
+    all_user_devices = []
+    device_query = datastore_client.query(kind='Devices')
+    query_session = datastore_client.query(kind="UserSession")
+    query_session.add_filter('session_token', '=', user_token)
+    query_session_result = list(query_session.fetch())
+    user_uuid = None
+    if len(query_session_result) > 0:
+        user_uuid = query_session_result[0].get("user_uuid", None)
 
-    #Recipe History
+    device_query.add_filter('user_uuid', '=', user_uuid)
+    devices_query_result = list(device_query.fetch())
+    for result_row in list(devices_query_result):
+        device_id = result_row.get("device_uuid", "")
+        all_user_devices.append(device_id)
+
+    #Recipe History - Somehow filter this in the context of the devices the user has registered with them
+    recipe_history = {}
     recipe_history_query = datastore_client.query(kind="RecipeHistory")
     recipe_history_query.add_filter('recipe_uuid','=',recipe_uuid)
     recipe_history_query.order = ['-updated_at']
     recipe_history_query_result = list(recipe_history_query.fetch())
+    total_number_of_history_records = len(recipe_history_query_result)
+    oldest_record = recipe_history_query_result[total_number_of_history_records-1]
+    for device in all_user_devices:
+        recipe_history[device] = []
+
+    for i in range(0,total_number_of_history_records-1):
+        print(oldest_record)
+        history_result = recipe_history_query_result[i]
+        if history_result["device_uuid"] in all_user_devices:
+            device_uuid = history_result["device_uuid"]
+            changes_in_record = (get_key_differences(ast.literal_eval(oldest_record["recipe_state"]),ast.literal_eval(history_result["recipe_state"])))
+            print(changes_in_record)
+            recipe_history[device_uuid].append({
+                "recipe_session_token":history_result["recipe_session_token"],
+                "changes_in_record":changes_in_record
+            })
 
     query_result = list(query.fetch())
     results = list(query_result)
@@ -665,7 +698,9 @@ def get_recipe_details():
 
         data = json.dumps({
             "response_code": 200,
-            "results": results_array
+            "results": results_array,
+            "history":recipe_history
+
         })
         result = Response(data, status=200, mimetype='application/json')
         return result
@@ -1002,6 +1037,7 @@ def apply_to_device():
 def get_key_differences(x,y):
     diff = False
     diff_json = {}
+    diff_list = []
     for x_key in x:
         if x_key not in y:
             diff = True
@@ -1010,12 +1046,14 @@ def get_key_differences(x,y):
             diff = True
             diff_json[x_key] = {
                 "changed_from":x[x_key],
-                "changed_to": y[x_key],
-                "key": x_key
+                "changed_to": y[x_key]
             }
-            print ("key %s in x and in y, but values differ (%s in x and %s in y)" % (x_key, x[x_key], y[x_key]))
+            # print ("key %s in x and in y, but values differ (%s in x and %s in y)" % (x_key, x[x_key], y[x_key]))
+            diff_list.append(("key %s in x and in y, but values differ (%s in x and %s in y)" % (x_key, x[x_key], y[x_key])))
     if not diff:
         print( "both files are identical")
+
+    return diff_list
 
 #------------------------------------------------------------------------------
 # Handle Change to a recipe running on a device
@@ -1023,8 +1061,6 @@ def get_key_differences(x,y):
 def submit_recipe_change():
     received_form_response = json.loads(request.data)
     recipe_state = received_form_response.get("recipe_state",{})
-    recipe_uuid = received_form_response.get("recipe_uuid",None)
-    device_uuid = received_form_response.get("device_uuid","")
     user_token = received_form_response.get("user_token","")
 
     recipe_session_token = received_form_response.get("recipe_session_token","")
@@ -1043,6 +1079,8 @@ def submit_recipe_change():
 
     # Build a custom recipe dict from the dashboard values
     recipe_dict = {}
+    recipe_state = json.loads(recipe_state)
+    device_uuid = recipe_state.get("selected_device_uuid","")
     recipe_dict[ 'temp_humidity_sht25' ] = str( recipe_state['sensor_temp'] )
     recipe_dict[ 'co2_t6713' ] = str( recipe_state['sensor_co2'] )
     led_on = recipe_state['led_on_data']
@@ -1059,11 +1097,23 @@ def submit_recipe_change():
     recipe_dict[ 'LED_panel_off_green' ] = str( led_off['green'] )
     recipe_dict[ 'LED_panel_off_cool_white' ] = str( led_off['cool_white'] )
     recipe_dict[ 'LED_panel_off_blue' ] = str( led_off['blue'] )
-    device_id = recipe_state['selected_device_uuid']
+
+    current_recipe_uuid = ""
+    recipe_session_token = ""
+    #Get the recipe the device is currently running based on entry in the DeviceHisotry
+
+    query_device_history = datastore_client.query(kind="DeviceHistory")
+    query_device_history.add_filter('device_uuid', '=', device_uuid)
+    query_device_history.order = ["-date_applied"]
+    query_device_history_result = list(query_device_history.fetch())
+
+    if len(query_device_history_result) >= 1:
+        current_recipe_uuid = query_device_history_result[0]['recipe_uuid']
+        recipe_session_token = query_device_history_result[0]['recipe_session_token']
 
     device_reg_task.update({
         "device_uuid": device_uuid,
-        "recipe_uuid": recipe_uuid,
+        "recipe_uuid": current_recipe_uuid,
         "user_uuid": user_uuid,
         "recipe_session_token": recipe_session_token,
         "recipe_state": str(recipe_dict),
@@ -1074,8 +1124,11 @@ def submit_recipe_change():
     # convert the values in the dict into what the Cbrain expects
     commands_list = convert_UI_recipe_to_commands( recipe_dict )
     send_recipe_to_device_via_IoT( iot_client, device_id, commands_list )
-
-    return Response({}, status=200, mimetype='application/json')
+    data = json.dumps({
+        "response_code": 200,
+        "message": "Successfully applied"
+    })
+    return Response(data, status=200, mimetype='application/json')
 
 
 

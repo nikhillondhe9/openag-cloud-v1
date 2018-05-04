@@ -602,6 +602,7 @@ class DeviceHomepage extends Component {
     }
 
     handleApplySubmit() {
+        console.log(this.state)
         return fetch('http://food.computer.com:5000/api/submit_recipe_change/', {
             method: 'POST',
             headers: {
@@ -610,10 +611,8 @@ class DeviceHomepage extends Component {
                 'Access-Control-Allow-Origin': '*'
             },
             body: JSON.stringify({
-                'user_uuid': this.state.user_uuid,
                 'user_token': this.props.cookies.get('user_token'),
-                'recipe_state': this.state,
-                'selected_device_uuid': this.state.selected_device_uuid
+                'recipe_state': JSON.stringify(this.state)
             })
         })
             .then((response) => response.json())

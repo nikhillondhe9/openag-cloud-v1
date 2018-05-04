@@ -12,7 +12,8 @@ class RecipeDetails extends Component {
             recipe_plant: "",
             recipe_uuid: this.recipe_uuid,
             recipe_json: {},
-            components: []
+            components: [],
+            history: {}
         };
         this.getRecipeDetails = this.getRecipeDetails.bind(this);
 
@@ -45,6 +46,7 @@ class RecipeDetails extends Component {
                     this.setState({modified_at: resultJson["modified_at"]})
                     this.setState({recipe_json: JSON.parse(resultJson["recipe_json"])})
                     this.setState({components: (resultJson["components"])})
+                    this.setState({history: responseJson["history"]})
                 }
             })
             .catch((error) => {
@@ -52,7 +54,13 @@ class RecipeDetails extends Component {
             });
     }
 
+
     render() {
+        let flatten = function (arr) {
+            return arr.reduce(function (flat, toFlatten) {
+                return flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten);
+            }, []);
+        };
         let listComponents = this.state.components.map((component) => {
             return (<div className="row" key={component.component_id}>
                 <div className="col-md-4">
@@ -65,7 +73,42 @@ class RecipeDetails extends Component {
                     {component.component_description}
                 </div>
             </div>)
+
         });
+        let history_json = this.state.history;
+        let history_records = Object.keys(history_json).map((item, i) => {
+                let history_record_json = history_json[item]
+                let records = history_record_json.map((history_ob) => {
+                    let list_of_changes = history_ob["changes_in_record"].map((change)=>{
+                        return <li>{change}</li>
+                    })
+                    return (<div key={item}><div className="row" >
+                        <div className="col-md-4 history-col"> {item}</div>
+                        <div className="col-md-4 history-col"> {history_ob["recipe_session_token"]}</div>
+                        <div className="col-md-4 history-col"> <ul> {list_of_changes} </ul> </div>
+
+                    </div><hr/></div>)
+                });
+                return (records)
+            }
+        );
+
+        let html_history_records = flatten(history_records)
+        this.state.components.map((component) => {
+            return (<div className="row" key={component.component_id}>
+                <div className="col-md-4">
+                    {component.component_label}
+                </div>
+                <div className="col-md-2">
+                    {component.component_type}
+                </div>
+                <div className="col-md-6">
+                    {component.component_description}
+                </div>
+            </div>)
+
+        });
+
         let recipeParams = this.state.components.map(function (component) {
             let component_key = component.component_key
             let component_json = component.field_json
@@ -192,6 +235,19 @@ class RecipeDetails extends Component {
                     </div>
 
                 </div>
+                <hr/>
+                <div className="row">
+                    <div className="col-md-4">
+                        <b> Recipe session token </b>
+                    </div>
+                     <div className="col-md-4">
+                         <b> Device UUID </b>
+                    </div>
+                     <div className="col-md-4">
+                         <b> Change Summary </b>
+                    </div>
+                </div>
+                {html_history_records}
             </div>
 
         )
