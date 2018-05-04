@@ -25,6 +25,9 @@ gcloud app deploy
 
 echo "Remember to stop and/or delete this instance in the console if you are just testing!"
 
+# To see logs:
+#gcloud app logs tail -s flaskapi
+
 
 #gcloud app browse
 #gcloud app open-console

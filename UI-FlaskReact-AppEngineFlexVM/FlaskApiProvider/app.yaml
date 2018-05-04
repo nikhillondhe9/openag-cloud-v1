@@ -1,5 +1,6 @@
 service: flaskapi
-runtime: custom
+#runtime: custom
+runtime: python
 env: flex
 api_version: 1
 threadsafe: true
@@ -7,9 +8,19 @@ runtime_config:
   python_version: 3
 
 env_variables:
-  GCLOUD_PROJECT: openag-v1
+  GOOGLE_APPLICATION_CREDENTIALS: /app/authenticate.json
   GCLOUD_DEV_REG: device-registry
   GCLOUD_REGION: us-central1
+  PYTHONPATH: /app:/env
+  FLASK_APP: /app/main.py
+  consumer_key: 'FdGiou6z8drUL39eqg6Hn1iPV'
+  consumer_secret: 'k2l8yfWlTBi94Sog1vwU1GLwYVOa1n3Nx6jHhgTKpWJvZB6RBS'
+  access_token: '988446389066719232-6qseNlFGS8rvgGZhfCsMJ0KBz65vc4p'
+  access_secret: 'CrmXb11uawZHjEfXNyJz4nZl6pIWKxCe0rY1mU7oN2R9X'
+
+# python libs are automatically loaded from the requirements.txt file
+
+entrypoint: python -m flask run
 
 handlers:
 - url: /static
