@@ -9,10 +9,10 @@ class RecipeDetails extends Component {
         this.recipe_uuid = this.props.location.pathname.replace("/recipe_details/", "").replace("#", "")
         this.state = {
             recipe_name: "",
-            recipe_plant:"",
+            recipe_plant: "",
             recipe_uuid: this.recipe_uuid,
-            recipe_json:{},
-            components:[]
+            recipe_json: {},
+            components: []
         };
         this.getRecipeDetails = this.getRecipeDetails.bind(this);
 
@@ -40,11 +40,11 @@ class RecipeDetails extends Component {
                 console.log(responseJson)
                 if (responseJson["response_code"] == 200) {
                     let resultJson = responseJson["results"][0]
-                    this.setState({recipe_name:resultJson["recipe_name"]})
-                    this.setState({recipe_plant:resultJson["recipe_plant"]})
-                    this.setState({modified_at:resultJson["modified_at"]})
-                    this.setState({recipe_json:JSON.parse(resultJson["recipe_json"])})
-                    this.setState({components:(resultJson["components"])})
+                    this.setState({recipe_name: resultJson["recipe_name"]})
+                    this.setState({recipe_plant: resultJson["recipe_plant"]})
+                    this.setState({modified_at: resultJson["modified_at"]})
+                    this.setState({recipe_json: JSON.parse(resultJson["recipe_json"])})
+                    this.setState({components: (resultJson["components"])})
                 }
             })
             .catch((error) => {
@@ -56,7 +56,7 @@ class RecipeDetails extends Component {
         let listComponents = this.state.components.map((component) => {
             return (<div className="row" key={component.component_id}>
                 <div className="col-md-4">
-                     {component.component_label}
+                    {component.component_label}
                 </div>
                 <div className="col-md-2">
                     {component.component_type}
@@ -66,7 +66,7 @@ class RecipeDetails extends Component {
                 </div>
             </div>)
         });
-        let recipeParams = this.state.components.map(function(component) {
+        let recipeParams = this.state.components.map(function (component) {
             let component_key = component.component_key
             let component_json = component.field_json
             let component_field_label = component_json["field_label"]
@@ -75,7 +75,10 @@ class RecipeDetails extends Component {
             if (component_key !== "LED_panel") {
                 return (
                     <div key={component_key}>
-                        <div className="row"><div className="col-md-6"> <b> {component.component_label} </b> </div></div>
+                        <div className="row">
+                            <div className="col-md-6"><b> {component.component_label} </b></div>
+                        </div>
+
                         <div className="row">
                             <div className="col-md-6">
                                 {component_field_label}
@@ -90,76 +93,87 @@ class RecipeDetails extends Component {
                     </div>
                 )
             }
-            else if(component_key === "LED_panel")
-            {
+            else if (component_key === "LED_panel") {
                 let off_far_red = this.state.recipe_json["LED_panel_off_far_red"]
                 let off_red = this.state.recipe_json["LED_panel_off_red"]
                 let off_warm_white = this.state.recipe_json["LED_panel_off_warm_white"]
                 let off_green = this.state.recipe_json["LED_panel_off_green"]
                 let off_cool_white = this.state.recipe_json["LED_panel_off_cool_white"]
-                let off_blue  = this.state.recipe_json["LED_panel_off_blue"]
+                let off_blue = this.state.recipe_json["LED_panel_off_blue"]
                 let on_far_red = this.state.recipe_json["LED_panel_on_far_red"]
                 let on_red = this.state.recipe_json["LED_panel_on_red"]
                 let on_warm_white = this.state.recipe_json["LED_panel_on_warm_white"]
                 let on_green = this.state.recipe_json["LED_panel_on_green"]
                 let on_cool_white = this.state.recipe_json["LED_panel_on_cool_white"]
-                let on_blue  = this.state.recipe_json["LED_panel_on_blue"]
+                let on_blue = this.state.recipe_json["LED_panel_on_blue"]
 
                 return (<div key={component_key}>
-                        <div className="row"><div className="col-md-6"> <b> {component.component_label} </b> </div></div>
-                        <div className="row">
-                            <div className="col-md-6"> <i> LED Panel - While OFF </i></div>
-                        </div>
-                        <div className="row">
-                            <div className="col-md-6">Far Red</div>
-                            <div className="col-md-6">{off_far_red}</div>
-                        </div>
                     <div className="row">
-                            <div className="col-md-6">Red</div>
-                            <div className="col-md-6">{off_red}</div>
-                        </div>
+                        <div className="col-md-6"><b> {component.component_label} </b></div>
+                    </div>
                     <div className="row">
-                            <div className="col-md-6">Warm White</div>
-                            <div className="col-md-6">{off_warm_white}</div>
-                        </div><div className="row">
-                            <div className="col-md-6">Cool White</div>
-                            <div className="col-md-6">{off_cool_white}</div>
-                        </div>
+                        <div className="col-md-6"><i> LED Panel - While OFF </i></div>
+                    </div>
                     <div className="row">
-                            <div className="col-md-6">Green</div>
-                            <div className="col-md-6">{off_green}</div>
-                        </div>
+                        <div className="col-md-6">Far Red</div>
+                        <div className="col-md-6">{off_far_red}</div>
+                    </div>
+                    <div className="row">
+                        <div className="col-md-6">Red</div>
+                        <div className="col-md-6">{off_red}</div>
+                    </div>
+                    <div className="row">
+                        <div className="col-md-6">Warm White</div>
+                        <div className="col-md-6">{off_warm_white}</div>
+                    </div>
+                    <div className="row">
+                        <div className="col-md-6">Cool White</div>
+                        <div className="col-md-6">{off_cool_white}</div>
+                    </div>
+                    <div className="row">
+                        <div className="col-md-6">Green</div>
+                        <div className="col-md-6">{off_green}</div>
+                    </div>
+                    <div className="row">
+                        <div className="col-md-6">Blue</div>
+                        <div className="col-md-6">{off_blue}</div>
+                    </div>
                     <div className="row">
                         <div className="col-md-6"><i> LED Panel - While on </i></div>
-                        </div>
-                        <div className="row">
-                            <div className="col-md-6">Far Red</div>
-                            <div className="col-md-6">{on_far_red}</div>
-                        </div>
+                    </div>
                     <div className="row">
-                            <div className="col-md-6">Red</div>
-                            <div className="col-md-6">{on_red}</div>
-                        </div>
+                        <div className="col-md-6">Far Red</div>
+                        <div className="col-md-6">{on_far_red}</div>
+                    </div>
                     <div className="row">
-                            <div className="col-md-6">Warm White</div>
-                            <div className="col-md-6">{on_warm_white}</div>
-                        </div><div className="row">
-                            <div className="col-md-6">Cool White</div>
-                            <div className="col-md-6">{on_cool_white}</div>
-                        </div>
+                        <div className="col-md-6">Red</div>
+                        <div className="col-md-6">{on_red}</div>
+                    </div>
                     <div className="row">
-                            <div className="col-md-6">Green</div>
-                            <div className="col-md-6">{on_green}</div>
-                        </div>
+                        <div className="col-md-6">Warm White</div>
+                        <div className="col-md-6">{on_warm_white}</div>
+                    </div>
+                    <div className="row">
+                        <div className="col-md-6">Cool White</div>
+                        <div className="col-md-6">{on_cool_white}</div>
+                    </div>
+                    <div className="row">
+                        <div className="col-md-6">Green</div>
+                        <div className="col-md-6">{on_green}</div>
+                    </div>
+                    <div className="row">
+                        <div className="col-md-6">Blue</div>
+                        <div className="col-md-6">{on_blue}</div>
+                    </div>
 
-                    </div>)
+                </div>)
             }
-        },this);
+        }, this);
         return (
             <div className="home-container">
                 <div className="row">
-                    <div className="col-md-4" >
-                    <a href="/recipes"> Back to climate recipes</a>
+                    <div className="col-md-4">
+                        <a href="/recipes"> Back to climate recipes</a>
                     </div>
                 </div>
                 <div className="row home-row">
