@@ -1135,7 +1135,7 @@ def submit_recipe_change():
 
     # convert the values in the dict into what the Cbrain expects
     commands_list = convert_UI_recipe_to_commands( recipe_dict )
-    # send_recipe_to_device_via_IoT( iot_client, device_uuid, commands_list )
+    send_recipe_to_device_via_IoT( iot_client, device_uuid, commands_list )
 
     data = json.dumps({
         "response_code": 200,
