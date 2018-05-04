@@ -17,15 +17,20 @@ gcloud auth activate-service-account --key-file $GOOGLE_APPLICATION_CREDENTIALS
 gcloud config set project $GCLOUD_PROJECT
 gcloud config set compute/region $GCLOUD_REGION
 
+# The default UI service: https://openag-v1.appspot.com
 cd $DIR/FlaskApiProvider
 gcloud app deploy
 
+# The flaskapi service
 cd $DIR/ReactFrontEnd
 gcloud app deploy
+
+#gcloud app deploy --verbosity=debug
 
 echo "Remember to stop and/or delete this instance in the console if you are just testing!"
 
 # To see logs:
+#gcloud app logs tail -s default
 #gcloud app logs tail -s flaskapi
 
 

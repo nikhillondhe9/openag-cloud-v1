@@ -8,6 +8,7 @@
     "rc-slider": "^8.6.1",
     "react": "^16.2.0",
     "react-color": "^2.14.1",
+    "react-cookie": "^2.1.4",
     "react-dom": "^16.2.0",
     "react-draggable": "^3.0.5",
     "react-navigation": "^1.5.8",
@@ -17,15 +18,7 @@
     "react-scripts": "1.1.1",
     "react-twitter-embedded-timeline": "^0.5.1",
     "react-twitter-widgets": "^1.7.1",
-    "reactstrap": "^5.0.0-beta.3"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
-  },
-  "devDependencies": {
+    "reactstrap": "^5.0.0-beta.3",
     "bootstrap": "^4.0.0",
     "create-react-class": "^15.6.3",
     "d3": "^5.1.0",
@@ -40,7 +33,14 @@
     "d3-transition": "^1.1.1",
     "prop-types": "^15.6.1",
     "rc-time-picker": "^3.3.1",
-    "react-console-component": "^0.6.1",
-    "react-cookie": "^2.1.4"
+    "react-console-component": "^0.6.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
+  "devDependencies": {
   }
 }

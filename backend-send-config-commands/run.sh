@@ -13,7 +13,7 @@ GCLOUD_PROJECT=openag-v1
 IOT_SA=service_account.json
 GCLOUD_REGION=us-central1
 GCLOUD_DEV_REG=device-registry
-# device ID from the commadn line
+# device ID from the command line
 DEVICE_ID=$1
 
 source pyenv/bin/activate
