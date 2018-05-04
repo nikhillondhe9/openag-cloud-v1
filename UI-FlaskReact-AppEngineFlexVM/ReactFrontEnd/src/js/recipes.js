@@ -10,12 +10,12 @@ class recipes extends Component {
         this.state = {
             all_recipes: [],
             modal: false,
-            apply_to_device_modal:false,
+            apply_to_device_modal: false,
             selected_recipe: {},
             selected_recipe_json: {},
-            devices:[],
-            selected_device_uuid:'',
-            selected_recipe_uuid:''
+            devices: [],
+            selected_device_uuid: '',
+            selected_recipe_uuid: ''
         };
 
         this.toggle = this.toggle.bind(this);
@@ -50,10 +50,11 @@ class recipes extends Component {
         event.preventDefault();
 
     }
-    goToRecipe(value,e)
-    {
-        window.location.href = "/recipe_details/"+(value).toString()
+
+    goToRecipe(value, e) {
+        window.location.href = "/recipe_details/" + (value).toString()
     }
+
     toggle(recipe, recipe_json) {
 
         var json_html_append = [];
@@ -76,11 +77,11 @@ class recipes extends Component {
             modal: !this.state.modal
         });
     }
-    toggle_apply_to_device(recipe_uuid)
-    {
+
+    toggle_apply_to_device(recipe_uuid) {
         this.setState({
-            apply_to_device_modal:!this.state.apply_to_device_modal,
-            selected_recipe_uuid:recipe_uuid
+            apply_to_device_modal: !this.state.apply_to_device_modal,
+            selected_recipe_uuid: recipe_uuid
         })
     }
 
@@ -106,7 +107,7 @@ class recipes extends Component {
 
                     var devs = [];                  // make array
                     devs = responseJson["devices"]; // assign array
-                    if( devs.length > 0 ) {         // if we have devices
+                    if (devs.length > 0) {         // if we have devices
                         // default the selected device to the first/only dev.
                         this.state.selected_device_uuid = devs[0].device_uuid;
                     }
@@ -117,13 +118,12 @@ class recipes extends Component {
             });
     }
 
-    apply_to_device()
-    {
+    apply_to_device() {
         console.log(JSON.stringify({
-                'device_uuid':this.state.selected_device_uuid,
-                'recipe_uuid':this.state.selected_recipe_uuid,
-                'user_token': this.props.cookies.get('user_token')
-            }))
+            'device_uuid': this.state.selected_device_uuid,
+            'recipe_uuid': this.state.selected_recipe_uuid,
+            'user_token': this.props.cookies.get('user_token')
+        }))
         return fetch('http://food.computer.com:5000/api/apply_to_device/', {
             method: 'POST',
             headers: {
@@ -132,17 +132,17 @@ class recipes extends Component {
                 'Access-Control-Allow-Origin': '*'
             },
             body: JSON.stringify({
-                'device_uuid':this.state.selected_device_uuid,
-                'recipe_uuid':this.state.selected_recipe_uuid,
+                'device_uuid': this.state.selected_device_uuid,
+                'recipe_uuid': this.state.selected_recipe_uuid,
                 'user_token': this.props.cookies.get('user_token')
             })
-           })
+        })
             .then((response) => response.json())
             .then((responseJson) => {
                 console.log(responseJson)
-                if (responseJson["response_code"]== 200){
+                if (responseJson["response_code"] == 200) {
                     console.log("Applied successfully")
-                    this.setState({apply_to_device_modal:false});
+                    this.setState({apply_to_device_modal: false});
                 }
 
             })
@@ -150,6 +150,7 @@ class recipes extends Component {
                 console.error(error);
             });
     }
+
     render() {
         let listRecipes = <p>Loading</p>
         if (this.state.all_recipes.length > 0) {
@@ -162,12 +163,13 @@ class recipes extends Component {
                             <h6 className="card-subtitle mb-2 text-muted">{recipe.recipe_plant}</h6>
                             <div className="card-text">
                                 {/*<div onClick={this.editRecipe.bind(this, recipe.recipe_uuid)} id={recipe.recipe_uuid}*/}
-                                     {/*className="card-link">Edit Recipe*/}
+                                {/*className="card-link">Edit Recipe*/}
                                 {/*</div>*/}
-                                <div onClick={this.goToRecipe.bind(this,recipe.recipe_uuid)} id={recipe.recipe_uuid}
-                                     >View Recipe
+                                <div onClick={this.goToRecipe.bind(this, recipe.recipe_uuid)} id={recipe.recipe_uuid}
+                                >View Recipe
                                 </div>
-                                <div onClick={this.toggle_apply_to_device.bind(this, recipe.recipe_uuid)} id={recipe.recipe_uuid}>Apply Recipe
+                                <div onClick={this.toggle_apply_to_device.bind(this, recipe.recipe_uuid)}
+                                     id={recipe.recipe_uuid}>Apply Recipe
                                 </div>
                             </div>
 
@@ -179,18 +181,26 @@ class recipes extends Component {
         return (
             <Router>
                 <div className="recipe-container">
+                    <div className="row buttons-row">
+                        <div class="button__group">
+                            <a href="" class="button button__toggle" data-filter="filter 1">All</a>
+                            <a href="" class="button button__toggle active" data-filter="filter 3">Saved</a>
+                            <a href="" class="button button__toggle active" data-filter="filter 3">Running</a>
+                        </div>
+                    </div>
                     <div className="row card-row">
                         <div className="col-md-3">
                             <div className="card">
                                 <div className="card-body">
                                     <h5 className="card-title">New Recipe</h5>
                                     <h6 className="card-subtitle mb-2 text-muted"></h6>
-                                    <div className="card-text">Use this template recipe to create your custom recipes </div>
+                                    <div className="card-text">Use this template recipe to create your custom recipes
+                                    </div>
                                     <div className="card-text">
-                                         <div onClick={this.editRecipe.bind(this, '0')}
-                                        className="card-link">  Create Recipe
-                                 </div>
-                                </div>
+                                        <div onClick={this.editRecipe.bind(this, '0')}
+                                             className="card-link"> Create Recipe
+                                        </div>
+                                    </div>
                                 </div>
 
 
@@ -211,13 +221,18 @@ class recipes extends Component {
                         </ModalFooter>
                     </Modal>
 
-                    <Modal isOpen={this.state.apply_to_device_modal} toggle={this.toggle_apply_to_device} className={this.props.className}>
-                        <ModalHeader toggle={this.toggle_apply_to_device}>Select a device to apply this recipe to </ModalHeader>
+                    <Modal isOpen={this.state.apply_to_device_modal} toggle={this.toggle_apply_to_device}
+                           className={this.props.className}>
+                        <ModalHeader toggle={this.toggle_apply_to_device}>Select a device to apply this recipe
+                            to </ModalHeader>
                         <ModalBody>
-                            <select className="form-control smallInput" onChange={this.handleChange} id="selected_device_uuid" name="selected_device_uuid" value={this.selected_device_uuid}>
-                                {this.state.devices.map(function(device){
-                                            return <option key={device.device_uuid} value={device.device_uuid}>{device.device_name}</option>
-                                    })}
+                            <select className="form-control smallInput" onChange={this.handleChange}
+                                    id="selected_device_uuid" name="selected_device_uuid"
+                                    value={this.selected_device_uuid}>
+                                {this.state.devices.map(function (device) {
+                                    return <option key={device.device_uuid}
+                                                   value={device.device_uuid}>{device.device_name}</option>
+                                })}
                             </select>
                         </ModalBody>
                         <ModalFooter>
