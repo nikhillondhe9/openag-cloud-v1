@@ -182,10 +182,10 @@ class recipes extends Component {
             <Router>
                 <div className="recipe-container">
                     <div className="row buttons-row">
-                        <div class="button__group">
-                            <a href="" class="button button__toggle" data-filter="filter 1">All</a>
-                            <a href="" class="button button__toggle active" data-filter="filter 3">Saved</a>
-                            <a href="" class="button button__toggle active" data-filter="filter 3">Running</a>
+                        <div className="button__group">
+                            <a href="" className="button button__toggle" data-filter="filter 1">All</a>
+                            <a href="" className="button button__toggle active" data-filter="filter 3">Saved</a>
+                            <a href="" className="button button__toggle active" data-filter="filter 3">Running</a>
                         </div>
                     </div>
                     <div className="row card-row">

@@ -1,0 +1,11 @@
+indexes:
+- kind: DeviceHistory
+  properties:
+  - name: device_uuid
+  - name: date_applied
+    direction: desc
+- kind: RecipeHistory
+  properties:
+  - name: recipe_uuid
+  - name: updated_at
+    direction: desc
