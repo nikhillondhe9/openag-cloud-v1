@@ -84,8 +84,8 @@ class RecipeDetails extends Component {
                     })
                     return (<div key={item}>
                         <div className="row">
-                            <div className="col-md-4 history-col"> {item}</div>
-                            <div className="col-md-4 history-col"> {history_ob["recipe_session_token"]}</div>
+                            <div className="col-md-4 history-col"> {history_ob["updated_at"]}</div>
+                            <div className="col-md-4 history-col"> {history_ob["device_name"]}</div>
                             <div className="col-md-4 history-col">
                                 <ul> {list_of_changes} </ul>
                             </div>
@@ -235,7 +235,7 @@ class RecipeDetails extends Component {
                             <h3>{this.state.recipe_name}
                                 for {this.state.recipe_plant}  </h3>
                         </div>
-                           
+
                         <div className="row card-row">
                             <div className="col-md-6">
                                 <div className="card">
@@ -304,10 +304,10 @@ class RecipeDetails extends Component {
                                         <div className="card-title">
                                             <div className="row">
                                                 <div className="col-md-4">
-                                                    <b> Recipe session token </b>
+                                                    <b> Date Modified </b>
                                                 </div>
                                                 <div className="col-md-4">
-                                                    <b> Device UUID </b>
+                                                    <b> Device Name </b>
                                                 </div>
                                                 <div className="col-md-4">
                                                     <b> Change Summary </b>

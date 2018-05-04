@@ -618,6 +618,8 @@ class DeviceHomepage extends Component {
             .then((response) => response.json())
             .then((responseJson) => {
                 console.log(responseJson)
+                this.modalToggle()
+                window.location.reload()
             })
             .catch((error) => {
                 console.error(error);

@@ -416,6 +416,15 @@ def login():
     return result
 
 
+def get_device_name(device_uuid):
+    query = datastore_client.query(kind='Devices')
+    query.add_filter('device_uuid', '=', device_uuid)
+    results = list(query.fetch())
+    if len(results) > 0:
+        return results[0]["device_name"]
+    else:
+        return "Invalid device"
+
 @app.route('/api/get_user_devices/', methods=['GET', 'POST'])
 def get_user_devices():
     print("Fetching all the user devices")
@@ -644,21 +653,23 @@ def get_recipe_details():
     recipe_history_query.order = ['-updated_at']
     recipe_history_query_result = list(recipe_history_query.fetch())
     total_number_of_history_records = len(recipe_history_query_result)
-    oldest_record = recipe_history_query_result[total_number_of_history_records-1]
-    for device in all_user_devices:
-        recipe_history[device] = []
+    if total_number_of_history_records > 1:
+        oldest_record = recipe_history_query_result[total_number_of_history_records-1]
+        for device in all_user_devices:
+            recipe_history[device] = []
 
-    for i in range(0,total_number_of_history_records-1):
-        print(oldest_record)
-        history_result = recipe_history_query_result[i]
-        if history_result["device_uuid"] in all_user_devices:
-            device_uuid = history_result["device_uuid"]
-            changes_in_record = (get_key_differences(ast.literal_eval(oldest_record["recipe_state"]),ast.literal_eval(history_result["recipe_state"])))
-            print(changes_in_record)
-            recipe_history[device_uuid].append({
-                "recipe_session_token":history_result["recipe_session_token"],
-                "changes_in_record":changes_in_record
-            })
+        for i in range(0,total_number_of_history_records-1):
+            print(oldest_record)
+            history_result = recipe_history_query_result[i]
+            if history_result["device_uuid"] in all_user_devices:
+                device_uuid = history_result["device_uuid"]
+                changes_in_record = (get_key_differences(ast.literal_eval(oldest_record["recipe_state"]),ast.literal_eval(history_result["recipe_state"])))
+                print(changes_in_record)
+                recipe_history[device_uuid].append({
+                    "updated_at":history_result.get("updated_at","").strftime("%Y-%m-%d %H:%M:%S"),
+                    "device_name":get_device_name(device_uuid),
+                    "changes_in_record":changes_in_record
+                })
 
     query_result = list(query.fetch())
     results = list(query_result)
@@ -1124,7 +1135,7 @@ def submit_recipe_change():
 
     # convert the values in the dict into what the Cbrain expects
     commands_list = convert_UI_recipe_to_commands( recipe_dict )
-    send_recipe_to_device_via_IoT( iot_client, device_uuid, commands_list )
+    # send_recipe_to_device_via_IoT( iot_client, device_uuid, commands_list )
 
     data = json.dumps({
         "response_code": 200,
