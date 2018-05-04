@@ -113,7 +113,7 @@ def convert_UI_recipe_to_commands( recipe_dict ):
             co2_t6713 + \
             '", "num_cycles": "1", "cycles": [ { "num_steps": "1", "num_repeats": "28", "steps": [ { "set_point": "0", "duration": "86400" } ] } ] }'
 
-        # The 6 LED string vals are "0" to "255" (off) in the order below:
+        # The 6 LED string vals are "0" to "255" (off) 
         LED_panel_off_far_red = "255"  # off
         LED_panel_off_red = "255"
         LED_panel_off_warm_white = "255"
@@ -151,19 +151,19 @@ def convert_UI_recipe_to_commands( recipe_dict ):
         if validDictKey( recipe_dict, 'LED_panel_on_blue' ):
             LED_panel_on_blue = recipe_dict[ 'LED_panel_on_blue' ]
 
-        # make a json schedule for the LED panel
+        # make a json schedule for the LED panel, IN ORDER!
         LEDs_on = '"{}","{}","{}","{}","{}","{}"'.format(
+            LED_panel_on_green,
+            LED_panel_on_warm_white,
             LED_panel_on_far_red,
             LED_panel_on_red,
-            LED_panel_on_warm_white,
-            LED_panel_on_green,
             LED_panel_on_cool_white,
             LED_panel_on_blue )
         LEDs_off = '"{}","{}","{}","{}","{}","{}"'.format(
+            LED_panel_off_green,
+            LED_panel_off_warm_white,
             LED_panel_off_far_red,
             LED_panel_off_red,
-            LED_panel_off_warm_white,
-            LED_panel_off_green,
             LED_panel_off_cool_white,
             LED_panel_off_blue )
         LED_panel_sched = '{ "dtype": "10", "measurement_period_ms": "60000", "num_cycles": "1", "cycles": [ { "num_steps": "2", "num_repeats": "28", "steps": [ { "set_point": [' + LEDs_on + '], "duration": "57600" }, { "set_point": [' + LEDs_off + '], "duration": "28800" } ] } ] }'
