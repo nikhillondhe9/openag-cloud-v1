@@ -16,9 +16,17 @@
 {
     width:100%;
 }
-
+.info-row
+{
+    width:100%;
+    margin-top:5px;
+}
 .history-col
 {
     overflow-y:scroll;
     max-height:150px;
+}
+.card-row
+{
+    margin-top:5px;
 }

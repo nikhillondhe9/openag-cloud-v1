@@ -165,6 +165,9 @@ class recipes extends Component {
                                 {/*<div onClick={this.editRecipe.bind(this, recipe.recipe_uuid)} id={recipe.recipe_uuid}*/}
                                 {/*className="card-link">Edit Recipe*/}
                                 {/*</div>*/}
+
+
+
                                 <div onClick={this.goToRecipe.bind(this, recipe.recipe_uuid)} id={recipe.recipe_uuid}
                                 >View Recipe
                                 </div>
@@ -183,9 +186,8 @@ class recipes extends Component {
                 <div className="recipe-container">
                     <div className="row buttons-row">
                         <div className="button__group">
-                            <a href="" className="button button__toggle" data-filter="filter 1">All</a>
-                            <a href="" className="button button__toggle active" data-filter="filter 3">Saved</a>
-                            <a href="" className="button button__toggle active" data-filter="filter 3">Running</a>
+                            <a href="" className="button button__toggle" >All Climate Recipes</a>
+                            <a href="" className="button button__toggle" >My Climate Recipes</a>
                         </div>
                     </div>
                     <div className="row card-row">

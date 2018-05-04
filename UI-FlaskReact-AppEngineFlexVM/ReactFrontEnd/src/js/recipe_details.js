@@ -79,15 +79,20 @@ class RecipeDetails extends Component {
         let history_records = Object.keys(history_json).map((item, i) => {
                 let history_record_json = history_json[item]
                 let records = history_record_json.map((history_ob) => {
-                    let list_of_changes = history_ob["changes_in_record"].map((change)=>{
+                    let list_of_changes = history_ob["changes_in_record"].map((change) => {
                         return <li>{change}</li>
                     })
-                    return (<div key={item}><div className="row" >
-                        <div className="col-md-4 history-col"> {item}</div>
-                        <div className="col-md-4 history-col"> {history_ob["recipe_session_token"]}</div>
-                        <div className="col-md-4 history-col"> <ul> {list_of_changes} </ul> </div>
+                    return (<div key={item}>
+                        <div className="row">
+                            <div className="col-md-4 history-col"> {item}</div>
+                            <div className="col-md-4 history-col"> {history_ob["recipe_session_token"]}</div>
+                            <div className="col-md-4 history-col">
+                                <ul> {list_of_changes} </ul>
+                            </div>
 
-                    </div><hr/></div>)
+                        </div>
+                        <hr/>
+                    </div>)
                 });
                 return (records)
             }
@@ -220,34 +225,108 @@ class RecipeDetails extends Component {
                     </div>
                 </div>
                 <div className="row home-row">
-                    <div className="col-md-4 img-col">
+                    <div className="col-md-3 img-col">
                         <img src={arugula}/>
                     </div>
-                    <div className="col-md-8">
-                        <h4>{this.state.recipe_name} for {this.state.recipe_plant}</h4>
-                        <p>Author: <i>Rob</i></p>
-                        <p><span><b> Plant description  : </b> </span> {this.state.recipe_json.plant_description}</p>
-                        <p><span><b> Recipe description : </b></span> {this.state.recipe_json.recipe_description}</p>
-                        <h4>Components Needed :</h4>
-                        <div>{listComponents}</div>
-                        <h4>Climate Recipe Parameters :</h4>
-                        <div>{recipeParams}</div>
+
+                    <div className="col-md-9">
+
+                        <div className="row card-row">
+                            <h3>{this.state.recipe_name}
+                                for {this.state.recipe_plant}  </h3>
+                        </div>
+                           
+                        <div className="row card-row">
+                            <div className="col-md-6">
+                                <div className="card">
+                                    <div className="card-body">
+                                        <div className="card-title">Plant Notes</div>
+                                        <div className="card-text">
+                                            {this.state.recipe_json.plant_description}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-md-6">
+                                <div className="card">
+                                    <div className="card-body">
+                                        <div className="card-title">Recipe Notes</div>
+                                        <div className="card-text">
+                                            {this.state.recipe_json.recipe_description}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="row card-row">
+
+                            <h3>Components used in this climate recipe </h3>
+
+                        </div>
+                        <div className="row card-row">
+                            <div className="col-md-12">
+                                <div className="card">
+                                    <div className="card-body">
+                                        {/*<div className="card-title"></div>*/}
+                                        <div className="card-text">
+                                            {listComponents}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="row card-row">
+
+                            <h3>Parameters of the Climate Recipe </h3>
+
+                        </div>
+                        <div className="row card-row">
+                            <div className="col-md-12">
+                                <div className="card">
+                                    <div className="card-body">
+                                        {/*<div className="card-title"></div>*/}
+                                        <div className="card-text">
+                                            {recipeParams}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="row card-row">
+
+                            <h3>Recipe History on your devices </h3>
+
+                        </div>
+                        <div className="row card-row">
+                            <div className="col-md-12">
+                                <div className="card">
+                                    <div className="card-body">
+                                        <div className="card-title">
+                                            <div className="row">
+                                                <div className="col-md-4">
+                                                    <b> Recipe session token </b>
+                                                </div>
+                                                <div className="col-md-4">
+                                                    <b> Device UUID </b>
+                                                </div>
+                                                <div className="col-md-4">
+                                                    <b> Change Summary </b>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="card-text">
+                                            {html_history_records}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
+
                 </div>
-                <hr/>
-                <div className="row">
-                    <div className="col-md-4">
-                        <b> Recipe session token </b>
-                    </div>
-                     <div className="col-md-4">
-                         <b> Device UUID </b>
-                    </div>
-                     <div className="col-md-4">
-                         <b> Change Summary </b>
-                    </div>
-                </div>
-                {html_history_records}
+
+
             </div>
 
         )

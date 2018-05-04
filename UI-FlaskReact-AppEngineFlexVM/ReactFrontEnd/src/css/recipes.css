@@ -93,7 +93,13 @@ a {
 
 .button__group
 {
+
     display:block;
     margin-left:auto;
     margin-right:auto;
+}
+.button__group .button
+{
+     width:200px;
+     text-align: center;
 }
