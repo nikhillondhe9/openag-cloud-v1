@@ -86,7 +86,7 @@ class recipes extends Component {
     }
 
     getAllRecipes() {
-        return fetch('http://food.computer.com:5000/api/get_all_recipes/', {
+        return fetch( process.env.REACT_APP_FLASK_URL + '/api/get_all_recipes/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -124,7 +124,7 @@ class recipes extends Component {
             'recipe_uuid': this.state.selected_recipe_uuid,
             'user_token': this.props.cookies.get('user_token')
         }))
-        return fetch('http://food.computer.com:5000/api/apply_to_device/', {
+        return fetch( process.env.REACT_APP_FLASK_URL + '/api/apply_to_device/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',

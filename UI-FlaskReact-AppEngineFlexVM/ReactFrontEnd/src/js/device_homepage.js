@@ -187,7 +187,7 @@ class DeviceHomepage extends Component {
     }
 
     getCurrentStats( device_uuid ) {
-        return fetch('http://food.computer.com:5000/api/get_current_stats/', {
+        return fetch( process.env.REACT_APP_FLASK_URL + '/api/get_current_stats/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -217,7 +217,7 @@ class DeviceHomepage extends Component {
     }
 
     getUserDevices() {
-        return fetch('http://food.computer.com:5000/api/get_user_devices/', {
+        return fetch( process.env.REACT_APP_FLASK_URL +'/api/get_user_devices/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -263,7 +263,7 @@ class DeviceHomepage extends Component {
     }
 
     getCO2Details( device_uuid ) {
-        return fetch('http://food.computer.com:5000/api/get_co2_details/', {
+        return fetch( process.env.REACT_APP_FLASK_URL + '/api/get_co2_details/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -335,7 +335,7 @@ class DeviceHomepage extends Component {
     }
 
     getTempDetails( device_uuid ) {
-        return fetch('http://food.computer.com:5000/api/get_temp_details/', {
+        return fetch( process.env.REACT_APP_FLASK_URL + '/api/get_temp_details/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -446,7 +446,7 @@ class DeviceHomepage extends Component {
     }
 
     getLEDPanel( device_uuid ) {
-        return fetch('http://food.computer.com:5000/api/get_led_panel/', {
+        return fetch( process.env.REACT_APP_FLASK_URL + '/api/get_led_panel/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -603,7 +603,7 @@ class DeviceHomepage extends Component {
 
     handleApplySubmit() {
         console.log(this.state)
-        return fetch('http://food.computer.com:5000/api/submit_recipe_change/', {
+        return fetch( process.env.REACT_APP_FLASK_URL + '/api/submit_recipe_change/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',

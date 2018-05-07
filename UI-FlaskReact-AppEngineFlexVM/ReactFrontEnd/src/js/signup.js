@@ -34,7 +34,7 @@ export class SignUp extends Component {
     }
 
     signupUser() {
-        return fetch('http://food.computer.com:5000/api/signup/', {
+        return fetch( process.env.REACT_APP_FLASK_URL + '/api/signup/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',

@@ -24,7 +24,7 @@ class RecipeDetails extends Component {
     }
 
     getRecipeDetails() {
-        return fetch("http://food.computer.com:5000/api/get_recipe_details/", {
+        return fetch( process.env.REACT_APP_FLASK_URL + "/api/get_recipe_details/", {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',

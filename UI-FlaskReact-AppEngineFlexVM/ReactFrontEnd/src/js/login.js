@@ -31,7 +31,7 @@ class login extends Component {
 
     loginUser() {
 
-        return fetch('http://food.computer.com:5000/login/', {
+        return fetch( process.env.REACT_APP_FLASK_URL + '/login/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',

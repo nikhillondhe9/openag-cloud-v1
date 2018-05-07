@@ -66,7 +66,7 @@ class EditRecipe extends Component {
     }
 
     getRecipeComponents() {
-        return fetch("http://food.computer.com:5000/api/get_recipe_components/", {
+        return fetch( process.env.REACT_APP_FLASK_URL + "/get_recipe_components/", {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -276,7 +276,7 @@ class EditRecipe extends Component {
                 json_to_submit[key] = state_json[key]
             }
         });
-        return fetch('http://food.computer.com:5000/api/save_recipe/', {
+        return fetch( process.env.REACT_APP_FLASK_URL + '/api/save_recipe/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',

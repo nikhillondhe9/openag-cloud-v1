@@ -1144,5 +1144,10 @@ def submit_recipe_change():
     return Response(data, status=200, mimetype='application/json')
 
 
+#------------------------------------------------------------------------------
+if __name__ == '__main__':
+    # This is used when running locally. Gunicorn is used to run the
+    # application on Google App Engine. See entrypoint in app.yaml.
+    app.run(host='127.0.0.1', port=5000, debug=True)
 
 

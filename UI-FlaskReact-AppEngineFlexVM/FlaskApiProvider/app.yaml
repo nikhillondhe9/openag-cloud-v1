@@ -19,7 +19,8 @@ env_variables:
 
 # python libs are automatically loaded from the requirements.txt file
 
-entrypoint: python -m flask run
+#entrypoint: python -m flask run
+entrypoint: gunicorn -b :$PORT main:app
 
 handlers:
 - url: /static

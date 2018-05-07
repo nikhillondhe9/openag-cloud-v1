@@ -60,7 +60,7 @@ class Home extends Component {
     }
 
     getUserDevices() {
-        return fetch('http://food.computer.com:5000/api/get_user_devices/', {
+        return fetch( process.env.REACT_APP_FLASK_URL + '/api/get_user_devices/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -93,7 +93,7 @@ class Home extends Component {
                 'device_notes': this.state.device_notes,
                 'device_type': this.state.device_type
             }))
-        return fetch('http://food.computer.com:5000/api/register/', {
+        return fetch( process.env.REACT_APP_FLASK_URL + '/api/register/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -131,7 +131,7 @@ class Home extends Component {
     }
     postToTwitter()
         {
-            return fetch('http://food.computer.com:5000/api/posttwitter/', {
+            return fetch( process.env.REACT_APP_FLASK_URL + '/api/posttwitter/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
