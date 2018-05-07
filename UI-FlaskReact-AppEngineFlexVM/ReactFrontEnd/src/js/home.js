@@ -5,6 +5,7 @@ import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Lab
 import {Cookies, withCookies} from "react-cookie";
 import image1 from '../1.png';
 import image2 from '../2.png';
+import placeholder from '../placeholder.png';
 import { Timeline } from 'react-twitter-widgets'
 class Home extends Component {
     constructor(props) {
@@ -204,7 +205,7 @@ class Home extends Component {
                          </div>
                         {/*<a className="twitter-timeline" href="https://twitter.com/MITOpenAg?ref_src=twsrc%5Etfw">Tweets by MITOpenAg</a> <script async src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script>*/}
                          <div className="col-md-8">
-                             <img src={image2} className="timelapse-img"></img>
+                             <img src={placeholder} className="timelapse-img"></img>
                         </div>
                     </div>
 
