@@ -703,7 +703,7 @@ class DeviceHomepage extends Component {
                                         <div className="graph">
                                             <div className="knob_data">{this.state.current_temp}
                                             </div>
-                                            <span className="txt_smaller"><sup>o</sup>F (Farenheit) </span>
+                                            <span className="txt_smaller"><sup>o</sup>C (Celsius) </span>
                                         </div>
                                     </div>
                                 </div>
