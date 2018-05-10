@@ -232,8 +232,7 @@ class RecipeDetails extends Component {
                     <div className="col-md-9">
 
                         <div className="row card-row">
-                            <h3>{this.state.recipe_name}
-                                for {this.state.recipe_plant}  </h3>
+                            <h3>{this.state.recipe_name} for {this.state.recipe_plant} </h3>
                         </div>
 
                         <div className="row card-row">

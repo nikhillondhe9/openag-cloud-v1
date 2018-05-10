@@ -288,7 +288,7 @@ def send_recipe_to_device_via_IoT( iot_client, device_id, commands_list ):
 # api.update_status('Test status')
 @app.route('/api/register/', methods=['GET', 'POST'])
 def register():
-    received_form_response = json.loads(request.data)
+    received_form_response = json.loads(request.data.decode('utf-8'))
 
     user_token = received_form_response.get("user_token", None)
     device_name = received_form_response.get("device_name", None)
@@ -343,7 +343,7 @@ def register():
 
 @app.route('/api/posttwitter/',methods=['GET', 'POST'])
 def posttwitter():
-    received_form_response = json.loads(request.data)
+    received_form_response = json.loads(request.data.decode('utf-8'))
     current_date = datetime.utcnow()
     user_uuid = received_form_response.get("user_uuid","Error")
     api.update_status('Food computer status for %s on %s'%(user_uuid,str(current_date)))
@@ -355,7 +355,7 @@ def posttwitter():
 
 @app.route('/api/signup/', methods=['GET', 'POST'])
 def signup():
-    received_form_response = json.loads(request.data)
+    received_form_response = json.loads(request.data.decode('utf-8'))
     username = received_form_response.get("username", None)
     email_address = received_form_response.get("email_address", None)
     password = received_form_response.get("password", None)
@@ -387,7 +387,7 @@ def signup():
 
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
-    received_form_response = json.loads(request.data)
+    received_form_response = json.loads(request.data.decode('utf-8'))
 
     username = received_form_response.get("username", None)
     password = received_form_response.get("password", None)
@@ -429,7 +429,7 @@ def get_device_name(device_uuid):
 def get_user_devices():
     print("Fetching all the user devices")
 
-    received_form_response = json.loads(request.data)
+    received_form_response = json.loads(request.data.decode('utf-8'))
     user_token = received_form_response.get("user_token", None)
     if user_token is None:
         result = Response({"message": "Please make sure you have added values for all the fields"}, status=500,
@@ -488,7 +488,7 @@ def get_user_devices():
 def get_all_recipes():
     print("Fetching all the recipes")
 
-    received_form_response = json.loads(request.data)
+    received_form_response = json.loads(request.data.decode('utf-8'))
     user_token = received_form_response.get("user_token", None)
     query_session = datastore_client.query(kind="UserSession")
     query_session.add_filter('session_token', '=', user_token)
@@ -553,7 +553,7 @@ def get_all_recipes():
 @app.route('/api/get_recipe_components/', methods=['GET', 'POST'])
 def get_recipe_components():
     print("Fetching components related to a recipe")
-    received_form_response = json.loads(request.data)
+    received_form_response = json.loads(request.data.decode('utf-8'))
     recipe_uuid = str(received_form_response.get("recipe_id", '0'))
 
     components_array = []
@@ -621,7 +621,7 @@ def get_recipe_components():
 
 @app.route('/api/get_recipe_details/',methods=['GET', 'POST'])
 def get_recipe_details():
-    received_form_response = json.loads(request.data)
+    received_form_response = json.loads(request.data.decode('utf-8'))
     recipe_uuid = received_form_response.get("recipe_uuid",None)
     user_token = received_form_response.get("user_token",None)
     if recipe_uuid is None or user_token is None:
@@ -718,7 +718,7 @@ def get_recipe_details():
     
 @app.route('/api/save_recipe/', methods=['GET', 'POST'])
 def save_recipe():
-    received_form_response = json.loads(request.data)
+    received_form_response = json.loads(request.data.decode('utf-8'))
     recipe_json = json.loads(received_form_response.get("recipe_json", None))
     recipe_name = recipe_json.get("recipe_name", None)
     recipe_plant = recipe_json.get("plant_type", None)
@@ -777,7 +777,7 @@ def save_recipe():
 #------------------------------------------------------------------------------
 @app.route('/api/get_current_stats/',methods=['GET', 'POST'])
 def get_current_stats():
-    received_form_response = json.loads(request.data)
+    received_form_response = json.loads(request.data.decode('utf-8'))
     device_uuid = received_form_response.get("selected_device_uuid", None)
 
     if device_uuid is None:
@@ -823,7 +823,7 @@ def get_current_stats():
 #------------------------------------------------------------------------------
 @app.route('/api/get_co2_details/',methods=['GET', 'POST'])
 def get_co2_details():
-    received_form_response = json.loads(request.data)
+    received_form_response = json.loads(request.data.decode('utf-8'))
     device_uuid = received_form_response.get("selected_device_uuid", None)
 
     if device_uuid is None:
@@ -858,7 +858,7 @@ def get_co2_details():
 #------------------------------------------------------------------------------
 @app.route('/api/get_temp_details/', methods=['GET', 'POST'])
 def get_temp_details():
-    received_form_response = json.loads(request.data)
+    received_form_response = json.loads(request.data.decode('utf-8'))
     device_uuid = received_form_response.get("selected_device_uuid", None)
 
     if device_uuid is None:
@@ -902,7 +902,7 @@ def get_temp_details():
 #------------------------------------------------------------------------------
 @app.route('/api/get_led_panel/', methods=['GET', 'POST'])
 def get_led_panel():
-    received_form_response = json.loads(request.data)
+    received_form_response = json.loads(request.data.decode('utf-8'))
     device_uuid = received_form_response.get("selected_device_uuid", None)
 
     if device_uuid is None:
@@ -965,7 +965,7 @@ def send_recipe_to_device( device_id, recipe_uuid ):
 # Save the device history.
 @app.route('/api/apply_to_device/', methods=['GET', 'POST'])
 def apply_to_device():
-    received_form_response = json.loads(request.data)
+    received_form_response = json.loads(request.data.decode('utf-8'))
 
     device_uuid = received_form_response.get("device_uuid", None)
     recipe_uuid = received_form_response.get("recipe_uuid", None)
@@ -1070,7 +1070,7 @@ def get_key_differences(x,y):
 # Handle Change to a recipe running on a device
 @app.route('/api/submit_recipe_change/', methods=['GET', 'POST'])
 def submit_recipe_change():
-    received_form_response = json.loads(request.data)
+    received_form_response = json.loads(request.data.decode('utf-8'))
     recipe_state = received_form_response.get("recipe_state",{})
     user_token = received_form_response.get("user_token","")
 
