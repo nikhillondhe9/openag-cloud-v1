@@ -5,6 +5,7 @@ import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Lab
 import {Cookies, withCookies} from "react-cookie";
 import image1 from '../1.png';
 import image2 from '../2.png';
+import {Dropdown, DropdownItem, DropdownMenu, DropdownToggle} from 'reactstrap';
 import placeholder from '../placeholder.png';
 import { Timeline } from 'react-twitter-widgets'
 class Home extends Component {
@@ -19,7 +20,9 @@ class Home extends Component {
             device_notes: '',
             user_uuid: this.user_uuid,
             device_type: 'PFC_EDU',
-            user_devices: []
+            user_devices: [],
+            dropdownOpen: false,
+            dropDownValue: 'Choose a PFC'
         };
 
         this.toggle = this.toggle.bind(this);
@@ -28,7 +31,8 @@ class Home extends Component {
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.getUserDevices = this.getUserDevices.bind(this);
-        this.postToTwitter = this.postToTwitter.bind(this)
+        this.postToTwitter = this.postToTwitter.bind(this);
+        this.dropdowntoggle = this.dropdowntoggle.bind(this);
     }
 
     componentWillMount() {
@@ -61,7 +65,7 @@ class Home extends Component {
     }
 
     getUserDevices() {
-        return fetch( process.env.REACT_APP_FLASK_URL + '/api/get_user_devices/', {
+        return fetch( process.env.REACT_APP_FLASK_URL +'/api/get_user_devices/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -77,9 +81,22 @@ class Home extends Component {
             .then((responseJson) => {
                 console.log(responseJson)
                 if (responseJson["response_code"] == 200) {
-                    this.setState({user_devices: responseJson["results"]})
-                }
 
+                    var devs = [];                  // make array
+                    devs = responseJson["results"]; // assign array
+                    var device_uuid = 'None'
+                    if (devs.length > 0) {         // if we have devices
+                        // default the selected device to the first/only dev.
+                        var name = devs[0].device_name + ' (' +
+                            devs[0].device_reg_no + ')';
+                        this.setState({dropDownValue: name});
+                        device_uuid = devs[0].device_uuid;
+                        this.setState({selected_device_uuid: device_uuid});
+                    }
+
+                    this.setState({user_devices: responseJson["results"]})
+                    console.log("Response", responseJson["results"])
+                }
             })
             .catch((error) => {
                 console.error(error);
@@ -156,23 +173,19 @@ class Home extends Component {
                 console.error(error);
             });
         }
+
+    dropdowntoggle() {
+        this.setState(prevState => ({
+            dropdownOpen: !prevState.dropdownOpen
+        }));
+    }
     render() {
         let listDevices = <p>Loading</p>
         if (this.state.user_devices.length > 0) {
             listDevices = this.state.user_devices.map((device) => {
-                return <div className="col-md-3" key={device.device_reg_no}>
-                    <div className="card">
-                        <div className="card-body">
-                            <h5 className="card-title">{device.device_reg_no}</h5>
-                            <h6 className="card-subtitle mb-2 text-muted">{device.device_name} ({device.device_type})</h6>
-                            <p className="card-text">{device.device_notes}</p>
-                            <p className="card-text">This device is currently running the recipe id
-                                : None </p>
-                            <p className="card-text"> Device Status: OK</p>
-                             <button onClick={this.goToDeviceHomePage.bind(this,device.device_uuid)} className="card-link">Device Homepage</button>
-                        </div>
-                    </div>
-                </div>
+                return <DropdownItem key={device.device_uuid}
+                    value={device.device_uuid}
+                    onClick={this.changeValue}>{device.device_name} ({device.device_reg_no}) </DropdownItem>
             });
 
         }
@@ -180,18 +193,29 @@ class Home extends Component {
         return (
             <Router>
                 <div className="home-container">
-                    <div className="row">
-                         <div className="col-md-4">
+                     <div className="row dropdown-row">
+                    <div className="col-md-6">
+                        <Dropdown isOpen={this.state.dropdownOpen} toggle={this.dropdowntoggle}
+                                  className="row dropdow-row">
+                            <DropdownToggle caret>
+                                {this.state.dropDownValue}
 
-                         </div>
-                         <div className="col-md-8">
-                             <Button className="postbutton" onClick={this.postToTwitter}>Post status to twitter</Button>
-                         </div>
+                            </DropdownToggle>
+                            <DropdownMenu>
+                                {listDevices}
+                                 <DropdownItem value="add_device" onClick={this.changeValue}> Add new device </DropdownItem>
+                            </DropdownMenu>
+                        </Dropdown>
                     </div>
+                    <div className="col-md-6">
+                        <Button className="postbutton" onClick={this.postToTwitter}>Post status to twitter</Button>
+                    </div>
+                </div>
+
 
 
                     <div className="row">
-                         <div className="col-md-4">
+                         <div className="col-md-4 twitter-col">
                               <Timeline
     dataSource={{
       sourceType: 'profile',
@@ -203,8 +227,11 @@ class Home extends Component {
     onLoad={() => console.log('Timeline is loaded!')}
   />
                          </div>
+                         <div className="col-md-2">
+
+                        </div>
                         {/*<a className="twitter-timeline" href="https://twitter.com/MITOpenAg?ref_src=twsrc%5Etfw">Tweets by MITOpenAg</a> <script async src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script>*/}
-                         <div className="col-md-8">
+                         <div className="col-md-6">
                              <img src={placeholder} className="timelapse-img"></img>
                         </div>
                     </div>

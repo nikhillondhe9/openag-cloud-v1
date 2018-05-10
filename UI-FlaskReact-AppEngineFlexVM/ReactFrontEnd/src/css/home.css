@@ -108,3 +108,9 @@
 {
     float:right;
 }
+
+.twitter-col
+{
+    max-height:800px;
+    overflow-y: scroll;
+}
