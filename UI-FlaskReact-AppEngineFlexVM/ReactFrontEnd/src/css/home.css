@@ -1,19 +1,15 @@
 @import url(https://fonts.googleapis.com/css?family=Roboto:300);
 
-.body
-{
+.body {
     background: white;
 }
 
-
-
 .title {
-  text-align: center;
-  font-weight: 100;
+    text-align: center;
+    font-weight: 100;
 }
 
-.home-container
-{
+.home-container {
     top: 100px;
     width: 100%;
     padding-top: 20px;
@@ -25,92 +21,174 @@
     position: relative;
     font-family: "Roboto", sans-serif;
 
-
 }
 
-.name-row
-{
+.name-row {
     display: table;
 }
-.card
-{
+
+.card {
     width: 100%;
 }
-.cell-col
-{
+
+.cell-col {
     display: table-cell;
     vertical-align: middle;
 }
-.card-row
-{
-    margin-top:20px;
+
+.card-row {
+    margin-top: 20px;
     margin-left: 5px;
     padding-left: 15px;
 }
 
-
-
 .plus {
-  width: 50px;
-  cursor: pointer;
-  transition: all .3s ease-out 0s;
-  height: 50px;
-  background: #883c63;
-  border-radius: 50%;
-  display: flex;
-  position: relative;
+    width: 50px;
+    cursor: pointer;
+    transition: all .3s ease-out 0s;
+    height: 50px;
+    background: #883c63;
+    border-radius: 50%;
+    display: flex;
+    position: relative;
     z-index: 2;
-  will-change: transform, filter;
-  -webkit-transform-style: preserve-3d;
-          transform-style: preserve-3d;
-  -webkit-transition: all 0.3s ease-out;
+    will-change: transform, filter;
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+    -webkit-transition: all 0.3s ease-out;
 
 }
+
 .plus__line {
-  width: 6px;
-  height: 25px;
-  background: #FFF;
-  border-radius: 5px;
-  position: absolute;
-  left: calc(50% - 2px);
-  top: calc(50% - 13px);
+    width: 6px;
+    height: 25px;
+    background: #FFF;
+    border-radius: 5px;
+    position: absolute;
+    left: calc(50% - 2px);
+    top: calc(50% - 13px);
 }
+
 .plus__line--h {
-  transform: rotate(90deg);
+    transform: rotate(90deg);
 }
+
 .plus__line--v {
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  overflow: hidden;
-  transition: all .4s ease 0s;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    overflow: hidden;
+    transition: all .4s ease 0s;
 }
+
 .centered {
-  display: flex;
-  width: 100%;
-  height: 100%;
-  align-items: center;
-  justify-content: center;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
 }
 
-.plus:hover
-{
-    width:65px;
-    height:65px;
+.plus:hover {
+    width: 65px;
+    height: 65px;
 }
 
-.timelapse-img{
-    width:80%;
-    float:right;
+.timelapse-img {
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
 }
 
-.postbutton
-{
-    float:right;
+.postbutton {
+    float: right;
 }
 
-.twitter-col
-{
-    max-height:800px;
+.twitter-col {
+    max-height: 550px;
     overflow-y: scroll;
+    border-left: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.notifications-card {
+    height: 400px;
+    border:0px;
+}
+
+.notifications-body {
+    padding: 10px;
+}
+
+.range-slider {
+    margin: 60px 0 0 0%;
+}
+
+.range-slider {
+    width: 100%;
+}
+
+.range-slider__range {
+    -webkit-appearance: none;
+    width: calc(100% - (73px));
+    height: 10px;
+    border-radius: 5px;
+    background: #d7dcdf;
+    outline: none;
+    padding: 0;
+    display: block;
+    margin-right: auto;
+    margin-left: auto;
+    margin-top: 10px;
+}
+
+.range-slider__range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #2c3e50;
+    cursor: pointer;
+    transition: background .15s ease-in-out;
+}
+
+.range-slider__range::-webkit-slider-thumb:hover {
+    background: #1abc9c;
+}
+
+.range-slider__range:active::-webkit-slider-thumb {
+    background: #1abc9c;
+}
+
+.range-slider__range::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border: 0;
+    border-radius: 50%;
+    background: #2c3e50;
+    cursor: pointer;
+    transition: background .15s ease-in-out;
+}
+
+.range-slider__range::-moz-range-thumb:hover {
+    background: #1abc9c;
+}
+
+.range-slider__range:active::-moz-range-thumb {
+    background: #1abc9c;
+}
+
+.range-slider__range:focus::-webkit-slider-thumb {
+    box-shadow: 0 0 0 3px #fff, 0 0 0 6px #1abc9c;
+}
+
+::-moz-range-track {
+    background: #d7dcdf;
+    border: 0;
+}
+
+input::-moz-focus-inner,
+input::-moz-focus-outer {
+    border: 0;
 }

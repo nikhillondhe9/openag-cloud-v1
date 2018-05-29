@@ -1,0 +1,72 @@
+@import url(https://fonts.googleapis.com/css?family=Roboto:300);
+
+.body {
+    background: white;
+}
+
+.title {
+    text-align: center;
+    font-weight: 100;
+}
+
+.profile-container {
+    top: 100px;
+    width: 100%;
+    padding-top: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    background: white;
+    overflow-y: scroll;
+    max-width: 100%;
+    position: relative;
+    font-family: "Roboto", sans-serif;
+
+}
+
+.profile-card {
+    height: 500px;
+    margin-bottom: 20px;
+}
+
+.wrapper {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.image--cover {
+
+    display: block;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    margin-left: auto;
+    margin-right: auto;
+
+}
+
+.profile-details-card {
+    height: 290px;
+    margin-top: 10px;
+}
+
+.profile-row
+{
+    text-align:center;
+    margin-top:10px;
+}
+
+.profile-row.wrapper
+{
+    text-align: center;
+}
+
+.profile-card-row
+{
+    padding-left:20px;
+}
+
+.col-center-label
+{
+    text-align: center;
+}

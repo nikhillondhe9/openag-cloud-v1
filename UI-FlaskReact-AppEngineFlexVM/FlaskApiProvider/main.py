@@ -9,14 +9,14 @@ from datetime import datetime, timedelta
 import tweepy
 from FCClass.user import User
 from FCClass.user_session import UserSession
-from flask import Flask, request
+from flask import Flask, request,make_response
 from flask import Response
 from flask_cors import CORS
 from google.cloud import bigquery
 from google.cloud import datastore
 from google.oauth2 import service_account
 from googleapiclient import discovery
-
+import random,string
 from queries import queries
 
 bigquery_client = bigquery.Client()
@@ -77,6 +77,10 @@ def get_IoT_client( path_to_service_account_json ):
 # Get an IoT client using the GCP project (NOT firebase proj!)
 iot_client = get_IoT_client( path_to_google_service_account )
 
+
+
+def id_generator(size=6, chars=string.digits):
+    return ''.join(random.choice(chars) for x in range(size))
 
 #------------------------------------------------------------------------------
 def validDictKey( d, key ):
@@ -1143,6 +1147,88 @@ def submit_recipe_change():
     })
     return Response(data, status=200, mimetype='application/json')
 
+
+
+@app.route('/api/verify_user_session/', methods=['GET', 'POST'])
+def verify_user_session():
+    received_form_response = json.loads(request.data.decode('utf-8'))
+    user_token = received_form_response.get("user_token", None)
+    query_session = datastore_client.query(kind="UserSession")
+    query_session.add_filter('session_token', '=', user_token)
+    query_session_result = list(query_session.fetch())
+    is_expired = True
+    user_uuid = None
+    if len(query_session_result) > 0:
+        user_uuid = query_session_result[0].get("user_uuid", None)
+        session_expiration = query_session_result[0].get("expiration_date", None)
+        datenow = datetime.now()
+        if session_expiration > datenow:
+            is_expired = False
+
+    data = json.dumps({
+        "response_code": 200,
+        "message": "Successful",
+        "is_expired":is_expired
+    })
+    return Response(data, status=200, mimetype='application/json')
+
+
+@app.route('/api/download_as_csv/',methods=['GET','POST'])
+def download_as_csv():
+    csv = 'foo,bar,baz\nhai,bai,crai\n'
+    return Response(
+        csv,
+        mimetype="text/csv",
+        headers={"Content-disposition":
+                     "attachment; filename=myplot.csv"})
+
+
+@app.route('/api/create_new_code/',methods=['GET','POST'])
+def create_new_code():
+    received_form_response = json.loads(request.data.decode('utf-8'))
+    user_token = received_form_response.get("user_token", None)
+    query_session = datastore_client.query(kind="UserSession")
+    query_session.add_filter('session_token', '=', user_token)
+    query_session_result = list(query_session.fetch())
+
+    user_uuid = None
+    if len(query_session_result) > 0:
+        user_uuid = query_session_result[0].get("user_uuid", None)
+
+    if user_uuid is None:
+        result = Response({"message": "Invalid User: Unauthorized"}, status=500,
+                          mimetype='application/json')
+        return result
+
+    generated_code = id_generator()
+    # Add the user to the users kind of entity
+    key = datastore_client.key('UserAccessCodes')
+    # Indexes every other column except the description
+    access_code_reg = datastore.Entity(key, exclude_from_indexes=[])
+
+    access_code_reg.update({
+        'user_uuid': user_uuid,
+        'created_date': datetime.now(),
+        'expiration_date':datetime.now()+timedelta(hours=24),
+        'code':generated_code
+    })
+
+    datastore_client.put(access_code_reg)
+
+    if access_code_reg.key:
+        data = json.dumps({
+            "response_code": 200,
+            "code":generated_code
+        })
+        result = Response(data, status=200, mimetype='application/json')
+
+    else:
+        data = json.dumps({
+            "message": "Sorry something failed. Womp womp!"
+        })
+        result = Response(data, status=500, mimetype='application/json')
+
+    return result
 
 #------------------------------------------------------------------------------
 if __name__ == '__main__':
