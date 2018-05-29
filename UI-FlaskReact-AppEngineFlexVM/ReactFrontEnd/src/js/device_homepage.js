@@ -700,10 +700,8 @@ class DeviceHomepage extends Component {
         return (
 
             <div className="home-container">
-                {/*<div className="row">*/}
-                {/*<div className="col-md-8">*/}
                 <div className="row dropdown-row">
-                    <div className="col-md-6">
+                    <div className="col-md-8">
                         <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}
                                   className="row dropdow-row">
                             <DropdownToggle caret>
@@ -715,24 +713,15 @@ class DeviceHomepage extends Component {
                             </DropdownMenu>
                         </Dropdown>
                     </div>
-                    <div className="col-md-3">
+                    <div className="col-md-2">
                         <button className="apply-button btn btn-secondary" onClick={this.downloadCSV}>Download as CSV
                         </button>
                     </div>
-                    <div className="col-md-3">
+                    <div className="col-md-2">
                         <button className="apply-button btn btn-secondary" onClick={this.applyChanges}>Apply Changes
                         </button>
                     </div>
                 </div>
-                {/*</div>*/}
-                {/*<div className="col-md-4">*/}
-                {/*<Console ref={ref => this.child.console = ref}*/}
-                {/*handler={this.echo}*/}
-                {/*promptLabel={this.promptLabel}*/}
-                {/*welcomeMessage={"Use this console to manipulate the dashboard."}*/}
-                {/*autofocus={true} />*/}
-                {/*</div>*/}
-                {/*</div>*/}
                 <div className="row graphs-row">
                     <Draggable cancel="strong">
                         <div className="col-md-4">

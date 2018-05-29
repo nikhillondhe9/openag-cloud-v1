@@ -16,7 +16,7 @@ from google.cloud import bigquery
 from google.cloud import datastore
 from google.oauth2 import service_account
 from googleapiclient import discovery
-
+import random,string
 from queries import queries
 
 bigquery_client = bigquery.Client()
@@ -77,6 +77,10 @@ def get_IoT_client( path_to_service_account_json ):
 # Get an IoT client using the GCP project (NOT firebase proj!)
 iot_client = get_IoT_client( path_to_google_service_account )
 
+
+
+def id_generator(size=6, chars=string.digits):
+    return ''.join(random.choice(chars) for x in range(size))
 
 #------------------------------------------------------------------------------
 def validDictKey( d, key ):
@@ -1196,11 +1200,35 @@ def create_new_code():
                           mimetype='application/json')
         return result
 
-    data = json.dumps({
-        "response_code": 200,
-        "message": "Successful"
+    generated_code = id_generator()
+    # Add the user to the users kind of entity
+    key = datastore_client.key('UserAccessCodes')
+    # Indexes every other column except the description
+    access_code_reg = datastore.Entity(key, exclude_from_indexes=[])
+
+    access_code_reg.update({
+        'user_uuid': user_uuid,
+        'created_date': datetime.now(),
+        'expiration_date':datetime.now()+timedelta(hours=24),
+        'code':generated_code
     })
-    return Response(data, status=200, mimetype='application/json')
+
+    datastore_client.put(access_code_reg)
+
+    if access_code_reg.key:
+        data = json.dumps({
+            "response_code": 200,
+            "code":generated_code
+        })
+        result = Response(data, status=200, mimetype='application/json')
+
+    else:
+        data = json.dumps({
+            "message": "Sorry something failed. Womp womp!"
+        })
+        result = Response(data, status=500, mimetype='application/json')
+
+    return result
 
 #------------------------------------------------------------------------------
 if __name__ == '__main__':
