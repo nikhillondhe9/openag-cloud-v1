@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 import tweepy
 from FCClass.user import User
 from FCClass.user_session import UserSession
-from flask import Flask, request
+from flask import Flask, request,make_response
 from flask import Response
 from flask_cors import CORS
 from google.cloud import bigquery
@@ -1143,6 +1143,64 @@ def submit_recipe_change():
     })
     return Response(data, status=200, mimetype='application/json')
 
+
+
+@app.route('/api/verify_user_session/', methods=['GET', 'POST'])
+def verify_user_session():
+    received_form_response = json.loads(request.data.decode('utf-8'))
+    user_token = received_form_response.get("user_token", None)
+    query_session = datastore_client.query(kind="UserSession")
+    query_session.add_filter('session_token', '=', user_token)
+    query_session_result = list(query_session.fetch())
+    is_expired = True
+    user_uuid = None
+    if len(query_session_result) > 0:
+        user_uuid = query_session_result[0].get("user_uuid", None)
+        session_expiration = query_session_result[0].get("expiration_date", None)
+        datenow = datetime.now()
+        if session_expiration > datenow:
+            is_expired = False
+
+    data = json.dumps({
+        "response_code": 200,
+        "message": "Successful",
+        "is_expired":is_expired
+    })
+    return Response(data, status=200, mimetype='application/json')
+
+
+@app.route('/api/download_as_csv/',methods=['GET','POST'])
+def download_as_csv():
+    csv = 'foo,bar,baz\nhai,bai,crai\n'
+    return Response(
+        csv,
+        mimetype="text/csv",
+        headers={"Content-disposition":
+                     "attachment; filename=myplot.csv"})
+
+
+@app.route('/api/create_new_code/',methods=['GET','POST'])
+def create_new_code():
+    received_form_response = json.loads(request.data.decode('utf-8'))
+    user_token = received_form_response.get("user_token", None)
+    query_session = datastore_client.query(kind="UserSession")
+    query_session.add_filter('session_token', '=', user_token)
+    query_session_result = list(query_session.fetch())
+
+    user_uuid = None
+    if len(query_session_result) > 0:
+        user_uuid = query_session_result[0].get("user_uuid", None)
+
+    if user_uuid is None:
+        result = Response({"message": "Invalid User: Unauthorized"}, status=500,
+                          mimetype='application/json')
+        return result
+
+    data = json.dumps({
+        "response_code": 200,
+        "message": "Successful"
+    })
+    return Response(data, status=200, mimetype='application/json')
 
 #------------------------------------------------------------------------------
 if __name__ == '__main__':

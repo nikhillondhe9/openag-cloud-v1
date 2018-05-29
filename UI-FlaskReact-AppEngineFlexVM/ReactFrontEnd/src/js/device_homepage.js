@@ -17,6 +17,7 @@ import 'rc-time-picker/assets/index.css';
 import Console from 'react-console-component';
 import 'react-console-component/main.css';
 import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input} from 'reactstrap';
+import FileSaver from 'file-saver';
 
 const createSliderWithTooltip = Slider.createSliderWithTooltip;
 const Range = createSliderWithTooltip(Slider.Range);
@@ -99,6 +100,7 @@ class DeviceHomepage extends Component {
             recipe_name: '',
             recipe_link: '',
             modal: false,
+            add_device_modal:false,
             changes: {}
         };
         this.child = {
@@ -114,13 +116,15 @@ class DeviceHomepage extends Component {
         this.handleColorChange = this.handleColorChange.bind(this);
         this.toggle = this.toggle.bind(this);
         this.modalToggle = this.modalToggle.bind(this);
+        this.addDeviceModalToggle = this.addDeviceModalToggle.bind(this);
         this.changeValue = this.changeValue.bind(this);
         this.sensorOnChange = this.sensorOnChange.bind(this);
         this.echo = this.echo.bind(this);
         this.sliderChange = this.sliderChange.bind(this);
         this.applyChanges = this.applyChanges.bind(this);
         this.handleApplySubmit = this.handleApplySubmit.bind(this);
-        this.timeonChange = this.timeonChange.bind(this)
+        this.timeonChange = this.timeonChange.bind(this);
+        this.downloadCSV = this.downloadCSV.bind(this);
 
     }
 
@@ -136,7 +140,12 @@ class DeviceHomepage extends Component {
             modal: !this.state.modal
         });
     }
-
+    addDeviceModalToggle()
+    {
+        this.setState({
+            add_device_modal: !this.state.add_device_modal
+        })
+    }
     toggle() {
         this.setState(prevState => ({
             dropdownOpen: !prevState.dropdownOpen
@@ -146,7 +155,6 @@ class DeviceHomepage extends Component {
     componentDidMount() {
         this.getUserDevices()
     }
-
     sliderChange(led_data_type, color_channel, value) {
         if (led_data_type === "led_on_data") {
             let color_json = this.state.led_on_data;
@@ -186,8 +194,8 @@ class DeviceHomepage extends Component {
         console.log("Color", color.hex);
     }
 
-    getCurrentStats( device_uuid ) {
-        return fetch( process.env.REACT_APP_FLASK_URL + '/api/get_current_stats/', {
+    getCurrentStats(device_uuid) {
+        return fetch(process.env.REACT_APP_FLASK_URL + '/api/get_current_stats/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -197,7 +205,7 @@ class DeviceHomepage extends Component {
             body: JSON.stringify({
                 'user_uuid': this.state.user_uuid,
                 'user_token': this.props.cookies.get('user_token'),
-                'selected_device_uuid': device_uuid 
+                'selected_device_uuid': device_uuid
             })
         })
             .then((response) => response.json())
@@ -217,7 +225,7 @@ class DeviceHomepage extends Component {
     }
 
     getUserDevices() {
-        return fetch( process.env.REACT_APP_FLASK_URL +'/api/get_user_devices/', {
+        return fetch(process.env.REACT_APP_FLASK_URL + '/api/get_user_devices/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -239,7 +247,7 @@ class DeviceHomepage extends Component {
                     var device_uuid = 'None'
                     if (devs.length > 0) {         // if we have devices
                         // default the selected device to the first/only dev.
-                        var name = devs[0].device_name + ' (' + 
+                        var name = devs[0].device_name + ' (' +
                             devs[0].device_reg_no + ')';
                         this.setState({dropDownValue: name});
                         device_uuid = devs[0].device_uuid;
@@ -249,10 +257,10 @@ class DeviceHomepage extends Component {
                     this.setState({user_devices: responseJson["results"]})
 
                     // Now go get the data that requires a device id
-                    this.getTempDetails( device_uuid );
-                    this.getCO2Details( device_uuid );
-                    this.getCurrentStats( device_uuid );
-                    this.getLEDPanel( device_uuid );
+                    this.getTempDetails(device_uuid);
+                    this.getCO2Details(device_uuid);
+                    this.getCurrentStats(device_uuid);
+                    this.getLEDPanel(device_uuid);
 
                     console.log("Response", responseJson["results"])
                 }
@@ -262,8 +270,8 @@ class DeviceHomepage extends Component {
             });
     }
 
-    getCO2Details( device_uuid ) {
-        return fetch( process.env.REACT_APP_FLASK_URL + '/api/get_co2_details/', {
+    getCO2Details(device_uuid) {
+        return fetch(process.env.REACT_APP_FLASK_URL + '/api/get_co2_details/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -271,7 +279,7 @@ class DeviceHomepage extends Component {
                 'Access-Control-Allow-Origin': '*'
             },
             body: JSON.stringify({
-                'selected_device_uuid': device_uuid 
+                'selected_device_uuid': device_uuid
             })
         })
 
@@ -334,8 +342,8 @@ class DeviceHomepage extends Component {
             });
     }
 
-    getTempDetails( device_uuid ) {
-        return fetch( process.env.REACT_APP_FLASK_URL + '/api/get_temp_details/', {
+    getTempDetails(device_uuid) {
+        return fetch(process.env.REACT_APP_FLASK_URL + '/api/get_temp_details/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -343,7 +351,7 @@ class DeviceHomepage extends Component {
                 'Access-Control-Allow-Origin': '*'
             },
             body: JSON.stringify({
-                'selected_device_uuid': device_uuid 
+                'selected_device_uuid': device_uuid
             })
         })
             .then((response) => response.json())
@@ -445,8 +453,8 @@ class DeviceHomepage extends Component {
             });
     }
 
-    getLEDPanel( device_uuid ) {
-        return fetch( process.env.REACT_APP_FLASK_URL + '/api/get_led_panel/', {
+    getLEDPanel(device_uuid) {
+        return fetch(process.env.REACT_APP_FLASK_URL + '/api/get_led_panel/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -454,12 +462,12 @@ class DeviceHomepage extends Component {
                 'Access-Control-Allow-Origin': '*'
             },
             body: JSON.stringify({
-                'selected_device_uuid': device_uuid 
+                'selected_device_uuid': device_uuid
             })
         })
             .then((response) => response.json())
             .then((responseJson) => {
-                console.log("LED DATA",responseJson["results"])
+                console.log("LED DATA", responseJson["results"])
                 if (responseJson["response_code"] == 200) {
 
                     let parseTime = d3.timeParse("%a %b %d %I:%M:%S %Y");
@@ -467,7 +475,7 @@ class DeviceHomepage extends Component {
                     let ledData = responseJson["results"]
                     ledData.forEach(function (d) {
                         d.time = formatTime(parseTime(d.time));
-                        d.value = [d.cool_white,d.warm_white,d.blue,d.red,d.green,d.far_red];
+                        d.value = [d.cool_white, d.warm_white, d.blue, d.red, d.green, d.far_red];
                     });
 
                     let led_data_x = []
@@ -496,35 +504,35 @@ class DeviceHomepage extends Component {
                             x: led_data_x,
                             y: led_data_cool_white,
                             line: {color: '#f5f5f5'}
-                        },{
+                        }, {
                             type: "scatter",
                             mode: "lines+markers",
                             name: 'Warm White',
                             x: led_data_x,
                             y: led_data_warm_white,
                             line: {color: '#efebd8'}
-                        },{
+                        }, {
                             type: "scatter",
                             mode: "lines+markers",
                             name: 'Blue',
                             x: led_data_x,
                             y: led_data_blue,
                             line: {color: '#0000ff'}
-                        },{
+                        }, {
                             type: "scatter",
                             mode: "lines+markers",
                             name: 'Red',
                             x: led_data_x,
                             y: led_data_red,
                             line: {color: '#ff0000'}
-                        },{
+                        }, {
                             type: "scatter",
                             mode: "lines+markers",
                             name: 'Green',
                             x: led_data_x,
                             y: led_data_green,
                             line: {color: '#00ff00'}
-                        },{
+                        }, {
                             type: "scatter",
                             mode: "lines+markers",
                             name: 'Far Red',
@@ -568,16 +576,24 @@ class DeviceHomepage extends Component {
     }
 
     changeValue(e) {
+        console.log("e",e.currentTarget.textContent)
         this.setState({dropDownValue: e.currentTarget.textContent}) // name
-        let device_uuid = e.target.value
-        this.setState({selected_device_uuid: device_uuid}) 
-        this.setState({current_rh: "Loading"}) 
-        this.setState({current_temp: "Loading"}) 
-        this.setState({current_co2: "Loading"}) 
-        this.getTempDetails( device_uuid );
-        this.getCO2Details( device_uuid );
-        this.getCurrentStats( device_uuid );
-        this.getLEDPanel( device_uuid );
+        if(e.currentTarget.textContent.toString() === "Add New Device")
+        {
+            console.log("TUE")
+            this.setState({add_device_modal:true})
+        }
+        else {
+            let device_uuid = e.target.value
+            this.setState({selected_device_uuid: device_uuid})
+            this.setState({current_rh: "Loading"})
+            this.setState({current_temp: "Loading"})
+            this.setState({current_co2: "Loading"})
+            this.getTempDetails(device_uuid);
+            this.getCO2Details(device_uuid);
+            this.getCurrentStats(device_uuid);
+            this.getLEDPanel(device_uuid);
+        }
     }
 
     echo(text) {
@@ -592,6 +608,24 @@ class DeviceHomepage extends Component {
         return this.state.count + "> ";
     }
 
+    downloadCSV() {
+        return fetch(process.env.REACT_APP_FLASK_URL + '/api/download_as_csv/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'text/csv',
+                'Content-Type': 'text/csv',
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({
+                'user_token': this.props.cookies.get('user_token')
+            })
+        }).then(function(response) {
+            return response.blob();
+          }).then(function(blob) {
+            FileSaver.saveAs(blob, 'data.csv');
+          })
+    }
+
     applyChanges() {
 
 
@@ -603,7 +637,7 @@ class DeviceHomepage extends Component {
 
     handleApplySubmit() {
         console.log(this.state)
-        return fetch( process.env.REACT_APP_FLASK_URL + '/api/submit_recipe_change/', {
+        return fetch(process.env.REACT_APP_FLASK_URL + '/api/submit_recipe_change/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -632,8 +666,9 @@ class DeviceHomepage extends Component {
         if (this.state.user_devices.length > 0) {
             listDevices = this.state.user_devices.map((device) => {
                 return <DropdownItem key={device.device_uuid}
-                    value={device.device_uuid}
-                    onClick={this.changeValue}>{device.device_name} ({device.device_reg_no}) </DropdownItem>
+                                     value={device.device_uuid}
+                                     onClick={this.changeValue}>{device.device_name}
+                    ({device.device_reg_no}) </DropdownItem>
             });
 
         }
@@ -676,10 +711,15 @@ class DeviceHomepage extends Component {
                             </DropdownToggle>
                             <DropdownMenu>
                                 {listDevices}
+                                <DropdownItem value="Add New Device" onClick={this.changeValue}>Add New Device</DropdownItem>
                             </DropdownMenu>
                         </Dropdown>
                     </div>
-                    <div className="col-md-6">
+                    <div className="col-md-3">
+                        <button className="apply-button btn btn-secondary" onClick={this.downloadCSV}>Download as CSV
+                        </button>
+                    </div>
+                    <div className="col-md-3">
                         <button className="apply-button btn btn-secondary" onClick={this.applyChanges}>Apply Changes
                         </button>
                     </div>
@@ -1040,7 +1080,7 @@ class DeviceHomepage extends Component {
                             <div className="card value-card">
                                 <div className="card-block">
                                     <h4 className="card-title "> Temperature Sensor </h4>
-                                    <div className="row plot-row" style={{display:'block'}}>
+                                    <div className="row plot-row" style={{display: 'block'}}>
                                         <strong className="no-cursor"> <Plot data={this.state.temp_data}
                                                                              layout={this.state.temp_layout}
                                                                              onInitialized={(figure) => this.setState(figure)}
@@ -1060,7 +1100,7 @@ class DeviceHomepage extends Component {
                                 <div className="card-block">
                                     <h4 className="card-title "> Relative Humidity Sensor </h4>
 
-                                    <div className="row plot-row" style={{display:'block'}}>
+                                    <div className="row plot-row" style={{display: 'block'}}>
                                         <strong className="no-cursor"> <Plot data={this.state.rh_data}
                                                                              layout={this.state.rh_layout}
                                                                              onInitialized={(figure) => this.setState(figure)}
@@ -1079,7 +1119,7 @@ class DeviceHomepage extends Component {
                                 <div className="card-block">
                                     <h4 className="card-title "> Carbon Dioxide Sensor </h4>
 
-                                    <div className="row plot-row" style={{display:'block'}}>
+                                    <div className="row plot-row" style={{display: 'block'}}>
                                         <strong className="no-cursor"> <Plot data={this.state.co2_data}
                                                                              layout={this.state.co2_layout}
                                                                              onInitialized={(figure) => this.setState(figure)}
@@ -1097,7 +1137,7 @@ class DeviceHomepage extends Component {
                                 <div className="card-block">
                                     <h4 className="card-title "> LED Panel History </h4>
                                     {/*Insert Style here to prevent style overrride*/}
-                                    <div className="row plot-row" style={{display:'block'}}>
+                                    <div className="row plot-row" style={{display: 'block'}}>
                                         <strong className="no-cursor"> <Plot data={this.state.led_data}
                                                                              layout={this.state.led_layout}
                                                                              onInitialized={(figure) => this.setState(figure)}
@@ -1125,6 +1165,44 @@ class DeviceHomepage extends Component {
                         <Button color="secondary" onClick={this.modalToggle}>Close</Button>
                     </ModalFooter>
                 </Modal>
+                <Modal isOpen={this.state.add_device_modal} toggle={this.addDeviceModalToggle} className={this.props.className}>
+                        <ModalHeader toggle={this.toggle}>New Device Registration</ModalHeader>
+                        <ModalBody>
+                            <Form>
+                                <FormGroup>
+                                    <Label for="device_name">Device name :</Label>
+                                    <Input type="text" name="device_name" id="device_name"
+                                           placeholder="E.g Caleb's FC" value={this.state.device_name}
+                                           onChange={this.handleChange}/>
+                                </FormGroup>
+                                <FormGroup>
+                                    <Label for="device_reg_no">Device Number :</Label>
+                                    <Input type="text" name="device_reg_no" id="device_reg_no"
+                                           placeholder="Six digit code" value={this.state.device_reg_no}
+                                           onChange={this.handleChange}/>
+                                </FormGroup>
+                                <FormGroup>
+                                    <Label for="device_notes">Device Notes :</Label>
+                                    <Input type="text" name="device_notes" id="device_notes"
+                                           placeholder="(Optional)" value={this.state.device_notes}
+                                           onChange={this.handleChange}/>
+                                </FormGroup>
+                                <FormGroup>
+                                    <Label for="device_type">Device Type :</Label>
+                                    <select className="form-control smallInput" name="device_type" id="device_type"
+                                            onChange={this.handleChange}
+                                            value={this.state.device_type}>
+                                        <option value="PFC_EDU">Personal Food Computer+EDU</option>
+                                        <option value="Food_Server">Food Server</option>
+                                    </select>
+                                </FormGroup>
+                            </Form>
+                        </ModalBody>
+                        <ModalFooter>
+                            <Button color="primary" onClick={this.handleSubmit}>Register Device</Button>{' '}
+                            <Button color="secondary" onClick={this.addDeviceModalToggle}>Cancel</Button>
+                        </ModalFooter>
+                    </Modal>
             </div>
         )
 
