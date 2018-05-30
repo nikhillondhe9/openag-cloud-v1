@@ -3,6 +3,7 @@ import '../css/App.css';
 import {BrowserRouter as Router, Route, Link, Switch} from "react-router-dom";
 import {SignUp} from "./signup";
 import login from "./login";
+import profile from "./profile";
 import Home from "./home";
 import recipes from "./recipes";
 import EditRecipe from './edit_recipe';
@@ -120,6 +121,7 @@ class App extends Component {
                             <Route path='/recipes' component={recipes}/>
                             <Route path='/login' component={login}/>
                             <Route path='/signup' component={SignUp}/>
+                            <Route path='/profile' component={profile}/>
                             <Route path='/dashboard' component={DeviceHomepage}/>
                             <Route path='/edit_recipe/:recipe_uuid' component={EditRecipe}/>
                             <Route path='/device/:device_uuid' component={DeviceHomepage}/>
