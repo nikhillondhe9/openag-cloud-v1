@@ -4,6 +4,7 @@ import json
 import os
 import time
 import uuid
+import sys, traceback
 from datetime import datetime, timedelta
 
 import tweepy
@@ -91,32 +92,116 @@ def validDictKey( d, key ):
 
 
 #------------------------------------------------------------------------------
+# Return a new recipe, in the format expected by the Jbrain.  
+def make_recipe( recipe_uuid, \
+        dayFR, dayR, dayB, dayG, dayCW, dayWW, \
+        day_intensity, day_temp, \
+        nightFR, nightR, nightB, nightG, nightCW, nightWW, \
+        night_intensity, night_temp, \
+        day_hours, night_hours ):
+
+    # make sure we have a valid recipe uuid
+    if None == recipe_uuid or 0 == len( recipe_uuid ):
+        print( "Error in make_recipe, missing recipe_uuid." )
+        return ''
+
+    recipe_template = '''{{
+    "format": "openag-phased-environment-v1",
+    "version": "1",
+    "creation_timestamp_utc": "{creation_timestamp_utc}",
+    "name": "simple recipe",
+    "uuid": "{recipe_uuid}",
+    "parent_recipe_uuid": null,
+    "support_recipe_uuids": null,
+    "description": {{
+        "brief": "simple",
+        "verbose": "simple"
+    }},
+    "authors": [
+        {{
+            "name": "Jake Rye",
+            "email": "jrye@mit.edu",
+            "uuid": "1"
+        }}
+    ],
+    "cultivars": [
+        {{
+            "name": "plant",
+            "uuid": "1"
+        }}
+    ],
+    "cultivation_methods": [
+        {{
+            "name": "Shallow Water Culture",
+            "uuid": "1"
+        }}
+    ],
+    "environments": {{
+        "standard_day": {{
+            "name": "Standard Day",
+            "light_spectrum_taurus": {{"FR": {dayFR}, "R": {dayR}, "B": {dayB}, "G": {dayG}, "CW": {dayCW}, "WW": {dayWW}}},
+            "light_intensity_watts": {day_intensity},
+            "light_illumination_distance_cm": 10,
+            "air_temperature_celcius": {day_temp}
+        }},
+        "standard_night": {{
+            "name": "Standard Night",
+            "light_spectrum_taurus": {{"FR": {nightFR}, "R": {nightR}, "B": {nightB}, "G": {nightG}, "CW": {nightCW}, "WW": {nightWW}}},
+            "light_intensity_watts": {night_intensity},
+            "light_illumination_distance_cm": 10,
+            "air_temperature_celcius": {night_temp}
+        }}
+    }},
+    "phases": [
+        {{
+            "name": "Standard Growth",
+            "repeat": 29,
+            "cycles": [
+                {{
+                    "name": "Day",
+                    "environment": "standard_day",
+                    "duration_hours": {day_hours} 
+                }},
+                {{
+                    "name": "Night",
+                    "environment": "standard_night",
+                    "duration_hours": {night_hours}
+                }}
+            ]
+        }}
+    ]
+    }}'''
+
+    utc = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S:%f')[:-4] + 'Z'
+    recipe = recipe_template.format( creation_timestamp_utc=utc, \
+        recipe_uuid=recipe_uuid, \
+        dayFR=dayFR, dayR=dayR, dayB=dayB, dayG=dayG, \
+        dayCW=dayCW, dayWW=dayWW, \
+        day_intensity=day_intensity, day_temp=day_temp, \
+        nightFR=nightFR, nightR=nightR, nightB=nightB, nightG=nightG, \
+        nightCW=nightCW, nightWW=nightWW, \
+        night_intensity=night_intensity, night_temp=night_temp, \
+        day_hours=day_hours, night_hours=night_hours )
+
+    # make it pretty json
+    rdict = json.loads( recipe )
+    recipe = json.dumps( rdict )
+    return recipe
+
+
+#------------------------------------------------------------------------------
+#debugrob: this is temporary, just until the UI writes the correct recipe format
+# return a scaled int.
+def convert_LED_value( led_str ):
+    led_i = int( led_str )
+    return int( led_i / 2.55 )
+
+
+#------------------------------------------------------------------------------
 # Convert the UI display fields into a command set for the device.
-# Returns a list of commands.
-def convert_UI_recipe_to_commands( recipe_dict ):
+# Returns a valid Jbrain recipe.
+def convert_UI_recipe_to_commands( recipe_uuid, recipe_dict ):
     try:
-        # value is publish secs
-        temp_humidity_sht25 = '60'
-        if validDictKey( recipe_dict, 'temp_humidity_sht25' ):
-            temp_humidity_sht25 = recipe_dict[ 'temp_humidity_sht25' ]
-        temp_humidity_sht25 += '000' # convert secs to msecs
-
-        co2_t6713 = '60'
-        if validDictKey( recipe_dict, 'co2_t6713' ):
-            co2_t6713 = recipe_dict[ 'co2_t6713' ]
-        co2_t6713 += '000'
-
-        # make a json schedule for the sensors
-        temp_humidity_sht25_sched = \
-            '{ "dtype": "4", "measurement_period_ms": "' + \
-            temp_humidity_sht25 + \
-            '", "num_cycles": "1", "cycles": [ { "num_steps": "1", "num_repeats": "28", "steps": [ { "set_point": "0", "duration": "86400" } ] } ] }'
-
-        co2_t6713_sched = \
-            '{ "dtype": "4", "measurement_period_ms": "' + \
-            co2_t6713 + \
-            '", "num_cycles": "1", "cycles": [ { "num_steps": "1", "num_repeats": "28", "steps": [ { "set_point": "0", "duration": "86400" } ] } ] }'
-
         # The 6 LED string vals are "0" to "255" (off) 
         LED_panel_off_far_red = "255"  # off
         LED_panel_off_red = "255"
@@ -155,76 +240,46 @@ def convert_UI_recipe_to_commands( recipe_dict ):
         if validDictKey( recipe_dict, 'LED_panel_on_blue' ):
             LED_panel_on_blue = recipe_dict[ 'LED_panel_on_blue' ]
 
-        # make a json schedule for the LED panel, IN ORDER!
-        LEDs_on = '"{}","{}","{}","{}","{}","{}"'.format(
-            LED_panel_on_green,
-            LED_panel_on_warm_white,
-            LED_panel_on_far_red,
-            LED_panel_on_red,
-            LED_panel_on_cool_white,
-            LED_panel_on_blue )
-        LEDs_off = '"{}","{}","{}","{}","{}","{}"'.format(
-            LED_panel_off_green,
-            LED_panel_off_warm_white,
-            LED_panel_off_far_red,
-            LED_panel_off_red,
-            LED_panel_off_cool_white,
-            LED_panel_off_blue )
-        LED_panel_sched = '{ "dtype": "10", "measurement_period_ms": "60000", "num_cycles": "1", "cycles": [ { "num_steps": "2", "num_repeats": "28", "steps": [ { "set_point": [' + LEDs_on + '], "duration": "57600" }, { "set_point": [' + LEDs_off + '], "duration": "28800" } ] } ] }'
+        dayFR = convert_LED_value( LED_panel_on_far_red )
+        dayR = convert_LED_value( LED_panel_on_red )
+        dayB = convert_LED_value( LED_panel_on_blue )
+        dayG = convert_LED_value( LED_panel_on_green )
+        dayCW = convert_LED_value( LED_panel_on_cool_white )
+        dayWW = convert_LED_value( LED_panel_on_warm_white )
+        nightFR = convert_LED_value( LED_panel_off_far_red )
+        nightR = convert_LED_value( LED_panel_off_red )
+        nightB = convert_LED_value( LED_panel_off_blue )
+        nightG = convert_LED_value( LED_panel_off_green )
+        nightCW = convert_LED_value( LED_panel_off_cool_white )
+        nightWW = convert_LED_value( LED_panel_off_warm_white )
+        #debugrob, defaults UI will have to fill in later
+        day_intensity = 50  
+        night_intensity = 0
+        day_temp = 22
+        night_temp = 18
+        day_hours = 18
+        night_hours = (24 - day_hours)
 
-        # RESET is always the first command in the list:
+        recipe_json = make_recipe( recipe_uuid, \
+            dayFR, dayR, dayB, dayG, dayCW, dayWW, \
+            day_intensity, day_temp, \
+            nightFR, nightR, nightB, nightG, nightCW, nightWW, \
+            night_intensity, night_temp, \
+            day_hours, night_hours )
+
+        # Currently we can only send a start or stop command.
         return_list = []
         cmd = {}
-        cmd['command'] = 'RESET'
-        cmd['arg0'] = '0'
+        cmd['command'] = 'START_RECIPE'
+        cmd['arg0'] = recipe_json 
         cmd['arg1'] = '0'
         return_list = [cmd]
 
-        # Add commands for our two sensors to the list:
-        cmd = {}
-        cmd['command'] = 'LoadRecipeIntoVariable'
-        cmd['arg0'] = 'co2_t6713'
-        cmd['arg1'] = co2_t6713_sched
-        return_list.append( cmd )
-        cmd = {}
-        cmd['command'] = 'AddVariableToTreatment'
-        cmd['arg0'] = '0'
-        cmd['arg1'] = 'co2_t6713'
-        return_list.append( cmd )
-
-        cmd = {}
-        cmd['command'] = 'LoadRecipeIntoVariable'
-        cmd['arg0'] = 'temp_humidity_sht25'
-        cmd['arg1'] = temp_humidity_sht25_sched
-        return_list.append( cmd )
-        cmd = {}
-        cmd['command'] = 'AddVariableToTreatment'
-        cmd['arg0'] = '0'
-        cmd['arg1'] = 'temp_humidity_sht25'
-        return_list.append( cmd )
-
-        cmd = {}
-        cmd['command'] = 'LoadRecipeIntoVariable'
-        cmd['arg0'] = 'LED_panel'
-        cmd['arg1'] = LED_panel_sched
-        return_list.append( cmd )
-        cmd = {}
-        cmd['command'] = 'AddVariableToTreatment'
-        cmd['arg0'] = '0'
-        cmd['arg1'] = 'LED_panel'
-        return_list.append( cmd )
-
-        # Last command in the list is to Run:
-        cmd = {}
-        cmd['command'] = 'RunTreatment'
-        cmd['arg0'] = '0'
-        cmd['arg1'] = '0'
-        return_list.append( cmd )
-
         return return_list
     except( Exception ) as e:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
         print( "Exception in convert_UI_recipe_to_commands", e )
-
+        traceback.print_tb( exc_traceback, file=sys.stdout )
 
 
 #------------------------------------------------------------------------------
@@ -960,8 +1015,8 @@ def send_recipe_to_device( device_id, recipe_uuid ):
     # Process the result
     recipe_json = results[0].get( "recipe_json", {} )
     recipe_dict = json.loads( recipe_json )
-    # UI components of a climate recipe into what the Cbrain expects
-    commands_list = convert_UI_recipe_to_commands( recipe_dict )
+    # UI components of a climate recipe into what the Jbrain expects
+    commands_list = convert_UI_recipe_to_commands( recipe_uuid, recipe_dict )
     send_recipe_to_device_via_IoT( iot_client, device_id, commands_list )
 
 
@@ -1126,6 +1181,10 @@ def submit_recipe_change():
         current_recipe_uuid = query_device_history_result[0]['recipe_uuid']
         recipe_session_token = query_device_history_result[0]['recipe_session_token']
 
+    # make sure we have a valid recipe uuid
+    if None == current_recipe_uuid or 0 == len( current_recipe_uuid ):
+        current_recipe_uuid = str(uuid.uuid4())
+
     device_reg_task.update({
         "device_uuid": device_uuid,
         "recipe_uuid": current_recipe_uuid,
@@ -1137,8 +1196,9 @@ def submit_recipe_change():
 
     datastore_client.put(device_reg_task)
 
-    # convert the values in the dict into what the Cbrain expects
-    commands_list = convert_UI_recipe_to_commands( recipe_dict )
+    # convert the values in the dict into what the Jbrain expects
+    commands_list = convert_UI_recipe_to_commands( current_recipe_uuid, 
+                                                   recipe_dict )
     send_recipe_to_device_via_IoT( iot_client, device_uuid, commands_list )
 
     data = json.dumps({
