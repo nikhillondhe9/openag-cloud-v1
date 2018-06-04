@@ -10,6 +10,7 @@ env_variables:
   GOOGLE_APPLICATION_CREDENTIALS: /app/authenticate.json
   GCLOUD_DEV_REG: device-registry
   GCLOUD_REGION: us-central1
+  FIREBASE_SERVICE_ACCOUNT: /app/fb-service-account.json
   PYTHONPATH: /app:/env
   FLASK_APP: /app/main.py
   consumer_key: 'FdGiou6z8drUL39eqg6Hn1iPV'
@@ -19,7 +20,6 @@ env_variables:
 
 # python libs are automatically loaded from the requirements.txt file
 
-#entrypoint: python -m flask run
 entrypoint: gunicorn -b :$PORT main:app
 
 handlers:

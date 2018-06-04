@@ -1,10 +1,4 @@
-import ast
-import base64
-import json
-import os
-import time
-import uuid
-import sys, traceback
+import ast, base64, json, os, time, uuid, sys, traceback, random, string
 from datetime import datetime, timedelta
 
 import tweepy
@@ -13,11 +7,16 @@ from FCClass.user_session import UserSession
 from flask import Flask, request,make_response
 from flask import Response
 from flask_cors import CORS
+
 from google.cloud import bigquery
 from google.cloud import datastore
 from google.oauth2 import service_account
 from googleapiclient import discovery
-import random,string
+
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import firestore
+
 from queries import queries
 
 bigquery_client = bigquery.Client()
@@ -30,6 +29,7 @@ path_to_google_service_account = os.environ['GOOGLE_APPLICATION_CREDENTIALS']
 cloud_project_id = os.environ['GCLOUD_PROJECT']
 cloud_region = os.environ['GCLOUD_REGION']
 device_registry = os.environ['GCLOUD_DEV_REG']
+path_to_firebase_service_account = os.environ['FIREBASE_SERVICE_ACCOUNT']
 
 # Remove this later - Only use it for testing purposes. Not safe to leave it here
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
@@ -73,22 +73,33 @@ def get_IoT_client( path_to_service_account_json ):
             discoveryServiceUrl=discovery_url,
             credentials=scoped_credentials )
 
-
-#------------------------------------------------------------------------------
 # Get an IoT client using the GCP project (NOT firebase proj!)
 iot_client = get_IoT_client( path_to_google_service_account )
 
 
+#------------------------------------------------------------------------------
+# Returns an authorized API client by discovering the IoT API 
+# using the service account credentials JSON.
+def get_firebase_client( fb_service_account_json ):
+    cred = credentials.Certificate( fb_service_account_json )
+    firebase_admin.initialize_app( cred )
+    return firestore.client()
 
+# Get a firebase client using the firebase auth
+fb_client = get_firebase_client( path_to_firebase_service_account )
+
+
+#------------------------------------------------------------------------------
 def id_generator(size=6, chars=string.digits):
     return ''.join(random.choice(chars) for x in range(size))
 
+
 #------------------------------------------------------------------------------
+# Is the key is in the dict? if so return True.  if not False.
 def validDictKey( d, key ):
     if key in d:
         return True
-    else:
-        return False
+    return False
 
 
 #------------------------------------------------------------------------------
@@ -278,7 +289,7 @@ def convert_UI_recipe_to_commands( recipe_uuid, recipe_dict ):
         return return_list
     except( Exception ) as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()
-        print( "Exception in convert_UI_recipe_to_commands", e )
+        print( "Exception in convert_UI_recipe_to_commands: ", e )
         traceback.print_tb( exc_traceback, file=sys.stdout )
 
 
@@ -361,6 +372,9 @@ def register():
                           mimetype='application/json')
         return result
 
+    if device_type is None:
+        device_type = 'EDU'
+
     query_session = datastore_client.query(kind="UserSession")
     query_session.add_filter('session_token', '=', user_token)
     query_session_result = list(query_session.fetch())
@@ -368,13 +382,22 @@ def register():
     if len(query_session_result) > 0:
         user_uuid = query_session_result[0].get("user_uuid", None)
 
+    # Create a google IoT device registry entry for this device.
+    # The method returns the device ID we need for IoT communications.
+    device_uuid = create_iot_device_registry_entry( device_reg_no, 
+            device_name, device_notes, device_type, user_uuid )
+    if None == device_uuid:
+        result = Response({"message": "Could not register this IoT device."}, 
+                status=500, mimetype='application/json')
+        return result
+
     # Add the user to the users kind of entity
     key = datastore_client.key('Devices')
     # Indexes every other column except the description
     device_reg_task = datastore.Entity(key, exclude_from_indexes=[])
 
     device_reg_task.update({
-        'device_uuid': str(uuid.uuid4()),
+        'device_uuid': device_uuid,
         'device_name': device_name,
         'device_reg_no': device_reg_no,
         'device_notes': device_notes,
@@ -384,6 +407,7 @@ def register():
     })
 
     datastore_client.put(device_reg_task)
+
 
     if device_reg_task.key:
         data = json.dumps({
@@ -1289,6 +1313,107 @@ def create_new_code():
         result = Response(data, status=500, mimetype='application/json')
 
     return result
+
+
+#------------------------------------------------------------------------------
+# Create an entry in the Google IoT device registry.  
+# This is part of the device registration process that allows it to communicate
+# with the backend.
+def create_iot_device_registry_entry( verification_code, device_name,
+        device_notes, device_type, user_uuid ):
+    try:
+        # get a firestore DB collection of the RSA public keys uploaded by 
+        # a setup script on the device:
+        keys_ref = fb_client.collection( u'devicePublicKeys' )
+
+        #docs = keys_ref.get()  # get all docs
+        #for doc in docs:
+        #    key_id = doc.id
+        #    keyd = doc.to_dict()
+        #    print(u'doc.id={}, doc={}'.format( key_id, keyd ))
+        #    key = keyd['key']
+        #    cksum = keyd['cksum']
+        #    state = keyd['state']
+        #    print('key={}, cksum={}, state={}'.format(key,cksum,state))
+
+        # query the collection for the users code
+        query = keys_ref.where( u'cksum', u'==', verification_code )
+        docs = query.get() # doc iterator
+        docs_list = list( docs )
+        len_docs = len( docs_list )
+        if 0 == len_docs:
+            print( 'create_iot_device_registry_entry: ERROR: ' +
+                'Verification code {} not found.'.format( verification_code ))
+            return None
+
+        # get the single matching doc
+        doc = docs_list[0]
+        key_dict = doc.to_dict()
+        doc_id = doc.id
+
+        # verify all the keys we need are in the doc's dict
+        if not validDictKey( key_dict, 'key' ) and \
+               validDictKey( key_dict, 'cksum' ) and \
+               validDictKey( key_dict, 'state' ) and \
+               validDictKey( key_dict, 'MAC' ):
+            print( 'create_iot_device_registry_entry: ERROR: ' +
+                'Missing a required key in {}'.format( key_dict ))
+            return None
+
+        public_key = key_dict['key']
+        cksum = key_dict['cksum']
+        state = key_dict['state']
+        MAC = key_dict['MAC']
+        #print( 'doc_id={}, cksum={}, state={}, MAC={}'.format( 
+        #        doc_id, cksum, state, MAC ))
+        #print('public_key:\n{}'.format( public_key ))
+
+        # Generate a unique device id from code + MAC.
+        # ID MUST start with a letter!   
+        # (test ID format in the IoT core console)
+        # Start and end your ID with a lowercase letter or a number. 
+        # You can also include the following characters: + . % - _ ~
+        device_id = '{}-{}-{}'.format( device_type, verification_code, MAC )
+
+        # register this device using its public key we got from the DB
+        device_template = {
+            'id': device_id,
+            'credentials': [{
+                'publicKey': {
+                    'format': 'RSA_X509_PEM',
+                    'key': public_key
+                }
+            }],
+            'metadata': {
+                'user_uuid': user_uuid,
+                'device_name': device_name,
+                'device_notes': device_notes
+            }
+        }
+
+        # path to the device registry
+        registry_name = 'projects/{}/locations/{}/registries/{}'.format(
+            cloud_project_id, cloud_region, device_registry )
+
+        # add the device to the IoT registry
+        devices = iot_client.projects().locations().registries().devices()
+        devices.create( parent=registry_name, body=device_template ).execute()
+        print( 'create_iot_device_registry_entry: ' +
+            'Device {} added to the {} registry.'.format( 
+                device_id, device_registry ))
+
+        # mark device state as verified
+        # (can only call update on a DocumentReference)
+        doc_ref = doc.reference
+        doc_ref.update( {u'state': u'verified'} )
+
+        return device_id # put this id in the datastore of user's devices
+
+    except( Exception ) as e:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        print( "Exception in create_iot_device_registry_entry: ", e )
+        traceback.print_tb( exc_traceback, file=sys.stdout )
+
 
 #------------------------------------------------------------------------------
 if __name__ == '__main__':
