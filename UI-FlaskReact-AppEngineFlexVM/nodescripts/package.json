@@ -9,7 +9,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "node-wifi": "^2.0.4",
     "node-wifi-scanner": "^1.0.0"
+  },
+  "devDependencies": {
+    "node-wifi": "^2.0.4",
+    "wifi-control": "^2.0.1"
   }
 }
