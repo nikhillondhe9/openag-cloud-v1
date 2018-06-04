@@ -11,6 +11,7 @@ import {instanceOf} from 'prop-types';
 import {Cookies, withCookies} from "react-cookie";
 import DeviceHomepage from "./device_homepage";
 import RecipeDetails from "./recipe_details";
+import homeIcon from "../home.png";
 
 class App extends Component {
 
@@ -75,6 +76,7 @@ class App extends Component {
                                 <div className="col-md-3 icon-holder">
                                     <Link to="/home">
                                         <div className="load-1">
+                                            {/*<img src={homeIcon} className="icon-image"></img>*/}
                                             <div className="line"></div>
                                             <div className="line"></div>
                                             <div className="line"></div>

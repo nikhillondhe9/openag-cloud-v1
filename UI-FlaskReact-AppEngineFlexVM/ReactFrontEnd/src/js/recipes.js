@@ -162,11 +162,6 @@ class recipes extends Component {
                             <h5 className="card-title">{recipe.recipe_name}</h5>
                             <h6 className="card-subtitle mb-2 text-muted">{recipe.recipe_plant}</h6>
                             <div className="card-text">
-                                {/*<div onClick={this.editRecipe.bind(this, recipe.recipe_uuid)} id={recipe.recipe_uuid}*/}
-                                {/*className="card-link">Edit Recipe*/}
-                                {/*</div>*/}
-
-
 
                                 <div onClick={this.goToRecipe.bind(this, recipe.recipe_uuid)} id={recipe.recipe_uuid}
                                 >View Recipe
