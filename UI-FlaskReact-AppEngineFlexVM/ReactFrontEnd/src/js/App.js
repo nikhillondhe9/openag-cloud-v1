@@ -76,7 +76,10 @@ class App extends Component {
                                 <div className="col-md-3 icon-holder">
                                     <Link to="/home">
                                         <div className="load-1">
-                                            <img src={homeIcon} className="icon-image"></img>
+                                            {/*<img src={homeIcon} className="icon-image"></img>*/}
+                                            <div className="line"></div>
+                                            <div className="line"></div>
+                                            <div className="line"></div>
                                             <div className="label">Home</div>
 
                                         </div>

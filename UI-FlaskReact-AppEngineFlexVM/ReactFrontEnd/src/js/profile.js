@@ -9,13 +9,14 @@ class profile extends Component {
         this.state = {
             access_code_modal: false,
             user_devices: [],
-            digit_modal:false,
-            code:""
+            digit_modal: false,
+            code: ""
         };
         this.getUserDevices = this.getUserDevices.bind(this);
         this.toggle_access_code_modal = this.toggle_access_code_modal.bind(this);
         this.get_device_code = this.get_device_code.bind(this);
         this.toggle_digit_modal = this.toggle_digit_modal.bind(this);
+        this.handleChange = this.handleChange.bind(this);
     }
 
     componentDidMount() {
@@ -25,11 +26,13 @@ class profile extends Component {
     toggle_access_code_modal() {
         this.setState({access_code_modal: !this.state.access_code_modal})
     }
-    toggle_digit_modal()
-    {
-         this.setState({digit_modal: !this.state.digit_modal})
+
+    toggle_digit_modal() {
+        this.setState({digit_modal: !this.state.digit_modal})
     }
+
     get_device_code() {
+        console.log(this.state)
         return fetch(process.env.REACT_APP_FLASK_URL + '/api/create_new_code/', {
             method: 'POST',
             headers: {
@@ -39,7 +42,8 @@ class profile extends Component {
             },
             body: JSON.stringify({
                 'user_uuid': this.state.user_uuid,
-                'user_token': this.props.cookies.get('user_token')
+                'user_token': this.props.cookies.get('user_token'),
+                'state':this.state
             })
         })
             .then((response) => response.json())
@@ -48,9 +52,9 @@ class profile extends Component {
                 if (responseJson["response_code"] == 200) {
 
                     console.log("Response", responseJson["results"])
-                    this.setState({code:responseJson["code"]})
-                    this.setState({access_code_modal:false})
-                    this.setState({digit_modal:true})
+                    this.setState({code: responseJson["code"]})
+                    this.setState({access_code_modal: false})
+                    this.setState({digit_modal: true})
                 }
             })
             .catch((error) => {
@@ -84,6 +88,19 @@ class profile extends Component {
             });
     }
 
+    handleChange(group_name,event) {
+        if(group_name==="device_permissions") {
+            console.log(event.target.name)
+            this.setState({[event.target.name]: event.target.checked});
+            event.preventDefault();
+        }
+        else
+        {
+            this.setState({[event.target.name]: event.target.value});
+            event.preventDefault();
+        }
+    }
+
     render() {
 
         let listDevices = <p>Loading</p>
@@ -100,8 +117,16 @@ class profile extends Component {
             listShareDevices = this.state.user_devices.map((device) => {
                 return <div className="row profile-card-row" key={device.device_uuid}>
                     <div className="col-md-8">{device.device_name}</div>
-                    <div className="col-md-2 col-center-label"><Input type="checkbox" aria-label="View"/></div>
-                    <div className="col-md-2 col-center-label"><Input type="checkbox" aria-label="Control"/></div>
+                    <div className="col-md-2 col-center-label"><Input type="checkbox" aria-label="View"
+                                                                      name={'view_' + device.device_uuid}
+                                                                      id={'view_' + device.device_uuid}
+                                                                      checked={this.state['view_' + device.device_uuid]}
+                                                                      onChange={this.handleChange.bind(this,"device_permissions")}/></div>
+                    <div className="col-md-2 col-center-label"><Input type="checkbox" aria-label="Control"
+                                                                      name={'control_' + device.device_uuid}
+                                                                      id={'control_' + device.device_uuid}
+                                                                      checked={this.state['control_' + device.device_uuid]}
+                                                                      onChange={this.handleChange.bind(this,"device_permissions")}/></div>
                 </div>
             });
         }
@@ -149,7 +174,8 @@ class profile extends Component {
                 </div>
                 <Modal isOpen={this.state.access_code_modal} toggle={this.toggle_access_code_modal}
                        className={this.props.className}>
-                    <ModalHeader toggle={this.toggle_access_code_modal}><i>Select which devices to share</i></ModalHeader>
+                    <ModalHeader toggle={this.toggle_access_code_modal}><i>Select which devices to
+                        share</i></ModalHeader>
                     <ModalBody>
                         <div>
 
@@ -158,7 +184,17 @@ class profile extends Component {
                                 <div className="col-md-2">View</div>
                                 <div className="col-md-2">Control</div>
                             </div>
-                            {listShareDevices}
+                            <Form>
+                                <FormGroup>
+                                    {listShareDevices}
+                                </FormGroup>
+                                {/*<FormGroup>*/}
+                                    {/*<Input type="text" name="access_code" id="access_code"*/}
+                                           {/*placeholder="6-digit Access Code" value={this.state.access_code}*/}
+                                           {/*onChange={this.handleChange.bind(this,"")}/>*/}
+                                {/*</FormGroup>*/}
+                            </Form>
+
                         </div>
                     </ModalBody>
                     <ModalFooter>
@@ -168,12 +204,11 @@ class profile extends Component {
                 </Modal>
 
 
-
                 <Modal isOpen={this.state.digit_modal} toggle={this.toggle_digit_modal}
                        className={this.props.className}>
                     <ModalHeader toggle={this.toggle_access_code_modal}><i>6-Digit Access Code</i></ModalHeader>
                     <ModalBody>
-                        <h1> {this.state.code} </h1>
+                        <h1 className="centered-header"> {this.state.code} </h1>
                     </ModalBody>
                     <ModalFooter>
                         <Button color="secondary" onClick={this.toggle_digit_modal}>Close</Button>

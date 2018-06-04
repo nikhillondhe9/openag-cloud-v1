@@ -100,8 +100,10 @@ class DeviceHomepage extends Component {
             recipe_name: '',
             recipe_link: '',
             modal: false,
-            add_device_modal:false,
-            changes: {}
+            add_device_modal: false,
+            add_access_modal: false,
+            changes: {},
+            control_level:'view'
         };
         this.child = {
             console: Console
@@ -114,6 +116,7 @@ class DeviceHomepage extends Component {
         this.toggleRHData = this.toggleRHData.bind(this);
         this.toggleTempData = this.toggleTempData.bind(this);
         this.handleColorChange = this.handleColorChange.bind(this);
+        this.toggleAccessCode = this.toggleAccessCode.bind(this);
         this.toggle = this.toggle.bind(this);
         this.modalToggle = this.modalToggle.bind(this);
         this.addDeviceModalToggle = this.addDeviceModalToggle.bind(this);
@@ -125,7 +128,8 @@ class DeviceHomepage extends Component {
         this.handleApplySubmit = this.handleApplySubmit.bind(this);
         this.timeonChange = this.timeonChange.bind(this);
         this.downloadCSV = this.downloadCSV.bind(this);
-
+        this.handleAccessCodeSubmit = this.handleAccessCodeSubmit.bind(this);
+        this.handleChange = this.handleChange.bind(this);
     }
 
     timeonChange(data_type, value) {
@@ -135,17 +139,24 @@ class DeviceHomepage extends Component {
         this.setState({changes: this.changes})
     }
 
+    toggleAccessCode() {
+        this.setState({
+            add_access_modal: !this.state.add_access_modal
+        })
+    }
+
     modalToggle() {
         this.setState({
             modal: !this.state.modal
         });
     }
-    addDeviceModalToggle()
-    {
+
+    addDeviceModalToggle() {
         this.setState({
             add_device_modal: !this.state.add_device_modal
         })
     }
+
     toggle() {
         this.setState(prevState => ({
             dropdownOpen: !prevState.dropdownOpen
@@ -155,43 +166,49 @@ class DeviceHomepage extends Component {
     componentDidMount() {
         this.getUserDevices()
     }
+
     sliderChange(led_data_type, color_channel, value) {
-        if (led_data_type === "led_on_data") {
-            let color_json = this.state.led_on_data;
-            color_json[color_channel] = value;
-            this.setState({led_on_data: color_json})
-            this.changes['led_on_data'][color_channel] = value;
-            this.setState({["led_on_border"]: "3px solid #883c63"})
-            this.setState({changes: this.changes})
-        }
-        else if (led_data_type === "led_off_data") {
-            let color_json = this.state.led_off_data;
-            color_json[color_channel] = value;
-            this.setState({led_off_data: color_json})
-            this.changes['led_off_data'][color_channel] = value;
-            this.setState({["led_off_border"]: "3px solid #883c63"})
-            this.setState({changes: this.changes})
+        if(this.state.control_level === 'control') {
+            if (led_data_type === "led_on_data") {
+                let color_json = this.state.led_on_data;
+                color_json[color_channel] = value;
+                this.setState({led_on_data: color_json})
+                this.changes['led_on_data'][color_channel] = value;
+                this.setState({["led_on_border"]: "3px solid #883c63"})
+                this.setState({changes: this.changes})
+            }
+            else if (led_data_type === "led_off_data") {
+                let color_json = this.state.led_off_data;
+                color_json[color_channel] = value;
+                this.setState({led_off_data: color_json})
+                this.changes['led_off_data'][color_channel] = value;
+                this.setState({["led_off_border"]: "3px solid #883c63"})
+                this.setState({changes: this.changes})
+            }
         }
     }
 
     sensorOnChange(e) {
-        if (e.target.name.indexOf("sensor") >= 0) {
-            this.setState({[e.target.name + "_border"]: "3px solid #883c63"})
-        }
-        else {
-            this.setState({[e.target.name + "_border"]: "1px solid rgba(0, 0, 0, 0.125)"})
-        }
-        this.changes[e.target.name] = e.target.value;
-        this.setState({changes: this.changes})
-        console.log("I set to ", this.changes)
+        if(this.state.control_level === 'control') {
+            if (e.target.name.indexOf("sensor") >= 0) {
+                this.setState({[e.target.name + "_border"]: "3px solid #883c63"})
+            }
+            else {
+                this.setState({[e.target.name + "_border"]: "1px solid rgba(0, 0, 0, 0.125)"})
+            }
+            this.changes[e.target.name] = e.target.value;
+            this.setState({changes: this.changes})
+            console.log("I set to ", this.changes)
 
-        this.setState({[e.target.name]: e.target.value})
-
+            this.setState({[e.target.name]: e.target.value})
+        }
     }
 
     handleColorChange(color, event) {
-        console.log("Event", event);
-        console.log("Color", color.hex);
+        if(this.state.control_level === 'control') {
+            console.log("Event", event);
+            console.log("Color", color.hex);
+        }
     }
 
     getCurrentStats(device_uuid) {
@@ -263,6 +280,36 @@ class DeviceHomepage extends Component {
                     this.getLEDPanel(device_uuid);
 
                     console.log("Response", responseJson["results"])
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }
+
+    handleAccessCodeSubmit() {
+        return fetch(process.env.REACT_APP_FLASK_URL + '/api/submit_access_code/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({
+                'user_uuid': this.state.user_uuid,
+                'user_token': this.props.cookies.get('user_token'),
+                'access_code': this.state.access_code
+            })
+        })
+            .then((response) => response.json())
+            .then((responseJson) => {
+                console.log(responseJson)
+                if (responseJson["response_code"] == 200) {
+                    console.log("Response", responseJson)
+                    let devices = responseJson["devices"]
+                    let all_Devices = this.state.user_devices.concat(devices)
+                    this.setState({user_devices : all_Devices})
+                    this.setState({add_access_modal:false})
                 }
             })
             .catch((error) => {
@@ -453,6 +500,13 @@ class DeviceHomepage extends Component {
             });
     }
 
+    handleChange(event) {
+
+        this.setState({[event.target.name]: event.target.value});
+        event.preventDefault();
+
+    }
+
     getLEDPanel(device_uuid) {
         return fetch(process.env.REACT_APP_FLASK_URL + '/api/get_led_panel/', {
             method: 'POST',
@@ -576,15 +630,21 @@ class DeviceHomepage extends Component {
     }
 
     changeValue(e) {
-        console.log("e",e.currentTarget.textContent)
+        console.log("e", e.currentTarget.textContent)
         this.setState({dropDownValue: e.currentTarget.textContent}) // name
-        if(e.currentTarget.textContent.toString() === "Add New Device")
-        {
-            console.log("TUE")
-            this.setState({add_device_modal:true})
+        if (e.currentTarget.textContent.toString() === "Add New Device") {
+
+            this.setState({add_device_modal: true})
+        }
+        else if (e.currentTarget.textContent.toString() === "Add Access Code") {
+            this.setState({add_access_modal: true})
         }
         else {
             let device_uuid = e.target.value
+            var devicePermissions = this.state.user_devices.filter(function(value){
+                            return value.device_uuid === device_uuid;
+            });
+            this.setState({control_level:devicePermissions[0]['permission']})
             this.setState({selected_device_uuid: device_uuid})
             this.setState({current_rh: "Loading"})
             this.setState({current_temp: "Loading"})
@@ -619,11 +679,11 @@ class DeviceHomepage extends Component {
             body: JSON.stringify({
                 'user_token': this.props.cookies.get('user_token')
             })
-        }).then(function(response) {
+        }).then(function (response) {
             return response.blob();
-          }).then(function(blob) {
+        }).then(function (blob) {
             FileSaver.saveAs(blob, 'data.csv');
-          })
+        })
     }
 
     applyChanges() {
@@ -666,7 +726,7 @@ class DeviceHomepage extends Component {
         if (this.state.user_devices.length > 0) {
             listDevices = this.state.user_devices.map((device) => {
                 return <DropdownItem key={device.device_uuid}
-                                     value={device.device_uuid}
+                                     value={device.device_uuid} permission={device.permission}
                                      onClick={this.changeValue}>{device.device_name}
                     ({device.device_reg_no}) </DropdownItem>
             });
@@ -709,7 +769,10 @@ class DeviceHomepage extends Component {
                             </DropdownToggle>
                             <DropdownMenu>
                                 {listDevices}
-                                <DropdownItem value="Add New Device" onClick={this.changeValue}>Add New Device</DropdownItem>
+                                <DropdownItem value="Add New Device" onClick={this.changeValue}>Add New
+                                    Device</DropdownItem>
+                                <DropdownItem value="Add Access Code" onClick={this.changeValue}>Add Access
+                                    Code</DropdownItem>
                             </DropdownMenu>
                         </Dropdown>
                     </div>
@@ -718,7 +781,7 @@ class DeviceHomepage extends Component {
                         </button>
                     </div>
                     <div className="col-md-2">
-                        <button className="apply-button btn btn-secondary" onClick={this.applyChanges}>Apply Changes
+                        <button className="apply-button btn btn-secondary" onClick={this.applyChanges} hidden={this.state.control_level === 'view'}>Apply Changes
                         </button>
                     </div>
                 </div>
@@ -786,7 +849,7 @@ class DeviceHomepage extends Component {
                                                                                   onChange={this.sensorOnChange}
                                                                                   id="sensor_temp" name="sensor_temp"
                                                                                   type="text"
-                                                                                  ref="sensor_temp"/>
+                                                                                  ref="sensor_temp" disabled={this.state.control_level === 'view'}/>
                                                 </div>
                                                 <span className="txt_smaller">seconds</span>
                                             </strong>
@@ -809,7 +872,7 @@ class DeviceHomepage extends Component {
                                                                                   onChange={this.sensorOnChange}
                                                                                   id="sensor_temp" name="sensor_temp"
                                                                                   type="text"
-                                                                                  ref="sensor_temp"/>
+                                                                                  ref="sensor_temp" disabled={this.state.control_level === 'view'}/>
                                                 </div>
                                                 <span className="txt_smaller">seconds</span>
                                             </strong>
@@ -832,7 +895,7 @@ class DeviceHomepage extends Component {
                                                                                   onChange={this.sensorOnChange}
                                                                                   id="sensor_co2" name="sensor_co2"
                                                                                   type="text"
-                                                                                  ref="sensor_co2"/>
+                                                                                  ref="sensor_co2" disabled={this.state.control_level === 'view'}/>
                                                 </div>
                                                 <span className="txt_smaller">seconds</span>
                                             </strong>
@@ -860,7 +923,7 @@ class DeviceHomepage extends Component {
                                                         <Slider min={0} max={255}
                                                                 defaultValue={this.state.led_on_data.cool_white}
                                                                 handle={handle}
-                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'cool_white')}/>
+                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'cool_white')} disabled={this.state.control_level === 'view'}/>
                                                     </div>
                                                 </div>
 
@@ -872,7 +935,7 @@ class DeviceHomepage extends Component {
                                                         <Slider min={0} max={255}
                                                                 defaultValue={this.state.led_on_data.warm_white}
                                                                 handle={handle}
-                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'warm_white')}/>
+                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'warm_white')} disabled={this.state.control_level === 'view'}/>
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
@@ -883,7 +946,7 @@ class DeviceHomepage extends Component {
                                                         <Slider min={0} max={255}
                                                                 defaultValue={this.state.led_on_data.blue}
                                                                 handle={handle}
-                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'blue')}/>
+                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'blue')} disabled={this.state.control_level === 'view'}/>
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
@@ -894,7 +957,7 @@ class DeviceHomepage extends Component {
                                                         <Slider min={0} max={255}
                                                                 defaultValue={this.state.led_on_data.green}
                                                                 handle={handle}
-                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'green')}/>
+                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'green')} disabled={this.state.control_level === 'view'}/>
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
@@ -905,7 +968,7 @@ class DeviceHomepage extends Component {
                                                         <Slider min={0} max={255}
                                                                 defaultValue={this.state.led_on_data.red}
                                                                 handle={handle}
-                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'red')}/>
+                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'red')} disabled={this.state.control_level === 'view'}/>
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
@@ -916,7 +979,7 @@ class DeviceHomepage extends Component {
                                                         <Slider min={0} max={255}
                                                                 defaultValue={this.state.led_on_data.far_red}
                                                                 handle={handle}
-                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'far_red')}/>
+                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'far_red')} disabled={this.state.control_level === 'view'}/>
                                                     </div>
                                                 </div>
 
@@ -1154,44 +1217,65 @@ class DeviceHomepage extends Component {
                         <Button color="secondary" onClick={this.modalToggle}>Close</Button>
                     </ModalFooter>
                 </Modal>
-                <Modal isOpen={this.state.add_device_modal} toggle={this.addDeviceModalToggle} className={this.props.className}>
-                        <ModalHeader toggle={this.toggle}>New Device Registration</ModalHeader>
-                        <ModalBody>
-                            <Form>
-                                <FormGroup>
-                                    <Label for="device_name">Device name :</Label>
-                                    <Input type="text" name="device_name" id="device_name"
-                                           placeholder="E.g Caleb's FC" value={this.state.device_name}
-                                           onChange={this.handleChange}/>
-                                </FormGroup>
-                                <FormGroup>
-                                    <Label for="device_reg_no">Device Number :</Label>
-                                    <Input type="text" name="device_reg_no" id="device_reg_no"
-                                           placeholder="Six digit code" value={this.state.device_reg_no}
-                                           onChange={this.handleChange}/>
-                                </FormGroup>
-                                <FormGroup>
-                                    <Label for="device_notes">Device Notes :</Label>
-                                    <Input type="text" name="device_notes" id="device_notes"
-                                           placeholder="(Optional)" value={this.state.device_notes}
-                                           onChange={this.handleChange}/>
-                                </FormGroup>
-                                <FormGroup>
-                                    <Label for="device_type">Device Type :</Label>
-                                    <select className="form-control smallInput" name="device_type" id="device_type"
-                                            onChange={this.handleChange}
-                                            value={this.state.device_type}>
-                                        <option value="PFC_EDU">Personal Food Computer+EDU</option>
-                                        <option value="Food_Server">Food Server</option>
-                                    </select>
-                                </FormGroup>
-                            </Form>
-                        </ModalBody>
-                        <ModalFooter>
-                            <Button color="primary" onClick={this.handleSubmit}>Register Device</Button>{' '}
-                            <Button color="secondary" onClick={this.addDeviceModalToggle}>Cancel</Button>
-                        </ModalFooter>
-                    </Modal>
+                <Modal isOpen={this.state.add_device_modal} toggle={this.addDeviceModalToggle}
+                       className={this.props.className}>
+                    <ModalHeader toggle={this.toggle}>New Device Registration</ModalHeader>
+                    <ModalBody>
+                        <Form>
+                            <FormGroup>
+                                <Label for="device_name">Device name :</Label>
+                                <Input type="text" name="device_name" id="device_name"
+                                       placeholder="E.g Caleb's FC" value={this.state.device_name}
+                                       onChange={this.handleChange}/>
+                            </FormGroup>
+                            <FormGroup>
+                                <Label for="device_reg_no">Device Number :</Label>
+                                <Input type="text" name="device_reg_no" id="device_reg_no"
+                                       placeholder="Six digit code" value={this.state.device_reg_no}
+                                       onChange={this.handleChange}/>
+                            </FormGroup>
+                            <FormGroup>
+                                <Label for="device_notes">Device Notes :</Label>
+                                <Input type="text" name="device_notes" id="device_notes"
+                                       placeholder="(Optional)" value={this.state.device_notes}
+                                       onChange={this.handleChange}/>
+                            </FormGroup>
+                            <FormGroup>
+                                <Label for="device_type">Device Type :</Label>
+                                <select className="form-control smallInput" name="device_type" id="device_type"
+                                        onChange={this.handleChange}
+                                        value={this.state.device_type}>
+                                    <option value="PFC_EDU">Personal Food Computer+EDU</option>
+                                    <option value="Food_Server">Food Server</option>
+                                </select>
+                            </FormGroup>
+                        </Form>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="primary" onClick={this.handleSubmit}>Register Device</Button>{' '}
+                        <Button color="secondary" onClick={this.addDeviceModalToggle}>Cancel</Button>
+                    </ModalFooter>
+                </Modal>
+
+
+                <Modal isOpen={this.state.add_access_modal} toggle={this.toggleAccessCode}
+                       className={this.props.className}>
+                    <ModalHeader toggle={this.toggle}>Enter a access code</ModalHeader>
+                    <ModalBody>
+                        <Form>
+                            <FormGroup>
+                                <Label for="access_code"></Label>
+                                <Input type="text" name="access_code" id="access_code"
+                                       placeholder="6-digit Access Code" value={this.state.access_code}
+                                       onChange={this.handleChange}/>
+                            </FormGroup>
+                        </Form>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="primary" onClick={this.handleAccessCodeSubmit}>Submit</Button>{' '}
+                        <Button color="secondary" onClick={this.toggleAccessCode}>Cancel</Button>
+                    </ModalFooter>
+                </Modal>
             </div>
         )
 
