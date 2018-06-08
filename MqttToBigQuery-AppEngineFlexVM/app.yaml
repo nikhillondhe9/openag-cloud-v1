@@ -11,4 +11,5 @@ env_variables:
   GCLOUD_REGION: us-central1
   GCLOUD_ZONE: us-central1-c
   BQ_DATASET: test
-  BQ_TABLE: vals
+  #BQ_TABLE: vals
+  BQ_TABLE: openag_public_user_data

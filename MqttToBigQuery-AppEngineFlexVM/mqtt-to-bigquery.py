@@ -41,7 +41,8 @@ def callback( msg ):
 
         pydict = json.loads( msg.data.decode('utf-8'))
         global BQ 
-        utils.bq_data_insert( BQ, pydict, msg.attributes['deviceId'],
+#debugrob: also need datastore and cloud storage clients
+        utils.save_data( BQ, pydict, msg.attributes['deviceId'],
                 os.getenv('GCLOUD_PROJECT'),
                 os.getenv('BQ_DATASET'),
                 os.getenv('BQ_TABLE'))
