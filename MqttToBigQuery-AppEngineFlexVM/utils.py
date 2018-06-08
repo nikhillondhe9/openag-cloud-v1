@@ -30,8 +30,6 @@ messageType_EnvVar = 'EnvVar'
 messageType_CommandReply = 'CommandReply'
 
 # keys for messageType='EnvVar' (and also 'CommandReply')
-exp_KEY = 'exp'
-treat_KEY = 'treat'
 var_KEY = 'var'
 values_KEY = 'values'
 
@@ -39,28 +37,27 @@ values_KEY = 'values'
 #------------------------------------------------------------------------------
 def makeEnvVarRowList( valueDict, deviceId, rowsList, idKey ):
     # each received EnvVar type message must have these fields
-    if not validDictKey( valueDict, exp_KEY ) or \
-       not validDictKey( valueDict, treat_KEY ) or \
-       not validDictKey( valueDict, var_KEY ) or \
+    if not validDictKey( valueDict, var_KEY ) or \
        not validDictKey( valueDict, values_KEY ):
         logging.error('makeEnvVarRowList: Missing key(s) in dict.')
         return
 
-    expName =   valueDict[ exp_KEY ]
-    treatName = valueDict[ treat_KEY ]
     varName =   valueDict[ var_KEY ]
     values =    valueDict[ values_KEY ]
 
     # clean / scrub / check the values.  
     deviceId =  deviceId.replace( '~', '' ) 
-    expName =   expName.replace( '~', '' ) 
-    treatName = treatName.replace( '~', '' ) 
     varName =   varName.replace( '~', '' ) 
 
+    # OLD format, we are no longer using exp or treat
     # <expName>~<KEY>~<treatName>~<valName>~<created UTC TS>~<deviceId>
-    ID = expName + '~' + idKey + '~{}~{}~{}~' + deviceId
 
-    row = ( ID.format( treatName, varName, 
+    # NEW temporary format, just until we remove the extra two '~' and fix
+    # ALL the queries in the UI and services and data upload scripts.
+    # ~<KEY>~~<valName>~<created UTC TS>~<deviceId>
+    ID = '~' + idKey + '~~{}~{}~' + deviceId
+
+    row = ( ID.format( varName, 
         time.strftime( '%Y-%m-%dT%H:%M:%SZ', time.gmtime() )), # id column
         values ) # values column (no X or Y)
 
@@ -94,6 +91,19 @@ data=b'{"messageType": "CommandReply", "exp": "RobExp", "treat": "RobTreat", "va
   deviceNumId=2800007269922577
 
 """
+
+#debugrob: should I publish a message type of "Image"?  (base64)
+#debugrob:  then handle it here to:
+# 1) write base64 image to Datastore Images.
+# 2) decode base64 image and save file to bucket.
+# 3) write bucket file path as "Env" var to BQ.
+# 4) write bucket file path to Datastore ImagePaths. 
+
+#debugrob: need cloud storage function / object
+#debugrob: need datastore function / object
+
+#debugrob: is NOW a good time to consider changing JBrain.IoT, UI queries and saved data files and BQ scripts to NOT use Experiment and Treatment fields in the IDs.   Check data doc.
+
 
 #------------------------------------------------------------------------------
 # Insert data into our bigquery dataset and table.
