@@ -8,12 +8,16 @@
 import os, sys, time, json, argparse, traceback, tempfile, logging, signal
 from google.cloud import pubsub
 from google.cloud import bigquery
+from google.cloud import datastore
+from google.cloud import storage
 import utils # local module
 
 
 # globals
 NUM_RETRIES = 3
 BQ = None
+CS = None
+DS = None
 
 
 #------------------------------------------------------------------------------
@@ -39,9 +43,16 @@ def callback( msg ):
                 msg.attributes['subFolder'],
                 msg.attributes['deviceNumId'] ))
 
-        pydict = json.loads( msg.data.decode('utf-8'))
         global BQ 
-#debugrob: also need datastore and cloud storage clients
+        if isinstance( msg.data, bytes ):
+            utils.save_image( CS, DS, BQ, msg.data, msg.attributes['deviceId'],
+                os.getenv('GCLOUD_PROJECT'),
+                os.getenv('BQ_DATASET'),
+                os.getenv('BQ_TABLE'),
+                os.getenv('CS_BUCKET'))
+            return
+
+        pydict = json.loads( msg.data.decode('utf-8'))
         utils.save_data( BQ, pydict, msg.attributes['deviceId'],
                 os.getenv('GCLOUD_PROJECT'),
                 os.getenv('BQ_DATASET'),
@@ -76,7 +87,8 @@ def main():
 
     # make sure our env. vars are set up
     if None == os.getenv('GCLOUD_PROJECT') or \
-       None == os.getenv('GCLOUD_DEV_EVENTS'):
+       None == os.getenv('GCLOUD_DEV_EVENTS') or \
+       None == os.getenv('CS_BUCKET'):
         logging.critical('Missing required environment variables.')
         exit( 1 )
 
@@ -84,6 +96,12 @@ def main():
     PS = pubsub.SubscriberClient()
     global BQ 
     BQ = bigquery.Client()
+
+    global CS 
+    CS = storage.Client( project = os.getenv('GCLOUD_PROJECT'))
+
+    global DS 
+    DS = datastore.Client( os.getenv('GCLOUD_PROJECT'))
 
     # the resource path for the topic 
     subs_path = PS.subscription_path( os.getenv('GCLOUD_PROJECT'), 
@@ -95,8 +113,7 @@ def main():
     # in case of subscription timeout, use a loop to resubscribe.
     while True:  
         try:
-            subscription = PS.subscribe( subs_path )
-            future = subscription.open( callback )
+            future = PS.subscribe( subs_path, callback )
 
             # result() blocks until future is complete 
             # (when message is ack'd by server)

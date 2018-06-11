@@ -21,7 +21,10 @@ export GCLOUD_ZONE=us-central1-c
 
 # BigQuery dataset and table we write to.
 export BQ_DATASET="test"
-export BQ_TABLE="vals"
+#export BQ_TABLE="vals"
+export BQ_TABLE="openag_public_user_data"
+export CS_BUCKET="openag-v1-images"
+
 
 # Has the user setup the local python environment we need?
 if ! [ -d pyenv ]; then

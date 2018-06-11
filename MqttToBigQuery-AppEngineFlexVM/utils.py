@@ -4,7 +4,7 @@
     writing data to BigQuery.
 """
 
-import os, time, logging
+import os, time, logging, tempfile
 from google.cloud import bigquery
 
 
@@ -70,13 +70,8 @@ def makeBQEnvVarRowList( valueDict, deviceId, rowsList, idKey ):
     deviceId =  deviceId.replace( '~', '' ) 
     varName =   varName.replace( '~', '' ) 
 
-    # OLD format, we are no longer using exp or treat
-    # <expName>~<KEY>~<treatName>~<valName>~<created UTC TS>~<deviceId>
-
-    # NEW temporary format, just until we remove the extra two '~' and fix
-    # ALL the queries in the UI and services and data upload scripts.
-    # ~<KEY>~~<valName>~<created UTC TS>~<deviceId>
-    ID = '~' + idKey + '~~{}~{}~' + deviceId
+    # NEW ID format:  <KEY>~<valName>~<created UTC TS>~<deviceId>
+    ID = idKey + '~{}~{}~' + deviceId
 
     row = ( ID.format( varName, 
         time.strftime( '%Y-%m-%dT%H:%M:%SZ', time.gmtime() )), # id column
@@ -87,12 +82,14 @@ def makeBQEnvVarRowList( valueDict, deviceId, rowsList, idKey ):
 
 #------------------------------------------------------------------------------
 # returns True if there are rows to insert into BQ, false otherwise.
+#debugrob: no cloud path?  or None for it?
 def makeBQRowList( valueDict, deviceId, cloudStoragePath, rowsList ):
 
     messageType = validateMessageType( valueDict )
     if None == messageType:
         return False
 
+#debugrob: no cloud path?  or None for it?
     # for images, modify the values to have the bucket path
     if messageType_Image == messageType:
         makeBQImageValue( valueDict, cloudStoragePath )
@@ -119,47 +116,28 @@ data=b'{"messageType": "CommandReply", "exp": "RobExp", "treat": "RobTreat", "va
 
 """
 
-#debugrob: should I publish a message type of "Image"?  (base64)
 #debugrob:  then handle it here to:
 # 1) write base64 image to Datastore Images.
 # 2) decode base64 image and save file to bucket.
 # 3) write bucket file path as "Env" var to BQ.
 # 4) write bucket file path to Datastore ImagePaths. 
 
-#debugrob: need cloud storage function / object
-#debugrob: need datastore function / object
-
-#debugrob: is NOW a good time to consider changing JBrain.IoT, UI queries and saved data files and BQ scripts to NOT use Experiment and Treatment fields in the IDs.   Check data ID doc.
+#debugrob: DO THIS: changing JBrain.IoT, UI queries and saved data files and BQ scripts to NOT use Experiment and Treatment fields in the IDs.   Check data ID doc.
 
 
 #------------------------------------------------------------------------------
-# Create a JPG file from the base64 JSON in the dict.
-# Return the path to the JPG file (in a temp dir).
-def makeJPGfile( valueDict, deviceId ):
-    # each received EnvVar type message must have these fields
-    if not validDictKey( valueDict, var_KEY ) or \
-       not validDictKey( valueDict, values_KEY ):
-        logging.error('makeJPGfile: Missing key(s) in dict.')
-        return None
+# Create a temp JPG file from the imageBytes.
+# Copy the file to cloud storage.
+# Return the URL to the JPG file in a cloud storage bucket.
+def saveFileInCloudStorage( CS, imageBytes, deviceId, CS_BUCKET ):
 
-    varName =  valueDict[ var_KEY ]
-    values =   valueDict[ values_KEY ]
-    deviceId = deviceId.replace( '~', '' ) 
-#debugrob: how to return binary JPG file?  Python has a tmp path name func?
+    bucket = CS.bucket( CS_BUCKET )
+    filename = '{}_{}.jpg'.format( deviceId, 
+        time.strftime( '%Y-%m-%dT%H:%M:%SZ', time.gmtime() ))
+    blob = bucket.blob( filename )
 
-"""
-import base64
-byte_string = base64.b64encode( bytes )
-bytes = base64.b64decode( byte_string )
-"""
-
-#------------------------------------------------------------------------------
-# Save the bytes in cloud storage and return it's full path, or None for error.
-def saveFileInCloudStorage( CS, fileBytes ):
-    path = ''
-#debugrob: 
-# 2) decode base64 image and save file to bucket, return bucket path.
-    return path
+    blob.upload_from_string( imageBytes, content_type='image/jpg' )
+    return blob.public_url
 
 
 #------------------------------------------------------------------------------
@@ -173,7 +151,7 @@ def saveFileInDatastore( DS, fileBase64String, filePath ):
 #------------------------------------------------------------------------------
 # returns True if there are rows to insert into BQ, false otherwise.
 def makeBQImageValue( valueDict, cloudStoragePath ):
-
+#debugrob: fix?
     if messageType_Image != validateMessageType( valueDict ):
         return False
 
@@ -183,33 +161,43 @@ def makeBQImageValue( valueDict, cloudStoragePath ):
 
 
 #------------------------------------------------------------------------------
-# Parse and save the data
-def save_data( BQ, pydict, deviceId, PROJECT, DS, TABLE ):
+# Parse and save the image
+def save_image( CS, DS, BQ, imageBytes, deviceId, PROJECT, DATASET, TABLE, 
+        CS_BUCKET ):
 
-    cloudStoragePath = ''
+    cloudStoragePath = saveFileInCloudStorage( CS, 
+            imageBytes, deviceId, CS_BUCKET )
+    print('debugrob: cloudStoragePath={}'.format( cloudStoragePath ))
 
-    # if this is an image, also store other places
-    if messageType_Image == validateMessageType( valueDict ):
-        #debugrob: temp testing code below, need to recv. a base64 JPG image.
-        values =   valueDict[ values_KEY ]
-        print('debugrob server received Image message, values={}'.format(values))
 #debugrob: call the other funcs
-        tmpFilePath = makeJPGfile( pydict, deviceId )
-#def saveFileInCloudStorage( CS, fileBytes )
 #def saveFileInDatastore( DS, fileBase64String, filePath )
+
+#debugrob: fix below
+    # insert into BQ (Env vars and command replies)
+#    bq_data_insert( BQ, pydict, deviceId, PROJECT, DATASET, TABLE, cloudStoragePath)
+
+
+#------------------------------------------------------------------------------
+# Parse and save the (json/dict) data
+def save_data( BQ, pydict, deviceId, PROJECT, DATASET, TABLE ):
+
+    if messageType_Image == validateMessageType( pydict ):
         return 
 
+#debugrob: no cloud path?  or None for it?
     # insert into BQ (Env vars and command replies)
-    bq_data_insert( BQ, pydict, deviceId, PROJECT, DS, TABLE, cloudStoragePath)
+    bq_data_insert( BQ, pydict, deviceId, PROJECT, DATASET, TABLE, cloudStoragePath)
 
 
 #------------------------------------------------------------------------------
 # Insert data into our bigquery dataset and table.
-def bq_data_insert( BQ, pydict, deviceId, PROJECT, DS, TABLE, cloudStoragePath):
+def bq_data_insert( BQ, pydict, deviceId, PROJECT, DATASET, TABLE, cloudStoragePath):
+#debugrob: no cloud path?  or None for it?
     try:
         # Generate the data that will be sent to BigQuery for insertion.
         # Each value must be a row that matches the table schema.
         rowList = []
+#debugrob: no cloud path?  or None for it?
         if not makeBQRowList( pydict, deviceId, cloudStoragePath, rowList ):
             return False
         rows_to_insert = []
@@ -217,14 +205,14 @@ def bq_data_insert( BQ, pydict, deviceId, PROJECT, DS, TABLE, cloudStoragePath):
             rows_to_insert.append( row )
         logging.info( "bq insert rows: %s" % ( rows_to_insert ))
 
-        dataset_ref = BQ.dataset( DS, project=PROJECT )
+        dataset_ref = BQ.dataset( DATASET, project=PROJECT )
         table_ref = dataset_ref.table( TABLE )
         table = BQ.get_table( table_ref )               
 
         response = BQ.insert_rows( table, rows_to_insert )
         logging.info( 'bq response: {}'.format( response ))
 
-#debugrob: I need to look up the the user by deviceId, and find their openag flag (or role), to know the correct DS to write to.
+#debugrob: I need to look up the the user by deviceId, and find their openag flag (or role), to know the correct DATASET to write to.
 
         return True
 
