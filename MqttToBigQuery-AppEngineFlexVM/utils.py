@@ -4,8 +4,10 @@
     writing data to BigQuery.
 """
 
-import os, time, logging, tempfile
+import os, time, logging, struct, sys, traceback
 from google.cloud import bigquery
+from google.cloud import datastore
+from google.cloud import storage
 
 
 # should be enough retries to insert into BQ
@@ -116,11 +118,6 @@ data=b'{"messageType": "CommandReply", "exp": "RobExp", "treat": "RobTreat", "va
 
 """
 
-#debugrob:  then handle it here to:
-# 1) write base64 image to Datastore Images.
-# 2) decode base64 image and save file to bucket.
-# 3) write bucket file path as "Env" var to BQ.
-# 4) write bucket file path to Datastore ImagePaths. 
 
 #debugrob: DO THIS: changing JBrain.IoT, UI queries and saved data files and BQ scripts to NOT use Experiment and Treatment fields in the IDs.   Check data ID doc.
 
@@ -128,11 +125,12 @@ data=b'{"messageType": "CommandReply", "exp": "RobExp", "treat": "RobTreat", "va
 #------------------------------------------------------------------------------
 # Create a temp JPG file from the imageBytes.
 # Copy the file to cloud storage.
-# Return the URL to the JPG file in a cloud storage bucket.
-def saveFileInCloudStorage( CS, imageBytes, deviceId, CS_BUCKET ):
+# The cloud storage bucket we are using allows "allUsers" to read files.
+# Return the public URL to the JPG file in a cloud storage bucket.
+def saveFileInCloudStorage( CS, varName, imageBytes, deviceId, CS_BUCKET ):
 
     bucket = CS.bucket( CS_BUCKET )
-    filename = '{}_{}.jpg'.format( deviceId, 
+    filename = '{}_{}_{}.jpg'.format( deviceId, varName,
         time.strftime( '%Y-%m-%dT%H:%M:%SZ', time.gmtime() ))
     blob = bucket.blob( filename )
 
@@ -141,11 +139,16 @@ def saveFileInCloudStorage( CS, imageBytes, deviceId, CS_BUCKET ):
 
 
 #------------------------------------------------------------------------------
-# Save the bytes in cloud storage and return it's full path, or None for error.
-def saveFileInDatastore( DS, fileBase64String, filePath ):
-#debugrob: 
-# 1) write base64 image to Datastore Images.
-# 4) write bucket file path to Datastore ImagePaths. 
+# Save the URL as an entity in the datastore, so the UI can fetch it.
+def saveImageURLtoDatastore( DS, deviceId, publicURL, cameraName ):
+    key = DS.key( 'Images' )
+    image = datastore.Entity( {
+        'device_uuid': deviceId,
+        'URL': publicURL,
+        'camera_name': cameraName
+        } )
+#debugrob:  crashes here, why?
+    DS.put( image )  
     return 
 
 #------------------------------------------------------------------------------
@@ -162,19 +165,34 @@ def makeBQImageValue( valueDict, cloudStoragePath ):
 
 #------------------------------------------------------------------------------
 # Parse and save the image
-def save_image( CS, DS, BQ, imageBytes, deviceId, PROJECT, DATASET, TABLE, 
+def save_image( CS, DS, BQ, dataBlob, deviceId, PROJECT, DATASET, TABLE, 
         CS_BUCKET ):
 
-    cloudStoragePath = saveFileInCloudStorage( CS, 
+    try:
+        # break the length prefixed name apart from the image data in the blob
+        endNameIndex = 101 # 1 byte for pascal string size, 100 chars.
+        ba = bytearray( dataBlob ) # need to use a mutable bytearray
+        namePacked = bytes( ba[ 0:endNameIndex ] )# slice off first name chars
+        namePackedFormatStr = '101p'
+        unpackPascalStr = struct.unpack( namePackedFormatStr, namePacked )
+        varName = unpackPascalStr[0].decode( 'utf-8' )
+        imageBytes = bytes( ba[ endNameIndex: ] ) # rest of array is image data
+
+        publicURL = saveFileInCloudStorage( CS, varName,
             imageBytes, deviceId, CS_BUCKET )
-    print('debugrob: cloudStoragePath={}'.format( cloudStoragePath ))
+        logging.debug( "save_image(): saved to %s" % publicURL )
+        
+        saveImageURLtoDatastore( DS, deviceId, publicURL, varName )
 
-#debugrob: call the other funcs
-#def saveFileInDatastore( DS, fileBase64String, filePath )
-
-#debugrob: fix below
+#debugrob: 
+# 2) write public URL as "EnvVar" to BQ.
     # insert into BQ (Env vars and command replies)
 #    bq_data_insert( BQ, pydict, deviceId, PROJECT, DATASET, TABLE, cloudStoragePath)
+
+    except Exception as e:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        logging.critical( "Exception in save_image(): %s" % e)
+        traceback.print_tb( exc_traceback, file=sys.stdout )
 
 
 #------------------------------------------------------------------------------
@@ -185,6 +203,8 @@ def save_data( BQ, pydict, deviceId, PROJECT, DATASET, TABLE ):
         return 
 
 #debugrob: no cloud path?  or None for it?
+    cloudStoragePath = ''
+
     # insert into BQ (Env vars and command replies)
     bq_data_insert( BQ, pydict, deviceId, PROJECT, DATASET, TABLE, cloudStoragePath)
 

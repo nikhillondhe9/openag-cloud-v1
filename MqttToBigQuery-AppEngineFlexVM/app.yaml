@@ -10,7 +10,7 @@ env_variables:
   GCLOUD_DEV_REG: device-registry
   GCLOUD_REGION: us-central1
   GCLOUD_ZONE: us-central1-c
-  BQ_DATASET: test
-  #BQ_TABLE: vals
-  BQ_TABLE: openag_public_user_data
+  #BQ_DATASET: test
+  BQ_DATASET: openag_public_user_data
+  BQ_TABLE: vals
   CS_BUCKET: openag-v1-images
