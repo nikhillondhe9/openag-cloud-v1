@@ -135,6 +135,8 @@ def saveFileInCloudStorage( CS, varName, imageBytes, deviceId, CS_BUCKET ):
     blob = bucket.blob( filename )
 
     blob.upload_from_string( imageBytes, content_type='image/jpg' )
+    logging.info( "saveFileInCloudStorage: image saved to %s" % \
+            blob.public_url )
     return blob.public_url
 
 
@@ -142,13 +144,14 @@ def saveFileInCloudStorage( CS, varName, imageBytes, deviceId, CS_BUCKET ):
 # Save the URL as an entity in the datastore, so the UI can fetch it.
 def saveImageURLtoDatastore( DS, deviceId, publicURL, cameraName ):
     key = DS.key( 'Images' )
-    image = datastore.Entity( {
+    image = datastore.Entity(key, exclude_from_indexes=[])
+    image.update( {
         'device_uuid': deviceId,
         'URL': publicURL,
         'camera_name': cameraName
         } )
-#debugrob:  crashes here, why?
     DS.put( image )  
+    logging.debug( "saveImageURLtoDatastore: saved Images entity" )
     return 
 
 #------------------------------------------------------------------------------
@@ -180,11 +183,10 @@ def save_image( CS, DS, BQ, dataBlob, deviceId, PROJECT, DATASET, TABLE,
 
         publicURL = saveFileInCloudStorage( CS, varName,
             imageBytes, deviceId, CS_BUCKET )
-        logging.debug( "save_image(): saved to %s" % publicURL )
         
         saveImageURLtoDatastore( DS, deviceId, publicURL, varName )
 
-#debugrob: 
+#debugrob:  do next
 # 2) write public URL as "EnvVar" to BQ.
     # insert into BQ (Env vars and command replies)
 #    bq_data_insert( BQ, pydict, deviceId, PROJECT, DATASET, TABLE, cloudStoragePath)
