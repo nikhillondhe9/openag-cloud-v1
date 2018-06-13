@@ -106,16 +106,21 @@ def makeBQRowList( valueDict, deviceId, rowsList ):
 """
 example of the MQTT device telemetry message we receive:
 
-data=b'{"messageType": "CommandReply", "exp": "RobExp", "treat": "RobTreat", "var": "status", "values": "{\\"name\\":\\"rob\\"}"}'
+# a packed binary image which contains its name
+data=b'pascal-string-length-prefixed-camera-name, then image binary'
+
+# JSON string image env. var.
+data=b'{"messageType": "Image", "var": "webcam-top","{'values':[{'name':'URL', 'type':'str', 'value':'https://storage.googleapis.com/openag-v1-images/EDU-E40B8A78-f4-0f-24-19-fe-88_webcam-top_2018-06-13T16%3A20%3A20Z.jpg'}]}" }'
   deviceId=EDU-B90F433E-f4-0f-24-19-fe-88
   subFolder=
   deviceNumId=2800007269922577
 
+# JSON string command reply
+data=b'{"messageType": "CommandReply", "var": "status", "values": "{\\"name\\":\\"rob\\"}"}'
+  deviceId=EDU-B90F433E-f4-0f-24-19-fe-88
+  subFolder=
+  deviceNumId=2800007269922577
 """
-
-
-#debugrob: DO THIS: change UI queries to NOT use Experiment and Treatment fields in the IDs.   Check data ID doc.
-#debugrob: use in UI BQ_DATASET: openag_public_user_data
 
 
 #------------------------------------------------------------------------------
