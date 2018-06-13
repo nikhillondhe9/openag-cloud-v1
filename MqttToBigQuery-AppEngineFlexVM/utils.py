@@ -206,12 +206,38 @@ def save_image( CS, DS, BQ, dataBlob, deviceId, PROJECT, DATASET, TABLE,
                 if imageSize - imageStartIndex > maxMessageSize:
                     imageEndIndex = maxMessageSize # no, so send max.
         """
-#debugrob: on server put chunks into datastore MqttCache entities
-# chunkNum of totalChunks.  
+#debugrob: on server put chunks into datastore MqttServiceCache entities
+#   chunkNum 
+#   totalChunks
+#   device_uuid
+#   camera_name
+#   
 # For every message received, check data store to see if we can assemble chunks.
 # Messages will probably be received out of order.
 
-        # break the length prefixed name apart from the image data in the blob
+        # separate the header info from the image data in the blob
+        chunkSize = 4 # 4 byte uint
+        totalChunksSize = 4 # 4 byte uint
+        nameSize = 101 # 1 byte for pascal string size, 100 chars.
+        endNameIndex = chunkSize + totalChunksSize + nameSize
+        packedFormatStr = 'II101p' # uint, uint, 101b pascal string.
+
+        # get bytes from binary data
+        ba = bytearray( dataBlob ) # need to use a mutable bytearray
+        metaPacked = bytes( ba[ 0:endNameIndex ] ) 
+        imageBytes = bytes( ba[ endNameIndex: ] ) # rest of array is image data
+#debugrob: new above
+
+        # unpack bytes into native types
+        chunk, totalChunks, varName = \
+                struct.unpack( packedFormatStr, metaPacked )
+
+        logging.critical('debugrob chunk={} totalChunks={} varName={} image-size={}'.format( chunk, totalChunks, varName, len(imageBytes) ))
+
+#debugrob: with every chunk saved to datastore, query to see if we have all chunks and can proceed with other logic.
+
+#debugrob: old below
+        """
         endNameIndex = 101 # 1 byte for pascal string size, 100 chars.
         ba = bytearray( dataBlob ) # need to use a mutable bytearray
         namePacked = bytes( ba[ 0:endNameIndex ] )# slice off first name chars
@@ -234,6 +260,7 @@ def save_image( CS, DS, BQ, dataBlob, deviceId, PROJECT, DATASET, TABLE,
         valuesJson += "]}"
         message_obj['values'] = valuesJson
         bq_data_insert( BQ, message_obj, deviceId, PROJECT, DATASET, TABLE )
+        """
 
     except Exception as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()
