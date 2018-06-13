@@ -110,7 +110,7 @@ example of the MQTT device telemetry message we receive:
 data=b'pascal-string-length-prefixed-camera-name, then image binary'
 
 # JSON string image env. var.
-data=b'{"messageType": "Image", "var": "webcam-top","{'values':[{'name':'URL', 'type':'str', 'value':'https://storage.googleapis.com/openag-v1-images/EDU-E40B8A78-f4-0f-24-19-fe-88_webcam-top_2018-06-13T16%3A20%3A20Z.jpg'}]}" }'
+data=b'{"messageType": "Image", "var": "webcam-top","{'values':[{'name':'URL', 'type':'str', 'value':'https://storage.googleapis.com/openag-v1-images/EDU-E40B8A78-f4-0f-24-19-fe-88_webcam-top_2018-06-13T16%3A20%3A20Z.png'}]}" }'
   deviceId=EDU-B90F433E-f4-0f-24-19-fe-88
   subFolder=
   deviceNumId=2800007269922577
@@ -124,18 +124,18 @@ data=b'{"messageType": "CommandReply", "var": "status", "values": "{\\"name\\":\
 
 
 #------------------------------------------------------------------------------
-# Create a temp JPG file from the imageBytes.
+# Create a temp PNG file from the imageBytes.
 # Copy the file to cloud storage.
 # The cloud storage bucket we are using allows "allUsers" to read files.
-# Return the public URL to the JPG file in a cloud storage bucket.
+# Return the public URL to the PNG file in a cloud storage bucket.
 def saveFileInCloudStorage( CS, varName, imageBytes, deviceId, CS_BUCKET ):
 
     bucket = CS.bucket( CS_BUCKET )
-    filename = '{}_{}_{}.jpg'.format( deviceId, varName,
+    filename = '{}_{}_{}.png'.format( deviceId, varName,
         time.strftime( '%Y-%m-%dT%H:%M:%SZ', time.gmtime() ))
     blob = bucket.blob( filename )
 
-    blob.upload_from_string( imageBytes, content_type='image/jpg' )
+    blob.upload_from_string( imageBytes, content_type='image/png' )
     logging.info( "saveFileInCloudStorage: image saved to %s" % \
             blob.public_url )
     return blob.public_url
@@ -163,6 +163,54 @@ def save_image( CS, DS, BQ, dataBlob, deviceId, PROJECT, DATASET, TABLE,
         CS_BUCKET ):
 
     try:
+        """ debugrob from jbrain image sending code:
+
+            maxMessageSize = 250 * 1024
+            imageSize = len( imageBytes )
+            totalChunks = math.ceil( imageSize / maxMessageSize )
+            imageStartIndex = 0
+            imageEndIndex = imageSize
+            if imageSize > maxMessageSize:
+                imageEndIndex = maxMessageSize
+
+            for chunk in range( 0, totalChunks ):
+                chunkSize = 4 # 4 byte uint
+                totalChunksSize = 4 # 4 byte uint
+                nameSize = 101 # 1 byte for pascal string size, 100 chars.
+                endNameIndex = chunkSize + totalChunksSize + nameSize
+                packedFormatStr = 'II101p' # uint, uint, 101b pascal string.
+
+                dataPacked = struct.pack( packedFormatStr, 
+                    bytes( chunk, totalChunks, variableName, 'utf-8' )) 
+
+                # make a mutable byte array of the image data
+                imageBA = bytearray( imageBytes ) 
+                imageChunk = bytes( imageBA[ imageStartIndex:imageEndIndex ] )
+
+                ba = bytearray( dataPacked ) 
+                # append the image after two ints and string
+                ba[ endNameIndex:endNameIndex ] = imageBytes 
+                bytes_to_publish = bytes( ba )
+
+                # publish this chunk
+                self.mqtt_client.publish( self.mqtt_topic, bytes_to_publish, 
+                        qos=1)
+                self.logger.info('publishBinaryImage: sent image chunk ' 
+                        '{} of {} for {}'.format( 
+                            chunk, totalChunks, variableName ))
+
+                # for next chunk, start at the ending index
+                imageStartIndex = imageEndIndex 
+                imageEndIndex = imageSize # is this the last chunk?
+                # if we have more than one chunk to go, send the max
+                if imageSize - imageStartIndex > maxMessageSize:
+                    imageEndIndex = maxMessageSize # no, so send max.
+        """
+#debugrob: on server put chunks into datastore MqttCache entities
+# chunkNum of totalChunks.  
+# For every message received, check data store to see if we can assemble chunks.
+# Messages will probably be received out of order.
+
         # break the length prefixed name apart from the image data in the blob
         endNameIndex = 101 # 1 byte for pascal string size, 100 chars.
         ba = bytearray( dataBlob ) # need to use a mutable bytearray
