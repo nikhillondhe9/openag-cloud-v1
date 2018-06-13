@@ -5,6 +5,7 @@
 """
 
 import os, time, logging, struct, sys, traceback
+from datetime import datetime
 from google.cloud import bigquery
 from google.cloud import datastore
 from google.cloud import storage
@@ -84,17 +85,11 @@ def makeBQEnvVarRowList( valueDict, deviceId, rowsList, idKey ):
 
 #------------------------------------------------------------------------------
 # returns True if there are rows to insert into BQ, false otherwise.
-#debugrob: no cloud path?  or None for it?
-def makeBQRowList( valueDict, deviceId, cloudStoragePath, rowsList ):
+def makeBQRowList( valueDict, deviceId, rowsList ):
 
     messageType = validateMessageType( valueDict )
     if None == messageType:
         return False
-
-#debugrob: no cloud path?  or None for it?
-    # for images, modify the values to have the bucket path
-    if messageType_Image == messageType:
-        makeBQImageValue( valueDict, cloudStoragePath )
 
     # write envVars and images (as envVars)
     if messageType_EnvVar == messageType or \
@@ -119,7 +114,8 @@ data=b'{"messageType": "CommandReply", "exp": "RobExp", "treat": "RobTreat", "va
 """
 
 
-#debugrob: DO THIS: changing JBrain.IoT, UI queries and saved data files and BQ scripts to NOT use Experiment and Treatment fields in the IDs.   Check data ID doc.
+#debugrob: DO THIS: change UI queries to NOT use Experiment and Treatment fields in the IDs.   Check data ID doc.
+#debugrob: use in UI BQ_DATASET: openag_public_user_data
 
 
 #------------------------------------------------------------------------------
@@ -148,22 +144,12 @@ def saveImageURLtoDatastore( DS, deviceId, publicURL, cameraName ):
     image.update( {
         'device_uuid': deviceId,
         'URL': publicURL,
-        'camera_name': cameraName
+        'camera_name': cameraName,
+        'creation_date': datetime.now()
         } )
     DS.put( image )  
     logging.debug( "saveImageURLtoDatastore: saved Images entity" )
     return 
-
-#------------------------------------------------------------------------------
-# returns True if there are rows to insert into BQ, false otherwise.
-def makeBQImageValue( valueDict, cloudStoragePath ):
-#debugrob: fix?
-    if messageType_Image != validateMessageType( valueDict ):
-        return False
-
-    # write storage bucket file path as "Env" var to BQ.
-    valueDict[ values_KEY ] = '{"cloudStoragePath":"' + cloudStoragePath + '"}'
-    return True
 
 
 #------------------------------------------------------------------------------
@@ -186,10 +172,15 @@ def save_image( CS, DS, BQ, dataBlob, deviceId, PROJECT, DATASET, TABLE,
         
         saveImageURLtoDatastore( DS, deviceId, publicURL, varName )
 
-#debugrob:  do next
-# 2) write public URL as "EnvVar" to BQ.
-    # insert into BQ (Env vars and command replies)
-#    bq_data_insert( BQ, pydict, deviceId, PROJECT, DATASET, TABLE, cloudStoragePath)
+        message_obj = {}
+        message_obj['messageType'] = messageType_Image
+        message_obj['var'] = varName
+        valuesJson = "{'values':["
+        valuesJson += "{'name':'URL', 'type':'str', 'value':'%s'}" % \
+                            ( publicURL )
+        valuesJson += "]}"
+        message_obj['values'] = valuesJson
+        bq_data_insert( BQ, message_obj, deviceId, PROJECT, DATASET, TABLE )
 
     except Exception as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -202,25 +193,21 @@ def save_image( CS, DS, BQ, dataBlob, deviceId, PROJECT, DATASET, TABLE,
 def save_data( BQ, pydict, deviceId, PROJECT, DATASET, TABLE ):
 
     if messageType_Image == validateMessageType( pydict ):
+        logging.error('save_data: does not handle images.' )
         return 
 
-#debugrob: no cloud path?  or None for it?
-    cloudStoragePath = ''
-
     # insert into BQ (Env vars and command replies)
-    bq_data_insert( BQ, pydict, deviceId, PROJECT, DATASET, TABLE, cloudStoragePath)
+    bq_data_insert( BQ, pydict, deviceId, PROJECT, DATASET, TABLE )
 
 
 #------------------------------------------------------------------------------
 # Insert data into our bigquery dataset and table.
-def bq_data_insert( BQ, pydict, deviceId, PROJECT, DATASET, TABLE, cloudStoragePath):
-#debugrob: no cloud path?  or None for it?
+def bq_data_insert( BQ, pydict, deviceId, PROJECT, DATASET, TABLE ):
     try:
         # Generate the data that will be sent to BigQuery for insertion.
         # Each value must be a row that matches the table schema.
         rowList = []
-#debugrob: no cloud path?  or None for it?
-        if not makeBQRowList( pydict, deviceId, cloudStoragePath, rowList ):
+        if not makeBQRowList( pydict, deviceId, rowList ):
             return False
         rows_to_insert = []
         for row in rowList:

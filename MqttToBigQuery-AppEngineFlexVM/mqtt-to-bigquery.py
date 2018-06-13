@@ -54,7 +54,7 @@ def callback( msg ):
                 os.getenv('BQ_DATASET'),
                 os.getenv('BQ_TABLE'))
         except:
-            # if data is not string / JSON, then it is a binary image blob
+            # if data is not a string / JSON, then it is a binary image blob
             utils.save_image( CS, DS, BQ, msg.data, msg.attributes['deviceId'],
                 os.getenv('GCLOUD_PROJECT'),
                 os.getenv('BQ_DATASET'),
