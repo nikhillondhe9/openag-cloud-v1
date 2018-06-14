@@ -1,36 +1,14 @@
-import json
-import os
-from flask import Blueprint
 from FCClass.user import User
 from FCClass.user_session import UserSession
 from flask import Response
 from flask import request
-from google.cloud import bigquery
-from google.cloud import datastore
+from flask import Blueprint
+from .env_variables import *
 
-bigquery_client = bigquery.Client()
-
-# Environment variables, set locally for testing and when deployed to gcloud.
-path_to_google_service_account = os.environ['GOOGLE_APPLICATION_CREDENTIALS']
-cloud_project_id = os.environ['GCLOUD_PROJECT']
-cloud_region = os.environ['GCLOUD_REGION']
-device_registry = os.environ['GCLOUD_DEV_REG']
+user_authenticate = Blueprint('user_authenticate', __name__)
 
 
-
-# Datastore client for Google Cloud
-datastore_client = datastore.Client(cloud_project_id)
-
-consumer_key = os.environ['consumer_key']
-consumer_secret = os.environ['consumer_secret']
-access_token = os.environ['access_token']
-access_secret = os.environ['access_secret']
-
-
-users_blueprint = Blueprint('users_blueprint',__name__)
-
-
-@users_blueprint.route('/api/signup/', methods=['GET', 'POST'])
+@user_authenticate.route('/api/signup/', methods=['GET', 'POST'])
 def signup():
     received_form_response = json.loads(request.data.decode('utf-8'))
     username = received_form_response.get("username", None)
@@ -62,7 +40,7 @@ def signup():
     return result
 
 
-@users_blueprint.route('/login/', methods=['GET', 'POST'])
+@user_authenticate.route('/login/', methods=['GET', 'POST'])
 def login():
     received_form_response = json.loads(request.data.decode('utf-8'))
 
