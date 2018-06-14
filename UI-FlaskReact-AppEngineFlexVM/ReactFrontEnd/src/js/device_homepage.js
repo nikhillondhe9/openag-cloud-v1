@@ -130,6 +130,8 @@ class DeviceHomepage extends Component {
         this.downloadCSV = this.downloadCSV.bind(this);
         this.handleAccessCodeSubmit = this.handleAccessCodeSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+        this.registerDevice = this.registerDevice.bind(this);
     }
 
     timeonChange(data_type, value) {
@@ -144,7 +146,50 @@ class DeviceHomepage extends Component {
             add_access_modal: !this.state.add_access_modal
         })
     }
+    handleSubmit(event) {
 
+        console.log('A register device form was submitted');
+        this.registerDevice()
+        event.preventDefault();
+    }
+    registerDevice() {
+        console.log(JSON.stringify({
+            'user_uuid': this.state.user_uuid,
+            'device_name': this.state.device_name,
+            'device_reg_no': this.state.device_reg_no,
+            'device_notes': this.state.device_notes,
+            'device_type': this.state.device_type
+        }))
+        return fetch(process.env.REACT_APP_FLASK_URL + '/api/register/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({
+                'user_uuid': this.state.user_uuid,
+                'user_token': this.props.cookies.get('user_token'),
+                'device_name': this.state.device_name,
+                'device_reg_no': this.state.device_reg_no,
+                'device_notes': this.state.device_notes,
+                'device_type': this.state.device_type
+            })
+        })
+            .then((response) => response.json())
+            .then((responseJson) => {
+                console.log(responseJson)
+                if (responseJson["response_code"] == 200) {
+                    this.setState({
+                        modal: false
+                    });
+                }
+                this.getUserDevices()
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }
     modalToggle() {
         this.setState({
             modal: !this.state.modal

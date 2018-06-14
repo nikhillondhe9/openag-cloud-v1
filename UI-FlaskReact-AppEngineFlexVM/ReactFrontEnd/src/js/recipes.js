@@ -27,7 +27,7 @@ class recipes extends Component {
     }
 
     editRecipe(recipe_id) {
-        window.location.href = '/edit_recipe/' + recipe_id.toString()
+        window.location.href = '/new_recipe/' + recipe_id.toString()
     }
 
     componentWillMount() {
