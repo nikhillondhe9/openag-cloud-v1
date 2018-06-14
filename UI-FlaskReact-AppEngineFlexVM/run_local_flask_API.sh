@@ -20,6 +20,7 @@ export GOOGLE_APPLICATION_CREDENTIALS=./authenticate.json
 export GCLOUD_PROJECT=openag-v1
 export GCLOUD_DEV_REG=device-registry
 export GCLOUD_REGION=us-central1
+export FIREBASE_SERVICE_ACCOUNT=./fb-service-account.json
 
 export consumer_key='FdGiou6z8drUL39eqg6Hn1iPV'
 export consumer_secret='k2l8yfWlTBi94Sog1vwU1GLwYVOa1n3Nx6jHhgTKpWJvZB6RBS'

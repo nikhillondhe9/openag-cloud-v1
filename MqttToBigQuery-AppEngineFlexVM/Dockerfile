@@ -9,6 +9,8 @@ RUN virtualenv /env -p python3.6
 # Load our google components (they require py 3)
 RUN pip install --upgrade google-cloud-pubsub
 RUN pip install --upgrade google-cloud-bigquery
+RUN pip install --upgrade google-cloud-datastore
+RUN pip install --upgrade google-cloud-storage
 
 # ADD copies files to the docker filesystem image at the specified path
 ADD mqtt-to-bigquery.py /mqtt-to-bigquery.py

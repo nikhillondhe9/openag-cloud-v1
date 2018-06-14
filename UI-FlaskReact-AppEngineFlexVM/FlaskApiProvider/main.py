@@ -19,16 +19,9 @@ from firebase_admin import firestore
 
 from queries import queries
 
-from recipes_blueprint import recipes_blueprint
-from blueprints.register_device import register_device_blueprint
-from blueprints.users import users_blueprint
-
 bigquery_client = bigquery.Client()
 
 app = Flask(__name__)
-app.register_blueprint(recipes_blueprint)
-app.register_blueprint(register_device_blueprint)
-app.register_blueprint(users_blueprint)
 
 # Environment variables, set locally for testing and when deployed to gcloud.
 path_to_google_service_account = os.environ['GOOGLE_APPLICATION_CREDENTIALS']
@@ -1090,7 +1083,7 @@ def apply_to_device():
     recipe_session_token = str(uuid.uuid4())
     apply_to_device_task.update({
         'recipe_session_token': recipe_session_token,
-        # Used to track the recipe applied to the device and modifications made to it.
+    # Used to track the recipe applied to the device and modifications made to it.
         'device_uuid': device_uuid,
         'recipe_uuid': recipe_uuid,
         'date_applied': date_applied,
@@ -1425,42 +1418,9 @@ def create_iot_device_registry_entry(verification_code, device_name,
         traceback.print_tb(exc_traceback, file=sys.stdout)
 
 
-@app.route('/api/get_device_peripherals/', methods=['GET', 'POST'])
-def get_device_peripherals():
-    query = datastore_client.query(kind='DeviceType')
-    query.add_filter('name', '=', 'PFC_EDU')
-    device_type_details = list(query.fetch())
-    peripheral_details = []
-
-    if len(device_type_details) > 0:
-        peripherals = device_type_details[0]['peripherals']
-
-    peripherals_array = peripherals.split(",")
-    for peripheral in peripherals_array:
-        print(str(peripheral))
-        query = datastore_client.query(kind='Peripherals')
-        query.add_filter('uuid', '=', str(peripheral))
-        peripheraldetails = list(query.fetch())
-
-        if len(peripheraldetails) > 0:
-            peripheral_detail_json = {
-                "name": peripheraldetails[0]["name"],
-                "sensor_name": peripheraldetails[0]["sensor_name"],
-                "type": peripheraldetails[0]["type"],
-                "color": "#" + peripheraldetails[0]["color"]
-            }
-            peripheral_details.append(peripheral_detail_json)
-
-    data = json.dumps({
-        "response_code": 200,
-        "results": peripheral_details
-    })
-    result = Response(data, status=200, mimetype='application/json')
-    return result
-
-
 # ------------------------------------------------------------------------------
 if __name__ == '__main__':
     # This is used when running locally. Gunicorn is used to run the
     # application on Google App Engine. See entrypoint in app.yaml.
     app.run(host='127.0.0.1', port=5000, debug=True)
+

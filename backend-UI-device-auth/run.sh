@@ -21,6 +21,9 @@ GCLOUD_DEV_REG=device-registry
 # this is the GCP project 
 GCLOUD_PROJECT=openag-v1
 
+# this may be needed on machines that don't have gcloud installed/setup (Jake)
+export GOOGLE_APPLICATION_CREDENTIALS=$IOT_SA
+
 source pyenv/bin/activate
 
 # NOTE: the notes arg are optional metadata stored in the device registry.

@@ -20,7 +20,7 @@ class Home extends Component {
             device_reg_no: '',
             device_notes: '',
             user_uuid: this.user_uuid,
-            device_type: 'PFC_EDU',
+            device_type: 'EDU',
             user_devices: [],
             dropdownOpen: false,
             dropDownValue: 'Choose a PFC'
@@ -285,8 +285,8 @@ class Home extends Component {
                                     <select className="form-control smallInput" name="device_type" id="device_type"
                                             onChange={this.handleChange}
                                             value={this.state.device_type}>
-                                        <option value="PFC_EDU">Personal Food Computer+EDU</option>
-                                        <option value="Food_Server">Food Server</option>
+                                        <option value="EDU">Personal Food Computer+EDU</option>
+                                        <option value="FS">Food Server</option>
                                     </select>
                                 </FormGroup>
                             </Form>
