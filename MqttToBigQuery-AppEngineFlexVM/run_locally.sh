@@ -36,6 +36,6 @@ fi
 source pyenv/bin/activate
 
 # Pass along all the command line args that this script has (--log debug)
-python3 mqtt-to-bigquery.py --log info
-#python3 mqtt-to-bigquery.py --log debug
+#python3 mqtt-to-bigquery.py --log info
+python3 mqtt-to-bigquery.py --log debug
 #python3 mqtt-to-bigquery.py "$@"
