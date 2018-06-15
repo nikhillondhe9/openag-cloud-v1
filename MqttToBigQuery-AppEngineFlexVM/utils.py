@@ -222,7 +222,6 @@ def deleteImageChunksFromDatastore( DS, deviceId, messageId ):
     query.add_filter( 'messageId', '=', messageId )
     qiter = query.fetch()
     for entity in qiter:
-        #print('debugrob entity={}'.format(entity))
         DS.delete( entity.key )
     logging.debug( "deleteImageChunksFromDatastore: {} deleted.".format( 
         messageId ))
@@ -308,12 +307,6 @@ def save_image( CS, DS, BQ, pydict, deviceId, PROJECT, DATASET, TABLE, \
             
         # Now covert our base64 string into binary image bytes
         imageBytes = base64.b64decode( b64str )
-        logging.debug( 'save_image: imageBytes size={}'.format( 
-            len( imageBytes )))
-
-#debugrob: 
-#        logging.critical('debugrob msgID={} chunkNum={} totalChunks={} varName={} imageType={} image-size={}'.format( messageId, chunkNum, totalChunks, varName, imageType, len(imageChunk) ))
-
 
         # Put the image bytes in cloud storage as a file, and get an URL
         publicURL = saveFileInCloudStorage( CS, varName, imageType,
