@@ -6,6 +6,7 @@ from flask import request
 
 from .utils.env_variables import *
 from .utils.response import success_response, error_response
+from .utils.auth import get_user_uuid_from_token
 
 get_recipe_details_bp = Blueprint('get_recipe_details_bp',__name__)
 
@@ -22,16 +23,15 @@ def get_recipe_details():
     query = datastore_client.query(kind='Recipes')
     query.add_filter('recipe_uuid', '=', recipe_uuid)
 
+    user_uuid = get_user_uuid_from_token(user_token)
+    if user_uuid is None:
+        return error_response(
+            message="Invalid User: Unauthorized"
+        )
+
     # Get uuid's of all devices attached with this user
     all_user_devices = []
     device_query = datastore_client.query(kind='Devices')
-    query_session = datastore_client.query(kind="UserSession")
-    query_session.add_filter('session_token', '=', user_token)
-    query_session_result = list(query_session.fetch())
-    user_uuid = None
-    if len(query_session_result) > 0:
-        user_uuid = query_session_result[0].get("user_uuid", None)
-
     device_query.add_filter('user_uuid', '=', user_uuid)
     devices_query_result = list(device_query.fetch())
     for result_row in list(devices_query_result):

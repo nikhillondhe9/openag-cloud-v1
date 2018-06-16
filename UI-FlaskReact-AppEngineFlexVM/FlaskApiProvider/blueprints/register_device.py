@@ -5,6 +5,7 @@ from google.cloud import datastore
 
 from .utils.env_variables import *
 from .utils.response import success_response, error_response
+from .utils.auth import get_user_uuid_from_token
 
 register_bp = Blueprint('register_bp',__name__)
 
@@ -29,12 +30,11 @@ def register():
     if device_type is None:
         device_type = 'EDU'
 
-    query_session = datastore_client.query(kind="UserSession")
-    query_session.add_filter('session_token', '=', user_token)
-    query_session_result = list(query_session.fetch())
-    user_uuid = None
-    if len(query_session_result) > 0:
-        user_uuid = query_session_result[0].get("user_uuid", None)
+    user_uuid = get_user_uuid_from_token(user_token)
+    if user_uuid is None:
+        return error_response(
+            message="Invalid User: Unauthorized"
+        )
 
     # Create a google IoT device registry entry for this device.
     # The method returns the device ID we need for IoT communications.
