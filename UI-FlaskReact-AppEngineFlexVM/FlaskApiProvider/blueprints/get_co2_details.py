@@ -1,16 +1,13 @@
 import ast
 from datetime import timedelta
 
-from blueprints.env_variables import *
-from blueprints.env_variables import *
-from blueprints.env_variables import *
 from flask import Blueprint
 from flask import Response
 from flask import request
 from google.cloud import bigquery
 from queries import queries
 
-from .env_variables import *
+from .utils.env_variables import *
 
 get_co2_details_bp = Blueprint('get_co2_details_bp',__name__)
 

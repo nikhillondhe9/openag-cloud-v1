@@ -1,12 +1,11 @@
 import ast
 
-from blueprints.env_variables import *
 from flask import Response
 from flask import request
 from google.cloud import bigquery
 from queries import queries
 from flask import Blueprint
-from .env_variables import *
+from .utils.env_variables import *
 
 get_led_panel_bp = Blueprint('get_led_panel_bp',__name__)
 

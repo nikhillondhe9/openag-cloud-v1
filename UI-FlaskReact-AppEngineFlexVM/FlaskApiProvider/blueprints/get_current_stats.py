@@ -7,7 +7,7 @@ from flask import request
 from google.cloud import bigquery
 from queries import queries
 
-from .env_variables import *
+from .utils.env_variables import *
 
 get_current_stats_bp = Blueprint('get_current_stats_bp',__name__)
 

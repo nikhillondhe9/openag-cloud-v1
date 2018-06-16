@@ -5,7 +5,7 @@ from flask import Response
 from flask import request
 from google.cloud import datastore
 
-from .env_variables import *
+from .utils.env_variables import *
 
 create_new_code_bp = Blueprint('create_new_code_bp',__name__)
 

@@ -3,7 +3,7 @@ from flask import Blueprint
 from flask import Response
 from flask import request
 
-from .env_variables import *
+from .utils.env_variables import *
 
 get_recipe_components_bp = Blueprint('get_recipe_components_bp',__name__)
 

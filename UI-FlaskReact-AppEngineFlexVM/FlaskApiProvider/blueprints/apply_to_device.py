@@ -5,7 +5,7 @@ from flask import Response
 from flask import request
 from google.cloud import datastore
 
-from .env_variables import *
+from .utils.env_variables import *
 
 apply_to_device_bp = Blueprint('apply_to_device_bp',__name__)
 

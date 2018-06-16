@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask import Response
 
-from .env_variables import *
+from .utils.env_variables import *
 
 get_device_peripherals_bp = Blueprint('get_device_peripherals_bp',__name__)
 

@@ -3,7 +3,7 @@ from flask import Blueprint
 from flask import Response
 from flask import request
 
-from .env_variables import *
+from .utils.env_variables import *
 
 posttwitter_bp = Blueprint('posttwitter_bp',__name__)
 

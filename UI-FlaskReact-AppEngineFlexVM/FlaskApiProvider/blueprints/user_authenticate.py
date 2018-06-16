@@ -3,7 +3,7 @@ from FCClass.user_session import UserSession
 from flask import Response
 from flask import request
 from flask import Blueprint
-from .env_variables import *
+from .utils.env_variables import *
 
 user_authenticate = Blueprint('user_authenticate', __name__)
 

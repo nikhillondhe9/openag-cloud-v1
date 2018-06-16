@@ -5,7 +5,7 @@ from flask import Response
 from flask import request
 from google.cloud import datastore
 
-from .env_variables import *
+from .utils.env_variables import *
 
 save_recipe_bp = Blueprint('save_recipe_bp',__name__)
 

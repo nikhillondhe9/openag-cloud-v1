@@ -1,15 +1,10 @@
 import ast
 
-from blueprints.env_variables import *
-from blueprints.env_variables import *
-from blueprints.env_variables import *
-from blueprints.env_variables import *
-from blueprints.env_variables import *
 from flask import Blueprint
 from flask import Response
 from flask import request
 
-from .env_variables import *
+from .utils.env_variables import *
 
 get_recipe_details_bp = Blueprint('get_recipe_details_bp',__name__)
 
