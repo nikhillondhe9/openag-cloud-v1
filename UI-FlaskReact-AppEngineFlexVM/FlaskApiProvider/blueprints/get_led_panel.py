@@ -6,6 +6,7 @@ from google.cloud import bigquery
 from queries import queries
 from flask import Blueprint
 from .utils.env_variables import *
+from .utils.response import success_response, error_response
 
 get_led_panel_bp = Blueprint('get_led_panel_bp',__name__)
 
@@ -40,11 +41,6 @@ def get_led_panel():
                                     'far_red': int(values[0]['value'].split(',')[5], 16),
                                     'time': row.eastern_time})
 
-    data = json.dumps({
-        "response_code": 200,
-        "results": result_json
-    })
-
-    result = Response(data, status=200, mimetype='application/json')
-    return result
-
+    return success_response(
+        results=result_json
+    )

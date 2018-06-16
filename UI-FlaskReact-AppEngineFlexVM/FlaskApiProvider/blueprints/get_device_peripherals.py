@@ -2,6 +2,7 @@ from flask import Blueprint
 from flask import Response
 
 from .utils.env_variables import *
+from .utils.response import success_response, error_response
 
 get_device_peripherals_bp = Blueprint('get_device_peripherals_bp',__name__)
 
@@ -32,11 +33,6 @@ def get_device_peripherals():
             }
             peripheral_details.append(peripheral_detail_json)
 
-    data = json.dumps({
-        "response_code": 200,
-        "results": peripheral_details
-    })
-    result = Response(data, status=200, mimetype='application/json')
-    return result
-
-
+    return success_response(
+        results=peripheral_details
+    }

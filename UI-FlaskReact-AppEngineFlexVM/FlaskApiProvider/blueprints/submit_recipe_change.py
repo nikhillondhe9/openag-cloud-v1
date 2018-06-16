@@ -6,6 +6,7 @@ from flask import request
 from google.cloud import datastore
 
 from .utils.env_variables import *
+from .utils.response import success_response, error_response
 
 submit_recipe_change_bp = Blueprint('submit_recipe_change_bp',__name__)
 
@@ -84,10 +85,6 @@ def submit_recipe_change():
                                                   recipe_dict)
     send_recipe_to_device_via_IoT(iot_client, device_uuid, commands_list)
 
-    data = json.dumps({
-        "response_code": 200,
-        "message": "Successfully applied"
-    })
-    return Response(data, status=200, mimetype='application/json')
-
-
+    return success_response(
+        message="Successfully applied"
+    )

@@ -4,6 +4,7 @@ from flask import Response
 from flask import request
 
 from .utils.env_variables import *
+from .utils.response import success_response, error_response
 
 get_user_devices_bp = Blueprint('get_user_devices_bp',__name__)
 
@@ -14,9 +15,9 @@ def get_user_devices():
     received_form_response = json.loads(request.data.decode('utf-8'))
     user_token = received_form_response.get("user_token", None)
     if user_token is None:
-        result = Response({"message": "Please make sure you have added values for all the fields"}, status=500,
-                          mimetype='application/json')
-        return result
+        return error_response(
+            message="Please make sure you have added values for all the fields"
+        )
 
     query = datastore_client.query(kind='Devices')
     query_session = datastore_client.query(kind="UserSession")
@@ -51,17 +52,10 @@ def get_user_devices():
             }
             results_array.append(result_json)
 
-        data = json.dumps({
-            "response_code": 200,
-            "results": results_array
-        })
-        result = Response(data, status=200, mimetype='application/json')
-        return result
+        return success_response(
+            results=results_array
+        )
     else:
-        data = json.dumps({
-            "response_code": 500,
-            "results": results_array
-        })
-        result = Response(data, status=500, mimetype='application/json')
-        return result
-
+        return error_response(
+            results=results_array
+        )

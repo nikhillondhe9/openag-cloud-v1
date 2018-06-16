@@ -6,6 +6,7 @@ from flask import request
 from google.cloud import datastore
 
 from .utils.env_variables import *
+from .utils.response import success_response, error_response
 
 create_new_code_bp = Blueprint('create_new_code_bp',__name__)
 
@@ -22,9 +23,9 @@ def create_new_code():
         user_uuid = query_session_result[0].get("user_uuid", None)
 
     if user_uuid is None:
-        result = Response({"message": "Invalid User: Unauthorized"}, status=500,
-                          mimetype='application/json')
-        return result
+        return error_response(
+            message="Invalid User: Unauthorized"
+        )
 
     generated_code = id_generator()
     # Add the user to the users kind of entity
@@ -42,16 +43,11 @@ def create_new_code():
     datastore_client.put(access_code_reg)
 
     if access_code_reg.key:
-        data = json.dumps({
-            "response_code": 200,
-            "code": generated_code
-        })
-        result = Response(data, status=200, mimetype='application/json')
+        return success_response(
+            code=generated_code
+        )
 
     else:
-        data = json.dumps({
-            "message": "Sorry something failed. Womp womp!"
-        })
-        result = Response(data, status=500, mimetype='application/json')
-
-    return result
+        return error_response(
+            message="Sorry something failed. Womp womp!"
+        )

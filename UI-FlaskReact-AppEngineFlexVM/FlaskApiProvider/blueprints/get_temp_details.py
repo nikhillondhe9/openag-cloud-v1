@@ -7,6 +7,7 @@ from google.cloud import bigquery
 from queries import queries
 
 from .utils.env_variables import *
+from .utils.response import success_response, error_response
 
 get_temp_details_bp = Blueprint('get_temp_details_bp',__name__)
 
@@ -45,11 +46,7 @@ def get_temp_details():
                     result_json["RH"].append(
                         {'value': values[1]['value'], 'time': row.eastern_time})
 
-    data = json.dumps({
-        "response_code": 200,
-        "results": result_json
-    })
-
-    result = Response(data, status=200, mimetype='application/json')
-    return result
+    return success_response(
+        results=result_json
+    )
 

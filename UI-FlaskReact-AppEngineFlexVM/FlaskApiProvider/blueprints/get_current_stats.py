@@ -8,6 +8,7 @@ from google.cloud import bigquery
 from queries import queries
 
 from .utils.env_variables import *
+from .utils.response import success_response, error_response
 
 get_current_stats_bp = Blueprint('get_current_stats_bp',__name__)
 
@@ -48,11 +49,6 @@ def get_current_stats():
                 if len(values) > 1:
                     result_json["current_rh"] = "{0:.2f}".format(float(values[1]['value']))
 
-    data = json.dumps({
-        "response_code": 200,
-        "results": result_json
-    })
-
-    result = Response(data, status=200, mimetype='application/json')
-    return result
-
+    return success_response(
+        results=result_json
+    )

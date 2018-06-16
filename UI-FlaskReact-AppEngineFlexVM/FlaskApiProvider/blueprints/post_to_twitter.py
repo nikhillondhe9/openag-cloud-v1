@@ -4,6 +4,7 @@ from flask import Response
 from flask import request
 
 from .utils.env_variables import *
+from .utils.response import success_response, error_response
 
 posttwitter_bp = Blueprint('posttwitter_bp',__name__)
 
@@ -13,8 +14,7 @@ def posttwitter():
     current_date = datetime.utcnow()
     user_uuid = received_form_response.get("user_uuid", "Error")
     api.update_status('Food computer status for %s on %s' % (user_uuid, str(current_date)))
-    data = {
-        "message": "success"
-    }
-    result = Response(json.dumps(data), status=500, mimetype='application/json')
-    return result
+
+    return success_response(
+        message="success"
+    )

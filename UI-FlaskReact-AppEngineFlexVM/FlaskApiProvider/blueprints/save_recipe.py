@@ -6,6 +6,7 @@ from flask import request
 from google.cloud import datastore
 
 from .utils.env_variables import *
+from .utils.response import success_response, error_response
 
 save_recipe_bp = Blueprint('save_recipe_bp',__name__)
 
@@ -23,9 +24,9 @@ def save_recipe():
     components = recipe_json.get("components", [])
 
     if user_token is None or recipe_json is None or recipe_name is None:
-        result = Response({"message": "Please make sure you have added values for all the fields"}, status=500,
-                          mimetype='application/json')
-        return result
+        return error_response(
+            message="Please make sure you have added values for all the fields"
+        )
 
     query_session = datastore_client.query(kind="UserSession")
     query_session.add_filter('session_token', '=', user_token)
@@ -53,15 +54,9 @@ def save_recipe():
     datastore_client.put(device_reg_task)
 
     if device_reg_task.key:
-        data = json.dumps({
-            "response_code": 200
-        })
-        result = Response(data, status=200, mimetype='application/json')
+        return success_response()
 
     else:
-        data = json.dumps({
-            "message": "Sorry something failed. Womp womp!"
-        })
-        result = Response(data, status=500, mimetype='application/json')
-
-    return result
+        return error_response(
+            message="Sorry something failed. Womp womp!"
+        )

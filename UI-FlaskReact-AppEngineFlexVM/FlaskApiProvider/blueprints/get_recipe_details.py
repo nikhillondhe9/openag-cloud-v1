@@ -5,6 +5,7 @@ from flask import Response
 from flask import request
 
 from .utils.env_variables import *
+from .utils.response import success_response, error_response
 
 get_recipe_details_bp = Blueprint('get_recipe_details_bp',__name__)
 
@@ -14,7 +15,9 @@ def get_recipe_details():
     recipe_uuid = received_form_response.get("recipe_uuid", None)
     user_token = received_form_response.get("user_token", None)
     if recipe_uuid is None or user_token is None:
-        return Response({"message": "Error occured"}, status=500, mimetype='application/json')
+        return error_response(
+            message="Error occured"
+        )
 
     query = datastore_client.query(kind='Recipes')
     query.add_filter('recipe_uuid', '=', recipe_uuid)
@@ -97,11 +100,7 @@ def get_recipe_details():
             }
             results_array.append(result_json)
 
-        data = json.dumps({
-            "response_code": 200,
-            "results": results_array,
-            "history": recipe_history
-
-        })
-        result = Response(data, status=200, mimetype='application/json')
-        return result
+        return success_response(
+            results=results_array,
+            history=recipe_history
+        )
