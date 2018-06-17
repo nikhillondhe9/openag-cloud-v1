@@ -6,6 +6,8 @@ import { Input } from 'reactstrap';
  *
  * props:
  * - url (string): The url endpoint to POST to.
+ * - data (object): Object whose contents get sent as form
+ * data.
  * - onDone (function): Callback for a successful upload, will
  * be called with a file object representing the image.
  */
@@ -18,17 +20,17 @@ export class ImageUploader extends React.PureComponent {
         let imageForm = new FormData();
         imageForm.append('file', image);
 
+        for (let key in this.props.data) {
+            imageForm.append(key, this.props.data[key]);
+        }
+
         fetch(this.props.url, {
             method: 'POST',
             body: imageForm
         })
-        .then(response => {
-            if (response.ok) {
-                this.props.onDone(image);
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(responseJson => {
+            this.props.onDone(responseJson);
             console.log(responseJson);
         })
         .catch((error) => {
