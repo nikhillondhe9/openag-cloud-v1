@@ -6,7 +6,7 @@ from blueprints import (
     get_current_stats, get_led_panel, get_recipe_components, get_recipe_details,
     get_temp_details, get_user_devices, post_to_twitter, register_device,
     save_recipe, submit_recipe_change, verify_user_session, user_authenticate,
-    upload_images, get_device_peripherals
+    upload_images, get_user_image, get_device_peripherals
 )
 
 app = Flask(__name__)
@@ -28,6 +28,7 @@ app.register_blueprint(user_authenticate.user_authenticate)
 app.register_blueprint(verify_user_session.verify_user_session_bp)
 app.register_blueprint(get_device_peripherals.get_device_peripherals_bp)
 app.register_blueprint(upload_images.upload_images_bp)
+app.register_blueprint(get_user_image.get_user_image_bp)
 
 # Remove this later - Only use it for testing purposes. Not safe to leave it here
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
