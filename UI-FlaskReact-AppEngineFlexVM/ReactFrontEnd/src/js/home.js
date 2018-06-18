@@ -17,8 +17,11 @@ import {
     ModalHeader
 } from 'reactstrap';
 import {Cookies, withCookies} from "react-cookie";
-import placeholder from '../images/placeholder.png';
+import image1 from '../images/1.png';
+import image2 from '../images/2.png';
 import {Timeline} from 'react-twitter-widgets'
+
+import {ImageTimelapse} from './components/image_timelapse';
 
 class Home extends Component {
     constructor(props) {
@@ -248,9 +251,10 @@ class Home extends Component {
                         <div className="col-md-4">
                             <div className="">
                                 <div className="card-body">
-                                    <img src={placeholder} className="timelapse-img"></img>
-                                    <input class="range-slider__range" type="range" value="100" min="0" max="500"/>
-
+                                    <ImageTimelapse
+                                        imageClass="timelapse-img"
+                                        inputClass="range-slider__range"
+                                        images={[image1, image2]} />
                                 </div>
 
                             </div>
