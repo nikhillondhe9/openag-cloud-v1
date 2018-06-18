@@ -9,7 +9,7 @@ import { Input } from 'reactstrap';
  * - data (object): Object whose contents get sent as form
  * data.
  * - onDone (function): Callback for a successful upload, will
- * be called with a file object representing the image.
+ * be called with the decoded json response.
  */
 export class ImageUploader extends React.PureComponent {
 
