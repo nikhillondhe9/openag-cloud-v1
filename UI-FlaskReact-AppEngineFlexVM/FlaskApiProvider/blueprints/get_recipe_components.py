@@ -3,7 +3,8 @@ from flask import Blueprint
 from flask import Response
 from flask import request
 
-from .env_variables import *
+from .utils.env_variables import *
+from .utils.response import success_response, error_response
 
 get_recipe_components_bp = Blueprint('get_recipe_components_bp',__name__)
 
@@ -67,11 +68,8 @@ def get_recipe_components():
                     }
                     components_array.append(result_json)
 
-    data = json.dumps({
-        "response_code": 200,
-        "results": components_array,
-        'recipe_json': recipe_json,
-        "component_ids_array": component_ids_array
-    })
-    result = Response(data, status=200, mimetype='application/json')
-    return result
+    return success_response(
+        results=components_array,
+        recipe_json=recipe_json,
+        component_ids_array=component_ids_array
+    )
