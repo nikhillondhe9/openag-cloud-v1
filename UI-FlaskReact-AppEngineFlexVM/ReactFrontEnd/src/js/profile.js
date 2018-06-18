@@ -186,7 +186,8 @@ class profile extends Component {
                                         type: 'user',
                                         user_token: this.props.cookies.get('user_token')
                                     }}
-                                    onDone={this.onImageUpload}/>
+                                    onDone={this.onImageUpload}
+                                    className="image-uploader"/>
                             </div>
                         </div>
                         <div className="row profile-row">

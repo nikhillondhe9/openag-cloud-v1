@@ -40,7 +40,12 @@ export class ImageUploader extends React.PureComponent {
 
     render() {
         return (
-            <Input type="file" name="file" onChange={this.uploadImage} />
+            <Input
+                type="file"
+                name="file"
+                onChange={this.uploadImage}
+                accept="image/*"
+                {...this.props} />
         );
     }
 
