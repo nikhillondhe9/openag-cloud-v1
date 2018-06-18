@@ -18,7 +18,8 @@ def is_allowed(filename):
 upload_images_bp = Blueprint('upload_images_bp', __name__)
 
 GOOGLE_CLOUD_STORAGE_BUCKETS = {
-    'user': 'openag-user-images'
+    'user': 'openag-user-images',
+    'recipe': 'openag-recipe-images'
 }
 @upload_images_bp.route('/api/upload_images/', methods=['POST'])
 def upload_images():
@@ -40,23 +41,24 @@ def upload_images():
                 .format(list(GOOGLE_CLOUD_STORAGE_BUCKETS.keys()))
         )
 
-    if upload_type == 'user':
-        user_token = request.form.get('user_token')
-        user_uuid = get_user_uuid_from_token(user_token)
-        if user_uuid is None:
-            return error_response(
-                message='Invalid User: Unauthorized'
-            )
+    user_token = request.form.get('user_token')
+    user_uuid = get_user_uuid_from_token(user_token)
+    if user_uuid is None:
+        return error_response(
+            message='Invalid User: Unauthorized'
+        )
 
-        bucket = GOOGLE_CLOUD_STORAGE_BUCKETS[upload_type]
-        filename = "{}-{}".format(user_uuid, str(int(time.time())))
-        url = upload_file(image.read(), filename, image.content_type, bucket)
+    bucket = GOOGLE_CLOUD_STORAGE_BUCKETS[upload_type]
+    filename = "{}-{}".format(user_uuid, str(int(time.time())))
+    url = upload_file(image.read(), filename, image.content_type, bucket)
+
+    if upload_type == 'user':
         set_profile_picture(user_uuid, url)
 
-        return success_response(
-            message='File saved.',
-            url=url
-        )
+    return success_response(
+        message='File saved.',
+        url=url
+    )
 
 def upload_file(file_stream, filename, content_type, bucket):
     bucket = storage_client.bucket(bucket)
