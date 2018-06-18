@@ -11,6 +11,8 @@ import 'rc-time-picker/assets/index.css';
 import moment from 'moment';
 import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input} from 'reactstrap';
 
+import {ImageUploader} from './components/image_uploader';
+
 const showSecond = true;
 const str = showSecond ? 'HH:mm:ss' : 'HH:mm';
 const createSliderWithTooltip = Slider.createSliderWithTooltip;
@@ -52,7 +54,8 @@ class NewRecipe extends Component {
             selected_peripheral: {},
             selected_peripheral_fields: <div>S</div>,
             selected_component_fields: <div>Something went wrong</div>,
-            T6713: ""
+            T6713: "",
+            image_url: "http://via.placeholder.com/200x200"
         }
         this.device_type_dropdowntoggle = this.device_type_dropdowntoggle.bind(this);
         this.plant_type_dropdowntoggle = this.plant_type_dropdowntoggle.bind(this);
@@ -61,6 +64,7 @@ class NewRecipe extends Component {
         this.sliderChange = this.sliderChange.bind(this);
         this.togglePeripheralModal = this.togglePeripheralModal.bind(this);
         this.handlePeripheralSubmit = this.handlePeripheralSubmit.bind(this);
+        this.onImageUpload = this.onImageUpload.bind(this);
     }
 
     timeonChange(data_type, value) {
@@ -281,6 +285,14 @@ class NewRecipe extends Component {
         this.setState({[e.target.name]: e.target.value})
     }
 
+    onImageUpload(response) {
+        if (response.response_code == 200) {
+            this.setState({image_url: response.url});
+        } else {
+            console.error('Image upload failed');
+        }
+    }
+
     render() {
 
         let list_components = this.state.peripherals.map((peripheral_json) => {
@@ -324,7 +336,15 @@ class NewRecipe extends Component {
                     </div>
                     <div className="row input-row">
                         <div className="col-md-4">
-                            <img src="http://via.placeholder.com/200x200"/>
+                            <img width="200" src={this.state.image_url}/>
+                            <ImageUploader
+                                url={process.env.REACT_APP_FLASK_URL + "/api/upload_images/"}
+                                data={{
+                                    type: 'recipe',
+                                    user_token: this.props.cookies.get('user_token')
+                                }}
+                                onDone={this.onImageUpload}
+                                className="image-uploader"/>
                         </div>
                         <div className="col-md-8">
                             <Input type="text" className="recipe-details-text" placeholder="Recipe Name"/>
