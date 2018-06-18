@@ -3,11 +3,12 @@ from FCClass.user_session import UserSession
 from flask import Response
 from flask import request
 from flask import Blueprint
+from pyisemail import is_email
+
 from .utils.env_variables import *
 from .utils.response import success_response, error_response
 
 user_authenticate = Blueprint('user_authenticate', __name__)
-
 
 @user_authenticate.route('/api/signup/', methods=['GET', 'POST'])
 def signup():
@@ -22,9 +23,7 @@ def signup():
             message="Please make sure you have added values for all the fields"
         )
 
-    # Naively validate email
-    if (email_address.find("@") == -1
-        or email_address.rsplit("@", 1)[-1].find(".") == -1):
+    if not is_email(email_address, check_dns=True):
         return error_response(
             message="Invalid email."
         )
