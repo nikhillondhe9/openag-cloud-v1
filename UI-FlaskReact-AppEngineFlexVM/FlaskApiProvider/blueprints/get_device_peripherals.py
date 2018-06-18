@@ -35,4 +35,4 @@ def get_device_peripherals():
 
     return success_response(
         results=peripheral_details
-    }
+    )
