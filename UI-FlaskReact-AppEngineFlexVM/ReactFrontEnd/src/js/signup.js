@@ -81,7 +81,7 @@ export class SignUp extends Component {
                                onChange={this.handleChange} required />
                         <input type="password" placeholder="password" name="password" value={this.state.password}
                                onChange={this.handleChange} required/>
-                        <input type="text" placeholder="email address" name="email_address"
+                        <input type="email" placeholder="email address" name="email_address"
                                value={this.state.email_address}
                                onChange={this.handleChange} required/>
                         <input type="text" placeholder="organization" name="organization"
