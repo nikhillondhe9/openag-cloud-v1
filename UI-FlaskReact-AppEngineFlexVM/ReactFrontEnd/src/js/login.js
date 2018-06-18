@@ -10,7 +10,8 @@ class login extends Component {
         super(props);
         this.state = {
             username: '',
-            password: ''
+            password: '',
+            error_message: ''
         };
         // This binding is necessary to make `this` work in the callback
         this.handleChange = this.handleChange.bind(this);
@@ -51,6 +52,9 @@ class login extends Component {
                     let user_uuid = responseJson["user_uuid"]
                     this.props.cookies.set('user_token',responseJson['user_token'])
                     window.location.href = "/home/"+(user_uuid).toString()
+                } else {
+                    let error_message = responseJson["message"]
+                    this.setState({error_message: error_message})
                 }
 
             })
@@ -65,6 +69,11 @@ class login extends Component {
         return (
             <div className="login-page">
                 <div className="form">
+                    {this.state.error_message &&
+                        <p style={{color: 'red'}}>
+                            {this.state.error_message}
+                        </p>
+                    }
                     <div className="image-section">
                         <img className="logo" src={logo}></img>
                     </div>

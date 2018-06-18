@@ -30,7 +30,7 @@ def signup():
 
     else:
         return error_response(
-            message="Sorry something failed. Womp womp!"
+            message="User creation failed."
         )
 
 @user_authenticate.route('/login/', methods=['GET', 'POST'])
