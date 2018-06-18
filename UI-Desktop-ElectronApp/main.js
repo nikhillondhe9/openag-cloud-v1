@@ -14,40 +14,28 @@ path = require('path')
 node_ssh = require('node-ssh')
 ssh = new node_ssh()
 var local_networks = []
-var ipc = require('ipc');
-
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 var mainWindow
+var ipcMain = require('electron').ipcMain;
 
 function createWindow() {
     // Create the browser window.
     mainWindow = new BrowserWindow({width: 800, height: 800})
-    var html_string = "Test"
+
+
     WiFiControl.scanForWiFi(function (err, response) {
         if (err) console.log(err);
-        var ipc = require('electron').ipcRenderer;
-        var authButton = document.getElementById('auth-button');
-        authButton.addEventListener('click', function () {
-            ipc.send('submitbutton', 'someData');
-        });
-        var networks = response["networks"]
-        var html_to_send = "<!DOCTYPE html> <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' integrity='sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u' crossorigin='anonymous'> <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css' integrity='sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp' crossorigin='anonymous'> <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js' integrity='sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa' crossorigin='anonymous'></script>" +
-            "<html><div style='height: 100px;width:800px;padding:0;top:0;margin:0;background-color:#008BC2'></div><div class='container' style='padding: 10px;'><div class='row'><h1>Choose a beaglebone to connect to</h1><p>Eg: BeagleBone - XXXX</p></div></div>"
-        for (var network of networks) {
-            console.log(network)
-            var ssid = network['ssid']
-            html_to_send += "<div class='row' style='margin-left: 20px;'><h6>" + network['ssid'] + "</h6></div>"
-        }
-        html_to_send += "<div class='row' style='margin-left: 20px;'>" +
-            "<h3>Enter the beaglebone you wish to connect to</h3>" +
-            "<form method = 'GET'>" +
-            "<div class='row'><div class='col-md-6'>WiFi Name:</div><div class='col-md-6'><input type = 'text' name = 'wifi'></div></div> <div class='row'><div class='col-md-6'>Password:</div><div class='col-md-6'><input type = 'password' name = 'password'></div></div>  <input type = 'submit' id='submitbutton' value = 'Submit'></form></div>"
-        html_string = html_to_send;
-        var load_html = 'data:text/html,' + encodeURIComponent(html_string);
+
         // and load the index.html of the app.
-        // window.loadUrl(html);
-        mainWindow.loadURL(load_html)
+        mainWindow.loadFile('index.html');
+        mainWindow.webContents.on('did-finish-load', () => {
+            console.log("now sendding a message to term window");
+            let unique_networks = [...new Set(response['networks'])];
+            mainWindow.webContents.send('wifi-data', unique_networks)
+        })
+        // mainWindow.loadURL(load_html)
+
 
     });
 
@@ -62,11 +50,89 @@ function createWindow() {
         mainWindow = null
     })
 }
-var ipc = require('electron').ipcMain;
 
-ipc.on('submitbutton', function(event, data){
-    console.log(result,"X");
-});
+exports.connect_to_ondevice_wifi_main = (name, password,local_networks) => {
+
+    let psk = ""
+    let resWIFI = name;
+    ssh.connect({
+        host: '192.168.8.1',
+        username: 'debian',
+        password: 'openag12'
+    }).then(function () {
+        for (let network of local_networks) {
+            console.log((resWIFI.replace('"', '')).includes(network['ssid']))
+            if ((resWIFI.replace('"', '')).includes(network['ssid'])) {
+
+                if (!network['psk'].includes("hidden") && !network['psk'].includes("undefined")) {
+                    console.log("True", psk)
+                    psk = network['psk']
+                    console.log(psk, network['ssid'])
+                }
+            }
+        }
+        console.log(`touch /var/lib/connman/${resWIFI.replace(/['"]+/g, '')};` + 'echo "[service_' + psk.replace(/['"]+/g, '') + ']\nType=wifi\nName=' +
+            resWIFI.replace(/['"]+/g, '') + `\nPassphrase=${password.replace(/['"]+/g, '')}` + `"> "/var/lib/connman/${resWIFI.replace(/['"]+/g, '')}` + '.config"')
+        ssh.exec(`touch /var/lib/connman/${resWIFI.replace(/['"]+/g, '')};` + 'echo "[service_' + psk.replace(/['"]+/g, '') + ']\nType=wifi\nName=' +
+            resWIFI.replace(/['"]+/g, '') + `\nPassphrase=${password.replace(/['"]+/g, '')}` + `"> "/var/lib/connman/${resWIFI.replace(/['"]+/g, '')}` + '.config"', [], {
+            stream: 'stdout',
+            options: {pty: true}
+        }).then(function (result) {
+            console.log('STDOUT: ' + result)
+            ssh.exec(`connmanctl config  ${psk.replace(/['"]+/g, '')} --autoconnect yes`, [], {
+                stream: 'stdout',
+                options: {pty: true}
+            }).then(function (result) {
+                console.log('STDOUT:S' + result)
+            })
+
+        })
+
+
+    });
+};
+
+exports.connect_to_wifi_main = (name, password) => {
+    console.log("I am here")
+    // Connect to a network
+    var results = WiFiControl.connectToAP({
+        ssid: JSON.stringify(name),
+        password: JSON.stringify(password)
+    }, function (err, response) {
+        if (err) console.log(err);
+        console.log(response);
+        console.log('Connected');
+        ssh.connect({
+            host: '192.168.8.1',
+            username: 'debian',
+            password: 'openag12'
+        }).then(function () {
+            console.log("Connect")
+            ssh.exec('connmanctl scan wifi', [], {
+                // cwd: '/var/www',
+                onStdout(chunk) {
+                    console.log('stdoutChunk', chunk.toString('utf8'))
+                    ssh.exec('connmanctl services', [], {
+                        // cwd: '/var/www',
+                        onStdout(chunk) {
+                            let alllines = chunk.toString('utf8').split("\n")
+                            console.log(alllines)
+                            // mainWindow.loadFile('ondevice_wifi.html')
+                            mainWindow.webContents.send('ondevice-wifi-data', alllines)
+                        },
+                        onStderr(chunk) {
+                            console.log('stderrChunk', chunk.toString('utf8'))
+                        },
+                    })
+                },
+                onStderr(chunk) {
+                    console.log('stderrChunk', chunk.toString('utf8'))
+                },
+            })
+
+        });
+    })
+}
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.

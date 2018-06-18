@@ -5,7 +5,7 @@ import Slider from 'rc-slider';
 import Tooltip from 'rc-tooltip';
 import {Dropdown, DropdownItem, DropdownMenu, DropdownToggle} from 'reactstrap';
 import {Cookies, withCookies} from "react-cookie";
-import sensor from "../sensor.png";
+import sensor from "../images/sensor.png";
 import TimePicker from 'rc-time-picker';
 import 'rc-time-picker/assets/index.css';
 import moment from 'moment';

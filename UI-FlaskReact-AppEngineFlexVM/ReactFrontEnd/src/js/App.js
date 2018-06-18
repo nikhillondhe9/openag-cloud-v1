@@ -12,10 +12,10 @@ import {instanceOf} from 'prop-types';
 import {Cookies, withCookies} from "react-cookie";
 import DeviceHomepage from "./device_homepage";
 import RecipeDetails from "./recipe_details";
-import homeIcon from "../home.png";
-import profileIcon from "../users.png";
-import toolsIcon from "../tools.png";
-import dashboardIcon from "../dashboard.png";
+import homeIcon from "../images/home.png";
+import profileIcon from "../images/users.png";
+import toolsIcon from "../images/tools.png";
+import dashboardIcon from "../images/dashboard.png";
 
 class App extends Component {
 

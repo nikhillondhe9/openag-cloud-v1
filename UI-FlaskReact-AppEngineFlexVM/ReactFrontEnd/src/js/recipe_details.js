@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {Cookies, withCookies} from "react-cookie";
 import "../css/recipe_details.css";
-import arugula from "../arugula.jpg";
+import arugula from "../images/arugula.jpg";
 
 class RecipeDetails extends Component {
     constructor(props) {

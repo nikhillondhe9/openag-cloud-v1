@@ -1,12 +1,23 @@
 import React, {Component} from 'react';
-import {BrowserRouter as Router, Route, Link, withRouter} from "react-router-dom";
+import {BrowserRouter as Router} from "react-router-dom";
 import '../css/home.css';
-import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input} from 'reactstrap';
+import {
+    Button,
+    Dropdown,
+    DropdownItem,
+    DropdownMenu,
+    DropdownToggle,
+    Form,
+    FormGroup,
+    Input,
+    Label,
+    Modal,
+    ModalBody,
+    ModalFooter,
+    ModalHeader
+} from 'reactstrap';
 import {Cookies, withCookies} from "react-cookie";
-import image1 from '../1.png';
-import image2 from '../2.png';
-import {Dropdown, DropdownItem, DropdownMenu, DropdownToggle} from 'reactstrap';
-import placeholder from '../placeholder.png';
+import placeholder from '../images/placeholder.png';
 import {Timeline} from 'react-twitter-widgets'
 
 class Home extends Component {
