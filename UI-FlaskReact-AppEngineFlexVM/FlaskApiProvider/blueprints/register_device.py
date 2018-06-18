@@ -3,7 +3,9 @@ from flask import Response
 from flask import request
 from google.cloud import datastore
 
-from .env_variables import *
+from .utils.env_variables import *
+from .utils.response import success_response, error_response
+from .utils.auth import get_user_uuid_from_token
 
 register_bp = Blueprint('register_bp',__name__)
 
@@ -21,28 +23,27 @@ def register():
     time_stamp = datetime.now()
 
     if user_token is None or device_reg_no is None:
-        result = Response({"message": "Please make sure you have added values for all the fields"}, status=500,
-                          mimetype='application/json')
-        return result
+        return error_response(
+            message="Please make sure you have added values for all the fields"
+        )
 
     if device_type is None:
         device_type = 'EDU'
 
-    query_session = datastore_client.query(kind="UserSession")
-    query_session.add_filter('session_token', '=', user_token)
-    query_session_result = list(query_session.fetch())
-    user_uuid = None
-    if len(query_session_result) > 0:
-        user_uuid = query_session_result[0].get("user_uuid", None)
+    user_uuid = get_user_uuid_from_token(user_token)
+    if user_uuid is None:
+        return error_response(
+            message="Invalid User: Unauthorized"
+        )
 
     # Create a google IoT device registry entry for this device.
     # The method returns the device ID we need for IoT communications.
     device_uuid = create_iot_device_registry_entry(device_reg_no,
                                                    device_name, device_notes, device_type, user_uuid)
     if None == device_uuid:
-        result = Response({"message": "Could not register this IoT device."},
-                          status=500, mimetype='application/json')
-        return result
+        return error_response(
+            message="Could not register this IoT device."
+        )
 
     # Add the user to the users kind of entity
     key = datastore_client.key('Devices')
@@ -62,15 +63,9 @@ def register():
     datastore_client.put(device_reg_task)
 
     if device_reg_task.key:
-        data = json.dumps({
-            "response_code": 200
-        })
-        result = Response(data, status=200, mimetype='application/json')
+        return success_response()
 
     else:
-        data = json.dumps({
-            "message": "Sorry something failed. Womp womp!"
-        })
-        result = Response(data, status=500, mimetype='application/json')
-
-    return result
+        return error_response(
+            message="Sorry something failed. Womp womp!"
+        )

@@ -4,7 +4,7 @@
     writing data to BigQuery.
 """
 
-import os, time, logging, struct, sys, traceback
+import os, time, logging, struct, sys, traceback, base64
 from datetime import datetime
 from google.cloud import bigquery
 from google.cloud import datastore
@@ -24,6 +24,14 @@ messageType_Image = 'Image'
 # keys for messageType='EnvVar' (and also 'CommandReply')
 var_KEY = 'var'
 values_KEY = 'values'
+
+# keys for messageType='Image'
+varName_KEY = 'varName'
+imageType_KEY = 'imageType'
+chunk_KEY = 'chunk'
+totalChunks_KEY = 'totalChunks'
+imageChunk_KEY = 'imageChunk'
+messageID_KEY = 'messageID'
 
 
 #------------------------------------------------------------------------------
@@ -110,7 +118,7 @@ example of the MQTT device telemetry message we receive:
 data=b'pascal-string-length-prefixed-camera-name, then image binary'
 
 # JSON string image env. var.
-data=b'{"messageType": "Image", "var": "webcam-top","{'values':[{'name':'URL', 'type':'str', 'value':'https://storage.googleapis.com/openag-v1-images/EDU-E40B8A78-f4-0f-24-19-fe-88_webcam-top_2018-06-13T16%3A20%3A20Z.jpg'}]}" }'
+data=b'{"messageType": "Image", "var": "webcam-top","{'values':[{'name':'URL', 'type':'str', 'value':'https://storage.googleapis.com/openag-v1-images/EDU-E40B8A78-f4-0f-24-19-fe-88_webcam-top_2018-06-13T16%3A20%3A20Z.png'}]}" }'
   deviceId=EDU-B90F433E-f4-0f-24-19-fe-88
   subFolder=
   deviceNumId=2800007269922577
@@ -124,18 +132,20 @@ data=b'{"messageType": "CommandReply", "var": "status", "values": "{\\"name\\":\
 
 
 #------------------------------------------------------------------------------
-# Create a temp JPG file from the imageBytes.
-# Copy the file to cloud storage.
+# Save the image bytes to a file in cloud storage.
 # The cloud storage bucket we are using allows "allUsers" to read files.
-# Return the public URL to the JPG file in a cloud storage bucket.
-def saveFileInCloudStorage( CS, varName, imageBytes, deviceId, CS_BUCKET ):
+# Return the public URL to the file in a cloud storage bucket.
+def saveFileInCloudStorage( CS, varName, imageType, imageBytes, 
+        deviceId, CS_BUCKET ):
 
     bucket = CS.bucket( CS_BUCKET )
-    filename = '{}_{}_{}.jpg'.format( deviceId, varName,
-        time.strftime( '%Y-%m-%dT%H:%M:%SZ', time.gmtime() ))
+    filename = '{}_{}_{}.{}'.format( deviceId, varName,
+        time.strftime( '%Y-%m-%dT%H:%M:%SZ', time.gmtime() ), imageType )
     blob = bucket.blob( filename )
 
-    blob.upload_from_string( imageBytes, content_type='image/jpg' )
+    content_type = 'image/{}'.format( imageType )
+
+    blob.upload_from_string( imageBytes, content_type=content_type )
     logging.info( "saveFileInCloudStorage: image saved to %s" % \
             blob.public_url )
     return blob.public_url
@@ -145,38 +155,168 @@ def saveFileInCloudStorage( CS, varName, imageBytes, deviceId, CS_BUCKET ):
 # Save the URL as an entity in the datastore, so the UI can fetch it.
 def saveImageURLtoDatastore( DS, deviceId, publicURL, cameraName ):
     key = DS.key( 'Images' )
-    image = datastore.Entity(key, exclude_from_indexes=[])
-    image.update( {
+    image = datastore.Entity( key, exclude_from_indexes=[] )
+    pydict = {
         'device_uuid': deviceId,
         'URL': publicURL,
         'camera_name': cameraName,
-        'creation_date': datetime.now()
-        } )
+        'creation_date': time.strftime( '%Y-%m-%dT%H:%M:%SZ', time.gmtime())
+        } 
+    image.update( pydict )
     DS.put( image )  
     logging.debug( "saveImageURLtoDatastore: saved Images entity" )
     return 
 
 
 #------------------------------------------------------------------------------
+# Save the URL as an entity in the datastore, so the UI can fetch it.
+def saveImageChunkToDatastore( DS, deviceId, messageId, varName, imageType, \
+        chunkNum, totalChunks, imageChunk ):
+    key = DS.key( 'MqttServiceCache' )
+    # string properties are limited to 1500 bytes if indexed, 
+    # 1M if not indexed.  
+    chunk = datastore.Entity( key, exclude_from_indexes=['imageChunk'] )
+    chunk.update( {
+        'deviceId': deviceId,
+        'messageId': messageId,
+        'varName': varName,
+        'imageType': imageType,
+        'chunkNum': chunkNum,
+        'totalChunks': totalChunks,
+        'imageChunk': imageChunk,
+        'timestamp': datetime.now()
+        } )
+    DS.put( chunk )  
+    logging.debug( 'saveImageChunkToDatastore: saved to MqttServiceCache '
+        '{}, {} of {} for {}'.format( 
+            messageId, chunkNum, totalChunks, deviceId ))
+    return 
+
+
+#------------------------------------------------------------------------------
+# Returns list of dicts, each with a chunk.
+def getImageChunksFromDatastore( DS, deviceId, messageId ):
+    query = DS.query( kind='MqttServiceCache' )
+    query.add_filter( 'deviceId', '=', deviceId )
+    query.add_filter( 'messageId', '=', messageId )
+    qiter = list( query.fetch() )
+    results = list( qiter )
+    resultsToReturn = []
+    for row in results:
+        pydict = {
+            'deviceId': row.get( 'deviceId', '' ),
+            'messageId': row.get( 'messageId', '' ),
+            'varName': row.get( 'varName', '' ),
+            'imageType': row.get( 'imageType', '' ),
+            'chunkNum': row.get( 'chunkNum', '' ),
+            'totalChunks': row.get( 'totalChunks', '' ),
+            'imageChunk': row.get( 'imageChunk', '' ) 
+        }
+        resultsToReturn.append( pydict )
+    return resultsToReturn
+
+
+#------------------------------------------------------------------------------
+def deleteImageChunksFromDatastore( DS, deviceId, messageId ):
+    query = DS.query( kind='MqttServiceCache' )
+    query.add_filter( 'deviceId', '=', deviceId )
+    query.add_filter( 'messageId', '=', messageId )
+    qiter = query.fetch()
+    for entity in qiter:
+        DS.delete( entity.key )
+    logging.debug( "deleteImageChunksFromDatastore: {} deleted.".format( 
+        messageId ))
+    return
+
+
+#------------------------------------------------------------------------------
 # Parse and save the image
-def save_image( CS, DS, BQ, dataBlob, deviceId, PROJECT, DATASET, TABLE, 
+def save_image( CS, DS, BQ, pydict, deviceId, PROJECT, DATASET, TABLE, \
         CS_BUCKET ):
 
     try:
-        # break the length prefixed name apart from the image data in the blob
-        endNameIndex = 101 # 1 byte for pascal string size, 100 chars.
-        ba = bytearray( dataBlob ) # need to use a mutable bytearray
-        namePacked = bytes( ba[ 0:endNameIndex ] )# slice off first name chars
-        namePackedFormatStr = '101p'
-        unpackPascalStr = struct.unpack( namePackedFormatStr, namePacked )
-        varName = unpackPascalStr[0].decode( 'utf-8' )
-        imageBytes = bytes( ba[ endNameIndex: ] ) # rest of array is image data
+        if messageType_Image != validateMessageType( pydict ):
+            logging.error( "save_image: invalid message type" )
+            return
 
-        publicURL = saveFileInCloudStorage( CS, varName,
+        # each received image message must have these fields
+        if not validDictKey( pydict, varName_KEY ) or \
+                not validDictKey( pydict, imageType_KEY ) or \
+                not validDictKey( pydict, chunk_KEY ) or \
+                not validDictKey( pydict, totalChunks_KEY ) or \
+                not validDictKey( pydict, imageChunk_KEY ) or \
+                not validDictKey( pydict, messageID_KEY ):
+            logging.error('save_image: Missing key(s) in dict.')
+            return
+
+        messageId =   pydict[ messageID_KEY ]
+        varName =     pydict[ varName_KEY ]
+        imageType =   pydict[ imageType_KEY ]
+        chunkNum =    pydict[ chunk_KEY ]
+        totalChunks = pydict[ totalChunks_KEY ]
+        imageChunk =  pydict[ imageChunk_KEY ]
+
+        # For every message received, check data store to see if we can
+        # assemble chunks.  Messages will probably be received out of order.
+
+        # Start with a list of the number of chunks received:
+        listOfChunksReceived = []
+        for c in range( 0, totalChunks ):
+            listOfChunksReceived.append( False )
+
+        # What chunks have we already received?
+        oldChunks = getImageChunksFromDatastore( DS, deviceId, messageId )
+        for oc in oldChunks:
+            listOfChunksReceived[ oc[ 'chunkNum' ] ] = True
+
+        # Add in the chunk we just got
+        listOfChunksReceived[ chunkNum ] = True
+        oldChunks.append( {
+            'deviceId': deviceId,
+            'messageId': messageId,
+            'varName': varName,
+            'imageType': imageType,
+            'chunkNum': chunkNum,
+            'totalChunks': totalChunks,
+            'imageChunk': imageChunk
+        } )
+
+        # Do we have all chunks?
+        haveAllChunks = True
+        for c in listOfChunksReceived:
+            if not c:
+                haveAllChunks = False
+
+        # No, so just add this chunk to the datastore and return
+        if not haveAllChunks:
+            saveImageChunkToDatastore( DS, deviceId, messageId, varName, 
+                imageType, chunkNum, totalChunks, imageChunk )
+            return
+
+        # YES! We have all our chunks, so reassemble the binary image.
+
+        # Delete the temporary datastore cache for the chunks
+        deleteImageChunksFromDatastore( DS, deviceId, messageId )
+
+        # Sort the chunks by chunkNum (we get messages out of order)
+        oldChunks = sorted( oldChunks, key=lambda k: k['chunkNum'] )
+        b64str = ''
+        for oc in oldChunks:
+            b64str += oc[ 'imageChunk' ]
+            logging.debug( 'save_image: assemble {} of {}'.format( 
+                oc[ 'chunkNum' ], oc['totalChunks'] ))
+            
+        # Now covert our base64 string into binary image bytes
+        imageBytes = base64.b64decode( b64str )
+
+        # Put the image bytes in cloud storage as a file, and get an URL
+        publicURL = saveFileInCloudStorage( CS, varName, imageType,
             imageBytes, deviceId, CS_BUCKET )
         
+        # Put the URL in the datastore for the UI to use.
         saveImageURLtoDatastore( DS, deviceId, publicURL, varName )
 
+        # Put the URL as an env. var in BQ.
         message_obj = {}
         message_obj['messageType'] = messageType_Image
         message_obj['var'] = varName
@@ -187,6 +327,7 @@ def save_image( CS, DS, BQ, dataBlob, deviceId, PROJECT, DATASET, TABLE,
         message_obj['values'] = valuesJson
         bq_data_insert( BQ, message_obj, deviceId, PROJECT, DATASET, TABLE )
 
+
     except Exception as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()
         logging.critical( "Exception in save_image(): %s" % e)
@@ -195,10 +336,12 @@ def save_image( CS, DS, BQ, dataBlob, deviceId, PROJECT, DATASET, TABLE,
 
 #------------------------------------------------------------------------------
 # Parse and save the (json/dict) data
-def save_data( BQ, pydict, deviceId, PROJECT, DATASET, TABLE ):
+def save_data( CS, DS, BQ, pydict, deviceId, \
+        PROJECT, DATASET, TABLE, CS_BUCKET ):
 
     if messageType_Image == validateMessageType( pydict ):
-        logging.error('save_data: does not handle images.' )
+        save_image( CS, DS, BQ, pydict, deviceId, PROJECT, DATASET, TABLE, 
+                CS_BUCKET )
         return 
 
     # insert into BQ (Env vars and command replies)

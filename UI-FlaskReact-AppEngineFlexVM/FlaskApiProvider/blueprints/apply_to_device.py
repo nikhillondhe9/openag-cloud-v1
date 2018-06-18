@@ -5,7 +5,9 @@ from flask import Response
 from flask import request
 from google.cloud import datastore
 
-from .env_variables import *
+from .utils.env_variables import *
+from .utils.response import success_response, error_response
+from .utils.auth import get_user_uuid_from_token
 
 apply_to_device_bp = Blueprint('apply_to_device_bp',__name__)
 
@@ -21,13 +23,11 @@ def apply_to_device():
     date_applied = datetime.now()
 
     # Using the session token get the user_uuid associated with it
-    query_session = datastore_client.query(kind="UserSession")
-    query_session.add_filter('session_token', '=', user_token)
-    query_session_result = list(query_session.fetch())
-
-    user_uuid = None
-    if len(query_session_result) > 0:
-        user_uuid = query_session_result[0].get("user_uuid", None)
+    user_uuid = get_user_uuid_from_token(user_token)
+    if user_uuid is None:
+        return error_response(
+            message="Invalid User: Unauthorized"
+        )
 
     # send the recipe to the device
     send_recipe_to_device(device_uuid, recipe_uuid)
@@ -39,9 +39,9 @@ def apply_to_device():
     apply_to_device_task = datastore.Entity(key, exclude_from_indexes=[])
 
     if device_uuid is None or recipe_uuid is None or user_token is None:
-        result = Response({"message": "Please make sure you have added values for all the fields"}, status=500,
-                          mimetype='application/json')
-        return result
+        return error_response(
+            message="Please make sure you have added values for all the fields"
+        )
 
     recipe_session_token = str(uuid.uuid4())
     apply_to_device_task.update({
@@ -79,20 +79,9 @@ def apply_to_device():
 
     datastore_client.put(apply_to_device_task)
     if apply_to_device_task.key:
-        data = json.dumps({
-            "response_code": 200
-        })
-
-        result = Response(data, status=200, mimetype='application/json')
+        return success_response()
 
     else:
-        data = json.dumps({
-            "message": "Sorry something failed. Womp womp!"
-        })
-        result = Response(data, status=500, mimetype='application/json')
-
-    return result
-
-
-
-
+        return error_response(
+            message="Sorry something failed. Womp womp!"
+        )

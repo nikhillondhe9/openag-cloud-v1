@@ -46,21 +46,14 @@ def callback( msg ):
         global CS 
         global DS 
         global BQ 
-        try:
-            # try to decode the byte data as a string / JSON
-            pydict = json.loads( msg.data.decode('utf-8'))
-            utils.save_data( BQ, pydict, msg.attributes['deviceId'],
-                os.getenv('GCLOUD_PROJECT'),
-                os.getenv('BQ_DATASET'),
-                os.getenv('BQ_TABLE'))
-        except:
-            # if data is not a string / JSON, then it is a binary image blob
-            utils.save_image( CS, DS, BQ, msg.data, msg.attributes['deviceId'],
+
+        # try to decode the byte data as a string / JSON
+        pydict = json.loads( msg.data.decode('utf-8'))
+        utils.save_data( CS, DS, BQ, pydict, msg.attributes['deviceId'],
                 os.getenv('GCLOUD_PROJECT'),
                 os.getenv('BQ_DATASET'),
                 os.getenv('BQ_TABLE'),
                 os.getenv('CS_BUCKET'))
-
 
     except Exception as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()
