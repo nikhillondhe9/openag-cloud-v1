@@ -1,8 +1,10 @@
 from flask import Blueprint
 from flask import Response
 from flask import request
+import json
+from datetime import datetime, timezone
 
-from .utils.env_variables import *
+from .utils.env_variables import datastore_client
 from .utils.response import success_response, error_response
 
 verify_user_session_bp = Blueprint('verify_user_session_bp',__name__)
@@ -19,7 +21,7 @@ def verify_user_session():
     if len(query_session_result) > 0:
         user_uuid = query_session_result[0].get("user_uuid", None)
         session_expiration = query_session_result[0].get("expiration_date", None)
-        datenow = datetime.now()
+        datenow = datetime.now(timezone.utc)
         if session_expiration > datenow:
             is_expired = False
 
