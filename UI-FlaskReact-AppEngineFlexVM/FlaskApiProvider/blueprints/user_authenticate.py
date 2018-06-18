@@ -22,6 +22,13 @@ def signup():
             message="Please make sure you have added values for all the fields"
         )
 
+    # Naively validate email
+    if (email_address.find("@") == -1
+        or email_address.rsplit("@", 1)[-1].find(".") == -1):
+        return error_response(
+            message="Invalid email."
+        )
+
     user_uuid = User(username=username, password=password, email_address=email_address,
                      organization=organization).insert_into_db(datastore_client)
 
