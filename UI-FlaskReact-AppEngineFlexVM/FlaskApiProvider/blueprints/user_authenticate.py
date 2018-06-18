@@ -12,12 +12,12 @@ user_authenticate = Blueprint('user_authenticate', __name__)
 @user_authenticate.route('/api/signup/', methods=['GET', 'POST'])
 def signup():
     received_form_response = json.loads(request.data.decode('utf-8'))
-    username = received_form_response.get("username", None)
-    email_address = received_form_response.get("email_address", None)
-    password = received_form_response.get("password", None)
-    organization = received_form_response.get("organization", None)
+    username = received_form_response.get("username")
+    email_address = received_form_response.get("email_address")
+    password = received_form_response.get("password")
+    organization = received_form_response.get("organization")
 
-    if username is None or email_address is None or password is None:
+    if not (username and email_address and password):
         return error_response(
             message="Please make sure you have added values for all the fields"
         )
@@ -37,10 +37,10 @@ def signup():
 def login():
     received_form_response = json.loads(request.data.decode('utf-8'))
 
-    username = received_form_response.get("username", None)
-    password = received_form_response.get("password", None)
+    username = received_form_response.get("username")
+    password = received_form_response.get("password")
 
-    if username is None or password is None:
+    if not (username and password):
         return error_response(
             message="Please make sure you have added values for all the fields"
         )
