@@ -27,5 +27,6 @@ def verify_user_session():
 
     return success_response(
         message="Successful",
-        is_expired=is_expired
+        is_expired=is_expired,
+        user_uuid=user_uuid
     )
