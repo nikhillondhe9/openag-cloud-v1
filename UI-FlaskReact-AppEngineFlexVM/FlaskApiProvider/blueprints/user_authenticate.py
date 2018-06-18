@@ -3,7 +3,8 @@ from FCClass.user_session import UserSession
 from flask import Response
 from flask import request
 from flask import Blueprint
-from .env_variables import *
+from .utils.env_variables import *
+from .utils.response import success_response, error_response
 
 user_authenticate = Blueprint('user_authenticate', __name__)
 
@@ -17,28 +18,20 @@ def signup():
     organization = received_form_response.get("organization", None)
 
     if username is None or email_address is None or password is None:
-        result = Response({"message": "Please make sure you have added values for all the fields"}, status=500,
-                          mimetype='application/json')
-        return result
+        return error_response(
+            message="Please make sure you have added values for all the fields"
+        )
 
     user_uuid = User(username=username, password=password, email_address=email_address,
                      organization=organization).insert_into_db(datastore_client)
 
     if user_uuid:
-        data = json.dumps({
-            "response_code": 200
-        })
-
-        result = Response(data, status=200, mimetype='application/json')
+        return success_response()
 
     else:
-        data = json.dumps({
-            "message": "Sorry something failed. Womp womp!"
-        })
-        result = Response(data, status=500, mimetype='application/json')
-
-    return result
-
+        return error_response(
+            message="Sorry something failed. Womp womp!"
+        )
 
 @user_authenticate.route('/login/', methods=['GET', 'POST'])
 def login():
@@ -48,24 +41,19 @@ def login():
     password = received_form_response.get("password", None)
 
     if username is None or password is None:
-        result = Response({"message": "Please make sure you have added values for all the fields"}, status=500,
-                          mimetype='application/json')
-        return result
+        return error_response(
+            message="Please make sure you have added values for all the fields"
+        )
 
     user_uuid = User(username=username, password=password).login_user(client=datastore_client)
     if user_uuid:
         session_token = UserSession(user_uuid=user_uuid).insert_into_db(client=datastore_client)
-        data = json.dumps({
-            "response_code": 200,
-            "user_uuid": user_uuid,
-            "user_token": session_token,
-            "message": "Login Successful"
-        })
-        result = Response(data, status=200, mimetype='application/json')
+        return success_response(
+            user_uuid=user_uuid,
+            user_token=session_token,
+            message="Login Successful"
+        )
     else:
-        data = json.dumps({
-            "response_code": 500,
-            "message": "Login failed. Please check your credentials"
-        })
-        result = Response(data, status=500, mimetype='application/json')
-    return result
+        return error_response(
+            message="Login failed. Please check your credentials"
+        )

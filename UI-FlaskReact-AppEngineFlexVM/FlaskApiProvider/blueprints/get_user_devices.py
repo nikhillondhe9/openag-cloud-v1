@@ -3,7 +3,9 @@ from flask import Blueprint
 from flask import Response
 from flask import request
 
-from .env_variables import *
+from .utils.env_variables import *
+from .utils.response import success_response, error_response
+from .utils.auth import get_user_uuid_from_token
 
 get_user_devices_bp = Blueprint('get_user_devices_bp',__name__)
 
@@ -14,18 +16,17 @@ def get_user_devices():
     received_form_response = json.loads(request.data.decode('utf-8'))
     user_token = received_form_response.get("user_token", None)
     if user_token is None:
-        result = Response({"message": "Please make sure you have added values for all the fields"}, status=500,
-                          mimetype='application/json')
-        return result
+        return error_response(
+            message="Please make sure you have added values for all the fields"
+        )
+
+    user_uuid = get_user_uuid_from_token(user_token)
+    if user_uuid is None:
+        return error_response(
+            message="Invalid User: Unauthorized"
+        )
 
     query = datastore_client.query(kind='Devices')
-    query_session = datastore_client.query(kind="UserSession")
-    query_session.add_filter('session_token', '=', user_token)
-    query_session_result = list(query_session.fetch())
-    user_uuid = None
-    if len(query_session_result) > 0:
-        user_uuid = query_session_result[0].get("user_uuid", None)
-
     query.add_filter('user_uuid', '=', user_uuid)
     query_result = list(query.fetch())
 
@@ -51,17 +52,10 @@ def get_user_devices():
             }
             results_array.append(result_json)
 
-        data = json.dumps({
-            "response_code": 200,
-            "results": results_array
-        })
-        result = Response(data, status=200, mimetype='application/json')
-        return result
+        return success_response(
+            results=results_array
+        )
     else:
-        data = json.dumps({
-            "response_code": 500,
-            "results": results_array
-        })
-        result = Response(data, status=500, mimetype='application/json')
-        return result
-
+        return error_response(
+            results=results_array
+        )

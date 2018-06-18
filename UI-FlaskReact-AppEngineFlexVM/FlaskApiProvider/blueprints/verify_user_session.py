@@ -2,7 +2,8 @@ from flask import Blueprint
 from flask import Response
 from flask import request
 
-from .env_variables import *
+from .utils.env_variables import *
+from .utils.response import success_response, error_response
 
 verify_user_session_bp = Blueprint('verify_user_session_bp',__name__)
 
@@ -22,11 +23,7 @@ def verify_user_session():
         if session_expiration > datenow:
             is_expired = False
 
-    data = json.dumps({
-        "response_code": 200,
-        "message": "Successful",
-        "is_expired": is_expired
-    })
-    return Response(data, status=200, mimetype='application/json')
-
-
+    return success_response(
+        message="Successful",
+        is_expired=is_expired
+    )
