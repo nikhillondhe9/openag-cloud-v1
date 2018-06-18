@@ -3,6 +3,8 @@ import {Cookies, withCookies} from "react-cookie";
 import '../css/profile.css';
 import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input} from 'reactstrap';
 
+import {ImageUploader} from './components/image_uploader';
+
 class profile extends Component {
     constructor(props) {
         super(props);
@@ -10,17 +12,21 @@ class profile extends Component {
             access_code_modal: false,
             user_devices: [],
             digit_modal: false,
-            code: ""
+            code: "",
+            profile_picture_url: ""
         };
         this.getUserDevices = this.getUserDevices.bind(this);
+        this.getUserImage = this.getUserImage.bind(this);
         this.toggle_access_code_modal = this.toggle_access_code_modal.bind(this);
         this.get_device_code = this.get_device_code.bind(this);
         this.toggle_digit_modal = this.toggle_digit_modal.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.onImageUpload = this.onImageUpload.bind(this);
     }
 
     componentDidMount() {
         this.getUserDevices()
+        this.getUserImage();
     }
 
     toggle_access_code_modal() {
@@ -88,6 +94,33 @@ class profile extends Component {
             });
     }
 
+    getUserImage() {
+        fetch(process.env.REACT_APP_FLASK_URL + '/api/get_user_image/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({
+                'user_token': this.props.cookies.get('user_token')
+            })
+        })
+            .then((response) => {
+                console.log(response);
+                return response.json();
+            })
+            .then((responseJson) => {
+                console.log(responseJson)
+                if (responseJson['response_code'] == 200) {
+                    this.setState({profile_picture_url: responseJson['url']})
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }
+
     handleChange(group_name,event) {
         if(group_name==="device_permissions") {
             console.log(event.target.name)
@@ -98,6 +131,14 @@ class profile extends Component {
         {
             this.setState({[event.target.name]: event.target.value});
             event.preventDefault();
+        }
+    }
+
+    onImageUpload(response) {
+        if (response.response_code == 200) {
+            this.setState({profile_picture_url: response.url});
+        } else {
+            console.error('Image upload failed');
         }
     }
 
@@ -137,8 +178,16 @@ class profile extends Component {
                     <div className="col-md-4">
                         <div className="row">
                             <div className="wrapper">
-                                <img src="https://i.kinja-img.com/gawker-media/image/upload/gd8ljenaeahpn0wslmlz.jpg"
+                                <img src={this.state.profile_picture_url}
                                      className="image--cover"/>
+                                <ImageUploader
+                                    url={process.env.REACT_APP_FLASK_URL + "/api/upload_images/"}
+                                    data={{
+                                        type: 'user',
+                                        user_token: this.props.cookies.get('user_token')
+                                    }}
+                                    onDone={this.onImageUpload}
+                                    className="image-uploader"/>
                             </div>
                         </div>
                         <div className="row profile-row">
