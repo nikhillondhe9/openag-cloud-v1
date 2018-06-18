@@ -156,12 +156,13 @@ def saveFileInCloudStorage( CS, varName, imageType, imageBytes,
 def saveImageURLtoDatastore( DS, deviceId, publicURL, cameraName ):
     key = DS.key( 'Images' )
     image = datastore.Entity( key, exclude_from_indexes=[] )
-    image.update( {
+    pydict = {
         'device_uuid': deviceId,
         'URL': publicURL,
         'camera_name': cameraName,
-        'creation_date': datetime.now()
-        } )
+        'creation_date': time.strftime( '%Y-%m-%dT%H:%M:%SZ', time.gmtime())
+        } 
+    image.update( pydict )
     DS.put( image )  
     logging.debug( "saveImageURLtoDatastore: saved Images entity" )
     return 
