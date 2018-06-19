@@ -3,6 +3,8 @@ import logo from '../images/logo.svg';
 import '../css/App.css';
 import {Link} from "react-router-dom";
 
+import * as api from './utils/api';
+
 export class SignUp extends Component {
     constructor(props) {
         super(props);
@@ -28,40 +30,24 @@ export class SignUp extends Component {
     }
 
     handleSubmit(event) {
-
         console.log('A signup form was submitted: ' + this.state);
         this.signupUser();
         event.preventDefault();
     }
 
     signupUser() {
-        return fetch( process.env.REACT_APP_FLASK_URL + '/api/signup/', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                'username': this.state.name,
-                'password': this.state.password,
-                'email_address': this.state.email_address,
-                'organization':this.state.organization
-            })
+        api.signup(this.state.name, this.state.password, this.state.email_address,
+               this.state.organization)
+        .then((responseJson) => {
+            console.log(responseJson);
+            if (responseJson["response_code"] == 200) {
+                console.log("Succesfully signed up - redirecting page");
+                this.props.history.push("/login");
+            }
         })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log(responseJson)
-                if (responseJson["response_code"]== 200){
-                    console.log("Succesfully signed up - redirecting page")
-                    this.props.history.push("/login")
-                } else {
-                    let error_message = responseJson['message']
-                    this.setState({error_message: error_message})
-                }
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+        .catch((error) => {
+            console.error(error);
+        });
     }
 
     render() {

@@ -4,6 +4,8 @@ import '../css/recipes.css';
 import {Cookies, withCookies} from "react-cookie";
 import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input} from 'reactstrap';
 
+import * as api from './utils/api';
+
 class recipes extends Component {
     constructor(props) {
         super(props);
@@ -86,69 +88,42 @@ class recipes extends Component {
     }
 
     getAllRecipes() {
-        return fetch( process.env.REACT_APP_FLASK_URL + '/api/get_all_recipes/', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            body: JSON.stringify({
-                'user_uuid': this.state.user_uuid,
-                'user_token': this.props.cookies.get('user_token')
-            })
-        })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log(responseJson)
-                if (responseJson["response_code"] == 200) {
-                    this.setState({all_recipes: responseJson["results"]})
-                    this.setState({devices: responseJson["devices"]})
+        api.getAllRecipes(this.props.cookies.get('user_token'))
+        .then(responseJson => {
+            console.log(responseJson);
+            if (responseJson["response_code"] == 200) {
+                this.setState({
+                    all_recipes: responseJson["results"],
+                    devices: responseJson["devices"]
+                });
 
-                    var devs = [];                  // make array
-                    devs = responseJson["devices"]; // assign array
-                    if (devs.length > 0) {         // if we have devices
-                        // default the selected device to the first/only dev.
-                        this.state.selected_device_uuid = devs[0].device_uuid;
-                    }
+                let devs = responseJson["devices"];
+                if (devs.length > 0) {
+                    // default the selected device to the first/only dev.
+                    this.state.selected_device_uuid = devs[0].device_uuid;
                 }
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+        });
     }
 
     apply_to_device() {
-        console.log(JSON.stringify({
-            'device_uuid': this.state.selected_device_uuid,
-            'recipe_uuid': this.state.selected_recipe_uuid,
-            'user_token': this.props.cookies.get('user_token')
-        }))
-        return fetch( process.env.REACT_APP_FLASK_URL + '/api/apply_to_device/', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            body: JSON.stringify({
-                'device_uuid': this.state.selected_device_uuid,
-                'recipe_uuid': this.state.selected_recipe_uuid,
-                'user_token': this.props.cookies.get('user_token')
-            })
+        api.applyRecipeToDevice(
+            this.props.cookies.get('user_token'),
+            this.state.selected_recipe_uuid,
+            this.state.selected_device_uuid
+        ).then(responseJson => {
+            console.log(responseJson);
+            if (responseJson["response_code"] == 200) {
+                console.log("Applied successfully");
+                this.setState({apply_to_device_modal: false});
+            }
         })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log(responseJson)
-                if (responseJson["response_code"] == 200) {
-                    console.log("Applied successfully")
-                    this.setState({apply_to_device_modal: false});
-                }
-
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+        .catch((error) => {
+            console.error(error);
+        });
     }
 
     render() {

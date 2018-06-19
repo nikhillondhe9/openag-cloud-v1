@@ -12,6 +12,7 @@ import moment from 'moment';
 import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input} from 'reactstrap';
 
 import {ImageUploader} from './components/image_uploader';
+import * as api from "./utils/api";
 
 const showSecond = true;
 const str = showSecond ? 'HH:mm:ss' : 'HH:mm';
@@ -217,30 +218,20 @@ class NewRecipe extends Component {
     }
 
     get_peripherals() {
-        return fetch(process.env.REACT_APP_FLASK_URL + "/api/get_device_peripherals/", {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            body: JSON.stringify({
-                'recipe_uuid': this.state.recipe_uuid,
-                'user_token': this.props.cookies.get('user_token')
-            })
+        api.getDevicePeripherals(
+            this.props.cookies.get('user_token'),
+            'mock-device-uuid'
+        ).then(responseJson => {
+            console.log(responseJson);
+            if (responseJson["response_code"] == 200) {
+                let resultJson = responseJson["results"];
+                console.log("X", resultJson);
+                this.setState({peripherals: resultJson});
+            }
         })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log(responseJson)
-                if (responseJson["response_code"] == 200) {
-                    let resultJson = responseJson["results"]
-                    console.log("X", resultJson)
-                    this.setState({peripherals: resultJson})
-                }
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+        .catch((error) => {
+            console.error(error);
+        });
     }
 
     plant_variant_type_dropdowntoggle() {

@@ -3,6 +3,8 @@ import {Cookies, withCookies} from "react-cookie";
 import "../css/recipe_details.css";
 import arugula from "../images/arugula.jpg";
 
+import * as api from './utils/api';
+
 class RecipeDetails extends Component {
     constructor(props) {
         super(props);
@@ -24,34 +26,26 @@ class RecipeDetails extends Component {
     }
 
     getRecipeDetails() {
-        return fetch( process.env.REACT_APP_FLASK_URL + "/api/get_recipe_details/", {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            body: JSON.stringify({
-                'recipe_uuid': this.state.recipe_uuid,
-                'user_token': this.props.cookies.get('user_token')
-            })
+        api.getRecipeDetails(
+            this.props.cookies.get('user_token'),
+            this.state.recipe_uuid
+        ).then(responseJson => {
+            console.log(responseJson);
+            if (responseJson["response_code"] == 200) {
+                let resultJson = responseJson["results"][0];
+                this.setState({
+                    recipe_name: resultJson["recipe_name"],
+                    recipe_plant: resultJson["recipe_plant"],
+                    modified_at: resultJson["modified_at"],
+                    recipe_json: JSON.parse(resultJson["recipe_json"]),
+                    components: (resultJson["components"]),
+                    history: responseJson["history"]
+                });
+            }
         })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log(responseJson)
-                if (responseJson["response_code"] == 200) {
-                    let resultJson = responseJson["results"][0]
-                    this.setState({recipe_name: resultJson["recipe_name"]})
-                    this.setState({recipe_plant: resultJson["recipe_plant"]})
-                    this.setState({modified_at: resultJson["modified_at"]})
-                    this.setState({recipe_json: JSON.parse(resultJson["recipe_json"])})
-                    this.setState({components: (resultJson["components"])})
-                    this.setState({history: responseJson["history"]})
-                }
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+        .catch((error) => {
+            console.error(error);
+        });
     }
 
 

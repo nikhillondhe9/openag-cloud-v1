@@ -5,6 +5,8 @@ import '../css/login.css';
 import {Link} from "react-router-dom";
 import {Cookies, withCookies} from "react-cookie";
 
+import * as api from './utils/api';
+
 class login extends Component {
     constructor(props) {
         super(props);
@@ -31,37 +33,18 @@ class login extends Component {
     }
 
     loginUser() {
-
-        return fetch( process.env.REACT_APP_FLASK_URL + '/login/', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Credentials':true
-            },
-            body: JSON.stringify({
-                'username': this.state.username,
-                'password': this.state.password
-            })
+        api.login(this.state.username, this.state.password)
+        .then((responseJson) => {
+            console.log(responseJson);
+            if (responseJson["response_code"]== 200) {
+                let user_uuid = responseJson["user_uuid"];
+                this.props.cookies.set('user_token',responseJson['user_token']);
+                window.location.href = "/home/" + (user_uuid).toString();
+            }
         })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log(responseJson)
-                if (responseJson["response_code"]== 200){
-                    let user_uuid = responseJson["user_uuid"]
-                    this.props.cookies.set('user_token',responseJson['user_token'])
-                    window.location.href = "/home/"+(user_uuid).toString()
-                } else {
-                    let error_message = responseJson["message"]
-                    this.setState({error_message: error_message})
-                }
-
-            })
-            .catch((error) => {
-                console.error(error);
-            });
-
+        .catch((error) => {
+            console.error(error);
+        });
     }
 
     render() {

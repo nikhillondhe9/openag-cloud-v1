@@ -22,6 +22,7 @@ import image2 from '../images/2.png';
 import {Timeline} from 'react-twitter-widgets'
 
 import {ImageTimelapse} from './components/image_timelapse';
+import * as api from './utils/api';
 
 class Home extends Component {
     constructor(props) {
@@ -80,81 +81,49 @@ class Home extends Component {
     }
 
     getUserDevices() {
-        return fetch(process.env.REACT_APP_FLASK_URL + '/api/get_user_devices/', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            body: JSON.stringify({
-                'user_uuid': this.state.user_uuid,
-                'user_token': this.props.cookies.get('user_token')
-            })
-        })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log(responseJson)
-                if (responseJson["response_code"] == 200) {
-
-                    var devs = [];                  // make array
-                    devs = responseJson["results"]; // assign array
-                    var device_uuid = 'None'
-                    if (devs.length > 0) {         // if we have devices
-                        // default the selected device to the first/only dev.
-                        var name = devs[0].device_name + ' (' +
-                            devs[0].device_reg_no + ')';
-                        this.setState({dropDownValue: name});
-                        device_uuid = devs[0].device_uuid;
-                        this.setState({selected_device_uuid: device_uuid});
-                    }
-
-                    this.setState({user_devices: responseJson["results"]})
-                    console.log("Response", responseJson["results"])
+        api.getUserDevices(this.props.cookies.get('user_token'))
+        .then((responseJson) => {
+            console.log(responseJson);
+            if (responseJson["response_code"] == 200) {
+                let devs = responseJson["results"];
+                let device_uuid = 'None'
+                if (devs.length > 0) {
+                    // default the selected device to the first/only dev.
+                    let name = `${devs[0].device_name} (${devs[0].device_reg_no})`;
+                    device_uuid = devs[0].device_uuid;
+                    this.setState({
+                        dropDownValue: name,
+                        selected_device_uuid: device_uuid
+                    });
                 }
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+
+                this.setState({user_devices: responseJson["results"]});
+                console.log("Response", responseJson["results"]);
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+        });
     }
 
     registerDevice() {
-        console.log(JSON.stringify({
-            'user_uuid': this.state.user_uuid,
-            'device_name': this.state.device_name,
-            'device_reg_no': this.state.device_reg_no,
-            'device_notes': this.state.device_notes,
-            'device_type': this.state.device_type
-        }))
-        return fetch(process.env.REACT_APP_FLASK_URL + '/api/register/', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            body: JSON.stringify({
-                'user_uuid': this.state.user_uuid,
-                'user_token': this.props.cookies.get('user_token'),
-                'device_name': this.state.device_name,
-                'device_reg_no': this.state.device_reg_no,
-                'device_notes': this.state.device_notes,
-                'device_type': this.state.device_type
-            })
-        })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log(responseJson)
-                if (responseJson["response_code"] == 200) {
-                    this.setState({
-                        modal: false
-                    });
-                }
-                this.getUserDevices()
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+        api.registerDevice(
+            this.props.cookies.get('user_token'),
+            this.state.device_name,
+            this.state.device_reg_no,
+            this.state.device_notes,
+            this.state.device_type
+        ).then((responseJson) => {
+            console.log(responseJson)
+            if (responseJson["response_code"] == 200) {
+                this.setState({
+                    modal: false
+                });
+            }
+            this.getUserDevices()
+        }).catch((error) => {
+            console.error(error);
+        });
     }
 
     goToDeviceHomePage(device_uuid) {
@@ -165,29 +134,13 @@ class Home extends Component {
     }
 
     postToTwitter() {
-        return fetch(process.env.REACT_APP_FLASK_URL + '/api/posttwitter/', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            body: JSON.stringify({
-                'user_uuid': this.state.user_uuid,
-                'user_token': this.props.cookies.get('user_token')
-            })
+        api.postToTwitter(this.props.cookies.get('user_token'))
+        .then((responseJson) => {
+            console.log(responseJson);
         })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log(responseJson)
-                // if (responseJson["response_code"] == 200) {
-                //     // this.setState({user_devices: responseJson["results"]})
-                // }
-
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+        .catch((error) => {
+            console.error(error);
+        });
     }
 
     dropdowntoggle() {

@@ -4,6 +4,7 @@ import '../css/profile.css';
 import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input} from 'reactstrap';
 
 import {ImageUploader} from './components/image_uploader';
+import {getDeviceCode, getUserDevices, getUserImage} from './utils/api';
 
 class profile extends Component {
     constructor(props) {
@@ -38,87 +39,48 @@ class profile extends Component {
     }
 
     get_device_code() {
-        console.log(this.state)
-        return fetch(process.env.REACT_APP_FLASK_URL + '/api/create_new_code/', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            body: JSON.stringify({
-                'user_uuid': this.state.user_uuid,
-                'user_token': this.props.cookies.get('user_token'),
-                'state':this.state
-            })
+        getDeviceCode(this.props.cookies.get('user_token'))
+        .then((responseJson) => {
+            console.log(responseJson)
+            if (responseJson["response_code"] == 200) {
+                console.log("Response", responseJson["results"])
+                this.setState({
+                    code: responseJson["code"],
+                    access_code_modal: false,
+                    digit_modal: true
+                });
+            }
         })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log(responseJson)
-                if (responseJson["response_code"] == 200) {
-
-                    console.log("Response", responseJson["results"])
-                    this.setState({code: responseJson["code"]})
-                    this.setState({access_code_modal: false})
-                    this.setState({digit_modal: true})
-                }
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+        .catch((error) => {
+            console.error(error);
+        });
     }
 
     getUserDevices() {
-        return fetch(process.env.REACT_APP_FLASK_URL + '/api/get_user_devices/', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            body: JSON.stringify({
-                'user_uuid': this.state.user_uuid,
-                'user_token': this.props.cookies.get('user_token')
-            })
+        getUserDevices(this.props.cookies.get('user_token'))
+        .then((responseJson) => {
+            console.log(responseJson);
+            if (responseJson["response_code"] == 200) {
+                this.setState({user_devices: responseJson["results"]});
+                console.log("Response", responseJson["results"]);
+            }
         })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log(responseJson)
-                if (responseJson["response_code"] == 200) {
-                    this.setState({user_devices: responseJson["results"]})
-                    console.log("Response", responseJson["results"])
-                }
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+        .catch((error) => {
+            console.error(error);
+        });
     }
 
     getUserImage() {
-        fetch(process.env.REACT_APP_FLASK_URL + '/api/get_user_image/', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            body: JSON.stringify({
-                'user_token': this.props.cookies.get('user_token')
-            })
+        getUserImage(this.props.cookies.get('user_token'))
+        .then((responseJson) => {
+            console.log(responseJson);
+            if (responseJson['response_code'] == 200) {
+                this.setState({profile_picture_url: responseJson['url']});
+            }
         })
-            .then((response) => {
-                console.log(response);
-                return response.json();
-            })
-            .then((responseJson) => {
-                console.log(responseJson)
-                if (responseJson['response_code'] == 200) {
-                    this.setState({profile_picture_url: responseJson['url']})
-                }
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+        .catch((error) => {
+            console.error(error);
+        });
     }
 
     handleChange(group_name,event) {

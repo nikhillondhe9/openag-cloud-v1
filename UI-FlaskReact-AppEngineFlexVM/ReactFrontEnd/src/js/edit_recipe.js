@@ -6,6 +6,8 @@ import Slider from 'rc-slider';
 import Tooltip from 'rc-tooltip';
 import {Cookies, withCookies} from "react-cookie";
 
+import * as api from './utils/api';
+
 const createSliderWithTooltip = Slider.createSliderWithTooltip;
 const Range = createSliderWithTooltip(Slider.Range);
 const Handle = Slider.Handle;
@@ -66,37 +68,25 @@ class EditRecipe extends Component {
     }
 
     getRecipeComponents() {
-        return fetch( process.env.REACT_APP_FLASK_URL + "/get_recipe_components/", {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            body: JSON.stringify({
-                'recipe_id': this.state.template_recipe_uuid,
-                'user_token': this.props.cookies.get('user_token')
-            })
-        })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log(responseJson)
-                if (responseJson["response_code"] == 200) {
-                    let components = responseJson["results"]
-                    this.recipe_json = JSON.parse(responseJson["recipe_json"])
+        api.getRecipeComponents(
+            this.props.cookies.get('user_token'),
+            this.state.template_recipe_uuid
+        ).then((responseJson) => {
+            console.log(responseJson)
+            if (responseJson["response_code"] == 200) {
+                let components = responseJson["results"];
+                this.recipe_json = JSON.parse(responseJson["recipe_json"]);
 
-
-                    for (let component of components) {
-                        this.state.components.push(component["component_id"].toString())
-                    }
-                    console.log(this.state.components, "Components on page")
-                    this.buildForm(components)
+                for (let component of components) {
+                    this.state.components.push(component["component_id"].toString());
                 }
-
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+                console.log(this.state.components, "Components on page");
+                this.buildForm(components);
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+        });
     }
 
     timePickerChange(name, value) {
@@ -267,39 +257,21 @@ class EditRecipe extends Component {
     }
 
     saveRecipe(state_json, recipe_json) {
-        let json_to_submit = {}
-        Object.keys(recipe_json).forEach(function (key) {
-            if (state_json[key] === undefined) {
-                json_to_submit[key] = recipe_json[key]
+        const json_to_submit = JSON.stringify(
+            Object.assign({}, recipe_json, state_json)
+        );
+        api.saveRecipe(this.props.cookies.get('user_token'), json_to_submit)
+        .then((responseJson) => {
+            console.log(responseJson);
+            if (responseJson["response_code"] == 200) {
+                console.log("Saved successfully");
+                window.location.href = "/recipes";
             }
-            else {
-                json_to_submit[key] = state_json[key]
-            }
-        });
-        return fetch( process.env.REACT_APP_FLASK_URL + '/api/save_recipe/', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            body: JSON.stringify({
-                'recipe_json': JSON.stringify(json_to_submit),
-                'user_token': this.props.cookies.get('user_token')
-            })
-        })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log(responseJson)
-                if (responseJson["response_code"] == 200) {
-                    console.log("Saved successfully")
-                    window.location.href = "/recipes"
-                }
 
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+        })
+        .catch((error) => {
+            console.error(error);
+        });
     }
 
     handleClear(event) {

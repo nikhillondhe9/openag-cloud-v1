@@ -19,6 +19,8 @@ import 'react-console-component/main.css';
 import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input} from 'reactstrap';
 import FileSaver from 'file-saver';
 
+import * as api from './utils/api';
+
 const createSliderWithTooltip = Slider.createSliderWithTooltip;
 const Range = createSliderWithTooltip(Slider.Range);
 const Handle = Slider.Handle;
@@ -152,44 +154,27 @@ class DeviceHomepage extends Component {
         this.registerDevice()
         event.preventDefault();
     }
+
     registerDevice() {
-        console.log(JSON.stringify({
-            'user_uuid': this.state.user_uuid,
-            'device_name': this.state.device_name,
-            'device_reg_no': this.state.device_reg_no,
-            'device_notes': this.state.device_notes,
-            'device_type': this.state.device_type
-        }))
-        return fetch(process.env.REACT_APP_FLASK_URL + '/api/register/', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            body: JSON.stringify({
-                'user_uuid': this.state.user_uuid,
-                'user_token': this.props.cookies.get('user_token'),
-                'device_name': this.state.device_name,
-                'device_reg_no': this.state.device_reg_no,
-                'device_notes': this.state.device_notes,
-                'device_type': this.state.device_type
-            })
-        })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log(responseJson)
-                if (responseJson["response_code"] == 200) {
-                    this.setState({
-                        modal: false
-                    });
-                }
-                this.getUserDevices()
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+        api.registerDevice(
+            this.props.cookies.get('user_token'),
+            this.state.device_name,
+            this.state.device_reg_no,
+            this.state.device_notes,
+            this.state.device_type
+        ).then(responseJson => {
+            console.log(responseJson)
+            if (responseJson["response_code"] == 200) {
+                this.setState({
+                    modal: false
+                });
+            }
+            this.getUserDevices();
+        }).catch((error) => {
+            console.error(error);
+        });
     }
+
     modalToggle() {
         this.setState({
             modal: !this.state.modal
@@ -257,292 +242,221 @@ class DeviceHomepage extends Component {
     }
 
     getCurrentStats(device_uuid) {
-        return fetch(process.env.REACT_APP_FLASK_URL + '/api/get_current_stats/', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            body: JSON.stringify({
-                'user_uuid': this.state.user_uuid,
-                'user_token': this.props.cookies.get('user_token'),
-                'selected_device_uuid': device_uuid
-            })
+        api.getCurrentStats(this.props.cookies.get('user_token'), device_uuid)
+        .then((responseJson) => {
+            console.log(responseJson);
+            if (responseJson["response_code"] == 200) {
+                this.setState({
+                    current_temp: responseJson["results"]["current_temp"],
+                    current_rh: responseJson["results"]["current_rh"],
+                    current_co2: responseJson["results"]["current_co2"]
+                })
+            }
         })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log(responseJson)
-                if (responseJson["response_code"] == 200) {
-                    this.setState({current_temp: responseJson["results"]["current_temp"]})
-                    this.setState({current_rh: responseJson["results"]["current_rh"]})
-                    this.setState({current_co2: responseJson["results"]["current_co2"]})
-                    this.statecopy = this.state;
-                }
-
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+        .catch((error) => {
+            console.error(error);
+        });
     }
 
     getUserDevices() {
-        return fetch(process.env.REACT_APP_FLASK_URL + '/api/get_user_devices/', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            body: JSON.stringify({
-                'user_uuid': this.state.user_uuid,
-                'user_token': this.props.cookies.get('user_token')
-            })
-        })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log(responseJson)
-                if (responseJson["response_code"] == 200) {
-
-                    var devs = [];                  // make array
-                    devs = responseJson["results"]; // assign array
-                    var device_uuid = 'None'
-                    if (devs.length > 0) {         // if we have devices
-                        // default the selected device to the first/only dev.
-                        var name = devs[0].device_name + ' (' +
-                            devs[0].device_reg_no + ')';
-                        this.setState({dropDownValue: name});
-                        device_uuid = devs[0].device_uuid;
-                        this.setState({selected_device_uuid: device_uuid});
-                    }
-
-                    this.setState({user_devices: responseJson["results"]})
-
-                    // Now go get the data that requires a device id
-                    this.getTempDetails(device_uuid);
-                    this.getCO2Details(device_uuid);
-                    this.getCurrentStats(device_uuid);
-                    this.getLEDPanel(device_uuid);
-
-                    console.log("Response", responseJson["results"])
+        api.getUserDevices(this.props.cookies.get('user_token'))
+        .then((responseJson) => {
+            console.log(responseJson);
+            if (responseJson["response_code"] == 200) {
+                let devs = responseJson["results"];
+                let device_uuid = 'None'
+                if (devs.length > 0) {
+                    // default the selected device to the first/only dev.
+                    let name = `${devs[0].device_name} (${devs[0].device_reg_no})`;
+                    device_uuid = devs[0].device_uuid;
+                    this.setState({
+                        dropDownValue: name,
+                        selected_device_uuid: device_uuid
+                    });
                 }
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+
+                this.setState({user_devices: responseJson["results"]});
+
+                // Now go get the data that requires a device id
+                this.getTempDetails(device_uuid);
+                this.getCO2Details(device_uuid);
+                this.getCurrentStats(device_uuid);
+                this.getLEDPanel(device_uuid);
+
+                console.log("Response", responseJson["results"]);
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+        });
     }
 
     handleAccessCodeSubmit() {
-        return fetch(process.env.REACT_APP_FLASK_URL + '/api/submit_access_code/', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            body: JSON.stringify({
-                'user_uuid': this.state.user_uuid,
-                'user_token': this.props.cookies.get('user_token'),
-                'access_code': this.state.access_code
-            })
+        api.submitAccessCode(
+            this.cookies.get('user_token'),
+            this.state.access_code
+        ).then(responseJson => {
+            console.log(responseJson);
+            if (responseJson["response_code"] == 200) {
+                console.log("Response", responseJson);
+                let devices = responseJson["devices"];
+                let all_Devices = this.state.user_devices.concat(devices);
+                this.setState({
+                    user_devices : all_Devices,
+                    add_access_modal: false
+                });
+            }
         })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log(responseJson)
-                if (responseJson["response_code"] == 200) {
-                    console.log("Response", responseJson)
-                    let devices = responseJson["devices"]
-                    let all_Devices = this.state.user_devices.concat(devices)
-                    this.setState({user_devices : all_Devices})
-                    this.setState({add_access_modal:false})
-                }
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+        .catch((error) => {
+            console.error(error);
+        });
     }
 
     getCO2Details(device_uuid) {
-        return fetch(process.env.REACT_APP_FLASK_URL + '/api/get_co2_details/', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            body: JSON.stringify({
-                'selected_device_uuid': device_uuid
-            })
-        })
+        api.getCO2Details(this.props.cookies.get('user_token'), device_uuid)
+        .then((responseJson) => {
+            console.log(responseJson);
+            if (responseJson["response_code"] == 200) {
+                let parseTime = d3.timeParse("%a %b %d %I:%M:%S %Y");
+                var formatTime = d3.timeFormat("%Y-%m-%d %H:%M:%S");
+                let co2Data = responseJson["results"];
 
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log(responseJson)
-                if (responseJson["response_code"] == 200) {
+                co2Data.forEach(function (d) {
+                    d.time = formatTime(parseTime(d.time));
+                    d.value = parseFloat(d.value);
+                });
 
-                    let parseTime = d3.timeParse("%a %b %d %I:%M:%S %Y");
-                    var formatTime = d3.timeFormat("%Y-%m-%d %H:%M:%S");
-                    let co2Data = responseJson["results"]
-
-                    co2Data.forEach(function (d) {
-                        d.time = formatTime(parseTime(d.time));
-                        d.value = parseFloat(d.value);
-                    });
-
-                    let co2_data_x = []
-                    let co2_data_y = []
-                    co2Data.forEach(function (d) {
-                        co2_data_x.push(d.time);
-                        co2_data_y.push(d.value);
-                    });
-                    this.setState({'co2_data_x': co2_data_x})
-                    this.setState({'co2_data_y': co2_data_y})
-                    this.setState({
-                        'co2_data': [{
-                            type: "scatter",
-                            mode: "lines+markers",
-                            name: '',
-                            x: co2_data_x,
-                            y: co2_data_y,
-                            line: {color: '#ECAD48'}
-                        }]
-                    });
-
-                    this.setState({
-                        'co2_layout': {
-                            width: 650,
-                            height: 520,
-                            xaxis: {
-                                autorange: true,
-                                tickformat: '%Y-%m-%d %H:%M:%S',
-                                rangeslider: {
-                                    type: 'date'
-                                }
-                            },
-                            yaxis: {
-                                autorange: true,
-                                type: 'linear'
+                let co2_data_x = []
+                let co2_data_y = []
+                co2Data.forEach(function (d) {
+                    co2_data_x.push(d.time);
+                    co2_data_y.push(d.value);
+                });
+                this.setState({
+                    'co2_data_x': co2_data_x,
+                    'co2_data_y': co2_data_y,
+                    'co2_data': [{
+                        type: "scatter",
+                        mode: "lines+markers",
+                        name: '',
+                        x: co2_data_x,
+                        y: co2_data_y,
+                        line: {color: '#ECAD48'}
+                    }],
+                    'co2_layout': {
+                        width: 650,
+                        height: 520,
+                        xaxis: {
+                            autorange: true,
+                            tickformat: '%Y-%m-%d %H:%M:%S',
+                            rangeslider: {
+                                type: 'date'
                             }
+                        },
+                        yaxis: {
+                            autorange: true,
+                            type: 'linear'
                         }
-                    });
-
-                }
-
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+                    }
+                });
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+        });
     }
 
     getTempDetails(device_uuid) {
-        return fetch(process.env.REACT_APP_FLASK_URL + '/api/get_temp_details/', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            body: JSON.stringify({
-                'selected_device_uuid': device_uuid
-            })
+        api.getTempDetails(this.props.cookies.get('user_token'), device_uuid)
+        .then((responseJson) => {
+            console.log(responseJson);
+            if (responseJson["response_code"] == 200) {
+                let parseTime = d3.timeParse("%a %b %d %I:%M:%S %Y");
+                var formatTime = d3.timeFormat("%Y-%m-%d %H:%M:%S");
+                let tempData = responseJson["results"]["temp"];
+                let RHData = responseJson["results"]["RH"];
+
+                tempData.forEach(function (d) {
+                    d.time = formatTime(parseTime(d.time));
+                    d.value = parseFloat(d.value);
+                });
+                RHData.forEach(function (d) {
+                    d.time = formatTime(parseTime(d.time));
+                    d.value = parseFloat(d.value)
+                });
+                let rh_data_x = []
+                let rh_data_y = []
+                RHData.forEach(function (d) {
+                    rh_data_x.push(d.time);
+                    rh_data_y.push(d.value);
+                });
+                this.setState({
+                    'rh_data_x': rh_data_x,
+                    'rh_data_y': rh_data_y,
+                    'rh_data': [{
+                        type: "scatter",
+                        mode: "lines",
+                        name: '',
+                        x: rh_data_x,
+                        y: rh_data_y,
+                        line: {color: '#95266A'}
+                    }],
+                    'rh_layout': {
+                        width: 650,
+                        height: 520,
+                        xaxis: {
+                            autorange: true,
+                            tickformat: '%Y-%m-%d %H:%M:%S',
+                            rangeslider: {
+                                type: 'date'
+                            }
+                        },
+                        yaxis: {
+                            autorange: true,
+                            type: 'linear'
+                        }
+                    }
+                });
+
+                let temp_data_x = []
+                let temp_data_y = []
+                tempData.forEach(function (d) {
+                    temp_data_x.push(d.time);
+                    temp_data_y.push(d.value);
+                });
+                this.setState({
+                    'temp_data_x': temp_data_x,
+                    'temp_data_y': temp_data_y,
+                    'temp_data': [{
+                        type: "scatter",
+                        mode: "lines+markers",
+                        name: '',
+                        x: temp_data_x,
+                        y: temp_data_y,
+                        line: {color: '#008BC2'}
+                    }],
+                    'temp_layout': {
+                        width: 650,
+                        height: 520,
+                        xaxis: {
+                            autorange: true,
+                            tickformat: '%Y-%m-%d %H:%M:%S',
+                            rangeslider: {
+                                type: 'date'
+                            }
+                        },
+                        yaxis: {
+                            autorange: true,
+                            type: 'linear'
+                        }
+                    },
+                    'show_temp_line': true
+                });
+            }
         })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log(responseJson)
-                if (responseJson["response_code"] == 200) {
-
-                    let parseTime = d3.timeParse("%a %b %d %I:%M:%S %Y");
-                    var formatTime = d3.timeFormat("%Y-%m-%d %H:%M:%S");
-                    let tempData = responseJson["results"]["temp"]
-                    let RHData = responseJson["results"]["RH"]
-
-                    tempData.forEach(function (d) {
-                        d.time = formatTime(parseTime(d.time));
-                        d.value = parseFloat(d.value);
-                    });
-                    RHData.forEach(function (d) {
-                        d.time = formatTime(parseTime(d.time));
-                        d.value = parseFloat(d.value)
-                    });
-                    let rh_data_x = []
-                    let rh_data_y = []
-                    RHData.forEach(function (d) {
-                        rh_data_x.push(d.time);
-                        rh_data_y.push(d.value);
-                    });
-                    this.setState({'rh_data_x': rh_data_x})
-                    this.setState({'rh_data_y': rh_data_y})
-                    this.setState({
-                        'rh_data': [{
-                            type: "scatter",
-                            mode: "lines",
-                            name: '',
-                            x: rh_data_x,
-                            y: rh_data_y,
-                            line: {color: '#95266A'}
-                        }]
-                    });
-
-                    this.setState({
-                        'rh_layout': {
-                            width: 650,
-                            height: 520,
-                            xaxis: {
-                                autorange: true,
-                                tickformat: '%Y-%m-%d %H:%M:%S',
-                                rangeslider: {
-                                    type: 'date'
-                                }
-                            },
-                            yaxis: {
-                                autorange: true,
-                                type: 'linear'
-                            }
-                        }
-                    });
-
-                    let temp_data_x = []
-                    let temp_data_y = []
-                    tempData.forEach(function (d) {
-                        temp_data_x.push(d.time);
-                        temp_data_y.push(d.value);
-                    });
-                    this.setState({'temp_data_x': temp_data_x})
-                    this.setState({'temp_data_y': temp_data_y})
-                    this.setState({
-                        'temp_data': [{
-                            type: "scatter",
-                            mode: "lines+markers",
-                            name: '',
-                            x: temp_data_x,
-                            y: temp_data_y,
-                            line: {color: '#008BC2'}
-                        }]
-                    });
-                    this.setState({
-                        'temp_layout': {
-                            width: 650,
-                            height: 520,
-                            xaxis: {
-                                autorange: true,
-                                tickformat: '%Y-%m-%d %H:%M:%S',
-                                rangeslider: {
-                                    type: 'date'
-                                }
-                            },
-                            yaxis: {
-                                autorange: true,
-                                type: 'linear'
-                            }
-                        }
-                    });
-
-                    this.setState({'show_temp_line': true})
-                }
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+        .catch((error) => {
+            console.error(error);
+        });
     }
 
     handleChange(event) {
@@ -553,117 +467,101 @@ class DeviceHomepage extends Component {
     }
 
     getLEDPanel(device_uuid) {
-        return fetch(process.env.REACT_APP_FLASK_URL + '/api/get_led_panel/', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            body: JSON.stringify({
-                'selected_device_uuid': device_uuid
-            })
-        })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log("LED DATA", responseJson["results"])
-                if (responseJson["response_code"] == 200) {
+        api.getLEDPanel(this.props.cookies.get('user_token'), device_uuid)
+        .then((responseJson) => {
+            console.log("LED DATA", responseJson["results"])
+            if (responseJson["response_code"] == 200) {
+                let parseTime = d3.timeParse("%a %b %d %I:%M:%S %Y");
+                var formatTime = d3.timeFormat("%Y-%m-%d %H:%M:%S");
+                let ledData = responseJson["results"]
+                ledData.forEach(function (d) {
+                    d.time = formatTime(parseTime(d.time));
+                    d.value = [d.cool_white, d.warm_white, d.blue, d.red, d.green, d.far_red];
+                });
 
-                    let parseTime = d3.timeParse("%a %b %d %I:%M:%S %Y");
-                    var formatTime = d3.timeFormat("%Y-%m-%d %H:%M:%S");
-                    let ledData = responseJson["results"]
-                    ledData.forEach(function (d) {
-                        d.time = formatTime(parseTime(d.time));
-                        d.value = [d.cool_white, d.warm_white, d.blue, d.red, d.green, d.far_red];
-                    });
+                let led_data_x = []
+                let led_data_cool_white = []
+                let led_data_warm_white = []
+                let led_data_blue = []
+                let led_data_red = []
+                let led_data_green = []
+                let led_data_far_red = []
 
-                    let led_data_x = []
-                    let led_data_cool_white = []
-                    let led_data_warm_white = []
-                    let led_data_blue = []
-                    let led_data_red = []
-                    let led_data_green = []
-                    let led_data_far_red = []
+                ledData.forEach(function (d) {
+                    led_data_x.push(d.time);
+                    led_data_cool_white.push(d.cool_white);
+                    led_data_warm_white.push(d.warm_white);
+                    led_data_blue.push(d.blue);
+                    led_data_red.push(d.red);
+                    led_data_green.push(d.green);
+                    led_data_far_red.push(d.far_red);
+                });
 
-                    ledData.forEach(function (d) {
-                        led_data_x.push(d.time);
-                        led_data_cool_white.push(d.cool_white);
-                        led_data_warm_white.push(d.warm_white);
-                        led_data_blue.push(d.blue);
-                        led_data_red.push(d.red);
-                        led_data_green.push(d.green);
-                        led_data_far_red.push(d.far_red);
-                    });
-
-                    this.setState({
-                        'led_data': [{
-                            type: "scatter",
-                            mode: "lines+markers",
-                            name: 'Cool White',
-                            x: led_data_x,
-                            y: led_data_cool_white,
-                            line: {color: '#f5f5f5'}
-                        }, {
-                            type: "scatter",
-                            mode: "lines+markers",
-                            name: 'Warm White',
-                            x: led_data_x,
-                            y: led_data_warm_white,
-                            line: {color: '#efebd8'}
-                        }, {
-                            type: "scatter",
-                            mode: "lines+markers",
-                            name: 'Blue',
-                            x: led_data_x,
-                            y: led_data_blue,
-                            line: {color: '#0000ff'}
-                        }, {
-                            type: "scatter",
-                            mode: "lines+markers",
-                            name: 'Red',
-                            x: led_data_x,
-                            y: led_data_red,
-                            line: {color: '#ff0000'}
-                        }, {
-                            type: "scatter",
-                            mode: "lines+markers",
-                            name: 'Green',
-                            x: led_data_x,
-                            y: led_data_green,
-                            line: {color: '#00ff00'}
-                        }, {
-                            type: "scatter",
-                            mode: "lines+markers",
-                            name: 'Far Red',
-                            x: led_data_x,
-                            y: led_data_far_red,
-                            line: {color: '#960000'}
-                        }]
-                    });
-
-                    this.setState({
-                        'led_layout': {
-                            width: 670,
-                            height: 520,
-                            xaxis: {
-                                autorange: true,
-                                tickformat: '%Y-%m-%d %H:%M:%S',
-                                rangeslider: {
-                                    type: 'date'
-                                }
-                            },
-                            yaxis: {
-                                autorange: true,
-                                type: 'linear'
+                this.setState({
+                    'led_data': [{
+                        type: "scatter",
+                        mode: "lines+markers",
+                        name: 'Cool White',
+                        x: led_data_x,
+                        y: led_data_cool_white,
+                        line: {color: '#f5f5f5'}
+                    }, {
+                        type: "scatter",
+                        mode: "lines+markers",
+                        name: 'Warm White',
+                        x: led_data_x,
+                        y: led_data_warm_white,
+                        line: {color: '#efebd8'}
+                    }, {
+                        type: "scatter",
+                        mode: "lines+markers",
+                        name: 'Blue',
+                        x: led_data_x,
+                        y: led_data_blue,
+                        line: {color: '#0000ff'}
+                    }, {
+                        type: "scatter",
+                        mode: "lines+markers",
+                        name: 'Red',
+                        x: led_data_x,
+                        y: led_data_red,
+                        line: {color: '#ff0000'}
+                    }, {
+                        type: "scatter",
+                        mode: "lines+markers",
+                        name: 'Green',
+                        x: led_data_x,
+                        y: led_data_green,
+                        line: {color: '#00ff00'}
+                    }, {
+                        type: "scatter",
+                        mode: "lines+markers",
+                        name: 'Far Red',
+                        x: led_data_x,
+                        y: led_data_far_red,
+                        line: {color: '#960000'}
+                    }],
+                    'led_layout': {
+                        width: 670,
+                        height: 520,
+                        xaxis: {
+                            autorange: true,
+                            tickformat: '%Y-%m-%d %H:%M:%S',
+                            rangeslider: {
+                                type: 'date'
                             }
+                        },
+                        yaxis: {
+                            autorange: true,
+                            type: 'linear'
                         }
-                    });
-
-                }
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+                    }
+                });
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+        });
     }
 
     toggleTempData() {
@@ -741,28 +639,16 @@ class DeviceHomepage extends Component {
     }
 
     handleApplySubmit() {
-        console.log(this.state)
-        return fetch(process.env.REACT_APP_FLASK_URL + '/api/submit_recipe_change/', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            body: JSON.stringify({
-                'user_token': this.props.cookies.get('user_token'),
-                'recipe_state': JSON.stringify(this.state)
-            })
+        const stateJson = JSON.stringify(this.state);
+        api.submitRecipeChange(this.props.cookies.get('user_token'), this.stateJson)
+        .then((responseJson) => {
+            console.log(responseJson);
+            this.modalToggle();
+            window.location.reload();
         })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log(responseJson)
-                this.modalToggle()
-                window.location.reload()
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+        .catch((error) => {
+            console.error(error);
+        });
     }
 
     render() {
