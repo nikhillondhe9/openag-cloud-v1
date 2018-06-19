@@ -16,6 +16,7 @@ import homeIcon from "../images/home.png";
 import profileIcon from "../images/users.png";
 import toolsIcon from "../images/tools.png";
 import dashboardIcon from "../images/dashboard.png";
+import logoutIcon from "../images/logout.svg";
 
 class App extends Component {
 
@@ -37,6 +38,7 @@ class App extends Component {
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.showHideHeader = this.showHideHeader.bind(this);
+        this.logout = this.logout.bind(this);
 
         if (window.location.href.indexOf('login') > 0 || window.location.href.indexOf('signup') > 0) {
             this.authentication_page = true
@@ -55,6 +57,10 @@ class App extends Component {
         event.preventDefault();
     }
 
+    logout() {
+        this.props.cookies.remove('user_token');
+        window.location = "/login";
+    }
 
     showHideHeader() {
         if (this.authentication_page) {
@@ -72,49 +78,42 @@ class App extends Component {
                 <Router>
 
                     <main>
-                        <header className="header">
-                           <script async src="https://platform.twitter.com/widgets.js" charSet="utf-8">d</script>
+                        <div className="header">
+                            <script async src="https://platform.twitter.com/widgets.js" charSet="utf-8">d</script>
 
-                            <div className="row header-row">
-
-                                <div className="col-md-3 icon-holder">
-                                    <Link to="/home">
-                                        <div className="load-1">
-                                            {/*<img src={homeIcon} className="icon-image"></img>*/}
-                                            <img className="home-icon" src={homeIcon}/>
-                                            <div className="label">Home</div>
-
-                                        </div>
-                                    </Link>
-
+                            <Link to="/home">
+                                <div className="load-1">
+                                    {/*<img src={homeIcon} className="icon-image"></img>*/}
+                                    <img className="home-icon" src={homeIcon}/>
+                                    <div className="label">Home</div>
                                 </div>
-                                <div className="col-md-3 icon-holder">
-                                    <Link to="/recipes">
-                                        <div className="load-1">
-                                            <img className="home-icon" src={toolsIcon}/>
-                                            <div className="label">Climate Recipes</div>
-                                        </div>
-                                    </Link>
+                            </Link>
+                            <Link to="/recipes">
+                                <div className="load-1">
+                                    <img className="home-icon" src={toolsIcon}/>
+                                    <div className="label">Climate Recipes</div>
                                 </div>
-                                <div className="col-md-3 icon-holder">
-                                    <Link to="/dashboard">
+                            </Link>
+                            <Link to="/dashboard">
 
-                                        <div className="load-1">
-                                            <img className="home-icon" src={dashboardIcon}/>
-                                            <div className="label">MyPFC</div>
-                                        </div>
-                                    </Link>
+                                <div className="load-1">
+                                    <img className="home-icon" src={dashboardIcon}/>
+                                    <div className="label">MyPFC</div>
                                 </div>
-                                <div className="col-md-3 icon-holder">
-                                    <Link to="/profile">
-                                        <div className="load-1">
-                                            <img className="home-icon" src={profileIcon}/>
-                                            <div className="label">Profile</div>
-                                        </div>
-                                    </Link>
+                            </Link>
+                            <Link to="/profile">
+                                <div className="load-1">
+                                    <img className="home-icon" src={profileIcon}/>
+                                    <div className="label">Profile</div>
                                 </div>
-                            </div>
-                        </header>
+                            </Link>
+                            <a href="javascript:void()" onClick={this.logout}>
+                                <div className="load-1">
+                                    <img className="home-icon" src={logoutIcon}/>
+                                    <div className="label">Logout</div>
+                                </div>
+                            </a>
+                        </div>
                         <Switch>
                             <Route path='/recipes' component={recipes}/>
                             <Route path='/login' component={login}/>
