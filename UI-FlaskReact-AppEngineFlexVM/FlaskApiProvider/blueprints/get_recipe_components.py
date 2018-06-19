@@ -12,7 +12,7 @@ get_recipe_components_bp = Blueprint('get_recipe_components_bp',__name__)
 def get_recipe_components():
     print("Fetching components related to a recipe")
     received_form_response = json.loads(request.data.decode('utf-8'))
-    recipe_uuid = str(received_form_response.get("recipe_id", '0'))
+    recipe_uuid = str(received_form_response.get("recipe_uuid", '0'))
 
     components_array = []
     component_ids_array = []
