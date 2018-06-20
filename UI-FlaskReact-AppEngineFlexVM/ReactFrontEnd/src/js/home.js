@@ -3,10 +3,6 @@ import {BrowserRouter as Router} from "react-router-dom";
 import '../css/home.css';
 import {
     Button,
-    Dropdown,
-    DropdownItem,
-    DropdownMenu,
-    DropdownToggle,
     Form,
     FormGroup,
     Input,
@@ -22,6 +18,7 @@ import image2 from '../images/2.png';
 import {Timeline} from 'react-twitter-widgets'
 
 import {ImageTimelapse} from './components/image_timelapse';
+import {DevicesDropdown} from './components/devices_dropdown';
 
 class Home extends Component {
     constructor(props) {
@@ -36,8 +33,7 @@ class Home extends Component {
             user_uuid: this.user_uuid,
             device_type: 'EDU',
             user_devices: [],
-            dropdownOpen: false,
-            dropDownValue: 'Choose a PFC'
+            selected_device: 'Loading'
         };
 
         this.toggle = this.toggle.bind(this);
@@ -47,7 +43,7 @@ class Home extends Component {
         this.handleSubmit = this.handleSubmit.bind(this);
         this.getUserDevices = this.getUserDevices.bind(this);
         this.postToTwitter = this.postToTwitter.bind(this);
-        this.dropdowntoggle = this.dropdowntoggle.bind(this);
+        this.onSelectDevice = this.onSelectDevice.bind(this);
     }
 
     componentWillMount() {
@@ -104,9 +100,11 @@ class Home extends Component {
                         // default the selected device to the first/only dev.
                         var name = devs[0].device_name + ' (' +
                             devs[0].device_reg_no + ')';
-                        this.setState({dropDownValue: name});
                         device_uuid = devs[0].device_uuid;
-                        this.setState({selected_device_uuid: device_uuid});
+                        this.setState({
+                            selected_device: name,
+                            selected_device_uuid: device_uuid
+                        });
                     }
 
                     this.setState({user_devices: responseJson["results"]})
@@ -190,41 +188,21 @@ class Home extends Component {
             });
     }
 
-    dropdowntoggle() {
-        this.setState(prevState => ({
-            dropdownOpen: !prevState.dropdownOpen
-        }));
+    onSelectDevice(e) {
+        this.setState({selected_device: e.target.textContent});
     }
 
     render() {
-        let listDevices = <p>Loading</p>
-        if (this.state.user_devices.length > 0) {
-            listDevices = this.state.user_devices.map((device) => {
-                return <DropdownItem key={device.device_uuid}
-                                     value={device.device_uuid}
-                                     onClick={this.changeValue}>{device.device_name}
-                    ({device.device_reg_no}) </DropdownItem>
-            });
-
-        }
-
         return (
             <Router>
                 <div className="home-container">
                     <div className="row dropdown-row">
                         <div className="col-md-6">
-                            <Dropdown isOpen={this.state.dropdownOpen} toggle={this.dropdowntoggle}
-                                      className="row dropdow-row">
-                                <DropdownToggle caret>
-                                    {this.state.dropDownValue}
-
-                                </DropdownToggle>
-                                <DropdownMenu>
-                                    {listDevices}
-                                    <DropdownItem value="add_device" onClick={this.changeValue}> Add new
-                                        device </DropdownItem>
-                                </DropdownMenu>
-                            </Dropdown>
+                        <DevicesDropdown
+                            devices={this.state.user_devices}
+                            selectedDevice={this.state.selected_device}
+                            onSelectDevice={this.onSelectDevice}
+                        />
                         </div>
                         <div className="col-md-6">
                             <Button className="postbutton" onClick={this.postToTwitter}>Post status to twitter</Button>

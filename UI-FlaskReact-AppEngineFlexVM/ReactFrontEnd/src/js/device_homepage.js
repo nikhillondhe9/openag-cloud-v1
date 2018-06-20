@@ -6,7 +6,6 @@ import 'rc-slider/assets/index.css';
 import 'rc-tooltip/assets/bootstrap.css';
 import Tooltip from 'rc-tooltip';
 import Slider from 'rc-slider';
-import {Dropdown, DropdownItem, DropdownMenu, DropdownToggle} from 'reactstrap';
 import {$, jQuery} from 'jquery';
 import Draggable from 'react-draggable';
 import Plot from 'react-plotly.js';
@@ -18,6 +17,8 @@ import Console from 'react-console-component';
 import 'react-console-component/main.css';
 import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input} from 'reactstrap';
 import FileSaver from 'file-saver';
+
+import {DevicesDropdown} from './components/devices_dropdown';
 
 const createSliderWithTooltip = Slider.createSliderWithTooltip;
 const Range = createSliderWithTooltip(Slider.Range);
@@ -95,8 +96,7 @@ class DeviceHomepage extends Component {
             show_temp_line: false,
             show_rh_line: false,
             user_devices: [],
-            dropdownOpen: false,
-            dropDownValue: 'Choose a PFC',
+            selected_device: 'Loading',
             recipe_name: '',
             recipe_link: '',
             modal: false,
@@ -117,10 +117,11 @@ class DeviceHomepage extends Component {
         this.toggleTempData = this.toggleTempData.bind(this);
         this.handleColorChange = this.handleColorChange.bind(this);
         this.toggleAccessCode = this.toggleAccessCode.bind(this);
-        this.toggle = this.toggle.bind(this);
         this.modalToggle = this.modalToggle.bind(this);
         this.addDeviceModalToggle = this.addDeviceModalToggle.bind(this);
-        this.changeValue = this.changeValue.bind(this);
+        this.onSelectDevice = this.onSelectDevice.bind(this);
+        this.onAddDevice = this.onAddDevice.bind(this);
+        this.onAddAccessCode = this.onAddAccessCode.bind(this);
         this.sensorOnChange = this.sensorOnChange.bind(this);
         this.echo = this.echo.bind(this);
         this.sliderChange = this.sliderChange.bind(this);
@@ -200,12 +201,6 @@ class DeviceHomepage extends Component {
         this.setState({
             add_device_modal: !this.state.add_device_modal
         })
-    }
-
-    toggle() {
-        this.setState(prevState => ({
-            dropdownOpen: !prevState.dropdownOpen
-        }));
     }
 
     componentDidMount() {
@@ -311,9 +306,11 @@ class DeviceHomepage extends Component {
                         // default the selected device to the first/only dev.
                         var name = devs[0].device_name + ' (' +
                             devs[0].device_reg_no + ')';
-                        this.setState({dropDownValue: name});
                         device_uuid = devs[0].device_uuid;
-                        this.setState({selected_device_uuid: device_uuid});
+                        this.setState({
+                            selected_device: name,
+                            selected_device_uuid: device_uuid
+                        });
                     }
 
                     this.setState({user_devices: responseJson["results"]})
@@ -674,31 +671,33 @@ class DeviceHomepage extends Component {
         this.setState({'show_rh_line': !this.state.show_rh_line})
     }
 
-    changeValue(e) {
-        console.log("e", e.currentTarget.textContent)
-        this.setState({dropDownValue: e.currentTarget.textContent}) // name
-        if (e.currentTarget.textContent.toString() === "Add New Device") {
+    onSelectDevice(e) {
+        this.setState({selected_device: e.target.textContent});
 
-            this.setState({add_device_modal: true})
-        }
-        else if (e.currentTarget.textContent.toString() === "Add Access Code") {
-            this.setState({add_access_modal: true})
-        }
-        else {
-            let device_uuid = e.target.value
-            var devicePermissions = this.state.user_devices.filter(function(value){
-                            return value.device_uuid === device_uuid;
-            });
-            this.setState({control_level:devicePermissions[0]['permission']})
-            this.setState({selected_device_uuid: device_uuid})
-            this.setState({current_rh: "Loading"})
-            this.setState({current_temp: "Loading"})
-            this.setState({current_co2: "Loading"})
-            this.getTempDetails(device_uuid);
-            this.getCO2Details(device_uuid);
-            this.getCurrentStats(device_uuid);
-            this.getLEDPanel(device_uuid);
-        }
+        const device_uuid = e.target.value;
+        const devicePermissions = this.state.user_devices.filter(device =>
+            device.device_uuid === device_uuid
+        );
+
+        this.setState({
+            control_level: devicePermissions[0]['permission'],
+            selected_device_uuid: device_uuid,
+            current_rh: 'Loading',
+            current_temp: 'Loading',
+            current_co2: 'Loading'
+        });
+        this.getTempDetails(device_uuid);
+        this.getCO2Details(device_uuid);
+        this.getCurrentStats(device_uuid);
+        this.getLEDPanel(device_uuid);
+    }
+
+    onAddDevice() {
+        this.setState({add_device_modal: true});
+    }
+
+    onAddAccessCode() {
+        this.setState({add_access_modal: true})
     }
 
     echo(text) {
@@ -767,16 +766,6 @@ class DeviceHomepage extends Component {
 
     render() {
         const margin = {top: 20, right: 20, bottom: 30, left: 50};
-        let listDevices = <p>Loading</p>
-        if (this.state.user_devices.length > 0) {
-            listDevices = this.state.user_devices.map((device) => {
-                return <DropdownItem key={device.device_uuid}
-                                     value={device.device_uuid} permission={device.permission}
-                                     onClick={this.changeValue}>{device.device_name}
-                    ({device.device_reg_no}) </DropdownItem>
-            });
-
-        }
         let changesList = []
         let changeJson = this.state.changes;
         if (this.state.changes) {
@@ -807,19 +796,13 @@ class DeviceHomepage extends Component {
             <div className="home-container">
                 <div className="row dropdown-row">
                     <div className="col-md-8">
-                        <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}
-                                  className="row dropdow-row">
-                            <DropdownToggle caret>
-                                {this.state.dropDownValue}
-                            </DropdownToggle>
-                            <DropdownMenu>
-                                {listDevices}
-                                <DropdownItem value="Add New Device" onClick={this.changeValue}>Add New
-                                    Device</DropdownItem>
-                                <DropdownItem value="Add Access Code" onClick={this.changeValue}>Add Access
-                                    Code</DropdownItem>
-                            </DropdownMenu>
-                        </Dropdown>
+                        <DevicesDropdown
+                            devices={this.state.user_devices}
+                            selectedDevice={this.state.selected_device}
+                            onSelectDevice={this.onSelectDevice}
+                            onAddDevice={this.onAddDevice}
+                            onAddAccessCode={this.onAddAccessCode}
+                        />
                     </div>
                     <div className="col-md-2">
                         <button className="apply-button btn btn-secondary" onClick={this.downloadCSV}>Download as CSV
