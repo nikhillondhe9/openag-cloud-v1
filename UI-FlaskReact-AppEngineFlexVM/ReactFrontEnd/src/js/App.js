@@ -58,7 +58,7 @@ class App extends Component {
     }
 
     logout() {
-        this.props.cookies.remove('user_token');
+        this.props.cookies.remove('user_token', { path: '/' });
         window.location = "/login";
     }
 
