@@ -19,6 +19,8 @@ import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Lab
 import FileSaver from 'file-saver';
 
 import {DevicesDropdown} from './components/devices_dropdown';
+import {AddAccessCodeModal} from './components/add_access_code_modal';
+import {AddDeviceModal} from './components/add_device_modal';
 
 const createSliderWithTooltip = Slider.createSliderWithTooltip;
 const Range = createSliderWithTooltip(Slider.Range);
@@ -103,6 +105,7 @@ class DeviceHomepage extends Component {
             add_device_modal: false,
             add_access_modal: false,
             access_code_error_message: '',
+            add_device_error_message: '',
             changes: {},
             control_level: 'view'
         };
@@ -117,12 +120,8 @@ class DeviceHomepage extends Component {
         this.toggleRHData = this.toggleRHData.bind(this);
         this.toggleTempData = this.toggleTempData.bind(this);
         this.handleColorChange = this.handleColorChange.bind(this);
-        this.toggleAccessCode = this.toggleAccessCode.bind(this);
         this.modalToggle = this.modalToggle.bind(this);
-        this.addDeviceModalToggle = this.addDeviceModalToggle.bind(this);
         this.onSelectDevice = this.onSelectDevice.bind(this);
-        this.onAddDevice = this.onAddDevice.bind(this);
-        this.onAddAccessCode = this.onAddAccessCode.bind(this);
         this.sensorOnChange = this.sensorOnChange.bind(this);
         this.echo = this.echo.bind(this);
         this.sliderChange = this.sliderChange.bind(this);
@@ -130,10 +129,6 @@ class DeviceHomepage extends Component {
         this.handleApplySubmit = this.handleApplySubmit.bind(this);
         this.timeonChange = this.timeonChange.bind(this);
         this.downloadCSV = this.downloadCSV.bind(this);
-        this.handleAccessCodeSubmit = this.handleAccessCodeSubmit.bind(this);
-        this.handleChange = this.handleChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.registerDevice = this.registerDevice.bind(this);
     }
 
 
@@ -144,26 +139,31 @@ class DeviceHomepage extends Component {
         this.setState({changes: this.changes})
     }
 
-    toggleAccessCode() {
-        this.setState({
-            add_access_modal: !this.state.add_access_modal
-        })
+    toggleDeviceModal = () => {
+        this.setState(prevState => {
+            return {
+                add_device_modal: !prevState.add_device_modal,
+                add_device_error_message: ''
+            }
+        });
     }
 
-    handleSubmit(event) {
-
-        console.log('A register device form was submitted');
-        this.registerDevice()
-        event.preventDefault();
+    toggleAccessCodeModal = () => {
+        this.setState(prevState => {
+            return {
+                add_access_modal: !prevState.add_access_modal,
+                access_code_error_message: ''
+            }
+        });
     }
 
-    registerDevice() {
+    onSubmitDevice = (modal_state) => {
         console.log(JSON.stringify({
-            'user_uuid': this.state.user_uuid,
-            'device_name': this.state.device_name,
-            'device_reg_no': this.state.device_reg_no,
-            'device_notes': this.state.device_notes,
-            'device_type': this.state.device_type
+            'user_token': this.props.cookies.get('user_token'),
+            'device_name': modal_state.device_name,
+            'device_reg_no': modal_state.device_reg_no,
+            'device_notes': modal_state.device_notes,
+            'device_type': modal_state.device_type
         }))
         return fetch(process.env.REACT_APP_FLASK_URL + '/api/register/', {
             method: 'POST',
@@ -175,21 +175,23 @@ class DeviceHomepage extends Component {
             body: JSON.stringify({
                 'user_uuid': this.state.user_uuid,
                 'user_token': this.props.cookies.get('user_token'),
-                'device_name': this.state.device_name,
-                'device_reg_no': this.state.device_reg_no,
-                'device_notes': this.state.device_notes,
-                'device_type': this.state.device_type
+                'device_name': modal_state.device_name,
+                'device_reg_no': modal_state.device_reg_no,
+                'device_notes': modal_state.device_notes,
+                'device_type': modal_state.device_type
             })
         })
             .then((response) => response.json())
             .then((responseJson) => {
                 console.log(responseJson)
                 if (responseJson["response_code"] == 200) {
+                    this.toggleDeviceModal();
+                    this.getUserDevices()
+                } else {
                     this.setState({
-                        modal: false
+                        add_device_error_message: responseJson["message"]
                     });
                 }
-                this.getUserDevices()
             })
             .catch((error) => {
                 console.error(error);
@@ -200,12 +202,6 @@ class DeviceHomepage extends Component {
         this.setState({
             modal: !this.state.modal
         });
-    }
-
-    addDeviceModalToggle() {
-        this.setState({
-            add_device_modal: !this.state.add_device_modal
-        })
     }
 
     componentDidMount() {
@@ -341,7 +337,7 @@ class DeviceHomepage extends Component {
             });
     }
 
-    handleAccessCodeSubmit() {
+    onSubmitAccessCode = (modal_state) => {
         return fetch(process.env.REACT_APP_FLASK_URL + '/api/submit_access_code/', {
             method: 'POST',
             headers: {
@@ -352,13 +348,13 @@ class DeviceHomepage extends Component {
             body: JSON.stringify({
                 'user_uuid': this.state.user_uuid,
                 'user_token': this.props.cookies.get('user_token'),
-                'access_code': this.state.access_code
+                'access_code': modal_state.access_code
             })
         })
             .then((response) => response.json())
             .then((responseJson) => {
                 if (responseJson["response_code"] == 200) {
-                    this.setState({add_access_modal: false});
+                    this.toggleAccessCodeModal();
                     this.getUserDevices();
                 } else {
                     this.setState({
@@ -554,13 +550,6 @@ class DeviceHomepage extends Component {
             });
     }
 
-    handleChange(event) {
-
-        this.setState({[event.target.name]: event.target.value});
-        event.preventDefault();
-
-    }
-
     getLEDPanel(device_uuid) {
         return fetch(process.env.REACT_APP_FLASK_URL + '/api/get_led_panel/', {
             method: 'POST',
@@ -705,14 +694,6 @@ class DeviceHomepage extends Component {
         this.getLEDPanel(device_uuid);
     }
 
-    onAddDevice() {
-        this.setState({add_device_modal: true});
-    }
-
-    onAddAccessCode() {
-        this.setState({add_access_modal: true})
-    }
-
     echo(text) {
 
         this.child.console.log(text);
@@ -813,8 +794,8 @@ class DeviceHomepage extends Component {
                             devices={[...this.state.user_devices.values()]}
                             selectedDevice={this.state.selected_device}
                             onSelectDevice={this.onSelectDevice}
-                            onAddDevice={this.onAddDevice}
-                            onAddAccessCode={this.onAddAccessCode}
+                            onAddDevice={this.toggleDeviceModal}
+                            onAddAccessCode={this.toggleAccessCodeModal}
                         />
                     </div>
                     <div className="col-md-2">
@@ -1181,85 +1162,18 @@ class DeviceHomepage extends Component {
                         </div>
                     </Draggable>
                 </div>
-                <Modal isOpen={this.state.modal} toggle={this.modalToggle} className={this.props.className}>
-                    <ModalHeader toggle={this.modalToggle}>Apply Recipe Changes</ModalHeader>
-
-                    <ModalBody>
-                        Are you sure you want to apply these changes to your device ?
-                        <div>
-                            {changesList}
-                        </div>
-
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button color="primary" onClick={this.handleApplySubmit}>Apply</Button>{' '}
-                        <Button color="secondary" onClick={this.modalToggle}>Close</Button>
-                    </ModalFooter>
-                </Modal>
-                <Modal isOpen={this.state.add_device_modal} toggle={this.addDeviceModalToggle}
-                       className={this.props.className}>
-                    <ModalHeader toggle={this.toggle}>New Device Registration</ModalHeader>
-                    <ModalBody>
-                        <Form>
-                            <FormGroup>
-                                <Label for="device_name">Device name :</Label>
-                                <Input type="text" name="device_name" id="device_name"
-                                       placeholder="E.g Caleb's FC" value={this.state.device_name}
-                                       onChange={this.handleChange}/>
-                            </FormGroup>
-                            <FormGroup>
-                                <Label for="device_reg_no">Device Number :</Label>
-                                <Input type="text" name="device_reg_no" id="device_reg_no"
-                                       placeholder="Six digit code" value={this.state.device_reg_no}
-                                       onChange={this.handleChange}/>
-                            </FormGroup>
-                            <FormGroup>
-                                <Label for="device_notes">Device Notes :</Label>
-                                <Input type="text" name="device_notes" id="device_notes"
-                                       placeholder="(Optional)" value={this.state.device_notes}
-                                       onChange={this.handleChange}/>
-                            </FormGroup>
-                            <FormGroup>
-                                <Label for="device_type">Device Type :</Label>
-                                <select className="form-control smallInput" name="device_type" id="device_type"
-                                        onChange={this.handleChange}
-                                        value={this.state.device_type}>
-                                    <option value="PFC_EDU">Personal Food Computer+EDU</option>
-                                    <option value="Food_Server">Food Server</option>
-                                </select>
-                            </FormGroup>
-                        </Form>
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button color="primary" onClick={this.handleSubmit}>Register Device</Button>{' '}
-                        <Button color="secondary" onClick={this.addDeviceModalToggle}>Cancel</Button>
-                    </ModalFooter>
-                </Modal>
-
-
-                <Modal isOpen={this.state.add_access_modal} toggle={this.toggleAccessCode}
-                       className={this.props.className}>
-                    <ModalHeader toggle={this.toggle}>Enter a access code</ModalHeader>
-                    <ModalBody>
-                        {this.state.access_code_error_message &&
-                            <p style={{color: 'red'}}>
-                                {this.state.access_code_error_message}
-                            </p>
-                        }
-                        <Form>
-                            <FormGroup>
-                                <Label for="access_code"></Label>
-                                <Input type="text" name="access_code" id="access_code"
-                                       placeholder="6-digit Access Code" value={this.state.access_code}
-                                       onChange={this.handleChange}/>
-                            </FormGroup>
-                        </Form>
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button color="primary" onClick={this.handleAccessCodeSubmit}>Submit</Button>{' '}
-                        <Button color="secondary" onClick={this.toggleAccessCode}>Cancel</Button>
-                    </ModalFooter>
-                </Modal>
+                <AddDeviceModal
+                    isOpen={this.state.add_device_modal}
+                    toggle={this.toggleDeviceModal}
+                    onSubmit={this.onSubmitDevice}
+                    error_message={this.state.add_device_error_message}
+                />
+                <AddAccessCodeModal
+                    isOpen={this.state.add_access_modal}
+                    toggle={this.toggleAccessCodeModal}
+                    onSubmit={this.onSubmitAccessCode}
+                    error_message={this.state.access_code_error_message}
+                />
             </div>
         )
 
