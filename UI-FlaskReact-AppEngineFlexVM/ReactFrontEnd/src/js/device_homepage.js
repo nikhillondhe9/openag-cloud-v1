@@ -332,8 +332,8 @@ class DeviceHomepage extends Component {
                     this.getCO2Details(device_uuid);
                     this.getCurrentStats(device_uuid);
                     this.getLEDPanel(device_uuid);
-
-                    console.log("Response", responseJson["results"])
+                } else {
+                    this.setState({selected_device: 'No Devices'});
                 }
             })
             .catch((error) => {
@@ -357,13 +357,9 @@ class DeviceHomepage extends Component {
         })
             .then((response) => response.json())
             .then((responseJson) => {
-                console.log(responseJson)
                 if (responseJson["response_code"] == 200) {
-                    console.log("Response", responseJson)
-                    let devices = responseJson["devices"]
-                    let all_Devices = this.state.user_devices.concat(devices)
-                    this.setState({user_devices : all_Devices})
-                    this.setState({add_access_modal: false})
+                    this.setState({add_access_modal: false});
+                    this.getUserDevices();
                 } else {
                     this.setState({
                         access_code_error_message: responseJson['message']

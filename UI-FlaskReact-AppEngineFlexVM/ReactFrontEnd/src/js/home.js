@@ -110,6 +110,8 @@ class Home extends Component {
 
                     this.setState({user_devices: responseJson["results"]})
                     console.log("Response", responseJson["results"])
+                } else {
+                    this.setState({selected_device: 'No Devices'});
                 }
             })
             .catch((error) => {
