@@ -102,6 +102,7 @@ class DeviceHomepage extends Component {
             modal: false,
             add_device_modal: false,
             add_access_modal: false,
+            access_code_error_message: '',
             changes: {},
             control_level: 'view'
         };
@@ -357,8 +358,12 @@ class DeviceHomepage extends Component {
                     console.log("Response", responseJson)
                     let devices = responseJson["devices"]
                     let all_Devices = this.state.user_devices.concat(devices)
-                    this.setState({user_devices: all_Devices})
+                    this.setState({user_devices : all_Devices})
                     this.setState({add_access_modal: false})
+                } else {
+                    this.setState({
+                        access_code_error_message: responseJson['message']
+                    });
                 }
             })
             .catch((error) => {
@@ -1235,6 +1240,11 @@ class DeviceHomepage extends Component {
                        className={this.props.className}>
                     <ModalHeader toggle={this.toggle}>Enter a access code</ModalHeader>
                     <ModalBody>
+                        {this.state.access_code_error_message &&
+                            <p style={{color: 'red'}}>
+                                {this.state.access_code_error_message}
+                            </p>
+                        }
                         <Form>
                             <FormGroup>
                                 <Label for="access_code"></Label>
