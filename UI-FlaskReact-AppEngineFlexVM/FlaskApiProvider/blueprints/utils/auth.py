@@ -1,14 +1,14 @@
 from .env_variables import *
+from .datastore import get_one
 
 def get_user_uuid_from_token(user_token):
     """Verifies session and returns user uuid"""
 
-    query_session = datastore_client.query(kind="UserSession")
-    query_session.add_filter('session_token', '=', user_token)
-    query_session_result = list(query_session.fetch())
-
-    if not query_session_result:
+    session = get_one(
+        kind="UserSession", key="session_token", value=user_token
+    )
+    if not session:
         return None
 
-    uuid = query_session_result[0].get("user_uuid", None)
+    uuid = session.get("user_uuid")
     return uuid
