@@ -95,7 +95,7 @@ class DeviceHomepage extends Component {
             co2_layout: {title: '', width: 1, height: 1},
             show_temp_line: false,
             show_rh_line: false,
-            user_devices: [],
+            user_devices: new Map(),
             selected_device: 'Loading',
             recipe_name: '',
             recipe_link: '',
@@ -321,7 +321,11 @@ class DeviceHomepage extends Component {
                         });
                     }
 
-                    this.setState({user_devices: responseJson["results"]})
+                    let devices = new Map();
+                    for (const device of responseJson["results"]) {
+                        devices.set(device.device_uuid, device);
+                    }
+                    this.setState({user_devices: devices});
 
                     // Now go get the data that requires a device id
                     this.getTempDetails(device_uuid);
@@ -687,17 +691,18 @@ class DeviceHomepage extends Component {
         this.setState({selected_device: e.target.textContent});
 
         const device_uuid = e.target.value;
-        const devicePermissions = this.state.user_devices.filter(device =>
-            device.device_uuid === device_uuid
-        );
+        console.log(this.state.user_devices);
+        const devicePermissions = this.state.user_devices.get(device_uuid);
+        console.log(devicePermissions);
 
         this.setState({
-            control_level: devicePermissions[0]['permission'],
+            control_level: devicePermissions['permission'],
             selected_device_uuid: device_uuid,
             current_rh: 'Loading',
             current_temp: 'Loading',
             current_co2: 'Loading'
         });
+
         this.getTempDetails(device_uuid);
         this.getCO2Details(device_uuid);
         this.getCurrentStats(device_uuid);
@@ -809,7 +814,7 @@ class DeviceHomepage extends Component {
                 <div className="row dropdown-row">
                     <div className="col-md-8">
                         <DevicesDropdown
-                            devices={this.state.user_devices}
+                            devices={[...this.state.user_devices.values()]}
                             selectedDevice={this.state.selected_device}
                             onSelectDevice={this.onSelectDevice}
                             onAddDevice={this.onAddDevice}
