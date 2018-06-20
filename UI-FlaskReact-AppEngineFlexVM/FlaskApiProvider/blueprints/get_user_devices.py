@@ -4,7 +4,8 @@ from flask import Response
 from flask import request
 
 from .utils.env_variables import *
-from .utils.response import success_response, error_response
+from .utils.response import (success_response, error_response,
+                             pre_serialize_device)
 from .utils.auth import get_user_uuid_from_token
 
 get_user_devices_bp = Blueprint('get_user_devices_bp',__name__)
@@ -35,22 +36,13 @@ def get_user_devices():
     results_array = []
     if len(results) > 0:
         for result_row in results:
-            device_id = result_row.get("device_uuid", "")
-            device_reg_no = result_row.get("device_reg_no", "")
-            device_name = result_row.get("device_name", "")
-            print('  {}, {}, {}'.format(
-                device_id, device_reg_no, device_name))
-            result_json = {
-                'device_uuid': device_id,
-                'device_notes': result_row.get("device_notes", ""),
-                'device_type': result_row.get("device_type", ""),
-                'device_reg_no': device_reg_no,
-                'registration_date': result_row.get("registration_date", ""
-                                                    ).strftime("%Y-%m-%d %H:%M:%S"),
-                'user_uuid': result_row.get("user_uuid", ""),
-                'device_name': device_name
-            }
-            results_array.append(result_json)
+            device_json = pre_serialize_device(result_row)
+            print('    {}, {}, {}'.format(
+                device_json['device_uuid'],
+                device_json['device_reg_no'],
+                device_json['device_name']
+            ))
+            results_array.append(device_json)
 
         return success_response(
             results=results_array
