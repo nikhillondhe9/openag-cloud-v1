@@ -74,3 +74,19 @@
 {
     text-align: center;
 }
+
+.create-access-code-body {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    justify-items: center;
+    align-items: center;
+}
+
+.device-name {
+    justify-self: start;
+}
+
+.create-access-code-body input {
+    width: auto;
+    margin: 0;
+}

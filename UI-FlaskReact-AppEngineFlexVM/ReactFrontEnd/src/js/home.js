@@ -19,6 +19,8 @@ import {Timeline} from 'react-twitter-widgets'
 
 import {ImageTimelapse} from './components/image_timelapse';
 import {DevicesDropdown} from './components/devices_dropdown';
+import {AddDeviceModal} from './components/add_device_modal';
+import {AddAccessCodeModal} from './components/add_access_code_modal';
 
 class Home extends Component {
     constructor(props) {
@@ -26,21 +28,16 @@ class Home extends Component {
         this.user_uuid = this.props.location.pathname.replace("/home/", "").replace("#", "")
         this.state = {
             user_token: props.cookies.get('user_token') || '',
-            modal: false,
-            device_name: '',
-            device_reg_no: '',
-            device_notes: '',
+            add_device_modal: false,
+            add_device_error_message: '',
+            add_access_modal: false,
+            access_code_error_message: '',
             user_uuid: this.user_uuid,
-            device_type: 'EDU',
             user_devices: [],
             selected_device: 'Loading'
         };
 
-        this.toggle = this.toggle.bind(this);
-        this.registerDevice = this.registerDevice.bind(this);
         // This binding is necessary to make `this` work in the callback
-        this.handleChange = this.handleChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
         this.getUserDevices = this.getUserDevices.bind(this);
         this.postToTwitter = this.postToTwitter.bind(this);
         this.onSelectDevice = this.onSelectDevice.bind(this);
@@ -55,24 +52,6 @@ class Home extends Component {
     componentDidMount() {
         console.log("Mouting component")
         this.getUserDevices()
-    }
-
-    handleChange(event) {
-        this.setState({[event.target.name]: event.target.value});
-        event.preventDefault();
-    }
-
-    handleSubmit(event) {
-
-        console.log('A register device form was submitted');
-        this.registerDevice()
-        event.preventDefault();
-    }
-
-    toggle() {
-        this.setState({
-            modal: !this.state.modal
-        });
     }
 
     getUserDevices() {
@@ -110,6 +89,8 @@ class Home extends Component {
 
                     this.setState({user_devices: responseJson["results"]})
                     console.log("Response", responseJson["results"])
+                } else {
+                    this.setState({selected_device: 'No Devices'});
                 }
             })
             .catch((error) => {
@@ -117,14 +98,26 @@ class Home extends Component {
             });
     }
 
-    registerDevice() {
-        console.log(JSON.stringify({
-            'user_uuid': this.state.user_uuid,
-            'device_name': this.state.device_name,
-            'device_reg_no': this.state.device_reg_no,
-            'device_notes': this.state.device_notes,
-            'device_type': this.state.device_type
-        }))
+    toggleDeviceModal = () => {
+        this.setState(prevState => {
+            return {
+                add_device_modal: !prevState.add_device_modal,
+                add_device_error_message: ''
+            }
+        });
+    }
+
+    toggleAccessCodeModal = () => {
+        this.setState(prevState => {
+            return {
+                add_access_modal: !prevState.add_access_modal,
+                access_code_error_message: ''
+            }
+        });
+    }
+
+    onSubmitDevice = (modal_state) => {
+        console.log(modal_state);
         return fetch(process.env.REACT_APP_FLASK_URL + '/api/register/', {
             method: 'POST',
             headers: {
@@ -133,23 +126,54 @@ class Home extends Component {
                 'Access-Control-Allow-Origin': '*'
             },
             body: JSON.stringify({
-                'user_uuid': this.state.user_uuid,
                 'user_token': this.props.cookies.get('user_token'),
-                'device_name': this.state.device_name,
-                'device_reg_no': this.state.device_reg_no,
-                'device_notes': this.state.device_notes,
-                'device_type': this.state.device_type
+                'device_name': modal_state.device_name,
+                'device_reg_no': modal_state.device_reg_no,
+                'device_notes': modal_state.device_notes,
+                'device_type': modal_state.device_type
             })
         })
             .then((response) => response.json())
             .then((responseJson) => {
                 console.log(responseJson)
                 if (responseJson["response_code"] == 200) {
+                    this.toggleDeviceModal();
+                    this.getUserDevices()
+                } else {
                     this.setState({
-                        modal: false
+                        add_device_error_message: responseJson["message"]
+                    })
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }
+
+    onSubmitAccessCode = (modal_state) => {
+        return fetch(process.env.REACT_APP_FLASK_URL + '/api/submit_access_code/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({
+                'user_token': this.props.cookies.get('user_token'),
+                'access_code': modal_state.access_code
+            })
+        })
+            .then((response) => response.json())
+            .then((responseJson) => {
+                console.log(responseJson)
+                if (responseJson["response_code"] == 200) {
+                    this.toggleAccessCodeModal();
+                    this.getUserDevices();
+                } else {
+                    this.setState({
+                        access_code_error_message: responseJson['message']
                     });
                 }
-                this.getUserDevices()
             })
             .catch((error) => {
                 console.error(error);
@@ -203,6 +227,8 @@ class Home extends Component {
                             devices={this.state.user_devices}
                             selectedDevice={this.state.selected_device}
                             onSelectDevice={this.onSelectDevice}
+                            onAddDevice={this.toggleDeviceModal}
+                            onAddAccessCode={this.toggleAccessCodeModal}
                         />
                         </div>
                         <div className="col-md-6">
@@ -251,45 +277,18 @@ class Home extends Component {
                             />
                         </div>
                     </div>
-
-                    <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
-                        <ModalHeader toggle={this.toggle}>New Device Registration</ModalHeader>
-                        <ModalBody>
-                            <Form>
-                                <FormGroup>
-                                    <Label for="device_name">Device name :</Label>
-                                    <Input type="text" name="device_name" id="device_name"
-                                           placeholder="E.g Caleb's FC" value={this.state.device_name}
-                                           onChange={this.handleChange}/>
-                                </FormGroup>
-                                <FormGroup>
-                                    <Label for="device_reg_no">Device Number :</Label>
-                                    <Input type="text" name="device_reg_no" id="device_reg_no"
-                                           placeholder="Six digit code" value={this.state.device_reg_no}
-                                           onChange={this.handleChange}/>
-                                </FormGroup>
-                                <FormGroup>
-                                    <Label for="device_notes">Device Notes :</Label>
-                                    <Input type="text" name="device_notes" id="device_notes"
-                                           placeholder="(Optional)" value={this.state.device_notes}
-                                           onChange={this.handleChange}/>
-                                </FormGroup>
-                                <FormGroup>
-                                    <Label for="device_type">Device Type :</Label>
-                                    <select className="form-control smallInput" name="device_type" id="device_type"
-                                            onChange={this.handleChange}
-                                            value={this.state.device_type}>
-                                        <option value="EDU">Personal Food Computer+EDU</option>
-                                        <option value="FS">Food Server</option>
-                                    </select>
-                                </FormGroup>
-                            </Form>
-                        </ModalBody>
-                        <ModalFooter>
-                            <Button color="primary" onClick={this.handleSubmit}>Register Device</Button>{' '}
-                            <Button color="secondary" onClick={this.toggle}>Cancel</Button>
-                        </ModalFooter>
-                    </Modal>
+                    <AddDeviceModal
+                        isOpen={this.state.add_device_modal}
+                        toggle={this.toggleDeviceModal}
+                        onSubmit={this.onSubmitDevice}
+                        error_message={this.state.add_device_error_message}
+                    />
+                    <AddAccessCodeModal
+                        isOpen={this.state.add_access_modal}
+                        toggle={this.toggleAccessCodeModal}
+                        onSubmit={this.onSubmitAccessCode}
+                        error_message={this.state.access_code_error_message}
+                    />
                 </div>
             </Router>
 

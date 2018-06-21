@@ -1,11 +1,15 @@
 from flask import Flask
 from flask_cors import CORS
 
-from blueprints import apply_to_device, create_access_code, download_as_csv, get_co2_details, \
-    get_current_stats, get_led_panel, get_recipe_components, get_recipe_details, get_temp_details, get_user_devices, \
-    post_to_twitter, get_recipe_by_uuid, get_all_recipes, get_device_types, submit_recipe, get_plant_types, \
-    register_device, save_recipe, submit_recipe_change, verify_user_session, user_authenticate, upload_images, get_user_image,get_device_peripherals
-
+from blueprints import (
+    apply_to_device, create_access_code, download_as_csv, get_co2_details,
+    get_current_stats, get_led_panel, get_recipe_components, get_recipe_details,
+    get_temp_details, get_user_devices, post_to_twitter, get_recipe_by_uuid,
+    register_device, get_all_recipes, get_device_types, submit_recipe,
+    get_plant_types, save_recipe, submit_recipe_change, verify_user_session,
+    user_authenticate, upload_images, get_user_image, get_device_peripherals,
+    submit_access_code
+)
 
 app = Flask(__name__)
 app.register_blueprint(apply_to_device.apply_to_device_bp)
@@ -33,6 +37,7 @@ app.register_blueprint(get_recipe_by_uuid.get_recipe_by_uuid_bp)
 
 app.register_blueprint(upload_images.upload_images_bp)
 app.register_blueprint(get_user_image.get_user_image_bp)
+app.register_blueprint(submit_access_code.submit_access_code_bp)
 
 # Remove this later - Only use it for testing purposes. Not safe to leave it here
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
