@@ -65,5 +65,6 @@ def get_all_recipes():
 
     return success_response(
         results=results_array,
-        devices=devices_array
+        devices=devices_array,
+        user_uuid=user_uuid
     )
