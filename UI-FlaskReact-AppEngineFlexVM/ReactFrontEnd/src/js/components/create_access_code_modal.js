@@ -66,9 +66,15 @@ export class CreateAccessCodeModal extends React.PureComponent {
                         <i>Select which devices to share</i>
                     </ModalHeader>
                     <ModalBody className="create-access-code-body">
-                        <div></div>
-                        <div>View</div>
-                        <div>Control</div>
+                        {this.props.devices.length ? (
+                            <React.Fragment>
+                                <div></div>
+                                <div>View</div>
+                                <div>Control</div>
+                            </React.Fragment>
+                        ) : (
+                            <div>No Devices</div>
+                        )}
                         {this.props.devices.map(device =>
                             <React.Fragment key={device.device_uuid}>
                                 <div className="device-name">{device.device_name}</div>
