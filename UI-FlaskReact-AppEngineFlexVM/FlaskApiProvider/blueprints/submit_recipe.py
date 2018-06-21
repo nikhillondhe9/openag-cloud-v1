@@ -17,7 +17,7 @@ def submit_recipe():
     received_form_response = json.loads(request.data.decode('utf-8'))
     recipe_state = received_form_response.get("state", {})
     user_token = received_form_response.get("user_token", "")
-
+    device_uuid = received_form_response.get("device_uuid","")
 
     key = datastore_client.key('Recipes')
     recipe_reg_task = datastore.Entity(key, exclude_from_indexes=["recipe"])
@@ -153,7 +153,7 @@ def submit_recipe():
 
     # convert the values in the dict into what the Jbrain expects
     commands_list = convert_UI_recipe_to_commands(current_recipe_uuid,recipe_format)
-    send_recipe_to_device_via_IoT(iot_client, "EDU-184DFDB6-50-65-83-d3-38-eb", commands_list)
+    send_recipe_to_device_via_IoT(iot_client, device_uuid, commands_list)
 
     return success_response(
         message="Successfully applied"

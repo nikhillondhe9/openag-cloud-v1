@@ -2,7 +2,18 @@ import React, {Component} from 'react';
 import '../css/new_recipe.css';
 import Slider from 'rc-slider';
 import Tooltip from 'rc-tooltip';
-import {Button, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Input} from 'reactstrap';
+import {
+    Button,
+    Dropdown,
+    DropdownItem,
+    DropdownMenu,
+    DropdownToggle,
+    Input,
+    Modal,
+    ModalBody,
+    ModalFooter,
+    ModalHeader
+} from 'reactstrap';
 import {Cookies, withCookies} from "react-cookie";
 import 'rc-time-picker/assets/index.css';
 import {ImageUploader} from './components/image_uploader'
@@ -48,7 +59,10 @@ class NewRecipe extends Component {
             selected_variants: [],
             recipe_name: "",
             recipe_description: "",
-            image_url: "http://via.placeholder.com/200x200"
+            image_url: "http://via.placeholder.com/200x200",
+            apply_to_device_modal: false,
+            selected_device_uuid:"",
+            devices:[]
         }
         this.device_type_dropdowntoggle = this.device_type_dropdowntoggle.bind(this);
         this.plant_type_dropdowntoggle = this.plant_type_dropdowntoggle.bind(this);
@@ -63,14 +77,32 @@ class NewRecipe extends Component {
         this.changePlantType = this.changePlantType.bind(this);
         this.onImageUpload = this.onImageUpload.bind(this);
         this.changeVariantType = this.changeVariantType.bind(this);
-    }
+        this.toggle_apply_to_device = this.toggle_apply_to_device.bind(this);
+        this.getUserDevices = this.getUserDevices.bind(this);
+        this.handleChange = this.handleChange.bind(this);
 
+    }
+    handleChange(event) {
+        this.setState({
+            [event.target.name]: event.target.value
+        }, () => {
+            // console.log("State", this.state);
+        });
+        event.preventDefault();
+
+    }
     onImageUpload(response) {
         if (response.response_code == 200) {
             this.setState({image_url: response.url});
         } else {
             console.error('Image upload failed');
         }
+    }
+    toggle_apply_to_device(recipe_uuid) {
+        this.setState({
+            apply_to_device_modal: !this.state.apply_to_device_modal,
+            selected_recipe_uuid: recipe_uuid
+        })
     }
 
     handlePeripheralSubmit() {
@@ -82,6 +114,7 @@ class NewRecipe extends Component {
     }
 
     submitRecipe() {
+        console.log("Applying to device",this.state.selected_device_uuid)
         return fetch(process.env.REACT_APP_FLASK_URL + "/api/submit_recipe/", {
             method: 'POST',
             headers: {
@@ -92,7 +125,8 @@ class NewRecipe extends Component {
             body: JSON.stringify({
                 'recipe_uuid': this.state.recipe_uuid,
                 'user_token': this.props.cookies.get('user_token'),
-                'state': this.state
+                'state': this.state,
+                'device_uuid':this.state.selected_device_uuid
             })
         })
             .then((response) => response.json())
@@ -190,6 +224,48 @@ class NewRecipe extends Component {
         this.get_peripherals(selected_peripherals)
     }
 
+    getUserDevices() {
+
+        return fetch(process.env.REACT_APP_FLASK_URL + '/api/get_user_devices/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({
+                'user_token': this.props.cookies.get('user_token')
+            })
+        })
+            .then((response) => response.json())
+            .then((responseJson) => {
+                console.log(responseJson)
+                if (responseJson["response_code"] == 200) {
+                    console.log(responseJson,"SD")
+                    var devs = [];                  // make array
+                    devs = responseJson["results"]; // assign array
+                    this.setState({devices:devs})
+                    var device_uuid = 'None'
+                    if (devs.length > 0) {         // if we have devices
+                        // default the selected device to the first/only dev.
+                        var name = devs[0].device_name + ' (' +
+                            devs[0].device_reg_no + ')';
+                        device_uuid = devs[0].device_uuid;
+                        this.setState({
+                            selected_device: name,
+                            selected_device_uuid: device_uuid
+                        });
+                    }
+
+                    this.setState({user_devices: responseJson["results"]})
+                    console.log("Response", responseJson["results"])
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }
+
     getDropdownValues() {
         fetch(process.env.REACT_APP_FLASK_URL + "/api/get_device_types/", {
             method: 'POST',
@@ -233,6 +309,7 @@ class NewRecipe extends Component {
 
     componentWillMount() {
         this.getDropdownValues()
+        this.getUserDevices()
     }
 
     sliderChange(color_channel, value) {
@@ -561,9 +638,27 @@ class NewRecipe extends Component {
                         </div>
 
                     </div>
-                    <Button className="submit-recipe-button" onClick={this.submitRecipe}>Submit Recipe</Button>
+                    <Button className="submit-recipe-button" onClick={this.toggle_apply_to_device.bind(this, "New Recipe")} >Submit Recipe</Button>
                 </div>
-
+                <Modal isOpen={this.state.apply_to_device_modal} toggle={this.toggle_apply_to_device}
+                       className={this.props.className}>
+                    <ModalHeader toggle={this.toggle_apply_to_device}>Select a device to apply this recipe
+                        to </ModalHeader>
+                    <ModalBody>
+                        <select className="form-control smallInput" onChange={this.handleChange}
+                                id="selected_device_uuid" name="selected_device_uuid"
+                                value={this.selected_device_uuid}>
+                            {this.state.devices.map(function (device) {
+                                return <option key={device.device_uuid}
+                                               value={device.device_uuid}>{device.device_name}</option>
+                            })}
+                        </select>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="primary" onClick={this.submitRecipe}>Apply to this device</Button>
+                        <Button color="secondary" onClick={this.toggle_apply_to_device}>Close</Button>
+                    </ModalFooter>
+                </Modal>
             </div>
         );
     }

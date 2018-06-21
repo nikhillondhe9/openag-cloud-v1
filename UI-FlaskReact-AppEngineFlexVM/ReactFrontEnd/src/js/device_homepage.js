@@ -1090,7 +1090,7 @@ class DeviceHomepage extends Component {
                                             </strong>
                                         </div>
 
-                                    
+
                                     </div>
                                 </div>
                             </div>
