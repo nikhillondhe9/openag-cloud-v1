@@ -86,9 +86,12 @@ a {
 .button__group .button:last-child {
   border-right: 0;
 }
-.button__group .button:hover, .button__group .button.active {
-  color: #fff;
-  background-color: #883c63;
+
+.button__group .button:hover,
+.button__group .button.active,
+.button__group .button-selected {
+  color: #fff !IMPORTANT;
+  background-color: #883c63 !IMPORTANT;
 }
 
 .button__group
