@@ -14,6 +14,7 @@ from firebase_admin import credentials
 from firebase_admin import firestore
 from google.cloud import bigquery
 from google.cloud import datastore
+from google.cloud import storage
 from google.oauth2 import service_account
 from googleapiclient import discovery
 
@@ -29,6 +30,9 @@ path_to_firebase_service_account = os.environ['FIREBASE_SERVICE_ACCOUNT']
 
 # Datastore client for Google Cloud
 datastore_client = datastore.Client(cloud_project_id)
+
+# Storage client for Google Cloud
+storage_client = storage.Client(cloud_project_id)
 
 consumer_key = os.environ['consumer_key']
 consumer_secret = os.environ['consumer_secret']

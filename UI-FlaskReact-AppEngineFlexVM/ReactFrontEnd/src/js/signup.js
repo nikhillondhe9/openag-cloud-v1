@@ -10,7 +10,8 @@ export class SignUp extends Component {
             name: '',
             password: '',
             email_address: '',
-            organization:''
+            organization:'',
+            error_message: ''
         };
         // This binding is necessary to make `this` work in the callback
         this.handleChange = this.handleChange.bind(this);
@@ -53,8 +54,10 @@ export class SignUp extends Component {
                 if (responseJson["response_code"]== 200){
                     console.log("Succesfully signed up - redirecting page")
                     this.props.history.push("/login")
+                } else {
+                    let error_message = responseJson['message']
+                    this.setState({error_message: error_message})
                 }
-
             })
             .catch((error) => {
                 console.error(error);
@@ -65,6 +68,11 @@ export class SignUp extends Component {
         return (
             <div className="login-page">
                 <div className="form">
+                    {this.state.error_message &&
+                        <p style={{color: 'red'}}>
+                            {this.state.error_message}
+                        </p>
+                    }
                     <div className="image-section">
                         <img className="logo" src={logo}></img>
                     </div>
@@ -73,7 +81,7 @@ export class SignUp extends Component {
                                onChange={this.handleChange} required />
                         <input type="password" placeholder="password" name="password" value={this.state.password}
                                onChange={this.handleChange} required/>
-                        <input type="text" placeholder="email address" name="email_address"
+                        <input type="email" placeholder="email address" name="email_address"
                                value={this.state.email_address}
                                onChange={this.handleChange} required/>
                         <input type="text" placeholder="organization" name="organization"
