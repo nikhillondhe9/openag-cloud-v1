@@ -2,50 +2,25 @@ import React, {Component} from 'react';
 import '../css/device_homepage.css';
 import {Cookies, withCookies} from "react-cookie";
 import * as d3 from "d3";
-import 'rc-slider/assets/index.css';
-import 'rc-tooltip/assets/bootstrap.css';
-import Tooltip from 'rc-tooltip';
-import Slider from 'rc-slider';
 import {$, jQuery} from 'jquery';
 import Draggable from 'react-draggable';
 import Plot from 'react-plotly.js';
-import moment from 'moment';
-
-import TimePicker from 'rc-time-picker';
 import 'rc-time-picker/assets/index.css';
 import Console from 'react-console-component';
 import 'react-console-component/main.css';
-import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input} from 'reactstrap';
+import {Button, Form, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader} from 'reactstrap';
 import FileSaver from 'file-saver';
 
 import {DevicesDropdown} from './components/devices_dropdown';
-
-const createSliderWithTooltip = Slider.createSliderWithTooltip;
-const Range = createSliderWithTooltip(Slider.Range);
-const Handle = Slider.Handle;
-const handle = (props) => {
-    const {value, dragging, index, ...restProps} = props;
-    return (
-        <Tooltip
-            prefixCls="rc-slider-tooltip"
-            overlay={value}
-            visible={dragging}
-            placement="top"
-            key={index}
-        >
-            <Handle value={value} {...restProps} />
-        </Tooltip>
-    );
-};
 
 
 const showSecond = true;
 const str = showSecond ? 'HH:mm:ss' : 'HH:mm';
 const displayNamesLookup = {
-    "cool_white": "Cool White",
-    "warm_white": "Warm White",
+    "cool_white": "400-449 (in nm)",
+    "warm_white": "449-499 (in nm)",
     "blue": "Blue",
-    "far_red": "Far Red",
+    "far_red": "650-699 (in nm)",
     "green": "Green",
     "red": "Red",
     "sensor_rh": "Relative Humidity Publish Frequency",
@@ -124,7 +99,7 @@ class DeviceHomepage extends Component {
         this.onAddAccessCode = this.onAddAccessCode.bind(this);
         this.sensorOnChange = this.sensorOnChange.bind(this);
         this.echo = this.echo.bind(this);
-        this.sliderChange = this.sliderChange.bind(this);
+        this.InputChange = this.InputChange.bind(this);
         this.applyChanges = this.applyChanges.bind(this);
         this.handleApplySubmit = this.handleApplySubmit.bind(this);
         this.timeonChange = this.timeonChange.bind(this);
@@ -211,7 +186,7 @@ class DeviceHomepage extends Component {
         this.getUserDevices()
     }
 
-    sliderChange(led_data_type, color_channel, value) {
+    InputChange(led_data_type, color_channel, value) {
         if (this.state.control_level === 'control') {
             if (led_data_type === "led_on_data") {
                 let color_json = this.state.led_on_data;
@@ -419,7 +394,7 @@ class DeviceHomepage extends Component {
                             xaxis: {
                                 autorange: true,
                                 tickformat: '%Y-%m-%d %H:%M:%S',
-                                rangeslider: {
+                                rangeInput: {
                                     type: 'date'
                                 }
                             },
@@ -494,7 +469,7 @@ class DeviceHomepage extends Component {
                             xaxis: {
                                 autorange: true,
                                 tickformat: '%Y-%m-%d %H:%M:%S',
-                                rangeslider: {
+                                rangeInput: {
                                     type: 'date'
                                 }
                             },
@@ -530,7 +505,7 @@ class DeviceHomepage extends Component {
                             xaxis: {
                                 autorange: true,
                                 tickformat: '%Y-%m-%d %H:%M:%S',
-                                rangeslider: {
+                                rangeInput: {
                                     type: 'date'
                                 }
                             },
@@ -603,14 +578,14 @@ class DeviceHomepage extends Component {
                         'led_data': [{
                             type: "scatter",
                             mode: "lines+markers",
-                            name: 'Cool White',
+                            name: '400-449 (in nm)',
                             x: led_data_x,
                             y: led_data_cool_white,
                             line: {color: '#f5f5f5'}
                         }, {
                             type: "scatter",
                             mode: "lines+markers",
-                            name: 'Warm White',
+                            name: '449-499 (in nm)',
                             x: led_data_x,
                             y: led_data_warm_white,
                             line: {color: '#efebd8'}
@@ -638,7 +613,7 @@ class DeviceHomepage extends Component {
                         }, {
                             type: "scatter",
                             mode: "lines+markers",
-                            name: 'Far Red',
+                            name: '650-699 (in nm)',
                             x: led_data_x,
                             y: led_data_far_red,
                             line: {color: '#960000'}
@@ -652,7 +627,7 @@ class DeviceHomepage extends Component {
                             xaxis: {
                                 autorange: true,
                                 tickformat: '%Y-%m-%d %H:%M:%S',
-                                rangeslider: {
+                                rangeInput: {
                                     type: 'date'
                                 }
                             },
@@ -882,69 +857,69 @@ class DeviceHomepage extends Component {
                                             <div className="">
                                                 <div className="row colors-row">
                                                     <div className="col-md-6">
-                                                        <span>Cool White</span>
+                                                        <span>400-449 (in nm)</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                        <Slider min={0} max={255}
+                                                        <Input
                                                                 defaultValue={this.state.led_on_data.cool_white}
-                                                                handle={handle}
-                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'cool_white')}/>
+
+                                                                onChange={this.InputChange.bind(this, 'led_on_data', 'cool_white')}/>
                                                     </div>
                                                 </div>
 
                                                 <div className="row colors-row">
                                                     <div className="col-md-6">
-                                                        <span>Warm White</span>
+                                                        <span>449-499 (in nm)</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                        <Slider min={0} max={255}
+                                                        <Input
                                                                 defaultValue={this.state.led_on_data.warm_white}
-                                                                handle={handle}
-                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'warm_white')}/>
+
+                                                                onChange={this.InputChange.bind(this, 'led_on_data', 'warm_white')}/>
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
                                                     <div className="col-md-6">
-                                                        <span>Blue</span>
+                                                        <span>500-549 (in nm)</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                        <Slider min={0} max={255}
+                                                        <Input
                                                                 defaultValue={this.state.led_on_data.blue}
-                                                                handle={handle}
-                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'blue')}/>
+
+                                                                onChange={this.InputChange.bind(this, 'led_on_data', 'blue')}/>
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
                                                     <div className="col-md-6">
-                                                        <span>Green</span>
+                                                       <span>550-599 (in nm)</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                        <Slider min={0} max={255}
+                                                        <Input
                                                                 defaultValue={this.state.led_on_data.green}
-                                                                handle={handle}
-                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'green')}/>
+
+                                                                onChange={this.InputChange.bind(this, 'led_on_data', 'green')}/>
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
                                                     <div className="col-md-6">
-                                                        <span>Red</span>
+                                                        <span>600-649 (in nm)</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                        <Slider min={0} max={255}
+                                                        <Input
                                                                 defaultValue={this.state.led_on_data.red}
-                                                                handle={handle}
-                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'red')}/>
+
+                                                                onChange={this.InputChange.bind(this, 'led_on_data', 'red')}/>
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
                                                     <div className="col-md-6">
-                                                        <span>Far Red</span>
+                                                        <span>650-699 (in nm)</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                        <Slider min={0} max={255}
+                                                        <Input
                                                                 defaultValue={this.state.led_on_data.far_red}
-                                                                handle={handle}
-                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'far_red')}/>
+
+                                                                onChange={this.InputChange.bind(this, 'led_on_data', 'far_red')}/>
                                                     </div>
                                                 </div>
 
@@ -967,69 +942,69 @@ class DeviceHomepage extends Component {
                                             <div className="">
                                                 <div className="row colors-row">
                                                     <div className="col-md-6">
-                                                        <span>Cool White</span>
+                                                        <span>400-449 (in nm)</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                        <Slider min={0} max={255}
+                                                        <Input
                                                                 defaultValue={this.state.led_off_data.cool_white}
-                                                                handle={handle}
-                                                                onChange={this.sliderChange.bind(this, 'led_off_data', 'cool_white')}/>
+
+                                                                onChange={this.InputChange.bind(this, 'led_off_data', 'cool_white')}/>
                                                     </div>
                                                 </div>
 
                                                 <div className="row colors-row">
                                                     <div className="col-md-6">
-                                                        <span>Warm White</span>
+                                                        <span>449-499 (in nm)</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                        <Slider min={0} max={255}
+                                                        <Input
                                                                 defaultValue={this.state.led_off_data.warm_white}
-                                                                handle={handle}
-                                                                onChange={this.sliderChange.bind(this, 'led_off_data', 'warm_white')}/>
+
+                                                                onChange={this.InputChange.bind(this, 'led_off_data', 'warm_white')}/>
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
                                                     <div className="col-md-6">
-                                                        <span>Blue</span>
+                                                        <span>500-549 (in nm)</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                        <Slider min={0} max={255}
+                                                        <Input
                                                                 defaultValue={this.state.led_off_data.blue}
-                                                                handle={handle}
-                                                                onChange={this.sliderChange.bind(this, 'led_off_data', 'blue')}/>
+
+                                                                onChange={this.InputChange.bind(this, 'led_off_data', 'blue')}/>
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
                                                     <div className="col-md-6">
-                                                        <span>Green</span>
+                                                       <span>550-599 (in nm)</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                        <Slider min={0} max={255}
+                                                        <Input
                                                                 defaultValue={this.state.led_off_data.green}
-                                                                handle={handle}
-                                                                onChange={this.sliderChange.bind(this, 'led_off_data', 'green')}/>
+
+                                                                onChange={this.InputChange.bind(this, 'led_off_data', 'green')}/>
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
                                                     <div className="col-md-6">
-                                                        <span>Red</span>
+                                                        <span>600-649 (in nm)</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                        <Slider min={0} max={255}
+                                                        <Input
                                                                 defaultValue={this.state.led_off_data.red}
-                                                                handle={handle}
-                                                                onChange={this.sliderChange.bind(this, 'led_off_data', 'red')}/>
+
+                                                                onChange={this.InputChange.bind(this, 'led_off_data', 'red')}/>
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
                                                     <div className="col-md-6">
-                                                        <span>Far Red</span>
+                                                        <span>650-699 (in nm)</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                        <Slider min={0} max={255}
+                                                        <Input
                                                                 defaultValue={this.state.led_off_data.far_red}
-                                                                handle={handle}
-                                                                onChange={this.sliderChange.bind(this, 'led_off_data', 'far_red')}/>
+
+                                                                onChange={this.InputChange.bind(this, 'led_off_data', 'far_red')}/>
                                                     </div>
                                                 </div>
                                             </div>

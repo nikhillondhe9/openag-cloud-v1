@@ -3,30 +3,11 @@ import {Cookies, withCookies} from "react-cookie";
 import "../css/recipe_details.css";
 import arugula from "../images/arugula.jpg";
 import '../css/new_recipe.css';
-import Slider from 'rc-slider';
 import Tooltip from 'rc-tooltip';
 import 'rc-time-picker/assets/index.css';
 import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input} from 'reactstrap';
 
-const showSecond = true;
-const str = showSecond ? 'HH:mm:ss' : 'HH:mm';
-const createSliderWithTooltip = Slider.createSliderWithTooltip;
-const Range = createSliderWithTooltip(Slider.Range);
-const Handle = Slider.Handle;
-const handle = (props) => {
-    const {value, dragging, index, ...restProps} = props;
-    return (
-        <Tooltip
-            prefixCls="rc-slider-tooltip"
-            overlay={value}
-            visible={dragging}
-            placement="top"
-            key={index}
-        >
-            <Handle value={value} {...restProps} />
-        </Tooltip>
-    );
-};
+
 
 class RecipeDetails extends Component {
     constructor(props) {
@@ -157,69 +138,69 @@ class RecipeDetails extends Component {
                                                     <div className="">
                                                         <div className="row colors-row">
                                                             <div className="col-md-6">
-                                                                <span>Cool White</span>
+                                                                <span>400-449 (in nm)</span>
                                                             </div>
                                                             <div className="col-md-6">
 
-                                                                <Slider min={0} max={255}
+                                                                <Input
                                                                         defaultValue={this.state[field.state_key + '_on_cool_white']}
-                                                                        handle={handle}
+
                                                                 />
                                                             </div>
                                                         </div>
 
                                                         <div className="row colors-row">
                                                             <div className="col-md-6">
-                                                                <span>Warm White</span>
+                                                                <span>449-499 (in nm)</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Slider min={0} max={255}
+                                                                <Input
                                                                         defaultValue={this.state[field.state_key + '_on_warm_white']}
-                                                                        handle={handle}
+
                                                                 />
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
                                                             <div className="col-md-6">
-                                                                <span>Blue</span>
+                                                                <span>500-549 (in nm)</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Slider min={0} max={255}
+                                                                <Input
                                                                         defaultValue={this.state[field.state_key + '_on_blue']}
-                                                                        handle={handle}
+
                                                                 />
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
                                                             <div className="col-md-6">
-                                                                <span>Green</span>
+                                                                <span>550-599 (in nm)</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Slider min={0} max={255}
+                                                                <Input
                                                                         defaultValue={this.state[field.state_key + '_on_green']}
-                                                                        handle={handle}
+
                                                                 />
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
                                                             <div className="col-md-6">
-                                                                <span>Red</span>
+                                                                <span>600-649 (in nm)</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Slider min={0} max={255}
+                                                                <Input
                                                                         defaultValue={this.state[field.state_key + '_on_red']}
-                                                                        handle={handle}
+
                                                                 />
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
                                                             <div className="col-md-6">
-                                                                <span>Far Red</span>
+                                                                <span>650-699 (in nm)</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Slider min={0} max={255}
+                                                                <Input
                                                                         defaultValue={this.state[field.state_key + '_on_far_red']}
-                                                                        handle={handle}
+
                                                                 />
                                                             </div>
                                                         </div>
@@ -240,68 +221,67 @@ class RecipeDetails extends Component {
                                                     <div className="">
                                                         <div className="row colors-row">
                                                             <div className="col-md-6">
-                                                                <span>Cool White</span>
+                                                                <span>400-449 (in nm)</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Slider min={0} max={255}
+                                                                <Input
                                                                         defaultValue={this.state[field.state_key + '_off_cool_white']}
-                                                                        handle={handle}
+
                                                                 />
                                                             </div>
                                                         </div>
 
                                                         <div className="row colors-row">
                                                             <div className="col-md-6">
-                                                                <span>Warm White</span>
+                                                                <span>449-499 (in nm)</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Slider min={0} max={255}
+                                                                <Input
                                                                         defaultValue={this.state[field.state_key + '_off_warm_white']}
-                                                                        handle={handle}
+
                                                                 />
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
                                                             <div className="col-md-6">
-                                                                <span>Blue</span>
+                                                                <span>500-549 (in nm)</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Slider min={0} max={255}
+                                                                <Input
                                                                         defaultValue={this.state[field.state_key + '_off_blue']}
-                                                                        handle={handle}
+
                                                                 />
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
                                                             <div className="col-md-6">
-                                                                <span>Green</span>
+                                                                <span>550-599 (in nm)</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Slider min={0} max={255}
+                                                                <Input
                                                                         defaultValue={this.state[field.state_key + '_off_green']}
-                                                                        handle={handle}
+
                                                                 />
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
                                                             <div className="col-md-6">
-                                                                <span>Red</span>
+                                                                <span>600-649 (in nm)</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Slider min={0} max={255}
-                                                                        defaultValue={this.state[field.state_key + '_off_red']}
-                                                                        handle={handle}
+                                                                <Input defaultValue={this.state[field.state_key + '_off_red']}
+
                                                                 />
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
                                                             <div className="col-md-6">
-                                                                <span>Far Red</span>
+                                                                <span>650-699 (in nm)</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Slider min={0} max={255}
+                                                                <Input
                                                                         defaultValue={this.state[field.state_key + '_off_far_red']}
-                                                                        handle={handle}
+
                                                                 />
                                                             </div>
                                                         </div>
