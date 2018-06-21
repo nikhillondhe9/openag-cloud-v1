@@ -60,10 +60,12 @@ def get_all_recipes():
             'name':recipe_json['name'],
             'description':recipe_json['description']['brief'],
             'recipe_uuid':result["recipe_uuid"],
-            "recipe_json":recipe_json
+            "recipe_json":recipe_json,
+            "user_uuid": user_uuid
         })
 
     return success_response(
         results=results_array,
-        devices=devices_array
+        devices=devices_array,
+        user_uuid=user_uuid
     )

@@ -29,17 +29,18 @@ def get_led_panel():
     query_result = query_job.result()
     result_json = []
     for row in list(query_result):
-        values_json = (ast.literal_eval(row[1]))
+        values_json = ast.literal_eval(row[1])
+        print(values_json)
         if "values" in values_json:
             values = values_json["values"]
             if len(values) > 0:
-                result_json.append({'cool_white': int(values[0]['value'].split(',')[0], 16),
-                                    'warm_white': int(values[0]['value'].split(',')[1], 16),
-                                    'blue': int(values[0]['value'].split(',')[2], 16),
-                                    'green': int(values[0]['value'].split(',')[3], 16),
-                                    'red': int(values[0]['value'].split(',')[4], 16),
-                                    'far_red': int(values[0]['value'].split(',')[5], 16),
-                                    'time': row.eastern_time})
+                led_json = values[0]['value']
+                result_json.append({'cool_white': led_json.get("400-449",0),
+                                    'warm_white': led_json.get("449-499",0),
+                                    'blue': led_json.get("500-549",0),
+                                    'green': led_json.get("550-559",0),
+                                    'red': led_json.get("600-649",0),
+                                    'far_red': led_json.get("650-699",0)})
 
     return success_response(
         results=result_json

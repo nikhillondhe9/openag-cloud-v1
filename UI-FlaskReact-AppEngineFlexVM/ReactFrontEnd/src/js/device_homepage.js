@@ -32,8 +32,8 @@ const displayNamesLookup = {
     "led_on_to": "LED ON to",
     "led_off_from": "LED OFF From",
     "led_off_to": "LED OFF To",
-    "led_on_data": "LED ON",
-    "led_off_data": "LED OFF"
+    "led_panel_dac5578": "LED ON",
+    "led_panel_dac5578": "LED OFF"
 
 }
 
@@ -47,6 +47,7 @@ class DeviceHomepage extends Component {
             sensor_rh_border: "",
             led_on_border: "",
             led_off_border: "",
+            standard_day:'',
             config: {'displaylogo': false},
             current_rh: "Loading",
             current_temp: "Loading",
@@ -56,8 +57,20 @@ class DeviceHomepage extends Component {
             sensor_rh: 60,
             rh_data: [],
             co2_data: [],
-            led_on_data: {cool_white: 0, red: 0, blue: 255, green: 255, warm_white: 255, far_red: 255},
-            led_off_data: {cool_white: 255, red: 255, blue: 255, green: 255, warm_white: 255, far_red: 255},
+            led_panel_dac5578: {
+                'on_cool_white': '',
+                'on_warm_white': '',
+                'on_blue': '',
+                'on_green': '',
+                'on_red': '',
+                'on_far_red': '',
+                'off_cool_white': '',
+                'off_warm_white': '',
+                'off_blue': '',
+                'off_green': '',
+                'off_red': '',
+                'off_far_red': ''
+            },
             temp_data_x: [],
             temp_data_y: [],
             co2_data_x: [],
@@ -82,12 +95,13 @@ class DeviceHomepage extends Component {
             access_code_error_message: '',
             add_device_error_message: '',
             changes: {},
-            control_level: 'view'
+            control_level: 'view',
+            current_recipe: {}
         };
         this.child = {
             console: Console
         };
-        this.changes = {led_on_data: {}, led_off_data: {}}
+        this.changes = {led_panel_dac5578: {}, led_panel_dac5578: {}}
         this.getUserDevices = this.getUserDevices.bind(this);
         this.getCurrentStats = this.getCurrentStats.bind(this);
         this.getTempDetails = this.getTempDetails.bind(this);
@@ -104,8 +118,35 @@ class DeviceHomepage extends Component {
         this.handleApplySubmit = this.handleApplySubmit.bind(this);
         this.timeonChange = this.timeonChange.bind(this);
         this.downloadCSV = this.downloadCSV.bind(this);
+        this.getRecipeOnDevice = this.getRecipeOnDevice.bind(this);
+        this.setLEDStates = this.setLEDStates.bind(this);
     }
 
+    setLEDStates() {
+        let standard_day = this.state.current_recipe['environments']['standard_day']['light_spectrum_nm_percent']
+        let standard_night = this.state.current_recipe['environments']['standard_day']['light_spectrum_nm_percent']
+
+        let led_data = {
+            'on_cool_white': standard_day['400-449'],
+            'on_warm_white': standard_day['449-499'],
+            'on_blue': standard_day['500-549'],
+            'on_green': standard_day['550-559'],
+            'on_red': standard_day['600-649'],
+            'on_far_red': standard_day['650-699'],
+            'off_cool_white': standard_night['400-449'],
+            'off_warm_white': standard_night['449-499'],
+            'off_blue': standard_night['500-549'],
+            'off_green': standard_night['550-559'],
+            'off_red': standard_night['600-649'],
+            'off_far_red': standard_night['650-699']
+        }
+
+        let standard_day_duration = this.state.current_recipe["phases"][0]['cycles'][0]['duration_hours']
+        this.setState({standard_day:standard_day_duration})
+        this.setState({
+            led_panel_dac5578: led_data
+        })
+    }
 
     timeonChange(data_type, value) {
 
@@ -185,20 +226,12 @@ class DeviceHomepage extends Component {
 
     InputChange(led_data_type, color_channel, value) {
         if (this.state.control_level === 'control') {
-            if (led_data_type === "led_on_data") {
-                let color_json = this.state.led_on_data;
+            if (led_data_type === "led_panel_dac5578") {
+                let color_json = this.state['led_panel_dac5578'];
                 color_json[color_channel] = value;
-                this.setState({led_on_data: color_json})
-                this.changes['led_on_data'][color_channel] = value;
+                this.setState({led_panel_dac5578: color_json})
+                this.changes['led_panel_dac5578'][color_channel] = value;
                 this.setState({["led_on_border"]: "3px solid #883c63"})
-                this.setState({changes: this.changes})
-            }
-            else if (led_data_type === "led_off_data") {
-                let color_json = this.state.led_off_data;
-                color_json[color_channel] = value;
-                this.setState({led_off_data: color_json})
-                this.changes['led_off_data'][color_channel] = value;
-                this.setState({["led_off_border"]: "3px solid #883c63"})
                 this.setState({changes: this.changes})
             }
         }
@@ -302,7 +335,7 @@ class DeviceHomepage extends Component {
                     this.getTempDetails(device_uuid);
                     this.getCO2Details(device_uuid);
                     this.getCurrentStats(device_uuid);
-                    this.getLEDPanel(device_uuid);
+                    this.getRecipeOnDevice(device_uuid);
                 } else {
                     this.setState({selected_device: 'No Devices'});
                 }
@@ -525,8 +558,8 @@ class DeviceHomepage extends Component {
             });
     }
 
-    getLEDPanel(device_uuid) {
-        return fetch(process.env.REACT_APP_FLASK_URL + '/api/get_led_panel/', {
+    getRecipeOnDevice(device_uuid) {
+        return fetch(process.env.REACT_APP_FLASK_URL + '/api/get_current_recipe/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -539,105 +572,17 @@ class DeviceHomepage extends Component {
         })
             .then((response) => response.json())
             .then((responseJson) => {
-                console.log("LED DATA", responseJson["results"])
-                if (responseJson["response_code"] == 200) {
-
-                    let parseTime = d3.timeParse("%a %b %d %I:%M:%S %Y");
-                    var formatTime = d3.timeFormat("%Y-%m-%d %H:%M:%S");
-                    let ledData = responseJson["results"]
-                    ledData.forEach(function (d) {
-                        d.time = formatTime(parseTime(d.time));
-                        d.value = [d.cool_white, d.warm_white, d.blue, d.red, d.green, d.far_red];
-                    });
-
-                    let led_data_x = []
-                    let led_data_cool_white = []
-                    let led_data_warm_white = []
-                    let led_data_blue = []
-                    let led_data_red = []
-                    let led_data_green = []
-                    let led_data_far_red = []
-
-                    ledData.forEach(function (d) {
-                        led_data_x.push(d.time);
-                        led_data_cool_white.push(d.cool_white);
-                        led_data_warm_white.push(d.warm_white);
-                        led_data_blue.push(d.blue);
-                        led_data_red.push(d.red);
-                        led_data_green.push(d.green);
-                        led_data_far_red.push(d.far_red);
-                    });
-
-                    this.setState({
-                        'led_data': [{
-                            type: "scatter",
-                            mode: "lines+markers",
-                            name: '400-449 (in nm)',
-                            x: led_data_x,
-                            y: led_data_cool_white,
-                            line: {color: '#f5f5f5'}
-                        }, {
-                            type: "scatter",
-                            mode: "lines+markers",
-                            name: '449-499 (in nm)',
-                            x: led_data_x,
-                            y: led_data_warm_white,
-                            line: {color: '#efebd8'}
-                        }, {
-                            type: "scatter",
-                            mode: "lines+markers",
-                            name: 'Blue',
-                            x: led_data_x,
-                            y: led_data_blue,
-                            line: {color: '#0000ff'}
-                        }, {
-                            type: "scatter",
-                            mode: "lines+markers",
-                            name: 'Red',
-                            x: led_data_x,
-                            y: led_data_red,
-                            line: {color: '#ff0000'}
-                        }, {
-                            type: "scatter",
-                            mode: "lines+markers",
-                            name: 'Green',
-                            x: led_data_x,
-                            y: led_data_green,
-                            line: {color: '#00ff00'}
-                        }, {
-                            type: "scatter",
-                            mode: "lines+markers",
-                            name: '650-699 (in nm)',
-                            x: led_data_x,
-                            y: led_data_far_red,
-                            line: {color: '#960000'}
-                        }]
-                    });
-
-                    this.setState({
-                        'led_layout': {
-                            width: 670,
-                            height: 520,
-                            xaxis: {
-                                autorange: true,
-                                tickformat: '%Y-%m-%d %H:%M:%S',
-                                rangeInput: {
-                                    type: 'date'
-                                }
-                            },
-                            yaxis: {
-                                autorange: true,
-                                type: 'linear'
-                            }
-                        }
-                    });
-
+                console.log(responseJson, "recipe")
+                if (responseJson["response_code"] === 200) {
+                    this.setState({current_recipe: (responseJson["results"])})
+                    this.setLEDStates();
                 }
             })
             .catch((error) => {
                 console.error(error);
             });
     }
+
 
     toggleTempData() {
         this.setState({'show_temp_line': !this.state.show_temp_line})
@@ -666,7 +611,7 @@ class DeviceHomepage extends Component {
         this.getTempDetails(device_uuid);
         this.getCO2Details(device_uuid);
         this.getCurrentStats(device_uuid);
-        this.getLEDPanel(device_uuid);
+        this.getRecipeOnDevice(device_uuid);
     }
 
     echo(text) {
@@ -740,11 +685,11 @@ class DeviceHomepage extends Component {
         if (this.state.changes) {
             changesList = Object.keys(changeJson).map(function (keyName, keyIndex) {
 
-                if (keyName !== "led_on_data" && keyName !== "led_off_data") {
+                if (keyName !== "led_panel_dac5578" && keyName !== "led_panel_dac5578") {
                     return <div className="row"><p key={keyName}>{displayNamesLookup[keyName]}
                         : {changeJson[keyName].toString()}</p><br/></div>
                 }
-                else if ((keyName === "led_on_data" || keyName === "led_off_data") && changeJson[keyName]) {
+                else if ((keyName === "led_panel_dac5578" || keyName === "led_panel_dac5578") && changeJson[keyName]) {
 
 
                     let list_led = [<p key={keyName}>Color channel information for {displayNamesLookup[keyName]}</p>]
@@ -848,9 +793,8 @@ class DeviceHomepage extends Component {
                                                     </div>
                                                     <div className="col-md-6">
                                                         <Input
-                                                                defaultValue={this.state.led_on_data.cool_white}
-
-                                                                onChange={this.InputChange.bind(this, 'led_on_data', 'cool_white')}/>
+                                                            value={this.state['led_panel_dac5578']['on_cool_white']}
+                                                            onChange={this.InputChange.bind(this, 'led_panel_dac5578', 'on_cool_white')}/>
                                                     </div>
                                                 </div>
 
@@ -860,9 +804,8 @@ class DeviceHomepage extends Component {
                                                     </div>
                                                     <div className="col-md-6">
                                                         <Input
-                                                                defaultValue={this.state.led_on_data.warm_white}
-
-                                                                onChange={this.InputChange.bind(this, 'led_on_data', 'warm_white')}/>
+                                                            value={this.state['led_panel_dac5578']['on_warm_white']}
+                                                            onChange={this.InputChange.bind(this, 'led_panel_dac5578', 'on_warm_white')}/>
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
@@ -871,20 +814,18 @@ class DeviceHomepage extends Component {
                                                     </div>
                                                     <div className="col-md-6">
                                                         <Input
-                                                                defaultValue={this.state.led_on_data.blue}
-
-                                                                onChange={this.InputChange.bind(this, 'led_on_data', 'blue')}/>
+                                                            value={this.state['led_panel_dac5578']['on_blue']}
+                                                            onChange={this.InputChange.bind(this, 'led_panel_dac5578', 'on_blue')}/>
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
                                                     <div className="col-md-6">
-                                                       <span>550-599 (in nm)</span>
+                                                        <span>550-599 (in nm)</span>
                                                     </div>
                                                     <div className="col-md-6">
                                                         <Input
-                                                                defaultValue={this.state.led_on_data.green}
-
-                                                                onChange={this.InputChange.bind(this, 'led_on_data', 'green')}/>
+                                                            value={this.state['led_panel_dac5578']['on_green']}
+                                                            onChange={this.InputChange.bind(this, 'led_panel_dac5578', 'on_green')}/>
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
@@ -893,9 +834,8 @@ class DeviceHomepage extends Component {
                                                     </div>
                                                     <div className="col-md-6">
                                                         <Input
-                                                                defaultValue={this.state.led_on_data.red}
-
-                                                                onChange={this.InputChange.bind(this, 'led_on_data', 'red')}/>
+                                                            value={this.state['led_panel_dac5578']['on_red']}
+                                                            onChange={this.InputChange.bind(this, 'led_panel_dac5578', 'on_red')}/>
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
@@ -904,9 +844,8 @@ class DeviceHomepage extends Component {
                                                     </div>
                                                     <div className="col-md-6">
                                                         <Input
-                                                                defaultValue={this.state.led_on_data.far_red}
-
-                                                                onChange={this.InputChange.bind(this, 'led_on_data', 'far_red')}/>
+                                                            value={this.state['led_panel_dac5578']['on_far_red']}
+                                                            onChange={this.InputChange.bind(this, 'led_panel_dac5578', 'on_far_red')}/>
                                                     </div>
                                                 </div>
 
@@ -933,9 +872,8 @@ class DeviceHomepage extends Component {
                                                     </div>
                                                     <div className="col-md-6">
                                                         <Input
-                                                                defaultValue={this.state.led_off_data.cool_white}
-
-                                                                onChange={this.InputChange.bind(this, 'led_off_data', 'cool_white')}/>
+                                                            value={this.state['led_panel_dac5578']['off_cool_white']}
+                                                            onChange={this.InputChange.bind(this, 'led_panel_dac5578', 'off_cool_white')}/>
                                                     </div>
                                                 </div>
 
@@ -945,9 +883,8 @@ class DeviceHomepage extends Component {
                                                     </div>
                                                     <div className="col-md-6">
                                                         <Input
-                                                                defaultValue={this.state.led_off_data.warm_white}
-
-                                                                onChange={this.InputChange.bind(this, 'led_off_data', 'warm_white')}/>
+                                                            value={this.state['led_panel_dac5578']['off_warm_white']}
+                                                            onChange={this.InputChange.bind(this, 'led_panel_dac5578', 'off_warm_white')}/>
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
@@ -956,20 +893,18 @@ class DeviceHomepage extends Component {
                                                     </div>
                                                     <div className="col-md-6">
                                                         <Input
-                                                                defaultValue={this.state.led_off_data.blue}
-
-                                                                onChange={this.InputChange.bind(this, 'led_off_data', 'blue')}/>
+                                                            value={this.state['led_panel_dac5578']['off_blue']}
+                                                            onChange={this.InputChange.bind(this, 'led_panel_dac5578', 'off_blue')}/>
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
                                                     <div className="col-md-6">
-                                                       <span>550-599 (in nm)</span>
+                                                        <span>550-599 (in nm)</span>
                                                     </div>
                                                     <div className="col-md-6">
                                                         <Input
-                                                                defaultValue={this.state.led_off_data.green}
-
-                                                                onChange={this.InputChange.bind(this, 'led_off_data', 'green')}/>
+                                                            value={this.state['led_panel_dac5578']['off_green']}
+                                                            onChange={this.InputChange.bind(this, 'led_panel_dac5578', 'off_green')}/>
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
@@ -978,9 +913,8 @@ class DeviceHomepage extends Component {
                                                     </div>
                                                     <div className="col-md-6">
                                                         <Input
-                                                                defaultValue={this.state.led_off_data.red}
-
-                                                                onChange={this.InputChange.bind(this, 'led_off_data', 'red')}/>
+                                                            value={this.state['led_panel_dac5578']['off_red']}
+                                                            onChange={this.InputChange.bind(this, 'led_panel_dac5578', 'off_red')}/>
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
@@ -989,9 +923,8 @@ class DeviceHomepage extends Component {
                                                     </div>
                                                     <div className="col-md-6">
                                                         <Input
-                                                                defaultValue={this.state.led_off_data.far_red}
-
-                                                                onChange={this.InputChange.bind(this, 'led_off_data', 'far_red')}/>
+                                                            value={this.state['led_panel_dac5578']['off_far_red']}
+                                                            onChange={this.InputChange.bind(this, 'led_panel_dac5578', 'off_far_red')}/>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1016,7 +949,7 @@ class DeviceHomepage extends Component {
                                                 <span className="txt_smaller"></span>
                                                 <div className="knob_data">
                                                     <input type="text" className="recipe-details-text"
-                                                           placeholder="" id="standard_day"
+                                                           placeholder="" id="standard_day" value={this.state.standard_day}
                                                            name="standard_day" onChange={this.sensorOnChange}/>
                                                 </div>
                                                 <span className="txt_smaller">hours</span>
