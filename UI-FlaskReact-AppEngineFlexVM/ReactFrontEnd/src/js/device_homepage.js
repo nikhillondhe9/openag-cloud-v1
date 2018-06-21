@@ -103,7 +103,7 @@ class DeviceHomepage extends Component {
             add_device_modal: false,
             add_access_modal: false,
             changes: {},
-            control_level:'view'
+            control_level: 'view'
         };
         this.child = {
             console: Console
@@ -135,6 +135,7 @@ class DeviceHomepage extends Component {
         this.registerDevice = this.registerDevice.bind(this);
     }
 
+
     timeonChange(data_type, value) {
 
         this.changes[data_type] = value._d;
@@ -147,12 +148,14 @@ class DeviceHomepage extends Component {
             add_access_modal: !this.state.add_access_modal
         })
     }
+
     handleSubmit(event) {
 
         console.log('A register device form was submitted');
         this.registerDevice()
         event.preventDefault();
     }
+
     registerDevice() {
         console.log(JSON.stringify({
             'user_uuid': this.state.user_uuid,
@@ -191,6 +194,7 @@ class DeviceHomepage extends Component {
                 console.error(error);
             });
     }
+
     modalToggle() {
         this.setState({
             modal: !this.state.modal
@@ -208,7 +212,7 @@ class DeviceHomepage extends Component {
     }
 
     sliderChange(led_data_type, color_channel, value) {
-        if(this.state.control_level === 'control') {
+        if (this.state.control_level === 'control') {
             if (led_data_type === "led_on_data") {
                 let color_json = this.state.led_on_data;
                 color_json[color_channel] = value;
@@ -229,23 +233,26 @@ class DeviceHomepage extends Component {
     }
 
     sensorOnChange(e) {
-        if(this.state.control_level === 'control') {
-            if (e.target.name.indexOf("sensor") >= 0) {
-                this.setState({[e.target.name + "_border"]: "3px solid #883c63"})
-            }
-            else {
-                this.setState({[e.target.name + "_border"]: "1px solid rgba(0, 0, 0, 0.125)"})
-            }
-            this.changes[e.target.name] = e.target.value;
-            this.setState({changes: this.changes})
-            console.log("I set to ", this.changes)
 
-            this.setState({[e.target.name]: e.target.value})
+        if (e.target.name.indexOf("sensor") >= 0) {
+            this.setState({[e.target.name + "_border"]: "3px solid #883c63"})
         }
+        else {
+            this.setState({[e.target.name + "_border"]: "1px solid rgba(0, 0, 0, 0.125)"})
+        }
+        this.changes[e.target.name] = e.target.value;
+        this.setState({changes: this.changes})
+
+        if (e.target.name === "standard_day") {
+            this.setState({[e.target.name]: e.target.value})
+            this.setState({standard_night: 24 - e.target.value})
+        }
+        this.setState({[e.target.name]: e.target.value})
+
     }
 
     handleColorChange(color, event) {
-        if(this.state.control_level === 'control') {
+        if (this.state.control_level === 'control') {
             console.log("Event", event);
             console.log("Color", color.hex);
         }
@@ -350,8 +357,8 @@ class DeviceHomepage extends Component {
                     console.log("Response", responseJson)
                     let devices = responseJson["devices"]
                     let all_Devices = this.state.user_devices.concat(devices)
-                    this.setState({user_devices : all_Devices})
-                    this.setState({add_access_modal:false})
+                    this.setState({user_devices: all_Devices})
+                    this.setState({add_access_modal: false})
                 }
             })
             .catch((error) => {
@@ -809,7 +816,7 @@ class DeviceHomepage extends Component {
                         </button>
                     </div>
                     <div className="col-md-2">
-                        <button className="apply-button btn btn-secondary" onClick={this.applyChanges} hidden={this.state.control_level === 'view'}>Apply Changes
+                        <button className="apply-button btn btn-secondary" onClick={this.applyChanges}>Apply Changes
                         </button>
                     </div>
                 </div>
@@ -881,7 +888,7 @@ class DeviceHomepage extends Component {
                                                         <Slider min={0} max={255}
                                                                 defaultValue={this.state.led_on_data.cool_white}
                                                                 handle={handle}
-                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'cool_white')} />
+                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'cool_white')}/>
                                                     </div>
                                                 </div>
 
@@ -893,7 +900,7 @@ class DeviceHomepage extends Component {
                                                         <Slider min={0} max={255}
                                                                 defaultValue={this.state.led_on_data.warm_white}
                                                                 handle={handle}
-                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'warm_white')} />
+                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'warm_white')}/>
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
@@ -904,7 +911,7 @@ class DeviceHomepage extends Component {
                                                         <Slider min={0} max={255}
                                                                 defaultValue={this.state.led_on_data.blue}
                                                                 handle={handle}
-                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'blue')} />
+                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'blue')}/>
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
@@ -915,7 +922,7 @@ class DeviceHomepage extends Component {
                                                         <Slider min={0} max={255}
                                                                 defaultValue={this.state.led_on_data.green}
                                                                 handle={handle}
-                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'green')} />
+                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'green')}/>
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
@@ -926,7 +933,7 @@ class DeviceHomepage extends Component {
                                                         <Slider min={0} max={255}
                                                                 defaultValue={this.state.led_on_data.red}
                                                                 handle={handle}
-                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'red')} />
+                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'red')}/>
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
@@ -937,38 +944,13 @@ class DeviceHomepage extends Component {
                                                         <Slider min={0} max={255}
                                                                 defaultValue={this.state.led_on_data.far_red}
                                                                 handle={handle}
-                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'far_red')} />
+                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'far_red')}/>
                                                     </div>
                                                 </div>
 
                                             </div>
 
-                                            <span className="txt_smaller">
-                                                <div className="row time-row">
-                                                    <div className="col-md-2">
-                                                        From
-                                                    </div>
-                                                <div className="col-md-4">
-                                                    <TimePicker
-                                                        style={{width: 150}}
-                                                        showSecond={showSecond}
-                                                        defaultValue={moment()}
-                                                        className="xxx"
-                                                        onChange={this.timeonChange.bind(this, "led_on_from")}
-                                                    />
-                                                </div>
-                                                    <div className="col-md-2">
-                                                        To
-                                                    </div>
-                                                <div className="col-md-4"> <TimePicker
-                                                    style={{width: 150}}
-                                                    showSecond={showSecond}
-                                                    defaultValue={moment()}
-                                                    className="xxx"
-                                                    onChange={this.timeonChange.bind(this, "led_on_to")}
-                                                />
-                                                </div>
-                                            </div></span>
+
                                         </div>
                                     </div>
                                 </div>
@@ -1051,37 +1033,70 @@ class DeviceHomepage extends Component {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <span className="txt_smaller">
-                                                <div className="row time-row">
-                                                    <div className="col-md-2">
-                                                        From
-                                                    </div>
-                                                <div className="col-md-4">
-                                                    <TimePicker
-                                                        style={{width: 150}}
-                                                        showSecond={showSecond}
-                                                        defaultValue={moment()}
-                                                        className="xxx"
-                                                        onChange={this.timeonChange.bind(this, "led_off_from")}
-                                                    />
-                                                </div>
-                                                    <div className="col-md-2">
-                                                        To
-                                                    </div>
-                                                <div className="col-md-4"> <TimePicker
-                                                    style={{width: 150}}
-                                                    showSecond={showSecond}
-                                                    defaultValue={moment()}
-                                                    className="xxx"
-                                                    onChange={this.timeonChange.bind(this, "led_off_to")}
-                                                /> </div>
-                                            </div>
-                                                </span>
+
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                    </Draggable>
+                </div>
+                <div className="row graphs-row">
+                    <Draggable cancel="strong">
+                        <div className="col-md-6">
+                            <div className="card environment-card">
+                                <div className="card-block">
+                                    <h4 className="card-title "> Standard Day</h4>
+                                    <div className="card-text">
+                                        <div className="graph">
+                                            <strong className="no-cursor">
+
+                                                <span className="txt_smaller"></span>
+                                                <div className="knob_data">
+                                                    <input type="text" className="recipe-details-text"
+                                                           placeholder="" id="standard_day"
+                                                           name="standard_day" onChange={this.sensorOnChange}/>
+                                                </div>
+                                                <span className="txt_smaller">hours</span>
+
+                                            </strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </Draggable>
+                    <Draggable cancel="strong">
+                        <div className="col-md-6">
+                            <div className="card environment-card">
+                                <div className="card-block">
+                                    <h4 className="card-title "> Standard Night </h4>
+                                    <div className="card-text">
+                                        <div className="graph">
+
+                                            <strong className="no-cursor">
+
+                                                <span className="txt_smaller"></span>
+                                                <div className="knob_data">
+                                                    <input type="number" className="recipe-details-text"
+                                                           placeholder=""
+                                                           id="standard_night" name="standard_night"
+                                                           value={this.state.standard_night}/>
+                                                </div>
+                                                <span className="txt_smaller">hours</span>
+
+                                            </strong>
+                                        </div>
+
+                                    
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
                     </Draggable>
                 </div>
                 <div className="row graphs-row">

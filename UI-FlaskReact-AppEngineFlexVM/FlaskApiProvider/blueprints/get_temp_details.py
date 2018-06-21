@@ -44,7 +44,7 @@ def get_temp_details():
                     {'value': values[0]['value'], 'time': row.eastern_time})
                 if len(values) > 1:
                     result_json["RH"].append(
-                        {'value': values[1]['value'], 'time': row.eastern_time})
+                        {'value': values[1]['value'] if values[1]['value'] else 'N/A', 'time': row.eastern_time})
 
     return success_response(
         results=result_json

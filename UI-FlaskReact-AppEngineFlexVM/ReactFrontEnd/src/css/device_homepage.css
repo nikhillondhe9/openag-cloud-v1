@@ -28,6 +28,13 @@
     width:100%;
     height:600px;
 }
+.environment-card
+{
+    padding:20px;
+    text-align: center;
+    width:100%;
+    height:200px;
+}
 .current-stats-card
 {
     padding:20px;
