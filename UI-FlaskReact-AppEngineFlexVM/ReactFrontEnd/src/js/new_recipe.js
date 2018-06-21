@@ -1,7 +1,5 @@
 import React, {Component} from 'react';
 import '../css/new_recipe.css';
-import Slider from 'rc-slider';
-import Tooltip from 'rc-tooltip';
 import {
     Button,
     Dropdown,
@@ -17,26 +15,6 @@ import {
 import {Cookies, withCookies} from "react-cookie";
 import 'rc-time-picker/assets/index.css';
 import {ImageUploader} from './components/image_uploader'
-
-const showSecond = true;
-const str = showSecond ? 'HH:mm:ss' : 'HH:mm';
-const createSliderWithTooltip = Slider.createSliderWithTooltip;
-const Range = createSliderWithTooltip(Slider.Range);
-const Handle = Slider.Handle;
-const handle = (props) => {
-    const {value, dragging, index, ...restProps} = props;
-    return (
-        <Tooltip
-            prefixCls="rc-slider-tooltip"
-            overlay={value}
-            visible={dragging}
-            placement="top"
-            key={index}
-        >
-            <Handle value={value} {...restProps} />
-        </Tooltip>
-    );
-};
 
 
 class NewRecipe extends Component {
@@ -133,7 +111,9 @@ class NewRecipe extends Component {
             .then((responseJson) => {
                 console.log(responseJson)
                 if (responseJson["response_code"] == 200) {
-                    let resultJson = responseJson["results"]
+
+                    window.location.href="/recipes"
+
                 }
             })
             .catch((error) => {
@@ -312,7 +292,7 @@ class NewRecipe extends Component {
         this.getUserDevices()
     }
 
-    sliderChange(color_channel, value) {
+    InputChange(color_channel, value) {
 
         this.setState({[color_channel]: value})
         console.log(color_channel, value)
@@ -364,10 +344,10 @@ class NewRecipe extends Component {
                                                             </div>
                                                             <div className="col-md-6">
 
-                                                                <Slider min={0} max={255}
+                                                                <Input
                                                                         defaultValue={this.state[field.state_key + '_on_cool_white']}
-                                                                        handle={handle}
-                                                                        onChange={this.sliderChange.bind(this, field.state_key + '_on_cool_white')}/>
+
+                                                                        onChange={this.InputChange.bind(this, field.state_key + '_on_cool_white')}/>
                                                             </div>
                                                         </div>
 
@@ -376,11 +356,11 @@ class NewRecipe extends Component {
                                                                 <span>Warm White</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Slider min={0} max={255}
+                                                                <Input
                                                                         defaultValue={this.state[field.state_key + '_on_warm_white']}
-                                                                        handle={handle}
 
-                                                                        onChange={this.sliderChange.bind(this, field.state_key + '_on_warm_white')}/>
+
+                                                                        onChange={this.InputChange.bind(this, field.state_key + '_on_warm_white')}/>
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
@@ -388,10 +368,10 @@ class NewRecipe extends Component {
                                                                 <span>Blue</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Slider min={0} max={255}
+                                                                <Input
                                                                         defaultValue={this.state[field.state_key + '_on_blue']}
-                                                                        handle={handle}
-                                                                        onChange={this.sliderChange.bind(this, field.state_key + '_on_blue')}/>
+
+                                                                        onChange={this.InputChange.bind(this, field.state_key + '_on_blue')}/>
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
@@ -399,10 +379,10 @@ class NewRecipe extends Component {
                                                                 <span>Green</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Slider min={0} max={255}
+                                                                <Input
                                                                         defaultValue={this.state[field.state_key + '_on_green']}
-                                                                        handle={handle}
-                                                                        onChange={this.sliderChange.bind(this, field.state_key + '_on_green')}/>
+
+                                                                        onChange={this.InputChange.bind(this, field.state_key + '_on_green')}/>
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
@@ -410,10 +390,10 @@ class NewRecipe extends Component {
                                                                 <span>Red</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Slider min={0} max={255}
+                                                                <Input
                                                                         defaultValue={this.state[field.state_key + '_on_red']}
-                                                                        handle={handle}
-                                                                        onChange={this.sliderChange.bind(this, field.state_key + '_on_red')}/>
+
+                                                                        onChange={this.InputChange.bind(this, field.state_key + '_on_red')}/>
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
@@ -421,10 +401,10 @@ class NewRecipe extends Component {
                                                                 <span>Far Red</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Slider min={0} max={255}
+                                                                <Input
                                                                         defaultValue={this.state[field.state_key + '_on_far_red']}
-                                                                        handle={handle}
-                                                                        onChange={this.sliderChange.bind(this, field.state_key + '_on_far_red')}/>
+
+                                                                        onChange={this.InputChange.bind(this, field.state_key + '_on_far_red')}/>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -447,10 +427,10 @@ class NewRecipe extends Component {
                                                                 <span>Cool White</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Slider min={0} max={255}
+                                                                <Input
                                                                         defaultValue={this.state[field.state_key + '_off_cool_white']}
-                                                                        handle={handle}
-                                                                        onChange={this.sliderChange.bind(this, field.state_key + '_off_cool_white')}/>
+
+                                                                        onChange={this.InputChange.bind(this, field.state_key + '_off_cool_white')}/>
                                                             </div>
                                                         </div>
 
@@ -459,10 +439,10 @@ class NewRecipe extends Component {
                                                                 <span>Warm White</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Slider min={0} max={255}
+                                                                <Input
                                                                         defaultValue={this.state[field.state_key + '_off_warm_white']}
-                                                                        handle={handle}
-                                                                        onChange={this.sliderChange.bind(this, field.state_key + '_off_warm_white')}/>
+
+                                                                        onChange={this.InputChange.bind(this, field.state_key + '_off_warm_white')}/>
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
@@ -470,10 +450,10 @@ class NewRecipe extends Component {
                                                                 <span>Blue</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Slider min={0} max={255}
+                                                                <Input
                                                                         defaultValue={this.state[field.state_key + '_off_blue']}
-                                                                        handle={handle}
-                                                                        onChange={this.sliderChange.bind(this, field.state_key + '_off_blue')}/>
+
+                                                                        onChange={this.InputChange.bind(this, field.state_key + '_off_blue')}/>
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
@@ -481,10 +461,10 @@ class NewRecipe extends Component {
                                                                 <span>Green</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Slider min={0} max={255}
+                                                                <Input
                                                                         defaultValue={this.state[field.state_key + '_off_green']}
-                                                                        handle={handle}
-                                                                        onChange={this.sliderChange.bind(this, field.state_key + '_off_green')}/>
+
+                                                                        onChange={this.InputChange.bind(this, field.state_key + '_off_green')}/>
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
@@ -492,10 +472,10 @@ class NewRecipe extends Component {
                                                                 <span>Red</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Slider min={0} max={255}
+                                                                <Input
                                                                         defaultValue={this.state[field.state_key + '_off_red']}
-                                                                        handle={handle}
-                                                                        onChange={this.sliderChange.bind(this, field.state_key + '_off_red')}/>
+
+                                                                        onChange={this.InputChange.bind(this, field.state_key + '_off_red')}/>
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
@@ -503,10 +483,10 @@ class NewRecipe extends Component {
                                                                 <span>Far Red</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Slider min={0} max={255}
+                                                                <Input
                                                                         defaultValue={this.state[field.state_key + '_off_far_red']}
-                                                                        handle={handle}
-                                                                        onChange={this.sliderChange.bind(this, field.state_key + '_off_far_red')}/>
+
+                                                                        onChange={this.InputChange.bind(this, field.state_key + '_off_far_red')}/>
                                                             </div>
                                                         </div>
                                                     </div>
