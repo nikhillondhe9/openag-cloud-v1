@@ -12,6 +12,7 @@ class profile extends Component {
         this.state = {
             access_code_modal: false,
             user_devices: [],
+            get_devices_status: 'Loading',
             digit_modal: false,
             code: "",
             profile_picture_url: ""
@@ -97,6 +98,8 @@ class profile extends Component {
                 if (responseJson["response_code"] == 200) {
                     this.setState({user_devices: responseJson["results"]})
                     console.log("Response", responseJson["results"])
+                } else {
+                    this.setState({get_devices_status: 'No Devices'});
                 }
             })
             .catch((error) => {
@@ -154,7 +157,7 @@ class profile extends Component {
 
     render() {
 
-        let listDevices = <p>Loading</p>
+        let listDevices = <p>{this.state.get_devices_status}</p>
         if (this.state.user_devices.length > 0) {
             listDevices = this.state.user_devices.map((device) => {
                 return <div className="row profile-card-row" key={device.device_uuid}>
