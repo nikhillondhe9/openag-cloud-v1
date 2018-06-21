@@ -157,10 +157,10 @@ def saveImageURLtoDatastore( DS, deviceId, publicURL, cameraName ):
     key = DS.key( 'Images' )
     image = datastore.Entity( key, exclude_from_indexes=[] )
     pydict = {
-        'device_uuid': str( deviceId ),
-        'URL': str( publicURL ),
-        'camera_name': str( cameraName ),
-        'creation_date': str( time.strftime( '%Y-%m-%dT%H:%M:%SZ', time.gmtime()))
+        'device_uuid': deviceId,
+        'URL': publicURL,
+        'camera_name': cameraName,
+        'creation_date': time.strftime( '%Y-%m-%dT%H:%M:%SZ', time.gmtime())
         } 
     image.update( pydict )
     DS.put( image )  
