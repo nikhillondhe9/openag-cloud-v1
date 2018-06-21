@@ -5,6 +5,7 @@ import Tooltip from 'rc-tooltip';
 import {Button, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Input} from 'reactstrap';
 import {Cookies, withCookies} from "react-cookie";
 import 'rc-time-picker/assets/index.css';
+import {ImageUploader} from './components/image_uploader'
 
 const showSecond = true;
 const str = showSecond ? 'HH:mm:ss' : 'HH:mm';
@@ -45,8 +46,9 @@ class NewRecipe extends Component {
             plant_variants: [],
             selected_peripherals: [],
             selected_variants: [],
-            recipe_name:"",
-            recipe_description:""
+            recipe_name: "",
+            recipe_description: "",
+            image_url: "http://via.placeholder.com/200x200"
         }
         this.device_type_dropdowntoggle = this.device_type_dropdowntoggle.bind(this);
         this.plant_type_dropdowntoggle = this.plant_type_dropdowntoggle.bind(this);
@@ -59,7 +61,16 @@ class NewRecipe extends Component {
         this.getDropdownValues = this.getDropdownValues.bind(this);
         this.changeDeviceType = this.changeDeviceType.bind(this);
         this.changePlantType = this.changePlantType.bind(this);
+        this.onImageUpload = this.onImageUpload.bind(this);
         this.changeVariantType = this.changeVariantType.bind(this);
+    }
+
+    onImageUpload(response) {
+        if (response.response_code == 200) {
+            this.setState({image_url: response.url});
+        } else {
+            console.error('Image upload failed');
+        }
     }
 
     handlePeripheralSubmit() {
@@ -474,11 +485,21 @@ class NewRecipe extends Component {
                     </div>
                     <div className="row input-row">
                         <div className="col-md-4">
-                            <img src="http://via.placeholder.com/200x200"/>
+                            <img width="200" src={this.state.image_url}/>
+                            <ImageUploader
+                                url={process.env.REACT_APP_FLASK_URL + "/api/upload_images/"}
+                                data={{
+                                    type: 'recipe',
+                                    user_token: this.props.cookies.get('user_token')
+                                }}
+                                onDone={this.onImageUpload}
+                                className="image-uploader"/>
                         </div>
                         <div className="col-md-8">
-                            <Input type="text" className="recipe-details-text" placeholder="Recipe Name" id="recipe_name" name="recipe_name" onChange={this.sensorOnChange}/>
-                            <textarea className="recipe-details-text" placeholder="Recipe Description" id="recipe_description" name="recipe_description" onChange={this.sensorOnChange}/>
+                            <Input type="text" className="recipe-details-text" placeholder="Recipe Name"
+                                   id="recipe_name" name="recipe_name" onChange={this.sensorOnChange}/>
+                            <textarea className="recipe-details-text" placeholder="Recipe Description"
+                                      id="recipe_description" name="recipe_description" onChange={this.sensorOnChange}/>
                             <Dropdown isOpen={this.state.plant_variant_dropdown_toggle}
                                       toggle={this.plant_variant_type_dropdowntoggle}
                                       className="row dropdown-row">
