@@ -17,8 +17,9 @@ def create_new_code():
     received_form_response = json.loads(request.data.decode('utf-8'))
     user_token = received_form_response.get("user_token", None)
 
+    user_uuid = get_user_uuid_from_token(user_token)
     user_entity = utils.datastore.get_one(
-        kind='Users', key='user_token', value=user_token
+        kind='Users', key='user_uuid', value=user_uuid
     )
     if user_entity is None:
         return error_response(
