@@ -9,6 +9,8 @@ class recipes extends Component {
         super(props);
         this.state = {
             all_recipes: [],
+            filtered_recipes: [],
+            filter_recipe_button_state: 'my',
             modal: false,
             apply_to_device_modal: false,
             selected_recipe: {},
@@ -49,6 +51,10 @@ class recipes extends Component {
         });
         event.preventDefault();
 
+    }
+
+    onFilterRecipe = (type) => {
+        this.setState({filter_recipe_button_state: type});
     }
 
     goToRecipe(value, e) {
@@ -104,8 +110,20 @@ class recipes extends Component {
             .then((responseJson) => {
                 console.log(responseJson)
                 if (responseJson["response_code"] == 200) {
-                    this.setState({all_recipes: responseJson["results"]})
                     this.setState({devices: responseJson["devices"]})
+
+                    // Filter recipes
+                    const own_uuid = responseJson["user_uuid"];
+                    const all_recipes = responseJson["results"];
+                    const filtered_recipes = all_recipes.filter(recipe =>
+                        recipe.user_uuid == own_uuid
+                    )
+
+                    this.setState({
+                        all_recipes: all_recipes,
+                        filtered_recipes, filtered_recipes,
+                        user_uuid: own_uuid
+                    });
 
                     var devs = [];                  // make array
                     devs = responseJson["devices"]; // assign array
@@ -133,57 +151,82 @@ class recipes extends Component {
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*'
             },
-            body: JSON.stringify({
-                'device_uuid': this.state.selected_device_uuid,
-                'recipe_uuid': this.state.selected_recipe_uuid,
-                'user_token': this.props.cookies.get('user_token')
-            })
+        body: JSON.stringify({
+            'device_uuid': this.state.selected_device_uuid,
+            'recipe_uuid': this.state.selected_recipe_uuid,
+            'user_token': this.props.cookies.get('user_token')
         })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log(responseJson)
-                if (responseJson["response_code"] == 200) {
-                    console.log("Applied successfully")
-                    this.setState({apply_to_device_modal: false});
-                }
+    })
+        .then((response) => response.json())
+        .then((responseJson) => {
+            console.log(responseJson)
+            if (responseJson["response_code"] == 200) {
+                console.log("Applied successfully")
+                this.setState({apply_to_device_modal: false});
+            }
 
-            })
-            .catch((error) => {
-                console.error(error);
-            });
-    }
+        })
+        .catch((error) => {
+            console.error(error);
+        });
+}
 
-    render() {
-        let listRecipes = <p>Loading</p>
-        if (this.state.all_recipes.length > 0) {
-            listRecipes = this.state.all_recipes.map((recipe) => {
-                return <div className="col-md-3" key={recipe.recipe_uuid}>
-                    <div className="card">
-                        <div className="card-body">
-                            <h5 className="card-title">{recipe.name}</h5>
-                            <h6 className="card-subtitle mb-2 text-muted">{recipe.description}</h6>
-                            <div className="card-text">
+render() {
+    let listRecipes = <p>Loading</p>
+    let recipes = [];
+    if (this.state.all_recipes.length > 0) {
+        if (this.state.filter_recipe_button_state == 'my') {
+            recipes = this.state.filtered_recipes;
+        } else {
+            recipes = this.state.all_recipes;
+        }
 
-                                <div onClick={this.goToRecipe.bind(this, recipe.recipe_uuid)} id={recipe.recipe_uuid}
-                                >View Recipe
-                                </div>
-                                <div onClick={this.toggle_apply_to_device.bind(this, recipe.recipe_uuid)}
-                                     id={recipe.recipe_uuid}>Apply Recipe
-                                </div>
+        listRecipes = recipes.map((recipe) => {
+            return <div className="col-md-3" key={recipe.recipe_uuid}>
+                <div className="card">
+                    <div className="card-body">
+                        <h5 className="card-title">{recipe.name}</h5>
+                        <h6 className="card-subtitle mb-2 text-muted">{recipe.description}</h6>
+                        <div className="card-text">
+
+                            <div onClick={this.goToRecipe.bind(this, recipe.recipe_uuid)} id={recipe.recipe_uuid}
+                            >View Recipe
                             </div>
-
+                            <div onClick={this.toggle_apply_to_device.bind(this, recipe.recipe_uuid)}
+                                 id={recipe.recipe_uuid}>Apply Recipe
+                            </div>
                         </div>
+
                     </div>
                 </div>
-            });
-        }
-        return (
-            <Router>
-                <div className="recipe-container">
-                    <div className="row buttons-row">
-                        <div className="button__group">
-                            <a href="" className="button button__toggle" >All Climate Recipes</a>
-                            <a href="" className="button button__toggle" >My Climate Recipes</a>
+            </div>
+        });
+    }
+    return (
+        <Router>
+            <div className="recipe-container">
+                <div className="row buttons-row">
+                    <div className="button__group">
+                        <a
+                            href="javascript:void(0)"
+                            className={`
+                                button button__toggle
+                                ${this.state.filter_recipe_button_state == 'all' && 'button-selected'}
+                            `}
+                            onClick={() => this.onFilterRecipe('all')}
+                        >
+                            All Climate Recipes
+                        </a>
+                        <a
+                            href="javascript:void(0)"
+                            className={`
+                                button button__toggle
+                                ${this.state.filter_recipe_button_state == 'my' && 'button-selected'}
+                            `}
+                            onClick={() => this.onFilterRecipe('my')}
+                        >
+                            My Climate Recipes
+                        </a>
                         </div>
                     </div>
                     <div className="row card-row">
