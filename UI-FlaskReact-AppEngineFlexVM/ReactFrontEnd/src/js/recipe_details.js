@@ -2,6 +2,31 @@ import React, {Component} from 'react';
 import {Cookies, withCookies} from "react-cookie";
 import "../css/recipe_details.css";
 import arugula from "../images/arugula.jpg";
+import '../css/new_recipe.css';
+import Slider from 'rc-slider';
+import Tooltip from 'rc-tooltip';
+import 'rc-time-picker/assets/index.css';
+import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input} from 'reactstrap';
+
+const showSecond = true;
+const str = showSecond ? 'HH:mm:ss' : 'HH:mm';
+const createSliderWithTooltip = Slider.createSliderWithTooltip;
+const Range = createSliderWithTooltip(Slider.Range);
+const Handle = Slider.Handle;
+const handle = (props) => {
+    const {value, dragging, index, ...restProps} = props;
+    return (
+        <Tooltip
+            prefixCls="rc-slider-tooltip"
+            overlay={value}
+            visible={dragging}
+            placement="top"
+            key={index}
+        >
+            <Handle value={value} {...restProps} />
+        </Tooltip>
+    );
+};
 
 class RecipeDetails extends Component {
     constructor(props) {
@@ -9,22 +34,42 @@ class RecipeDetails extends Component {
         this.recipe_uuid = this.props.location.pathname.replace("/recipe_details/", "").replace("#", "")
         this.state = {
             recipe_name: "",
+            recipe_description: "",
             recipe_plant: "",
             recipe_uuid: this.recipe_uuid,
             recipe_json: {},
-            components: [],
-            history: {}
+            peripherals: [],
+            history: {},
+            devices:[],
+            apply_to_device_modal: false
         };
         this.getRecipeDetails = this.getRecipeDetails.bind(this);
+        this.toggle_apply_to_device = this.toggle_apply_to_device.bind(this);
+        this.handleChange = this.handleChange.bind(this);
 
     }
+    handleChange(event) {
+        this.setState({
+            [event.target.name]: event.target.value
+        }, () => {
+            // console.log("State", this.state);
+        });
+        event.preventDefault();
 
+    }
     componentDidMount() {
         this.getRecipeDetails()
     }
 
+    toggle_apply_to_device(recipe_uuid) {
+        this.setState({
+            apply_to_device_modal: !this.state.apply_to_device_modal,
+            selected_recipe_uuid: recipe_uuid
+        })
+    }
+
     getRecipeDetails() {
-        return fetch( process.env.REACT_APP_FLASK_URL + "/api/get_recipe_details/", {
+        return fetch(process.env.REACT_APP_FLASK_URL + "/api/get_recipe_by_uuid/", {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -41,12 +86,22 @@ class RecipeDetails extends Component {
                 console.log(responseJson)
                 if (responseJson["response_code"] == 200) {
                     let resultJson = responseJson["results"][0]
-                    this.setState({recipe_name: resultJson["recipe_name"]})
-                    this.setState({recipe_plant: resultJson["recipe_plant"]})
+                    this.setState({recipe_name: resultJson["name"]})
+                    this.setState({recipe_description: resultJson["description"]})
+                    this.setState({recipe_plant: resultJson["plant_type"]})
                     this.setState({modified_at: resultJson["modified_at"]})
-                    this.setState({recipe_json: JSON.parse(resultJson["recipe_json"])})
-                    this.setState({components: (resultJson["components"])})
-                    this.setState({history: responseJson["history"]})
+                    this.setState({recipe_json: resultJson["recipe_json"]})
+                    this.setState({peripherals: (resultJson["peripherals"])})
+                    this.setState({devices: responseJson["devices"]})
+
+                    var devs = [];                  // make array
+                    devs = responseJson["devices"]; // assign array
+                    if (devs.length > 0) {         // if we have devices
+                        // default the selected device to the first/only dev.
+                        this.state.selected_device_uuid = devs[0].device_uuid;
+                    }
+
+                    // this.setState({history: responseJson["history"]})
                 }
             })
             .catch((error) => {
@@ -61,160 +116,209 @@ class RecipeDetails extends Component {
                 return flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten);
             }, []);
         };
-        let listComponents = this.state.components.map((component) => {
-            return (<div className="row" key={component.component_id}>
-                <div className="col-md-4">
-                    {component.component_label}
-                </div>
-                <div className="col-md-2">
-                    {component.component_type}
-                </div>
+        let listperipherals = this.state.peripherals.map((component) => {
+            return (<div className="row" key={component.type}>
                 <div className="col-md-6">
-                    {component.component_description}
+                    {component.name}
                 </div>
-            </div>)
 
-        });
-        let history_json = this.state.history;
-        let history_records = Object.keys(history_json).map((item, i) => {
-                let history_record_json = history_json[item]
-                let records = history_record_json.map((history_ob) => {
-                    let list_of_changes = history_ob["changes_in_record"].map((change) => {
-                        return <li>{change}</li>
-                    })
-                    return (<div key={item}>
-                        <div className="row">
-                            <div className="col-md-4 history-col"> {history_ob["updated_at"]}</div>
-                            <div className="col-md-4 history-col"> {history_ob["device_name"]}</div>
-                            <div className="col-md-4 history-col">
-                                <ul> {list_of_changes} </ul>
-                            </div>
-
-                        </div>
-                        <hr/>
-                    </div>)
-                });
-                return (records)
-            }
-        );
-
-        let html_history_records = flatten(history_records)
-        this.state.components.map((component) => {
-            return (<div className="row" key={component.component_id}>
-                <div className="col-md-4">
-                    {component.component_label}
-                </div>
-                <div className="col-md-2">
-                    {component.component_type}
-                </div>
-                <div className="col-md-6">
-                    {component.component_description}
-                </div>
             </div>)
 
         });
 
-        let recipeParams = this.state.components.map(function (component) {
-            let component_key = component.component_key
-            let component_json = component.field_json
-            let component_field_label = component_json["field_label"]
-            let component_field_units = component_json["field_units"]
-            let component_value = this.state.recipe_json[component_key]
-            if (component_key !== "LED_panel") {
-                return (
-                    <div key={component_key}>
-                        <div className="row">
-                            <div className="col-md-6"><b> {component.component_label} </b></div>
-                        </div>
+        let recipeParams = this.state.peripherals.map(function (peripheral_json) {
 
-                        <div className="row">
-                            <div className="col-md-6">
-                                {component_field_label}
-                            </div>
-                            <div className="col-md-4">
-                                {component_value}
-                            </div>
-                            <div className="col-md-2">
-                                {component_field_units}
-                            </div>
-                        </div>
+            if (peripheral_json) {
+                let peripheral_html = []
+                peripheral_html.push(<div className="row label-row">
+                    <div className="col-md-6 rounded-col" style={{backgroundColor: peripheral_json.color}}>
+                        {peripheral_json.name}
                     </div>
-                )
-            }
-            else if (component_key === "LED_panel") {
-                let off_far_red = this.state.recipe_json["LED_panel_off_far_red"]
-                let off_red = this.state.recipe_json["LED_panel_off_red"]
-                let off_warm_white = this.state.recipe_json["LED_panel_off_warm_white"]
-                let off_green = this.state.recipe_json["LED_panel_off_green"]
-                let off_cool_white = this.state.recipe_json["LED_panel_off_cool_white"]
-                let off_blue = this.state.recipe_json["LED_panel_off_blue"]
-                let on_far_red = this.state.recipe_json["LED_panel_on_far_red"]
-                let on_red = this.state.recipe_json["LED_panel_on_red"]
-                let on_warm_white = this.state.recipe_json["LED_panel_on_warm_white"]
-                let on_green = this.state.recipe_json["LED_panel_on_green"]
-                let on_cool_white = this.state.recipe_json["LED_panel_on_cool_white"]
-                let on_blue = this.state.recipe_json["LED_panel_on_blue"]
-
-                return (<div key={component_key}>
-                    <div className="row">
-                        <div className="col-md-6"><b> {component.component_label} </b></div>
-                    </div>
-                    <div className="row">
-                        <div className="col-md-6"><i> LED Panel - While OFF </i></div>
-                    </div>
-                    <div className="row">
-                        <div className="col-md-6">Far Red</div>
-                        <div className="col-md-6">{off_far_red}</div>
-                    </div>
-                    <div className="row">
-                        <div className="col-md-6">Red</div>
-                        <div className="col-md-6">{off_red}</div>
-                    </div>
-                    <div className="row">
-                        <div className="col-md-6">Warm White</div>
-                        <div className="col-md-6">{off_warm_white}</div>
-                    </div>
-                    <div className="row">
-                        <div className="col-md-6">Cool White</div>
-                        <div className="col-md-6">{off_cool_white}</div>
-                    </div>
-                    <div className="row">
-                        <div className="col-md-6">Green</div>
-                        <div className="col-md-6">{off_green}</div>
-                    </div>
-                    <div className="row">
-                        <div className="col-md-6">Blue</div>
-                        <div className="col-md-6">{off_blue}</div>
-                    </div>
-                    <div className="row">
-                        <div className="col-md-6"><i> LED Panel - While on </i></div>
-                    </div>
-                    <div className="row">
-                        <div className="col-md-6">Far Red</div>
-                        <div className="col-md-6">{on_far_red}</div>
-                    </div>
-                    <div className="row">
-                        <div className="col-md-6">Red</div>
-                        <div className="col-md-6">{on_red}</div>
-                    </div>
-                    <div className="row">
-                        <div className="col-md-6">Warm White</div>
-                        <div className="col-md-6">{on_warm_white}</div>
-                    </div>
-                    <div className="row">
-                        <div className="col-md-6">Cool White</div>
-                        <div className="col-md-6">{on_cool_white}</div>
-                    </div>
-                    <div className="row">
-                        <div className="col-md-6">Green</div>
-                        <div className="col-md-6">{on_green}</div>
-                    </div>
-                    <div className="row">
-                        <div className="col-md-6">Blue</div>
-                        <div className="col-md-6">{on_blue}</div>
-                    </div>
-
                 </div>)
+                // Get all the input fields needed to load required fields for this peripheral
+                let fields = JSON.parse(peripheral_json.inputs)
+                for (let field of fields) {
+                    if (field.field_type === "text_input") {
+                        peripheral_html.push(
+                            <div className="row field-row">
+                                <span>Sensor values are published every time environment changes </span>
+                            </div>)
+
+                    }
+                    if (field.field_type === "led_panel") {
+
+                        peripheral_html.push(<div className="row">
+                                <div className="col-md-6">
+                                    <div className="card led-stats-card">
+                                        <div className="card-block">
+                                            <h4 className="card-title "> Choose LED Spectrum for Standard Day </h4>
+                                            <div className="card-text">
+                                                <div className="graph">
+                                                    <div className="">
+                                                        <div className="row colors-row">
+                                                            <div className="col-md-6">
+                                                                <span>Cool White</span>
+                                                            </div>
+                                                            <div className="col-md-6">
+
+                                                                <Slider min={0} max={255}
+                                                                        defaultValue={this.state[field.state_key + '_on_cool_white']}
+                                                                        handle={handle}
+                                                                />
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="row colors-row">
+                                                            <div className="col-md-6">
+                                                                <span>Warm White</span>
+                                                            </div>
+                                                            <div className="col-md-6">
+                                                                <Slider min={0} max={255}
+                                                                        defaultValue={this.state[field.state_key + '_on_warm_white']}
+                                                                        handle={handle}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <div className="row colors-row">
+                                                            <div className="col-md-6">
+                                                                <span>Blue</span>
+                                                            </div>
+                                                            <div className="col-md-6">
+                                                                <Slider min={0} max={255}
+                                                                        defaultValue={this.state[field.state_key + '_on_blue']}
+                                                                        handle={handle}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <div className="row colors-row">
+                                                            <div className="col-md-6">
+                                                                <span>Green</span>
+                                                            </div>
+                                                            <div className="col-md-6">
+                                                                <Slider min={0} max={255}
+                                                                        defaultValue={this.state[field.state_key + '_on_green']}
+                                                                        handle={handle}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <div className="row colors-row">
+                                                            <div className="col-md-6">
+                                                                <span>Red</span>
+                                                            </div>
+                                                            <div className="col-md-6">
+                                                                <Slider min={0} max={255}
+                                                                        defaultValue={this.state[field.state_key + '_on_red']}
+                                                                        handle={handle}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <div className="row colors-row">
+                                                            <div className="col-md-6">
+                                                                <span>Far Red</span>
+                                                            </div>
+                                                            <div className="col-md-6">
+                                                                <Slider min={0} max={255}
+                                                                        defaultValue={this.state[field.state_key + '_on_far_red']}
+                                                                        handle={handle}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="col-md-6">
+                                    <div className="card led-stats-card">
+                                        <div className="card-block">
+                                            <h4 className="card-title "> Choose LED Spectrum for Standard Night </h4>
+                                            <div className="card-text">
+                                                <div className="graph">
+                                                    <div className="">
+                                                        <div className="row colors-row">
+                                                            <div className="col-md-6">
+                                                                <span>Cool White</span>
+                                                            </div>
+                                                            <div className="col-md-6">
+                                                                <Slider min={0} max={255}
+                                                                        defaultValue={this.state[field.state_key + '_off_cool_white']}
+                                                                        handle={handle}
+                                                                />
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="row colors-row">
+                                                            <div className="col-md-6">
+                                                                <span>Warm White</span>
+                                                            </div>
+                                                            <div className="col-md-6">
+                                                                <Slider min={0} max={255}
+                                                                        defaultValue={this.state[field.state_key + '_off_warm_white']}
+                                                                        handle={handle}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <div className="row colors-row">
+                                                            <div className="col-md-6">
+                                                                <span>Blue</span>
+                                                            </div>
+                                                            <div className="col-md-6">
+                                                                <Slider min={0} max={255}
+                                                                        defaultValue={this.state[field.state_key + '_off_blue']}
+                                                                        handle={handle}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <div className="row colors-row">
+                                                            <div className="col-md-6">
+                                                                <span>Green</span>
+                                                            </div>
+                                                            <div className="col-md-6">
+                                                                <Slider min={0} max={255}
+                                                                        defaultValue={this.state[field.state_key + '_off_green']}
+                                                                        handle={handle}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <div className="row colors-row">
+                                                            <div className="col-md-6">
+                                                                <span>Red</span>
+                                                            </div>
+                                                            <div className="col-md-6">
+                                                                <Slider min={0} max={255}
+                                                                        defaultValue={this.state[field.state_key + '_off_red']}
+                                                                        handle={handle}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <div className="row colors-row">
+                                                            <div className="col-md-6">
+                                                                <span>Far Red</span>
+                                                            </div>
+                                                            <div className="col-md-6">
+                                                                <Slider min={0} max={255}
+                                                                        defaultValue={this.state[field.state_key + '_off_far_red']}
+                                                                        handle={handle}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )
+                    }
+
+                }
+                return peripheral_html
             }
         }, this);
         return (
@@ -236,30 +340,22 @@ class RecipeDetails extends Component {
                         </div>
 
                         <div className="row card-row">
-                            <div className="col-md-6">
+
+                            <div className="col-md-12">
                                 <div className="card">
                                     <div className="card-body">
-                                        <div className="card-title">Plant Notes</div>
                                         <div className="card-text">
-                                            {this.state.recipe_json.plant_description}
+                                            {this.state.recipe_description}
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-md-6">
-                                <div className="card">
-                                    <div className="card-body">
-                                        <div className="card-title">Recipe Notes</div>
-                                        <div className="card-text">
-                                            {this.state.recipe_json.recipe_description}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+
+
                         </div>
                         <div className="row card-row">
 
-                            <h3>Components used in this climate recipe </h3>
+                            <h3>Peripherals used in this climate recipe </h3>
 
                         </div>
                         <div className="row card-row">
@@ -268,7 +364,7 @@ class RecipeDetails extends Component {
                                     <div className="card-body">
                                         {/*<div className="card-title"></div>*/}
                                         <div className="card-text">
-                                            {listComponents}
+                                            {listperipherals}
                                         </div>
                                     </div>
                                 </div>
@@ -281,50 +377,42 @@ class RecipeDetails extends Component {
                         </div>
                         <div className="row card-row">
                             <div className="col-md-12">
-                                <div className="card">
-                                    <div className="card-body">
-                                        {/*<div className="card-title"></div>*/}
-                                        <div className="card-text">
-                                            {recipeParams}
-                                        </div>
-                                    </div>
-                                </div>
+
+
+                                {recipeParams}
+
+
                             </div>
                         </div>
                         <div className="row card-row">
-
-                            <h3>Recipe History on your devices </h3>
-
-                        </div>
-                        <div className="row card-row">
-                            <div className="col-md-12">
-                                <div className="card">
-                                    <div className="card-body">
-                                        <div className="card-title">
-                                            <div className="row">
-                                                <div className="col-md-4">
-                                                    <b> Date Modified </b>
-                                                </div>
-                                                <div className="col-md-4">
-                                                    <b> Device Name </b>
-                                                </div>
-                                                <div className="col-md-4">
-                                                    <b> Change Summary </b>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="card-text">
-                                            {html_history_records}
-                                        </div>
-                                    </div>
-                                </div>
+                            <div onClick={this.toggle_apply_to_device.bind(this, this.recipe_uuid)}
+                                 id={this.recipe_uuid}>Apply Recipe
                             </div>
                         </div>
+
                     </div>
 
 
                 </div>
-
+                <Modal isOpen={this.state.apply_to_device_modal} toggle={this.toggle_apply_to_device}
+                       className={this.props.className}>
+                    <ModalHeader toggle={this.toggle_apply_to_device}>Select a device to apply this recipe
+                        to </ModalHeader>
+                    <ModalBody>
+                        <select className="form-control smallInput" onChange={this.handleChange}
+                                id="selected_device_uuid" name="selected_device_uuid"
+                                value={this.selected_device_uuid}>
+                            {this.state.devices.map(function (device) {
+                                return <option key={device.device_uuid}
+                                               value={device.device_uuid}>{device.device_name}</option>
+                            })}
+                        </select>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="primary" onClick={this.apply_to_device}>Apply to this device</Button>
+                        <Button color="secondary" onClick={this.toggle_apply_to_device}>Close</Button>
+                    </ModalFooter>
+                </Modal>
 
             </div>
 

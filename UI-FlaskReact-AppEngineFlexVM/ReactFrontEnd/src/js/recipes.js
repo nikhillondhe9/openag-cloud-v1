@@ -52,6 +52,8 @@ class recipes extends Component {
     }
 
     goToRecipe(value, e) {
+        console.log(value)
+        console.log(e)
         window.location.href = "/recipe_details/" + (value).toString()
     }
 
@@ -155,12 +157,11 @@ class recipes extends Component {
         let listRecipes = <p>Loading</p>
         if (this.state.all_recipes.length > 0) {
             listRecipes = this.state.all_recipes.map((recipe) => {
-                let recipe_json_value = JSON.parse(recipe.recipe_json)
                 return <div className="col-md-3" key={recipe.recipe_uuid}>
                     <div className="card">
                         <div className="card-body">
-                            <h5 className="card-title">{recipe.recipe_name}</h5>
-                            <h6 className="card-subtitle mb-2 text-muted">{recipe.recipe_plant}</h6>
+                            <h5 className="card-title">{recipe.name}</h5>
+                            <h6 className="card-subtitle mb-2 text-muted">{recipe.description}</h6>
                             <div className="card-text">
 
                                 <div onClick={this.goToRecipe.bind(this, recipe.recipe_uuid)} id={recipe.recipe_uuid}

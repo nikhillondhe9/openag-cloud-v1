@@ -1,6 +1,5 @@
-.recipe-container
-{
-    top:100px;
+.recipe-container {
+    top: 100px;
     width: 100%;
     padding-top: 20px;
     padding-left: 20px;
@@ -8,77 +7,110 @@
     background: white;
     overflow-y: scroll;
     max-width: 100%;
-    position:relative;
+    position: relative;
     font-family: "Roboto", sans-serif;
 
-
 }
 
-.recipe-details-text
-{
-    margin-top:10px;
-    text-align:left;
-    width:100%;
+.recipe-details-text {
+    margin-top: 10px;
+    text-align: left;
+    width: 100%;
 }
 
-.details-container
-{
+.details-container {
     width: 80%;
     display: block;
-    margin-left:auto;
+    margin-left: auto;
     margin-right: auto;
 }
 
-.input-row
-{
-    padding-top:10px;
+.input-row {
+    padding-top: 10px;
 }
 
-textarea
-{
+textarea {
     padding: 10px;
 }
 
-.row.dropdown-row
-{
-    padding-left:13px;
+.row.dropdown-row {
+    padding-left: 13px;
 }
 
-Dropdown
-{
-    width:100%;
+Dropdown {
+    width: 100%;
 }
-.button-col
-{
-    width:180px;
-    height:180px;
+
+.button-col {
+    width: 180px;
+    height: 180px;
     text-align: center;
-    color:#F7F3F3;
-    background-color:#008BC2;
+    color: #F7F3F3;
+    background-color: #008BC2;
     border-radius: 20px;
-    padding:10px;
-    margin-left:10px;
+    padding: 10px;
+    margin-left: 10px;
 }
 
-.centered-image
-{
-    width:80px;
-    height:80px;
+.centered-image {
+    width: 80px;
+    height: 80px;
     display: block;
-    margin-left:auto;
-    margin-right:auto;
-    padding-top:5px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 5px;
 }
 
-.button-row
-{
-    padding-left:30px;
+.button-row {
+    padding-left: 30px;
 }
-.text-row-bottom
-{
-    padding-top:15px;
+
+.text-row-bottom {
+    padding-top: 15px;
 }
-.input-modal-row
+
+.input-modal-row {
+    margin-left: 25px;
+}
+
+.submit-recipe-button {
+    margin-top: 10px;
+}
+
+.label-row {
+    text-decoration-color: white;
+    padding: 10px;
+
+}
+
+.rounded-col {
+    border-radius: 5px;
+    color: white;
+    font-size: 18px;
+
+}
+
+.rounded-col:hover {
+    font-size: 22px;
+}
+
+
+.field-row {
+    padding: 12px;
+}
+.field-col
 {
     padding:10px;
+}
+.led-stats-card
+{
+    max-height:250px;
+}
+.dropdown-type
+{
+    width:250px;
+}
+.dropdown-col
+{
+    width:250px;
 }

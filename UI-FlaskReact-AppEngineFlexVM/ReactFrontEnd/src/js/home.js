@@ -77,6 +77,7 @@ class Home extends Component {
     }
 
     getUserDevices() {
+        console.log(process.env.REACT_APP_FLASK_URL,"X")
         return fetch(process.env.REACT_APP_FLASK_URL + '/api/get_user_devices/', {
             method: 'POST',
             headers: {

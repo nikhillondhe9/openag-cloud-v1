@@ -880,77 +880,7 @@ class DeviceHomepage extends Component {
                         </div>
                     </Draggable>
                 </div>
-                <div className="row graphs-row">
-                    <Draggable cancel="strong">
-                        <div className="col-md-4">
-                            <div className="card current-stats-card" style={{border: this.state.sensor_temp_border}}>
-                                <div className="card-block">
-                                    <h4 className="card-title "> Temperature </h4>
-                                    <div className="card-text">
-                                        <div className="graph">
-                                            <strong className="no-cursor">
-                                                <span className="txt_smaller">Publish sensor values every</span>
-                                                <div className="knob_data"><input value={this.state.sensor_temp}
-                                                                                  onChange={this.sensorOnChange}
-                                                                                  id="sensor_temp" name="sensor_temp"
-                                                                                  type="text"
-                                                                                  ref="sensor_temp" disabled={this.state.control_level === 'view'}/>
-                                                </div>
-                                                <span className="txt_smaller">seconds</span>
-                                            </strong>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </Draggable>
-                    <Draggable cancel="strong">
-                        <div className="col-md-4">
-                            <div className="card current-stats-card" style={{border: this.state.sensor_temp_border}}>
-                                <div className="card-block">
-                                    <h4 className="card-title "> Relative Humidity </h4>
-                                    <div className="card-text">
-                                        <div className="graph">
-                                            <strong className="no-cursor">
-                                                <span className="txt_smaller">Publish sensor values every</span>
-                                                <div className="knob_data"><input value={this.state.sensor_temp}
-                                                                                  onChange={this.sensorOnChange}
-                                                                                  id="sensor_temp" name="sensor_temp"
-                                                                                  type="text"
-                                                                                  ref="sensor_temp" disabled={this.state.control_level === 'view'}/>
-                                                </div>
-                                                <span className="txt_smaller">seconds</span>
-                                            </strong>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </Draggable>
-                    <Draggable cancel="strong">
-                        <div className="col-md-4">
-                            <div className="card current-stats-card" style={{border: this.state.sensor_co2_border}}>
-                                <div className="card-block">
-                                    <h4 className="card-title "> CO2 Sensor </h4>
-                                    <div className="card-text">
-                                        <div className="graph">
-                                            <strong className="no-cursor">
-                                                <span className="txt_smaller">Publish sensor values every</span>
-                                                <div className="knob_data"><input defaultValue={this.state.sensor_co2}
-                                                                                  onChange={this.sensorOnChange}
-                                                                                  id="sensor_co2" name="sensor_co2"
-                                                                                  type="text"
-                                                                                  ref="sensor_co2" disabled={this.state.control_level === 'view'}/>
-                                                </div>
-                                                <span className="txt_smaller">seconds</span>
-                                            </strong>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </Draggable>
-                </div>
+
                 <div className="row graphs-row">
                     <Draggable cancel="strong">
                         <div className="col-md-6">
@@ -968,7 +898,7 @@ class DeviceHomepage extends Component {
                                                         <Slider min={0} max={255}
                                                                 defaultValue={this.state.led_on_data.cool_white}
                                                                 handle={handle}
-                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'cool_white')} disabled={this.state.control_level === 'view'}/>
+                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'cool_white')} />
                                                     </div>
                                                 </div>
 
@@ -980,7 +910,7 @@ class DeviceHomepage extends Component {
                                                         <Slider min={0} max={255}
                                                                 defaultValue={this.state.led_on_data.warm_white}
                                                                 handle={handle}
-                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'warm_white')} disabled={this.state.control_level === 'view'}/>
+                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'warm_white')} />
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
@@ -991,7 +921,7 @@ class DeviceHomepage extends Component {
                                                         <Slider min={0} max={255}
                                                                 defaultValue={this.state.led_on_data.blue}
                                                                 handle={handle}
-                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'blue')} disabled={this.state.control_level === 'view'}/>
+                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'blue')} />
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
@@ -1002,7 +932,7 @@ class DeviceHomepage extends Component {
                                                         <Slider min={0} max={255}
                                                                 defaultValue={this.state.led_on_data.green}
                                                                 handle={handle}
-                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'green')} disabled={this.state.control_level === 'view'}/>
+                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'green')} />
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
@@ -1013,7 +943,7 @@ class DeviceHomepage extends Component {
                                                         <Slider min={0} max={255}
                                                                 defaultValue={this.state.led_on_data.red}
                                                                 handle={handle}
-                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'red')} disabled={this.state.control_level === 'view'}/>
+                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'red')} />
                                                     </div>
                                                 </div>
                                                 <div className="row colors-row">
@@ -1024,7 +954,7 @@ class DeviceHomepage extends Component {
                                                         <Slider min={0} max={255}
                                                                 defaultValue={this.state.led_on_data.far_red}
                                                                 handle={handle}
-                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'far_red')} disabled={this.state.control_level === 'view'}/>
+                                                                onChange={this.sliderChange.bind(this, 'led_on_data', 'far_red')} />
                                                     </div>
                                                 </div>
 

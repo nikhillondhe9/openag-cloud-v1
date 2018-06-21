@@ -1,0 +1,81 @@
+{
+	"format": "",
+	"version": "",
+	"creation_timestamp_utc": "",
+	"name": "",
+	"uuid": "",
+	"parent_recipe_uuid": null,
+	"support_recipe_uuids": null,
+	"description": {
+		"brief": "",
+		"verbose": ""
+	},
+	"authors": [],
+	"cultivars": [],
+	"cultivation_methods": [],
+	"environments": {
+		"standard_day": {
+			"name": "Standard Day",
+			"light_spectrum_nm_percent": {"400-449": "", "449-499": "", "500-549": "", "550-559": "", "600-649": "", "650-699": ""},
+			"light_intensity_watts": null,
+			"light_illumination_distance_cm": null,
+			"air_temperature_celcius": null
+		},
+		"standard_night": {
+			"name": "Standard Night",
+			"light_spectrum_nm_percent": {"400-449": "", "449-499": "", "500-549": "", "550-559": "", "600-649": "", "650-699": ""},
+			"light_intensity_watts": null,
+			"light_illumination_distance_cm": null,
+			"air_temperature_celcius": null
+		},
+		"cold_day": {
+			"name": "Standard Day",
+			"light_spectrum_nm_percent": {"400-449": "", "449-499": "", "500-549": "", "550-559": "", "600-649": "", "650-699": ""},			
+			"light_intensity_watts": null,
+			"light_illumination_distance_cm": null,
+			"air_temperature_celcius": null
+		},
+		"frost_night": {
+			"name": "Frost Night",
+			"light_spectrum_nm_percent": {"400-449": "", "449-499": "", "500-549": "", "550-559": "", "600-649": "", "650-699": ""},			
+			"light_intensity_watts": null,
+			"light_illumination_distance_cm": null,
+			"air_temperature_celcius": null
+		}
+	},
+	"phases": [
+		{
+			"name": "Standard Growth",
+			"repeat": null,
+			"cycles": [
+				{
+					"name": "Day",
+					"environment": "standard_day",
+					"duration_hours": null
+				},
+				{
+					"name": "Night",
+					"environment": "standard_night",
+					"duration_hours": null
+				}
+			]
+		},
+		{
+			"name": "Frosty Growth",
+			"repeat": null,
+			"cycles": [
+				{
+					"name": "Day",
+					"environment": "cold_day",
+					"duration_hours": null
+				},
+				{
+					"name": "Night",
+					"environment": "frost_night",
+					"duration_hours": null
+				}
+			]
+
+		}
+	]
+}

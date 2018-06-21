@@ -29,8 +29,16 @@ def apply_to_device():
             message="Invalid User: Unauthorized"
         )
 
+    recipe_format = {}
+    query = datastore_client.query(kind='Recipes')
+    query.add_filter("recipe_uuid", "=", recipe_uuid)
+    results = list(query.fetch())
+    if len(results) > 0:
+        recipe_format = json.loads(results[0]["recipe"])
+
     # send the recipe to the device
-    send_recipe_to_device(device_uuid, recipe_uuid)
+    commands_list = convert_UI_recipe_to_commands(recipe_uuid, recipe_format)
+    send_recipe_to_device_via_IoT(iot_client, device_uuid, commands_list)
 
     # Add the user to the users kind of entity
     key = datastore_client.key('DeviceHistory')
@@ -54,24 +62,16 @@ def apply_to_device():
         'user_uuid': user_uuid
     })
 
-    # Get the JSON for the current Recipe state
-    recipe_query = datastore_client.query(kind='Recipes')
-    recipe_query.add_filter('recipe_uuid', '=', recipe_uuid)
-    recipe_query_result = list(recipe_query.fetch())
-
-    recipe_json = {}
-    if len(recipe_query_result) == 1:
-        recipe_json = recipe_query_result[0]['recipe_json']
 
     # Add a new recipe history record to indicate an event for when you applied this recipe to this device
     key = datastore_client.key('RecipeHistory')
-    device_reg_task = datastore.Entity(key, exclude_from_indexes=[])
+    device_reg_task = datastore.Entity(key, exclude_from_indexes=["recipe_state"])
     device_reg_task.update({
         "device_uuid": device_uuid,
         "recipe_uuid": recipe_uuid,
         "user_uuid": user_uuid,
         "recipe_session_token": str(uuid.uuid4()),
-        "recipe_state": str(recipe_json),
+        "recipe_state": str(recipe_format),
         "updated_at": datetime.now()
     })
 
