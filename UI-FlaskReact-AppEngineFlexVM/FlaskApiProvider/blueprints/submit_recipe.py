@@ -19,6 +19,9 @@ def submit_recipe():
     user_token = received_form_response.get("user_token", "")
     device_uuid = received_form_response.get("device_uuid","")
 
+
+    user_details_query = datastore_client.query(kind='Users')
+
     key = datastore_client.key('Recipes')
     recipe_reg_task = datastore.Entity(key, exclude_from_indexes=["recipe"])
 
@@ -28,6 +31,13 @@ def submit_recipe():
         return error_response(
             message="Invalid User: Unauthorized"
         )
+    user_details_query.add_filter("user_uuid", "=", user_uuid)
+    user_results = list(user_details_query.fetch())
+    user_name = ""
+    email_address = ""
+    if len(user_results) > 0:
+        user_name = user_results[0]["username"]
+        email_address = user_results[0]["email_address"]
 
 
     query = datastore_client.query(kind='RecipeFormat')
@@ -42,9 +52,9 @@ def submit_recipe():
     recipe_format["version"] =" ".join(str(x) for x in [2])
     recipe_format["authors"] = [
         {
-            "name":"Manvitha",
-            "uuid":str(uuid.uuid4()),
-            "email": "manvitha@mit.edu"
+            "name":str(user_name),
+            "uuid":str(user_uuid),
+            "email":str(email_address)
         }
     ]
     recipe_format["parent_recipe_uuid"]= str(uuid.uuid4())
