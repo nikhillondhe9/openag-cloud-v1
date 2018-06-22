@@ -192,3 +192,17 @@ input::-moz-focus-inner,
 input::-moz-focus-outer {
     border: 0;
 }
+.status-col
+{
+    width:80%;
+    display: block;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+.notification-img
+{
+    height:50px;
+    padding-top: 20px;
+    padding-right:10px;
+}

@@ -13,8 +13,14 @@ import {
     ModalHeader
 } from 'reactstrap';
 import {Cookies, withCookies} from "react-cookie";
-import image1 from '../images/1.png';
-import image2 from '../images/2.png';
+import image1 from '../images/1.jpg';
+import image2 from '../images/2.jpg';
+import image3 from '../images/3.jpg';
+import image4 from '../images/4.jpg';
+import image5 from '../images/5.jpg';
+import image6 from '../images/6.jpg';
+import image7 from '../images/7.jpg';
+import notification from '../images/notification.png';
 import {Timeline} from 'react-twitter-widgets'
 
 import {ImageTimelapse} from './components/image_timelapse';
@@ -55,7 +61,7 @@ class Home extends Component {
     }
 
     getUserDevices() {
-        console.log(process.env.REACT_APP_FLASK_URL,"X")
+        console.log(process.env.REACT_APP_FLASK_URL, "X")
         return fetch(process.env.REACT_APP_FLASK_URL + '/api/get_user_devices/', {
             method: 'POST',
             headers: {
@@ -223,13 +229,13 @@ class Home extends Component {
                 <div className="home-container">
                     <div className="row dropdown-row">
                         <div className="col-md-6">
-                        <DevicesDropdown
-                            devices={this.state.user_devices}
-                            selectedDevice={this.state.selected_device}
-                            onSelectDevice={this.onSelectDevice}
-                            onAddDevice={this.toggleDeviceModal}
-                            onAddAccessCode={this.toggleAccessCodeModal}
-                        />
+                            <DevicesDropdown
+                                devices={this.state.user_devices}
+                                selectedDevice={this.state.selected_device}
+                                onSelectDevice={this.onSelectDevice}
+                                onAddDevice={this.toggleDeviceModal}
+                                onAddAccessCode={this.toggleAccessCodeModal}
+                            />
                         </div>
                         <div className="col-md-6">
                             <Button className="postbutton" onClick={this.postToTwitter}>Post status to twitter</Button>
@@ -239,30 +245,45 @@ class Home extends Component {
 
                     <div className="row">
 
-                        <div className="col-md-4">
-
-
+                        <div className="col-md-3">
                             <div className="card notifications-card">
-                                <div className="card-body">
-                                    <div className="row border-bottom notifications-body">
-
-
+                                <div className="card-title">
+                                    <div className="row">
+                                        <div className="col-md-10">
+                                            <h3>Notifications </h3>
+                                        </div>
+                                        <div className="col-md-2">
+                                            <img src={notification} className="notification-img"/>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-
-                        </div>
-                        {/*<a className="twitter-timeline" href="https://twitter.com/MITOpenAg?ref_src=twsrc%5Etfw">Tweets by MITOpenAg</a> <script async src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script>*/}
-                        <div className="col-md-4">
-                            <div className="">
                                 <div className="card-body">
-                                    <ImageTimelapse
-                                        imageClass="timelapse-img"
-                                        inputClass="range-slider__range"
-                                        images={[image1, image2]} />
-                                </div>
 
+                                </div>
                             </div>
+                        </div>
+
+                        <div className="col-md-5">
+                            <ImageTimelapse
+                                imageClass="timelapse-img"
+                                inputClass="range-slider__range"
+                                images={[image1, image2, image3, image4, image5, image6, image7]}/>
+                            <div className="row">
+                                <div className="status-col">
+                                    Status : Good
+                                </div>
+                            </div>
+                            <div className="row">
+                                <div className="status-col">
+                                    Temp :
+                                </div>
+                            </div>
+                            <div className="row">
+                                <div className="status-col">
+                                    Next Manual Nutrient Dosing :
+                                </div>
+                            </div>
+
                         </div>
                         <div className="col-md-4 twitter-col">
                             <Timeline
