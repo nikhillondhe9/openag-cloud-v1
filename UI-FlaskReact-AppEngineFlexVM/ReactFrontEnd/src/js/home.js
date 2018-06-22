@@ -39,8 +39,9 @@ class Home extends Component {
             add_access_modal: false,
             access_code_error_message: '',
             user_uuid: this.user_uuid,
-            user_devices: [],
-            selected_device: 'Loading'
+            user_devices: new Map(),
+            selected_device: 'Loading',
+            device_images: [image1,image2,image3,image4,image5,image6,image7]
         };
 
         // This binding is necessary to make `this` work in the callback
@@ -58,6 +59,30 @@ class Home extends Component {
     componentDidMount() {
         console.log("Mouting component")
         this.getUserDevices()
+    }
+
+    getDeviceImages(device_uuid) {
+        return fetch(process.env.REACT_APP_FLASK_URL + '/api/get_device_images/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({
+                'user_token': this.props.cookies.get('user_token'),
+                'device_uuid': device_uuid
+            })
+        })
+            .then(response => response.json())
+            .then(responseJson => {
+                this.setState({
+                    device_images: responseJson['image_urls']
+                });
+            })
+            .catch(error => {
+                console.error(error);
+            })
     }
 
     getUserDevices() {
@@ -91,9 +116,14 @@ class Home extends Component {
                             selected_device: name,
                             selected_device_uuid: device_uuid
                         });
+                        this.getDeviceImages(device_uuid);
                     }
 
-                    this.setState({user_devices: responseJson["results"]})
+                    let devices = new Map();
+                    for (const device of responseJson['results']) {
+                        devices.set(device['device_uuid'], device);
+                    }
+                    this.setState({user_devices: devices});
                     console.log("Response", responseJson["results"])
                 } else {
                     this.setState({selected_device: 'No Devices'});
@@ -220,7 +250,13 @@ class Home extends Component {
     }
 
     onSelectDevice(e) {
-        this.setState({selected_device: e.target.textContent});
+        if (e.target.value != this.state.selected_device_uuid) {
+            this.setState({
+                selected_device: e.target.textContent,
+                selected_device_uuid: e.target.value
+            });
+            this.getDeviceImages(e.target.value);
+        }
     }
 
     render() {
@@ -230,7 +266,7 @@ class Home extends Component {
                     <div className="row dropdown-row">
                         <div className="col-md-6">
                             <DevicesDropdown
-                                devices={this.state.user_devices}
+                                devices={[...this.state.user_devices.values()]}
                                 selectedDevice={this.state.selected_device}
                                 onSelectDevice={this.onSelectDevice}
                                 onAddDevice={this.toggleDeviceModal}
@@ -284,7 +320,8 @@ class Home extends Component {
                             <ImageTimelapse
                                 imageClass="timelapse-img"
                                 inputClass="range-slider__range"
-                                images={[image1, image2, image3, image4, image5, image6, image7]}/>
+                                images={this.state.device_images}
+                            />
                             <div className="row status-row">
                                 <div className="status-col">
                                     Status : Good

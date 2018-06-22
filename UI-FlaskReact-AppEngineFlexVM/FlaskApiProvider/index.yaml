@@ -9,3 +9,8 @@ indexes:
   - name: recipe_uuid
   - name: updated_at
     direction: desc
+- kind: Images
+  properties:
+  - name: device_uuid
+  - name: creation_date
+    direction: desc
