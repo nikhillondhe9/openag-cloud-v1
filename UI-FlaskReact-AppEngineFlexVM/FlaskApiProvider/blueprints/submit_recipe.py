@@ -100,16 +100,24 @@ def submit_recipe():
     }
     recipe_format["environments"]["cold_day"] = {
         "name": "Cold Day",
-        "light_spectrum_nm_percent": {"400-449": 16.67, "449-499": 16.67, "500-549": 16.67, "550-559": 16.67,
-                                      "600-649": 16.17, "650-699": 16.67},
+        "light_spectrum_nm_percent": {"400-449": float(recipe_state.get("led_panel_dac5578_on_red", 16.67)) ,
+                                      "449-499": float(recipe_state.get("led_panel_dac5578_on_blue", 16.67)) ,
+                                      "500-549": float(recipe_state.get("led_panel_dac5578_on_green", 16.67)) ,
+                                      "550-559": float(recipe_state.get("led_panel_dac5578_on_far_red", 16.67)) ,
+                                      "600-649": float(recipe_state.get("led_panel_dac5578_on_warm_white", 16.67)) ,
+                                      "650-699": float(recipe_state.get("led_panel_dac5578_on_cool_white", 16.67)) },
         "light_intensity_watts": 100,
         "light_illumination_distance_cm": 10,
         "air_temperature_celcius": 10
     }
     recipe_format["environments"]["frost_night"] = {
         "name": "Frost Night",
-        "light_spectrum_nm_percent": {"400-449": 16.67, "449-499": 16.67, "500-549": 16.67, "550-559": 16.67,
-                                      "600-649": 16.17, "650-699": 16.67},
+        "light_spectrum_nm_percent": {"400-449": float(recipe_state.get("led_panel_dac5578_off_red", 16.67)) ,
+                                      "449-499": float(recipe_state.get("led_panel_dac5578_off_blue", 16.67)) ,
+                                      "500-549": float(recipe_state.get("led_panel_dac5578_off_green", 16.67)) ,
+                                      "550-559": float(recipe_state.get("led_panel_dac5578_off_far_red", 16.67)) ,
+                                      "600-649": float(recipe_state.get("led_panel_dac5578_off_warm_white", 16.67)) ,
+                                      "650-699": float(recipe_state.get("led_panel_dac5578_off_cool_white", 16.67)) },
         "light_intensity_watts": 0,
         "light_illumination_distance_cm": 10,
         "air_temperature_celcius": 2
