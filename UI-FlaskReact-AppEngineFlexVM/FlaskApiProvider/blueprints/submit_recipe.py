@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask import request
 from google.cloud import datastore
-
+import ast
 from .utils.auth import get_user_uuid_from_token
 from .utils.env_variables import *
 from .utils.response import success_response, error_response
@@ -76,40 +76,48 @@ def submit_recipe():
 
     recipe_format["environments"]["standard_day"] = {
         "name": "Standard Day",
-        "light_spectrum_nm_percent": {"400-449": recipe_state.get("led_panel_dac5578_on_red", 42.5) ,
-                                      "449-499": recipe_state.get("led_panel_dac5578_on_blue", 42.5) ,
-                                      "500-549": recipe_state.get("led_panel_dac5578_on_green", 42.5) ,
-                                      "550-559": recipe_state.get("led_panel_dac5578_on_far_red", 42.5) ,
-                                      "600-649": recipe_state.get("led_panel_dac5578_on_warm_white", 42.5) ,
-                                      "650-699": recipe_state.get("led_panel_dac5578_on_cool_white", 42.5) },
+        "light_spectrum_nm_percent": {"400-449": float(recipe_state.get("led_panel_dac5578_on_red", 16.67)) ,
+                                      "449-499": float(recipe_state.get("led_panel_dac5578_on_blue", 16.67)) ,
+                                      "500-549": float(recipe_state.get("led_panel_dac5578_on_green", 16.67)) ,
+                                      "550-559": float(recipe_state.get("led_panel_dac5578_on_far_red", 16.67)) ,
+                                      "600-649": float(recipe_state.get("led_panel_dac5578_on_warm_white", 16.67)) ,
+                                      "650-699": float(recipe_state.get("led_panel_dac5578_on_cool_white", 16.67)) },
         "light_intensity_watts": 100,
         "light_illumination_distance_cm": 10,
         "air_temperature_celcius": 22
     }
     recipe_format["environments"]["standard_night"] = {
         "name": "Standard Night",
-        "light_spectrum_nm_percent": {"400-449": recipe_state.get("led_panel_dac5578_off_red", 42.5) ,
-                                      "449-499": recipe_state.get("led_panel_dac5578_off_blue", 42.5) ,
-                                      "500-549": recipe_state.get("led_panel_dac5578_off_green", 42.5) ,
-                                      "550-559": recipe_state.get("led_panel_dac5578_off_far_red", 42.5) ,
-                                      "600-649": recipe_state.get("led_panel_dac5578_off_warm_white", 42.5) ,
-                                      "650-699": recipe_state.get("led_panel_dac5578_off_cool_white", 42.5) },
+        "light_spectrum_nm_percent": {"400-449": float(recipe_state.get("led_panel_dac5578_off_red", 16.67)) ,
+                                      "449-499": float(recipe_state.get("led_panel_dac5578_off_blue", 16.67)) ,
+                                      "500-549": float(recipe_state.get("led_panel_dac5578_off_green", 16.67)) ,
+                                      "550-559": float(recipe_state.get("led_panel_dac5578_off_far_red", 16.67)) ,
+                                      "600-649": float(recipe_state.get("led_panel_dac5578_off_warm_white", 16.67)) ,
+                                      "650-699": float(recipe_state.get("led_panel_dac5578_off_cool_white", 16.67)) },
         "light_intensity_watts": 100,
         "light_illumination_distance_cm": 10,
         "air_temperature_celcius": 22
     }
     recipe_format["environments"]["cold_day"] = {
         "name": "Cold Day",
-        "light_spectrum_nm_percent": {"400-449": 16.67, "449-499": 16.67, "500-549": 16.67, "550-559": 16.67,
-                                      "600-649": 16.17, "650-699": 16.67},
+        "light_spectrum_nm_percent": {"400-449": float(recipe_state.get("led_panel_dac5578_on_red", 16.67)) ,
+                                      "449-499": float(recipe_state.get("led_panel_dac5578_on_blue", 16.67)) ,
+                                      "500-549": float(recipe_state.get("led_panel_dac5578_on_green", 16.67)) ,
+                                      "550-559": float(recipe_state.get("led_panel_dac5578_on_far_red", 16.67)) ,
+                                      "600-649": float(recipe_state.get("led_panel_dac5578_on_warm_white", 16.67)) ,
+                                      "650-699": float(recipe_state.get("led_panel_dac5578_on_cool_white", 16.67)) },
         "light_intensity_watts": 100,
         "light_illumination_distance_cm": 10,
         "air_temperature_celcius": 10
     }
     recipe_format["environments"]["frost_night"] = {
         "name": "Frost Night",
-        "light_spectrum_nm_percent": {"400-449": 16.67, "449-499": 16.67, "500-549": 16.67, "550-559": 16.67,
-                                      "600-649": 16.17, "650-699": 16.67},
+        "light_spectrum_nm_percent": {"400-449": float(recipe_state.get("led_panel_dac5578_off_red", 16.67)) ,
+                                      "449-499": float(recipe_state.get("led_panel_dac5578_off_blue", 16.67)) ,
+                                      "500-549": float(recipe_state.get("led_panel_dac5578_off_green", 16.67)) ,
+                                      "550-559": float(recipe_state.get("led_panel_dac5578_off_far_red", 16.67)) ,
+                                      "600-649": float(recipe_state.get("led_panel_dac5578_off_warm_white", 16.67)) ,
+                                      "650-699": float(recipe_state.get("led_panel_dac5578_off_cool_white", 16.67)) },
         "light_intensity_watts": 0,
         "light_illumination_distance_cm": 10,
         "air_temperature_celcius": 2

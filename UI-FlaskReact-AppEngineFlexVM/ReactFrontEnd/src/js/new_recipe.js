@@ -39,8 +39,8 @@ class NewRecipe extends Component {
             recipe_description: "",
             image_url: "http://via.placeholder.com/200x200",
             apply_to_device_modal: false,
-            selected_device_uuid:"",
-            devices:[]
+            selected_device_uuid: "",
+            devices: []
         }
         this.device_type_dropdowntoggle = this.device_type_dropdowntoggle.bind(this);
         this.plant_type_dropdowntoggle = this.plant_type_dropdowntoggle.bind(this);
@@ -60,6 +60,7 @@ class NewRecipe extends Component {
         this.handleChange = this.handleChange.bind(this);
 
     }
+
     handleChange(event) {
         this.setState({
             [event.target.name]: event.target.value
@@ -69,6 +70,7 @@ class NewRecipe extends Component {
         event.preventDefault();
 
     }
+
     onImageUpload(response) {
         if (response.response_code == 200) {
             this.setState({image_url: response.url});
@@ -76,6 +78,7 @@ class NewRecipe extends Component {
             console.error('Image upload failed');
         }
     }
+
     toggle_apply_to_device(recipe_uuid) {
         this.setState({
             apply_to_device_modal: !this.state.apply_to_device_modal,
@@ -92,7 +95,7 @@ class NewRecipe extends Component {
     }
 
     submitRecipe() {
-        console.log("Applying to device",this.state.selected_device_uuid)
+        console.log("Applying to device", this.state.selected_device_uuid)
         return fetch(process.env.REACT_APP_FLASK_URL + "/api/submit_recipe/", {
             method: 'POST',
             headers: {
@@ -104,7 +107,7 @@ class NewRecipe extends Component {
                 'recipe_uuid': this.state.recipe_uuid,
                 'user_token': this.props.cookies.get('user_token'),
                 'state': this.state,
-                'device_uuid':this.state.selected_device_uuid
+                'device_uuid': this.state.selected_device_uuid
             })
         })
             .then((response) => response.json())
@@ -112,7 +115,7 @@ class NewRecipe extends Component {
                 console.log(responseJson)
                 if (responseJson["response_code"] == 200) {
 
-                    window.location.href="/recipes"
+                    window.location.href = "/recipes"
 
                 }
             })
@@ -221,10 +224,10 @@ class NewRecipe extends Component {
             .then((responseJson) => {
                 console.log(responseJson)
                 if (responseJson["response_code"] == 200) {
-                    console.log(responseJson,"SD")
+                    console.log(responseJson, "SD")
                     var devs = [];                  // make array
                     devs = responseJson["results"]; // assign array
-                    this.setState({devices:devs})
+                    this.setState({devices: devs})
                     var device_uuid = 'None'
                     if (devs.length > 0) {         // if we have devices
                         // default the selected device to the first/only dev.
@@ -292,10 +295,10 @@ class NewRecipe extends Component {
         this.getUserDevices()
     }
 
-    InputChange(color_channel, value) {
+    InputChange(color_channel, e) {
 
-        this.setState({[color_channel]: value})
-        console.log(color_channel, value)
+        this.setState({[color_channel]: e.target.value})
+        console.log(color_channel, e.target.value)
         this.setState({["led_off_border"]: "3px solid #883c63"})
     }
 
@@ -345,9 +348,9 @@ class NewRecipe extends Component {
                                                             <div className="col-md-6">
 
                                                                 <Input
-                                                                        defaultValue={this.state[field.state_key + '_on_cool_white']}
+                                                                    value={this.state[field.state_key + '_on_cool_white']}
 
-                                                                        onChange={this.InputChange.bind(this, field.state_key + '_on_cool_white')}/>
+                                                                    onChange={this.InputChange.bind(this, field.state_key + '_on_cool_white')}/>
                                                             </div>
                                                         </div>
 
@@ -357,10 +360,10 @@ class NewRecipe extends Component {
                                                             </div>
                                                             <div className="col-md-6">
                                                                 <Input
-                                                                        defaultValue={this.state[field.state_key + '_on_warm_white']}
+                                                                    value={this.state[field.state_key + '_on_warm_white']}
 
 
-                                                                        onChange={this.InputChange.bind(this, field.state_key + '_on_warm_white')}/>
+                                                                    onChange={this.InputChange.bind(this, field.state_key + '_on_warm_white')}/>
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
@@ -369,9 +372,9 @@ class NewRecipe extends Component {
                                                             </div>
                                                             <div className="col-md-6">
                                                                 <Input
-                                                                        defaultValue={this.state[field.state_key + '_on_blue']}
+                                                                    value={this.state[field.state_key + '_on_blue']}
 
-                                                                        onChange={this.InputChange.bind(this, field.state_key + '_on_blue')}/>
+                                                                    onChange={this.InputChange.bind(this, field.state_key + '_on_blue')}/>
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
@@ -380,9 +383,9 @@ class NewRecipe extends Component {
                                                             </div>
                                                             <div className="col-md-6">
                                                                 <Input
-                                                                        defaultValue={this.state[field.state_key + '_on_green']}
+                                                                    value={this.state[field.state_key + '_on_green']}
 
-                                                                        onChange={this.InputChange.bind(this, field.state_key + '_on_green')}/>
+                                                                    onChange={this.InputChange.bind(this, field.state_key + '_on_green')}/>
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
@@ -391,9 +394,9 @@ class NewRecipe extends Component {
                                                             </div>
                                                             <div className="col-md-6">
                                                                 <Input
-                                                                        defaultValue={this.state[field.state_key + '_on_red']}
+                                                                    value={this.state[field.state_key + '_on_red']}
 
-                                                                        onChange={this.InputChange.bind(this, field.state_key + '_on_red')}/>
+                                                                    onChange={this.InputChange.bind(this, field.state_key + '_on_red')}/>
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
@@ -402,9 +405,9 @@ class NewRecipe extends Component {
                                                             </div>
                                                             <div className="col-md-6">
                                                                 <Input
-                                                                        defaultValue={this.state[field.state_key + '_on_far_red']}
+                                                                    value={this.state[field.state_key + '_on_far_red']}
 
-                                                                        onChange={this.InputChange.bind(this, field.state_key + '_on_far_red')}/>
+                                                                    onChange={this.InputChange.bind(this, field.state_key + '_on_far_red')}/>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -428,9 +431,9 @@ class NewRecipe extends Component {
                                                             </div>
                                                             <div className="col-md-6">
                                                                 <Input
-                                                                        defaultValue={this.state[field.state_key + '_off_cool_white']}
+                                                                    value={this.state[field.state_key + '_off_cool_white']}
 
-                                                                        onChange={this.InputChange.bind(this, field.state_key + '_off_cool_white')}/>
+                                                                    onChange={this.InputChange.bind(this, field.state_key + '_off_cool_white')}/>
                                                             </div>
                                                         </div>
 
@@ -440,9 +443,9 @@ class NewRecipe extends Component {
                                                             </div>
                                                             <div className="col-md-6">
                                                                 <Input
-                                                                        defaultValue={this.state[field.state_key + '_off_warm_white']}
+                                                                    value={this.state[field.state_key + '_off_warm_white']}
 
-                                                                        onChange={this.InputChange.bind(this, field.state_key + '_off_warm_white')}/>
+                                                                    onChange={this.InputChange.bind(this, field.state_key + '_off_warm_white')}/>
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
@@ -451,9 +454,9 @@ class NewRecipe extends Component {
                                                             </div>
                                                             <div className="col-md-6">
                                                                 <Input
-                                                                        defaultValue={this.state[field.state_key + '_off_blue']}
+                                                                    value={this.state[field.state_key + '_off_blue']}
 
-                                                                        onChange={this.InputChange.bind(this, field.state_key + '_off_blue')}/>
+                                                                    onChange={this.InputChange.bind(this, field.state_key + '_off_blue')}/>
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
@@ -462,9 +465,9 @@ class NewRecipe extends Component {
                                                             </div>
                                                             <div className="col-md-6">
                                                                 <Input
-                                                                        defaultValue={this.state[field.state_key + '_off_green']}
+                                                                    value={this.state[field.state_key + '_off_green']}
 
-                                                                        onChange={this.InputChange.bind(this, field.state_key + '_off_green')}/>
+                                                                    onChange={this.InputChange.bind(this, field.state_key + '_off_green')}/>
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
@@ -473,9 +476,9 @@ class NewRecipe extends Component {
                                                             </div>
                                                             <div className="col-md-6">
                                                                 <Input
-                                                                        defaultValue={this.state[field.state_key + '_off_red']}
+                                                                    value={this.state[field.state_key + '_off_red']}
 
-                                                                        onChange={this.InputChange.bind(this, field.state_key + '_off_red')}/>
+                                                                    onChange={this.InputChange.bind(this, field.state_key + '_off_red')}/>
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
@@ -484,9 +487,9 @@ class NewRecipe extends Component {
                                                             </div>
                                                             <div className="col-md-6">
                                                                 <Input
-                                                                        defaultValue={this.state[field.state_key + '_off_far_red']}
+                                                                    value={this.state[field.state_key + '_off_far_red']}
 
-                                                                        onChange={this.InputChange.bind(this, field.state_key + '_off_far_red')}/>
+                                                                    onChange={this.InputChange.bind(this, field.state_key + '_off_far_red')}/>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -526,17 +529,24 @@ class NewRecipe extends Component {
                     <div className="row input-row">
                         <div className="col-md-4">
                         </div>
-                        <div className="col-md-4 dropdown-col">
-                            <Dropdown isOpen={this.state.device_type_dropdown_toggle}
-                                      toggle={this.device_type_dropdowntoggle}
-                                      className="row dropdown-row">
-                                <DropdownToggle caret>
-                                    {this.state.device_type_caret}
-                                </DropdownToggle>
-                                <DropdownMenu className="dropdown-type">
-                                    {device_type_drown_values}
-                                </DropdownMenu>
-                            </Dropdown>
+                        <div className="col-md-8 dropdown-col">
+                            <div className="row">
+                                <div className="col-md-12 selection-col"> Please choose a device type :</div>
+                            </div>
+                            <div className="row">
+                                <div className="col-md-12">
+                                    <Dropdown isOpen={this.state.device_type_dropdown_toggle}
+                                              toggle={this.device_type_dropdowntoggle}
+                                              className="row dropdown-row">
+                                        <DropdownToggle caret>
+                                            {this.state.device_type_caret}
+                                        </DropdownToggle>
+                                        <DropdownMenu className="dropdown-type">
+                                            {device_type_drown_values}
+                                        </DropdownMenu>
+                                    </Dropdown>
+                                </div>
+                            </div>
                         </div>
 
                     </div>
@@ -557,26 +567,32 @@ class NewRecipe extends Component {
                                    id="recipe_name" name="recipe_name" onChange={this.sensorOnChange}/>
                             <textarea className="recipe-details-text" placeholder="Recipe Description"
                                       id="recipe_description" name="recipe_description" onChange={this.sensorOnChange}/>
-                            <Dropdown isOpen={this.state.plant_variant_dropdown_toggle}
-                                      toggle={this.plant_variant_type_dropdowntoggle}
-                                      className="row dropdown-row">
-                                <DropdownToggle caret>
-                                    {this.state.plant_type_caret}
-                                </DropdownToggle>
-                                <DropdownMenu>
-                                    {plant_type_dropdown_values}
-                                </DropdownMenu>
-                            </Dropdown>
-                            <Dropdown isOpen={this.state.plant_type_dropdown_toggle}
-                                      toggle={this.plant_type_dropdowntoggle}
-                                      className="row dropdown-row">
-                                <DropdownToggle caret>
-                                    {this.state.variant_type_caret}
-                                </DropdownToggle>
-                                <DropdownMenu>
-                                    {plant_variant_type_dropdown_values}
-                                </DropdownMenu>
-                            </Dropdown>
+                            <div className="row plant-type-dropdowns">
+
+                                <div className="plant-type"><Dropdown isOpen={this.state.plant_variant_dropdown_toggle}
+                                                                    toggle={this.plant_variant_type_dropdowntoggle}
+                                                                    className="row dropdown-row">
+                                    <DropdownToggle caret>
+                                        {this.state.plant_type_caret}
+                                    </DropdownToggle>
+                                    <DropdownMenu>
+                                        {plant_type_dropdown_values}
+                                    </DropdownMenu>
+                                </Dropdown></div>
+                                <div className="variant-type"><Dropdown isOpen={this.state.plant_type_dropdown_toggle}
+                                                                    toggle={this.plant_type_dropdowntoggle}
+                                                                    className="row dropdown-row">
+                                    <DropdownToggle caret>
+                                        {this.state.variant_type_caret}
+                                    </DropdownToggle>
+                                    <DropdownMenu>
+                                        {plant_variant_type_dropdown_values}
+                                    </DropdownMenu>
+                                </Dropdown></div>
+
+                            </div>
+
+
                         </div>
                     </div>
                     <div className="row">
@@ -618,7 +634,8 @@ class NewRecipe extends Component {
                         </div>
 
                     </div>
-                    <Button className="submit-recipe-button" onClick={this.toggle_apply_to_device.bind(this, "New Recipe")} >Submit Recipe</Button>
+                    <Button className="submit-recipe-button"
+                            onClick={this.toggle_apply_to_device.bind(this, "New Recipe")}>Submit Recipe</Button>
                 </div>
                 <Modal isOpen={this.state.apply_to_device_modal} toggle={this.toggle_apply_to_device}
                        className={this.props.className}>

@@ -6,4 +6,4 @@ resources:
   memory_gb: 2.0
 
 env_variables:
-  REACT_APP_FLASK_URL: http://flaskapi-dot-openag-v1.appspot.com
+  REACT_APP_FLASK_URL: https://flaskapi-dot-openag-v1.appspot.com
