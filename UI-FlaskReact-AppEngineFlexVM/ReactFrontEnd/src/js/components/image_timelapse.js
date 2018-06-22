@@ -15,7 +15,6 @@ export class ImageTimelapse extends React.PureComponent {
     }
 
     onSliderChange = (e) => {
-        console.log(e.target.value);
         this.setState({index: e.target.value});
     }
 
