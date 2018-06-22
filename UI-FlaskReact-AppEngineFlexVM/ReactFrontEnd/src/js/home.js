@@ -249,15 +249,32 @@ class Home extends Component {
                             <div className="card notifications-card">
                                 <div className="card-title">
                                     <div className="row">
-                                        <div className="col-md-10">
+                                        <div className="col-md-8">
                                             <h3>Notifications </h3>
                                         </div>
-                                        <div className="col-md-2">
+                                        <div className="col-md-4">
                                             <img src={notification} className="notification-img"/>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="card-body">
+                                    <div className="row">
+                                        <div className="col-md-12">
+                                            <p> Your Basil is 3 weeks old. Congratulations! </p>
+                                        </div>
+                                    </div>
+                                    <hr/>
+                                    <div className="row">
+                                        <div className="col-md-12">
+                                            <p> <a href="#">See edits </a> to your recipes  </p>
+                                        </div>
+                                    </div>
+                                    <hr/>
+                                    <div className="row">
+                                        <div className="col-md-12">
+                                            <p> Water needs refilling soon </p>
+                                        </div>
+                                    </div>
 
                                 </div>
                             </div>
@@ -268,7 +285,7 @@ class Home extends Component {
                                 imageClass="timelapse-img"
                                 inputClass="range-slider__range"
                                 images={[image1, image2, image3, image4, image5, image6, image7]}/>
-                            <div className="row">
+                            <div className="row status-row">
                                 <div className="status-col">
                                     Status : Good
                                 </div>
