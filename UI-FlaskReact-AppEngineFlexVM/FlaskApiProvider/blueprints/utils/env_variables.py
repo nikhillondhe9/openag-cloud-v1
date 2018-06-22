@@ -16,7 +16,7 @@ from google.cloud import bigquery
 from google.cloud import datastore
 from google.cloud import storage
 from google.oauth2 import service_account
-from googleapiclient import discovery
+from googleapiclient import discovery, errors
 
 bigquery_client = bigquery.Client()
 
@@ -281,98 +281,97 @@ def send_recipe_to_device_via_IoT(iot_client, device_id, commands_list):
 # with the backend.
 def create_iot_device_registry_entry(verification_code, device_name,
                                      device_notes, device_type, user_uuid):
-    try:
-        # get a firestore DB collection of the RSA public keys uploaded by
-        # a setup script on the device:
-        keys_ref = fb_client.collection(u'devicePublicKeys')
+    # get a firestore DB collection of the RSA public keys uploaded by
+    # a setup script on the device:
+    keys_ref = fb_client.collection(u'devicePublicKeys')
 
-        # docs = keys_ref.get()  # get all docs
-        # for doc in docs:
-        #    key_id = doc.id
-        #    keyd = doc.to_dict()
-        #    print(u'doc.id={}, doc={}'.format( key_id, keyd ))
-        #    key = keyd['key']
-        #    cksum = keyd['cksum']
-        #    state = keyd['state']
-        #    print('key={}, cksum={}, state={}'.format(key,cksum,state))
+    # docs = keys_ref.get()  # get all docs
+    # for doc in docs:
+    #    key_id = doc.id
+    #    keyd = doc.to_dict()
+    #    print(u'doc.id={}, doc={}'.format( key_id, keyd ))
+    #    key = keyd['key']
+    #    cksum = keyd['cksum']
+    #    state = keyd['state']
+    #    print('key={}, cksum={}, state={}'.format(key,cksum,state))
 
-        # query the collection for the users code
-        query = keys_ref.where(u'cksum', u'==', verification_code)
-        docs = query.get()  # doc iterator
-        docs_list = list(docs)
-        len_docs = len(docs_list)
-        if 0 == len_docs:
-            print('create_iot_device_registry_entry: ERROR: ' +
-                  'Verification code {} not found.'.format(verification_code))
-            return None
+    # query the collection for the users code
+    query = keys_ref.where(u'cksum', u'==', verification_code)
+    docs = list(query.get())
+    if not docs:
+        print('create_iot_device_registry_entry: ERROR: '
+              'Verification code "{}" not found.'.format(verification_code))
+        raise ValueError('Verification code "{}" not found.'
+                         .format(verification_code))
 
-        # get the single matching doc
-        doc = docs_list[0]
-        key_dict = doc.to_dict()
-        doc_id = doc.id
+    # get the single matching doc
+    doc = docs[0]
+    key_dict = doc.to_dict()
+    doc_id = doc.id
 
-        # verify all the keys we need are in the doc's dict
-        if not validDictKey(key_dict, 'key') and \
-                validDictKey(key_dict, 'cksum') and \
-                validDictKey(key_dict, 'state') and \
-                validDictKey(key_dict, 'MAC'):
-            print('create_iot_device_registry_entry: ERROR: ' +
-                  'Missing a required key in {}'.format(key_dict))
-            return None
+    # verify all the keys we need are in the doc's dict
+    for key in ['key', 'cksum', 'state', 'MAC']:
+        if key not in key_dict:
+            print('create_iot_device_registry_entry: ERROR: '
+                  'Missing {} in {}'.format(key, key_dict))
+            raise ValueError('Device not registered properly.'
+                             ' Please register again.')
 
-        public_key = key_dict['key']
-        cksum = key_dict['cksum']
-        state = key_dict['state']
-        MAC = key_dict['MAC']
-        # print( 'doc_id={}, cksum={}, state={}, MAC={}'.format(
-        #        doc_id, cksum, state, MAC ))
-        # print('public_key:\n{}'.format( public_key ))
+    public_key = key_dict.get('key')
+    cksum = key_dict.get('cksum')
+    state = key_dict.get('state')
+    MAC = key_dict.get('MAC')
 
-        # Generate a unique device id from code + MAC.
-        # ID MUST start with a letter!
-        # (test ID format in the IoT core console)
-        # Start and end your ID with a lowercase letter or a number.
-        # You can also include the following characters: + . % - _ ~
-        device_id = '{}-{}-{}'.format(device_type, verification_code, MAC)
+    # print( 'doc_id={}, cksum={}, state={}, MAC={}'.format(
+    #        doc_id, cksum, state, MAC ))
+    # print('public_key:\n{}'.format( public_key ))
 
-        # register this device using its public key we got from the DB
-        device_template = {
-            'id': device_id,
-            'credentials': [{
-                'publicKey': {
-                    'format': 'RSA_X509_PEM',
-                    'key': public_key
-                }
-            }],
-            'metadata': {
-                'user_uuid': user_uuid,
-                'device_name': device_name,
-                'device_notes': device_notes
+    # Generate a unique device id from code + MAC.
+    # ID MUST start with a letter!
+    # (test ID format in the IoT core console)
+    # Start and end your ID with a lowercase letter or a number.
+    # You can also include the following characters: + . % - _ ~
+    device_id = '{}-{}-{}'.format(device_type, verification_code, MAC)
+
+    # register this device using its public key we got from the DB
+    device_template = {
+        'id': device_id,
+        'credentials': [{
+            'publicKey': {
+                'format': 'RSA_X509_PEM',
+                'key': public_key
             }
+        }],
+        'metadata': {
+            'user_uuid': user_uuid,
+            'device_name': device_name,
+            'device_notes': device_notes
         }
+    }
 
-        # path to the device registry
-        registry_name = 'projects/{}/locations/{}/registries/{}'.format(
-            cloud_project_id, cloud_region, device_registry)
+    # path to the device registry
+    registry_name = 'projects/{}/locations/{}/registries/{}'.format(
+        cloud_project_id, cloud_region, device_registry)
 
+    try:
         # add the device to the IoT registry
         devices = iot_client.projects().locations().registries().devices()
         devices.create(parent=registry_name, body=device_template).execute()
-        print('create_iot_device_registry_entry: ' +
-              'Device {} added to the {} registry.'.format(
-                  device_id, device_registry))
+    except errors.HttpError as e:
+        print('create_iot_device_registry_entry: ERROR: '
+              'HttpError: {}'.format(e._get_reason()))
+        raise
 
-        # mark device state as verified
-        # (can only call update on a DocumentReference)
-        doc_ref = doc.reference
-        doc_ref.update({u'state': u'verified'})
+    print('create_iot_device_registry_entry: '
+          'Device {} added to the {} registry.'.format(
+              device_id, device_registry))
 
-        return device_id  # put this id in the datastore of user's devices
+    # mark device state as verified
+    # (can only call update on a DocumentReference)
+    doc_ref = doc.reference
+    doc_ref.update({u'state': u'verified'})
 
-    except(Exception) as e:
-        exc_type, exc_value, exc_traceback = sys.exc_info()
-        print("Exception in create_iot_device_registry_entry: ", e)
-        traceback.print_tb(exc_traceback, file=sys.stdout)
+    return device_id  # put this id in the datastore of user's devices
 
 def get_key_differences(x, y):
     diff = False

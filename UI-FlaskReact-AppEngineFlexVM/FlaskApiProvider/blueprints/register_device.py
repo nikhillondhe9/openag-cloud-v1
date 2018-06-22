@@ -38,9 +38,22 @@ def register():
 
     # Create a google IoT device registry entry for this device.
     # The method returns the device ID we need for IoT communications.
-    device_uuid = create_iot_device_registry_entry(device_reg_no,
-                                                   device_name, device_notes, device_type, user_uuid)
-    if None == device_uuid:
+    try:
+        device_uuid = create_iot_device_registry_entry(device_reg_no,
+                                                       device_name,
+                                                       device_notes,
+                                                       device_type,
+                                                       user_uuid)
+    except ValueError as e:
+        return error_response(
+            message=str(e)
+        )
+    except errors.HttpError as e:
+        return error_response(
+            message=e._get_reason()
+        )
+
+    if device_uuid is None:
         return error_response(
             message="Could not register this IoT device."
         )
