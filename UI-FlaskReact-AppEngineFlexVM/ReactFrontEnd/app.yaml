@@ -4,3 +4,6 @@ threadsafe: true
 env: flex
 resources:
   memory_gb: 2.0
+
+env_variables:
+  REACT_APP_FLASK_URL: http://flaskapi-dot-openag-v1.appspot.com
