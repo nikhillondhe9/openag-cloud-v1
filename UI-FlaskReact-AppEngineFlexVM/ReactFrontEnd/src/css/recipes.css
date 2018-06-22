@@ -1,25 +1,22 @@
 @import url(https://fonts.googleapis.com/css?family=Roboto:300);
 
-.body
-{
+.body {
     background: white;
 }
-.container
-{
+
+.container {
     position: fixed;
     background: white;
     overflow-y: scroll;
 }
 
-
 .title {
-  text-align: center;
-  font-weight: 100;
+    text-align: center;
+    font-weight: 100;
 }
 
-.recipe-container
-{
-    top:100px;
+.recipe-container {
+    top: 100px;
     width: 100%;
     padding-top: 20px;
     padding-left: 20px;
@@ -27,82 +24,101 @@
     background: white;
     overflow-y: scroll;
     max-width: 100%;
-    position:relative;
+    position: relative;
     min-height: 600px;
 
 }
 
-.input-row
-{
-    text-align:center;
+.input-row {
+    text-align: center;
 }
+
 input {
-  border: 0;
-  outline: 0;
-  background: transparent;
-  border-bottom: 1px solid black;
-  font-size:14px;
-  width:250px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    border-bottom: 1px solid black;
+    font-size: 14px;
+    width: 250px;
 }
 
-.home-container
-{
-    padding-bottom:100px;
+.home-container {
+    padding-bottom: 100px;
 }
-
-
 
 a {
-  text-decoration: none;
+    text-decoration: none;
 }
 
 .button {
-  display: inline-block;
-  padding: 4px 16px;
-  height: 36px;
-  background-color: #883c63;
-  color: white;
-  border-radius: 18px;
+    display: inline-block;
+    padding: 4px 16px;
+    height: 36px;
+    background-color: #883c63;
+    color: white;
+    border-radius: 18px;
 }
 
 .button__group {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: no-wrap;
-  align-content: stretch;
-  overflow: hidden;
-  border-radius: 20px;
-  border: 2px solid #883c63;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: no-wrap;
+    align-content: stretch;
+    overflow: hidden;
+    border-radius: 20px;
+    border: 2px solid #883c63;
 }
+
 .button__group .button {
-  display: inline-block;
-  flex: 1 100%;
-  background-color: transparent;
-  border-radius: 0;
-  color: #883c63;
-  border-right: 2px solid #883c63;
-  transition: all .2s ease-out;
+    display: inline-block;
+    flex: 1 100%;
+    background-color: transparent;
+    border-radius: 0;
+    color: #883c63;
+    border-right: 2px solid #883c63;
+    transition: all .2s ease-out;
 }
+
 .button__group .button:last-child {
-  border-right: 0;
+    border-right: 0;
 }
 
 .button__group .button:hover,
 .button__group .button.active,
 .button__group .button-selected {
-  color: #fff !IMPORTANT;
-  background-color: #883c63 !IMPORTANT;
+    color: #fff !IMPORTANT;
+    background-color: #883c63 !IMPORTANT;
 }
 
-.button__group
-{
+.button__group {
 
-    display:block;
-    margin-left:auto;
-    margin-right:auto;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
-.button__group .button
-{
-     width:200px;
-     text-align: center;
+
+.button__group .button {
+    width: 200px;
+    text-align: center;
+}
+
+.button-card-link {
+
+}
+
+.recipe-container .card {
+    min-height: 190px;
+    margin: 10px;
+}
+
+.recipe-image {
+    width: 100px;
+    height: 100px;
+    padding-right: 10px;
+
+}
+
+.card-row {
+    margin-top: 10px;
+
 }

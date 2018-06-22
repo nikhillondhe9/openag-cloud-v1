@@ -116,7 +116,7 @@ class Home extends Component {
                             selected_device: name,
                             selected_device_uuid: device_uuid
                         });
-                        this.getDeviceImages(device_uuid);
+                        // this.getDeviceImages(device_uuid);
                     }
 
                     let devices = new Map();
@@ -255,7 +255,7 @@ class Home extends Component {
                 selected_device: e.target.textContent,
                 selected_device_uuid: e.target.value
             });
-            this.getDeviceImages(e.target.value);
+            // this.getDeviceImages(e.target.value);
         }
     }
 
@@ -329,12 +329,12 @@ class Home extends Component {
                             </div>
                             <div className="row">
                                 <div className="status-col">
-                                    Temp :
+                                    Temp : 72F
                                 </div>
                             </div>
                             <div className="row">
                                 <div className="status-col">
-                                    Next Manual Nutrient Dosing :
+                                    Next Manual Nutrient Dosing : 2 days
                                 </div>
                             </div>
 

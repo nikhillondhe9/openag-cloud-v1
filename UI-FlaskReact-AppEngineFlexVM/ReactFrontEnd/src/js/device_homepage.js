@@ -130,13 +130,13 @@ class DeviceHomepage extends Component {
             'on_cool_white': standard_day['400-449'],
             'on_warm_white': standard_day['449-499'],
             'on_blue': standard_day['500-549'],
-            'on_green': standard_day['550-559'],
+            'on_green': standard_day['550-599'],
             'on_red': standard_day['600-649'],
             'on_far_red': standard_day['650-699'],
             'off_cool_white': standard_night['400-449'],
             'off_warm_white': standard_night['449-499'],
             'off_blue': standard_night['500-549'],
-            'off_green': standard_night['550-559'],
+            'off_green': standard_night['550-599'],
             'off_red': standard_night['600-649'],
             'off_far_red': standard_night['650-699']
         }

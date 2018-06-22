@@ -38,7 +38,7 @@ def get_led_panel():
                 result_json.append({'cool_white': led_json.get("400-449",0),
                                     'warm_white': led_json.get("449-499",0),
                                     'blue': led_json.get("500-549",0),
-                                    'green': led_json.get("550-559",0),
+                                    'green': led_json.get("550-599",0),
                                     'red': led_json.get("600-649",0),
                                     'far_red': led_json.get("650-699",0)})
 

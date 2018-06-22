@@ -61,7 +61,8 @@ def get_all_recipes():
             'description':recipe_json['description']['brief'],
             'recipe_uuid':result["recipe_uuid"],
             "recipe_json":recipe_json,
-            "user_uuid": user_uuid
+            "user_uuid": user_uuid,
+            "image_url":result["image_url"]
         })
 
     return success_response(

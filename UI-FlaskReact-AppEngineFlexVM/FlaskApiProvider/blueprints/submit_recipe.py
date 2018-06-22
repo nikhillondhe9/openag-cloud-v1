@@ -18,6 +18,7 @@ def submit_recipe():
     recipe_state = received_form_response.get("state", {})
     user_token = received_form_response.get("user_token", "")
     device_uuid = received_form_response.get("device_uuid","")
+    image_url = received_form_response.get("image_url","")
 
 
     user_details_query = datastore_client.query(kind='Users')
@@ -79,7 +80,7 @@ def submit_recipe():
         "light_spectrum_nm_percent": {"400-449": float(recipe_state.get("led_panel_dac5578_on_red", 16.67)) ,
                                       "449-499": float(recipe_state.get("led_panel_dac5578_on_blue", 16.67)) ,
                                       "500-549": float(recipe_state.get("led_panel_dac5578_on_green", 16.67)) ,
-                                      "550-559": float(recipe_state.get("led_panel_dac5578_on_far_red", 16.67)) ,
+                                      "550-599": float(recipe_state.get("led_panel_dac5578_on_far_red", 16.67)) ,
                                       "600-649": float(recipe_state.get("led_panel_dac5578_on_warm_white", 16.67)) ,
                                       "650-699": float(recipe_state.get("led_panel_dac5578_on_cool_white", 16.67)) },
         "light_intensity_watts": 100,
@@ -91,7 +92,7 @@ def submit_recipe():
         "light_spectrum_nm_percent": {"400-449": float(recipe_state.get("led_panel_dac5578_off_red", 16.67)) ,
                                       "449-499": float(recipe_state.get("led_panel_dac5578_off_blue", 16.67)) ,
                                       "500-549": float(recipe_state.get("led_panel_dac5578_off_green", 16.67)) ,
-                                      "550-559": float(recipe_state.get("led_panel_dac5578_off_far_red", 16.67)) ,
+                                      "550-599": float(recipe_state.get("led_panel_dac5578_off_far_red", 16.67)) ,
                                       "600-649": float(recipe_state.get("led_panel_dac5578_off_warm_white", 16.67)) ,
                                       "650-699": float(recipe_state.get("led_panel_dac5578_off_cool_white", 16.67)) },
         "light_intensity_watts": 100,
@@ -103,7 +104,7 @@ def submit_recipe():
         "light_spectrum_nm_percent": {"400-449": float(recipe_state.get("led_panel_dac5578_on_red", 16.67)) ,
                                       "449-499": float(recipe_state.get("led_panel_dac5578_on_blue", 16.67)) ,
                                       "500-549": float(recipe_state.get("led_panel_dac5578_on_green", 16.67)) ,
-                                      "550-559": float(recipe_state.get("led_panel_dac5578_on_far_red", 16.67)) ,
+                                      "550-599": float(recipe_state.get("led_panel_dac5578_on_far_red", 16.67)) ,
                                       "600-649": float(recipe_state.get("led_panel_dac5578_on_warm_white", 16.67)) ,
                                       "650-699": float(recipe_state.get("led_panel_dac5578_on_cool_white", 16.67)) },
         "light_intensity_watts": 100,
@@ -115,10 +116,10 @@ def submit_recipe():
         "light_spectrum_nm_percent": {"400-449": float(recipe_state.get("led_panel_dac5578_off_red", 16.67)) ,
                                       "449-499": float(recipe_state.get("led_panel_dac5578_off_blue", 16.67)) ,
                                       "500-549": float(recipe_state.get("led_panel_dac5578_off_green", 16.67)) ,
-                                      "550-559": float(recipe_state.get("led_panel_dac5578_off_far_red", 16.67)) ,
+                                      "550-599": float(recipe_state.get("led_panel_dac5578_off_far_red", 16.67)) ,
                                       "600-649": float(recipe_state.get("led_panel_dac5578_off_warm_white", 16.67)) ,
                                       "650-699": float(recipe_state.get("led_panel_dac5578_off_cool_white", 16.67)) },
-        "light_intensity_watts": 0,
+        "light_intensity_watts": 100,
         "light_illumination_distance_cm": 10,
         "air_temperature_celcius": 2
     }
@@ -164,7 +165,8 @@ def submit_recipe():
         "recipe": json.dumps(recipe_format),
         "date_created": datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S:%f')[:-4] + 'Z',
         "device_type": recipe_state.get("device_type_caret", ""),
-        "format":query_result[0]["format_name"]
+        "format":query_result[0]["format_name"],
+        "image_url":image_url
     })
 
     datastore_client.put(recipe_reg_task)

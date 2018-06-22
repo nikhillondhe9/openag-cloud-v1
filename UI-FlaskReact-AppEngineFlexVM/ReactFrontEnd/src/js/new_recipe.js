@@ -107,7 +107,8 @@ class NewRecipe extends Component {
                 'recipe_uuid': this.state.recipe_uuid,
                 'user_token': this.props.cookies.get('user_token'),
                 'state': this.state,
-                'device_uuid': this.state.selected_device_uuid
+                'device_uuid': this.state.selected_device_uuid,
+                'image_url':this.state.image_url
             })
         })
             .then((response) => response.json())
