@@ -4,6 +4,8 @@ import '../css/recipes.css';
 import {Cookies, withCookies} from "react-cookie";
 import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input} from 'reactstrap';
 
+import {RecipeCard} from './components/recipe_card';
+
 class recipes extends Component {
     constructor(props) {
         super(props);
@@ -181,34 +183,13 @@ class recipes extends Component {
                 recipes = this.state.all_recipes;
             }
 
-            listRecipes = recipes.map((recipe) => {
-                console.log(recipe)
-                return <div className="col-md-3" key={recipe.recipe_uuid}>
-                    <div className="card">
-                        <div className="card-body">
-                            <div className="row ">
-                                <div className="col-md-4">
-                                    <img className="recipe-image" src={recipe.image_url}/>
-                                </div>
-                                <div className="col-md-8">
-                                    <h5 className="card-title">{recipe.name}</h5>
-                                    <h6 className="card-subtitle mb-2 text-muted">{recipe.description}</h6>
-                                    <div className="card-text">
-
-
-                                        {/*<Button onClick={this.toggle_apply_to_device.bind(this, recipe.recipe_uuid)}*/}
-                                             {/*id={recipe.recipe_uuid} className="button-card-link" >Apply Recipe*/}
-                                        {/*</Button>*/}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-footer"> <Button onClick={this.goToRecipe.bind(this, recipe.recipe_uuid)}
-                                             id={recipe.recipe_uuid} className="button-card-link" >View Recipe
-                        </Button></div>
-                    </div>
-                </div>
-            });
+            listRecipes = recipes.map((recipe) =>
+                <RecipeCard
+                    key={recipe.recipe_uuid}
+                    recipe={recipe}
+                    onSelectRecipe={this.goToRecipe}
+                />
+            );
         }
         return (
             <Router>
@@ -237,31 +218,23 @@ class recipes extends Component {
                             </a>
                         </div>
                     </div>
-                    <div className="row card-row">
-                        <div className="col-md-3">
-                            <div className="card">
-                                <div className="row">
-                                    <div className="col-md-4">
-                                        {/*<img className="recipe-image" src="http://via.placeholder.com/200x200"/>*/}
-                                    </div>
-                                    <div className="col-md-8">
-                                        <div className="card-body">
-                                            <h5 className="card-title">New Recipe</h5>
-                                            <h6 className="card-subtitle mb-2 text-muted"></h6>
-                                            <div className="card-text">Use this template recipe to create your custom
-                                                recipes
-                                            </div>
-
-                                        </div>
-                                    </div>
+                    <div className="recipe-cards">
+                        <div className="card recipe-card">
+                            {/*<img className="recipe-image" src="http://via.placeholder.com/200x200"/>*/}
+                            <div className="card-body">
+                                <h5 className="card-title">New Recipe</h5>
+                                <h6 className="card-subtitle mb-2 text-muted"></h6>
+                                <div className="card-text">Use this template recipe to create your custom
+                                    recipes
                                 </div>
-                                <div className="card-footer">
-                                     <Button onClick={this.editRecipe.bind(this, '0')}
-                                                     className="button-card-link"> Create Recipe
-                                                </Button>
-                                </div>
-
-
+                            </div>
+                            <div className="card-footer">
+                                <Button
+                                    onClick={this.editRecipe.bind(this, '0')}
+                                    className="button-card-link"
+                                >
+                                    Create Recipe
+                                </Button>
                             </div>
                         </div>
                         {listRecipes}
