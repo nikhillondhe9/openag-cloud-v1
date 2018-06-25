@@ -7,11 +7,20 @@ import {Button} from 'reactstrap';
  * props:
  * - recipe (recipe object): recipe object that represents the recipe.
  * - onSelectRecipe (function): callback for when a recipe gets selected.
+ * - onStarRecipe (function): callback for when a recipe gets starred.
  */
-export class RecipeCard extends React.PureComponent {
+export class RecipeCard extends React.Component {
 
     onSelectRecipe = (e) => {
         this.props.onSelectRecipe(e.target.value);
+    }
+
+    onStarRecipe = (e) => {
+        this.props.onStarRecipe(e.target.value);
+    }
+
+    onUnstarRecipe = (e) => {
+        this.props.onUnstarRecipe(e.target.value);
     }
 
     render() {
@@ -33,6 +42,21 @@ export class RecipeCard extends React.PureComponent {
                     >
                         View Recipe
                     </Button>
+                    {this.props.recipe.starred ? (
+                        <Button
+                            value={this.props.recipe.recipe_uuid}
+                            onClick={this.onUnstarRecipe}
+                        >
+                            Unstar
+                        </Button>
+                    ) : (
+                        <Button
+                            value={this.props.recipe.recipe_uuid}
+                            onClick={this.onStarRecipe}
+                        >
+                            Star
+                        </Button>
+                    )}
                 </div>
             </div>
         )

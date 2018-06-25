@@ -5,13 +5,14 @@ import {Cookies, withCookies} from "react-cookie";
 import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input} from 'reactstrap';
 
 import {RecipeCard} from './components/recipe_card';
+import * as api from './utils/api';
 
 class recipes extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            all_recipes: [],
-            filtered_recipes: [],
+            all_recipes: new Map(),
+            filtered_recipes: new Map(),
             filter_recipe_button_state: 'all',
             modal: false,
             apply_to_device_modal: false,
@@ -110,28 +111,33 @@ class recipes extends Component {
         })
             .then((response) => response.json())
             .then((responseJson) => {
-                console.log(responseJson)
-                if (responseJson["response_code"] == 200) {
-                    this.setState({devices: responseJson["devices"]})
+                console.log(responseJson);
+                if (responseJson['response_code'] == 200) {
+                    this.setState({devices: responseJson['devices']})
 
-                    // Filter recipes
-                    const own_uuid = responseJson["user_uuid"];
-                    const all_recipes = responseJson["results"];
-                    const filtered_recipes = all_recipes.filter(recipe =>
-                        recipe.user_uuid == own_uuid
-                    )
+                    const own_uuid = responseJson['user_uuid'];
+                    const all_recipes = responseJson['results'];
+
+                    let recipes_map = new Map();
+                    let filtered_map = new Map();
+
+                    // Filter recipes into filtered_recipes, put all into all_recipes
+                    for (const recipe of all_recipes) {
+                        if (recipe.user_uuid == own_uuid) {
+                            filtered_map.set(recipe.recipe_uuid, recipe);
+                        }
+                        recipes_map.set(recipe.recipe_uuid, recipe);
+                    }
 
                     this.setState({
-                        all_recipes: all_recipes,
-                        filtered_recipes, filtered_recipes,
-                        user_uuid: own_uuid
+                        all_recipes: recipes_map,
+                        filtered_recipes: filtered_map,
                     });
 
-                    var devs = [];                  // make array
-                    devs = responseJson["devices"]; // assign array
-                    if (devs.length > 0) {         // if we have devices
+                    const devices = responseJson['devices'];
+                    if (devices) {
                         // default the selected device to the first/only dev.
-                        this.state.selected_device_uuid = devs[0].device_uuid;
+                        this.state.selected_device_uuid = devices[0].device_uuid;
                     }
                 }
             })
@@ -173,14 +179,59 @@ class recipes extends Component {
             });
     }
 
+    onStarRecipe = (recipe_uuid) => {
+        api.starRecipe(
+            this.props.cookies.get('user_token'),
+            recipe_uuid
+        ).then(response => {
+            console.log(`Recipe: ${recipe_uuid} starred.`);
+            this.toggleStar(recipe_uuid);
+        }).catch(response => {
+            console.error(response.message);
+        });
+    }
+
+    onUnstarRecipe = (recipe_uuid) => {
+        api.unstarRecipe(
+            this.props.cookies.get('user_token'),
+            recipe_uuid
+        ).then(response => {
+            console.log(`Recipe: ${recipe_uuid} unstarred.`);
+            this.toggleStar(recipe_uuid);
+        }).catch(response => {
+            console.error(response.message);
+        });
+    }
+
+    toggleStar = (recipe_uuid) => {
+        const recipes_map = new Map(this.state.all_recipes);
+        const recipe = recipes_map.get(recipe_uuid);
+        recipe.starred = !recipe.starred;
+        recipes_map.set(recipe_uuid, recipe);
+
+        const filtered_map = new Map(this.state.filtered_recipes);
+        const recipe_filtered = filtered_map.get(recipe_uuid);
+        if (recipe_filtered) {
+            recipe_filtered.starred = !recipe_filtered.starred;
+            filtered_map.set(recipe_uuid, recipe_filtered);
+        }
+
+        console.log(recipes_map);
+
+        this.setState({
+            all_recipes: recipes_map,
+            filtered_recipes: filtered_map
+        });
+    }
+
     render() {
         let listRecipes = <p>Loading</p>
         let recipes = [];
-        if (this.state.all_recipes.length > 0) {
+        if (this.state.all_recipes.size) {
             if (this.state.filter_recipe_button_state == 'my') {
-                recipes = this.state.filtered_recipes;
+                recipes = [...this.state.filtered_recipes.values()];
             } else {
-                recipes = this.state.all_recipes;
+                recipes = [...this.state.all_recipes.values()];
             }
 
             listRecipes = recipes.map((recipe) =>
@@ -188,6 +239,8 @@ class recipes extends Component {
                     key={recipe.recipe_uuid}
                     recipe={recipe}
                     onSelectRecipe={this.goToRecipe}
+                    onStarRecipe={this.onStarRecipe}
+                    onUnstarRecipe={this.onUnstarRecipe}
                 />
             );
         }

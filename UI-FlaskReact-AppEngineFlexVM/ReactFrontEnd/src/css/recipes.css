@@ -114,3 +114,8 @@ a {
     height: 100px;
     grid-area: image;
 }
+
+.recipe-card .card-footer {
+    display: flex;
+    justify-content: space-between;
+}

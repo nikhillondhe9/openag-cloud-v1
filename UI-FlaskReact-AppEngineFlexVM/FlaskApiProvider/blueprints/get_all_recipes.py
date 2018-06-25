@@ -4,6 +4,7 @@ from flask import request
 from .utils.auth import get_user_uuid_from_token
 from .utils.env_variables import *
 from .utils.response import success_response, error_response
+from . import utils
 
 get_all_recipes_bp = Blueprint('get_all_recipes', __name__)
 
@@ -53,16 +54,22 @@ def get_all_recipes():
     query_result = list(recipe_query.fetch())
     results = list(query_result)
 
+    user = utils.datastore.get_one(
+        kind='Users', key='user_uuid', value=user_uuid
+    )
+    starred_recipes = user.get('starred_recipes', [])
+
     results_array = []
     for result in results:
         recipe_json = json.loads(result["recipe"])
-        results_array.append( {
-            'name':recipe_json['name'],
-            'description':recipe_json['description']['brief'],
-            'recipe_uuid':result["recipe_uuid"],
-            "recipe_json":recipe_json,
+        results_array.append({
+            'name': recipe_json['name'],
+            'description': recipe_json['description']['brief'],
+            'recipe_uuid': result["recipe_uuid"],
+            "recipe_json": recipe_json,
             "user_uuid": result['user_uuid'],
-            "image_url":result["image_url"]
+            "image_url": result["image_url"],
+            'starred': result['recipe_uuid'] in starred_recipes
         })
 
     return success_response(
