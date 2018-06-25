@@ -32,7 +32,7 @@ export class DevicesDropdown extends React.PureComponent {
 
     render() {
         return (
-            <Dropdown isOpen={this.state.isOpen} toggle={this.toggle}>
+            <Dropdown isOpen={this.state.isOpen} toggle={this.toggle} >
                 <DropdownToggle caret>
                     {this.props.selectedDevice}
                 </DropdownToggle>

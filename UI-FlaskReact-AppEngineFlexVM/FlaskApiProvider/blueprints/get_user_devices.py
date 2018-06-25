@@ -35,6 +35,7 @@ def get_user_devices():
     devices = []
     for device in query_results:
         device['permission'] = 'control'
+        device['peripherals'] = get_device_type_peripherals(device['device_type'])
         device_json = pre_serialize_device(device)
         print('    {}, {}, {}'.format(
             device_json['device_uuid'],
@@ -97,3 +98,14 @@ def get_devices_from_code_entity(code_entity):
         devices.append(pre_serialize_device(device))
 
     return devices
+
+
+def get_device_type_peripherals(device_type):
+    peripherals = ""
+    device_type_query = datastore_client.query(kind="DeviceType")
+    device_type_query.add_filter("name","=",device_type)
+    device_type_results = list(device_type_query.fetch())
+    if len(device_type_results) > 0:
+        peripherals = device_type_results[0]["peripherals"]
+
+    return peripherals

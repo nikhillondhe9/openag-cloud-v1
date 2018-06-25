@@ -25,5 +25,6 @@ def pre_serialize_device(device_entity):
         'registration_date': registration_date.strftime("%Y-%m-%d %H:%M:%S"),
         'user_uuid': device_entity.get("user_uuid", ""),
         'permissions': device_entity.get("permission", ""),
-        'device_name': device_entity.get("device_name", "")
+        'device_name': device_entity.get("device_name", ""),
+        'peripherals':device_entity.get("peripherals",[])
     }

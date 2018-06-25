@@ -1,0 +1,11 @@
+@import "../global_variables";
+
+.view-edit-container {
+  border-radius: 0.30rem;
+  border: 1px solid $yellow-color;
+  height: 40px;
+  .active-button {
+    background-color: $yellow-color;
+    color: white;
+  }
+}

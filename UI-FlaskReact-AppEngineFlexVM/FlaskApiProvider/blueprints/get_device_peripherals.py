@@ -14,6 +14,7 @@ def get_device_peripherals():
     peripheral_details = []
 
     peripherals_array = peripherals_string.split(",")
+
     for peripheral in peripherals_array:
         print(str(peripheral))
         query = datastore_client.query(kind='Peripherals')
