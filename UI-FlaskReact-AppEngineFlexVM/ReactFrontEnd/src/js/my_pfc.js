@@ -1,9 +1,8 @@
 import React, {Component} from 'react';
-import '../css/device_homepage.css';
+import "../scss/my_pfc.scss";
 import {Cookies, withCookies} from "react-cookie";
 import {$, jQuery} from 'jquery';
-import 'rc-time-picker/assets/index.css';
-import 'react-console-component/main.css';
+
 
 class MyPFC extends Component {
     constructor(props) {
