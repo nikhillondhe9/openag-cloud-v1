@@ -246,3 +246,8 @@ input
 {
     display: block;
 }
+
+.recipe-details-text
+{
+    text-align: center;
+}

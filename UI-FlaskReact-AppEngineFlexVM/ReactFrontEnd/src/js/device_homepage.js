@@ -19,10 +19,10 @@ import {AddDeviceModal} from './components/add_device_modal';
 const showSecond = true;
 const str = showSecond ? 'HH:mm:ss' : 'HH:mm';
 const displayNamesLookup = {
-    "cool_white": "400-449 (in nm)",
-    "warm_white": "449-499 (in nm)",
+    "cool_white": "Cool White",
+    "warm_white": "Warm White",
     "blue": "Blue",
-    "far_red": "650-699 (in nm)",
+    "far_red": "Far Red",
     "green": "Green",
     "red": "Red",
     "sensor_rh": "Relative Humidity Publish Frequency",
@@ -142,7 +142,9 @@ class DeviceHomepage extends Component {
         }
 
         let standard_day_duration = this.state.current_recipe["phases"][0]['cycles'][0]['duration_hours']
+        let standard_night_duration = this.state.current_recipe["phases"][0]['cycles'][1]['duration_hours']
         this.setState({standard_day:standard_day_duration})
+        this.setState({standard_night:standard_night_duration})
         this.setState({
             led_panel_dac5578: led_data
         })
@@ -789,7 +791,7 @@ class DeviceHomepage extends Component {
                                             <div className="">
                                                 <div className="row colors-row">
                                                     <div className="col-md-6">
-                                                        <span>400-449 (in nm)</span>
+                                                        <span>Cool White</span>
                                                     </div>
                                                     <div className="col-md-6">
                                                         <Input
@@ -800,7 +802,7 @@ class DeviceHomepage extends Component {
 
                                                 <div className="row colors-row">
                                                     <div className="col-md-6">
-                                                        <span>449-499 (in nm)</span>
+                                                        <span>Warm White</span>
                                                     </div>
                                                     <div className="col-md-6">
                                                         <Input
@@ -810,7 +812,7 @@ class DeviceHomepage extends Component {
                                                 </div>
                                                 <div className="row colors-row">
                                                     <div className="col-md-6">
-                                                        <span>500-549 (in nm)</span>
+                                                        <span>Blue</span>
                                                     </div>
                                                     <div className="col-md-6">
                                                         <Input
@@ -820,7 +822,7 @@ class DeviceHomepage extends Component {
                                                 </div>
                                                 <div className="row colors-row">
                                                     <div className="col-md-6">
-                                                        <span>550-599 (in nm)</span>
+                                                        <span>Green</span>
                                                     </div>
                                                     <div className="col-md-6">
                                                         <Input
@@ -830,7 +832,7 @@ class DeviceHomepage extends Component {
                                                 </div>
                                                 <div className="row colors-row">
                                                     <div className="col-md-6">
-                                                        <span>600-649 (in nm)</span>
+                                                        <span>Red</span>
                                                     </div>
                                                     <div className="col-md-6">
                                                         <Input
@@ -840,7 +842,7 @@ class DeviceHomepage extends Component {
                                                 </div>
                                                 <div className="row colors-row">
                                                     <div className="col-md-6">
-                                                        <span>650-699 (in nm)</span>
+                                                        <span>Far Red</span>
                                                     </div>
                                                     <div className="col-md-6">
                                                         <Input
@@ -868,7 +870,7 @@ class DeviceHomepage extends Component {
                                             <div className="">
                                                 <div className="row colors-row">
                                                     <div className="col-md-6">
-                                                        <span>400-449 (in nm)</span>
+                                                        <span>Cool White</span>
                                                     </div>
                                                     <div className="col-md-6">
                                                         <Input
@@ -879,7 +881,7 @@ class DeviceHomepage extends Component {
 
                                                 <div className="row colors-row">
                                                     <div className="col-md-6">
-                                                        <span>449-499 (in nm)</span>
+                                                        <span>Warm White</span>
                                                     </div>
                                                     <div className="col-md-6">
                                                         <Input
@@ -889,7 +891,7 @@ class DeviceHomepage extends Component {
                                                 </div>
                                                 <div className="row colors-row">
                                                     <div className="col-md-6">
-                                                        <span>500-549 (in nm)</span>
+                                                        <span>Blue</span>
                                                     </div>
                                                     <div className="col-md-6">
                                                         <Input
@@ -899,7 +901,7 @@ class DeviceHomepage extends Component {
                                                 </div>
                                                 <div className="row colors-row">
                                                     <div className="col-md-6">
-                                                        <span>550-599 (in nm)</span>
+                                                        <span>Green</span>
                                                     </div>
                                                     <div className="col-md-6">
                                                         <Input
@@ -909,7 +911,7 @@ class DeviceHomepage extends Component {
                                                 </div>
                                                 <div className="row colors-row">
                                                     <div className="col-md-6">
-                                                        <span>600-649 (in nm)</span>
+                                                        <span>Red</span>
                                                     </div>
                                                     <div className="col-md-6">
                                                         <Input
@@ -919,7 +921,7 @@ class DeviceHomepage extends Component {
                                                 </div>
                                                 <div className="row colors-row">
                                                     <div className="col-md-6">
-                                                        <span>650-699 (in nm)</span>
+                                                        <span>Far Red</span>
                                                     </div>
                                                     <div className="col-md-6">
                                                         <Input

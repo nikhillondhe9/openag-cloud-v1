@@ -97,6 +97,7 @@ def get_recipe_by_uuid():
 
         recipe_json = {
             'name':recipe_details_json['name'],
+            'image_url':result['image_url'],
             'description':recipe_details_json['description']['verbose'],
             'device_type':device_type,
             'plant_type':recipe_details_json['cultivars'][0]['name'],

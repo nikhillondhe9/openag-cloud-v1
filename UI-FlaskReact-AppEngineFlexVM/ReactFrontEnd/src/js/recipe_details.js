@@ -8,20 +8,34 @@ import 'rc-time-picker/assets/index.css';
 import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input} from 'reactstrap';
 
 
-
 class RecipeDetails extends Component {
     constructor(props) {
         super(props);
         this.recipe_uuid = this.props.location.pathname.replace("/recipe_details/", "").replace("#", "")
         this.state = {
             recipe_name: "",
+            recipe_image: '',
             recipe_description: "",
             recipe_plant: "",
             recipe_uuid: this.recipe_uuid,
             recipe_json: {},
             peripherals: [],
             history: {},
-            devices:[],
+            devices: [],
+            led_panel_dac5578: {
+                'on_cool_white': '',
+                'on_warm_white': '',
+                'on_blue': '',
+                'on_green': '',
+                'on_red': '',
+                'on_far_red': '',
+                'off_cool_white': '',
+                'off_warm_white': '',
+                'off_blue': '',
+                'off_green': '',
+                'off_red': '',
+                'off_far_red': ''
+            },
             apply_to_device_modal: false
         };
         this.getRecipeDetails = this.getRecipeDetails.bind(this);
@@ -29,6 +43,7 @@ class RecipeDetails extends Component {
         this.handleChange = this.handleChange.bind(this);
 
     }
+
     handleChange(event) {
         this.setState({
             [event.target.name]: event.target.value
@@ -38,6 +53,7 @@ class RecipeDetails extends Component {
         event.preventDefault();
 
     }
+
     componentDidMount() {
         this.getRecipeDetails()
     }
@@ -68,13 +84,33 @@ class RecipeDetails extends Component {
                 if (responseJson["response_code"] == 200) {
                     let resultJson = responseJson["results"][0]
                     this.setState({recipe_name: resultJson["name"]})
+                    this.setState({recipe_image: resultJson["image_url"]})
                     this.setState({recipe_description: resultJson["description"]})
                     this.setState({recipe_plant: resultJson["plant_type"]})
                     this.setState({modified_at: resultJson["modified_at"]})
                     this.setState({recipe_json: resultJson["recipe_json"]})
                     this.setState({peripherals: (resultJson["peripherals"])})
                     this.setState({devices: responseJson["devices"]})
+                    let standard_day = resultJson["recipe_json"]['environments']['standard_day']['light_spectrum_nm_percent']
+                    let standard_night = resultJson["recipe_json"]['environments']['standard_day']['light_spectrum_nm_percent']
 
+                    let led_data = {
+                        'on_cool_white': standard_day['400-449'],
+                        'on_warm_white': standard_day['449-499'],
+                        'on_blue': standard_day['500-549'],
+                        'on_green': standard_day['550-599'],
+                        'on_red': standard_day['600-649'],
+                        'on_far_red': standard_day['650-699'],
+                        'off_cool_white': standard_night['400-449'],
+                        'off_warm_white': standard_night['449-499'],
+                        'off_blue': standard_night['500-549'],
+                        'off_green': standard_night['550-599'],
+                        'off_red': standard_night['600-649'],
+                        'off_far_red': standard_night['650-699']
+                    }
+                    this.setState({
+                        led_panel_dac5578: led_data
+                    })
                     var devs = [];                  // make array
                     devs = responseJson["devices"]; // assign array
                     if (devs.length > 0) {         // if we have devices
@@ -138,12 +174,11 @@ class RecipeDetails extends Component {
                                                     <div className="">
                                                         <div className="row colors-row">
                                                             <div className="col-md-6">
-                                                                <span>400-449 (in nm)</span>
+                                                                <span>Cool White</span>
                                                             </div>
                                                             <div className="col-md-6">
 
-                                                                <Input
-                                                                        defaultValue={this.state[field.state_key + '_on_cool_white']}
+                                                                <Input value={this.state['led_panel_dac5578']['on_cool_white']}
 
                                                                 />
                                                             </div>
@@ -151,55 +186,54 @@ class RecipeDetails extends Component {
 
                                                         <div className="row colors-row">
                                                             <div className="col-md-6">
-                                                                <span>449-499 (in nm)</span>
+                                                                <span>Warm White</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Input
-                                                                        defaultValue={this.state[field.state_key + '_on_warm_white']}
+                                                                <Input value={this.state['led_panel_dac5578']['on_warm_white']}
 
                                                                 />
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
                                                             <div className="col-md-6">
-                                                                <span>500-549 (in nm)</span>
+                                                                <span>Blue</span>
                                                             </div>
                                                             <div className="col-md-6">
                                                                 <Input
-                                                                        defaultValue={this.state[field.state_key + '_on_blue']}
+                                                                    value={this.state['led_panel_dac5578']['on_blue']}
 
                                                                 />
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
                                                             <div className="col-md-6">
-                                                                <span>550-599 (in nm)</span>
+                                                                <span>Green</span>
                                                             </div>
                                                             <div className="col-md-6">
                                                                 <Input
-                                                                        defaultValue={this.state[field.state_key + '_on_green']}
+                                                                    value={this.state['led_panel_dac5578']['on_green']}
 
                                                                 />
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
                                                             <div className="col-md-6">
-                                                                <span>600-649 (in nm)</span>
+                                                                <span>Red</span>
                                                             </div>
                                                             <div className="col-md-6">
                                                                 <Input
-                                                                        defaultValue={this.state[field.state_key + '_on_red']}
+                                                                   value={this.state['led_panel_dac5578']['on_red']}
 
                                                                 />
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
                                                             <div className="col-md-6">
-                                                                <span>650-699 (in nm)</span>
+                                                                <span>Far Red</span>
                                                             </div>
                                                             <div className="col-md-6">
                                                                 <Input
-                                                                        defaultValue={this.state[field.state_key + '_on_far_red']}
+                                                                   value={this.state['led_panel_dac5578']['on_far_red']}
 
                                                                 />
                                                             </div>
@@ -221,11 +255,11 @@ class RecipeDetails extends Component {
                                                     <div className="">
                                                         <div className="row colors-row">
                                                             <div className="col-md-6">
-                                                                <span>400-449 (in nm)</span>
+                                                                <span>Cool White</span>
                                                             </div>
                                                             <div className="col-md-6">
                                                                 <Input
-                                                                        defaultValue={this.state[field.state_key + '_off_cool_white']}
+                                                                   value={this.state['led_panel_dac5578']['off_cool_white']}
 
                                                                 />
                                                             </div>
@@ -233,54 +267,54 @@ class RecipeDetails extends Component {
 
                                                         <div className="row colors-row">
                                                             <div className="col-md-6">
-                                                                <span>449-499 (in nm)</span>
+                                                                <span>Warm White</span>
                                                             </div>
                                                             <div className="col-md-6">
                                                                 <Input
-                                                                        defaultValue={this.state[field.state_key + '_off_warm_white']}
+                                                                   value={this.state['led_panel_dac5578']['off_warm_white']}
 
                                                                 />
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
                                                             <div className="col-md-6">
-                                                                <span>500-549 (in nm)</span>
+                                                                <span>Blue</span>
                                                             </div>
                                                             <div className="col-md-6">
                                                                 <Input
-                                                                        defaultValue={this.state[field.state_key + '_off_blue']}
+                                                                  value={this.state['led_panel_dac5578']['off_blue']}
 
                                                                 />
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
                                                             <div className="col-md-6">
-                                                                <span>550-599 (in nm)</span>
+                                                                <span>Green</span>
                                                             </div>
                                                             <div className="col-md-6">
                                                                 <Input
-                                                                        defaultValue={this.state[field.state_key + '_off_green']}
+                                                                   value={this.state['led_panel_dac5578']['off_green']}
 
                                                                 />
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
                                                             <div className="col-md-6">
-                                                                <span>600-649 (in nm)</span>
+                                                                <span>Red</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Input defaultValue={this.state[field.state_key + '_off_red']}
+                                                          <Input  value={this.state['led_panel_dac5578']['off_red']}
 
                                                                 />
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
                                                             <div className="col-md-6">
-                                                                <span>650-699 (in nm)</span>
+                                                                <span>Far Red</span>
                                                             </div>
                                                             <div className="col-md-6">
                                                                 <Input
-                                                                        defaultValue={this.state[field.state_key + '_off_far_red']}
+                                                                  value={this.state['led_panel_dac5578']['off_far_red']}
 
                                                                 />
                                                             </div>
@@ -310,7 +344,7 @@ class RecipeDetails extends Component {
                 </div>
                 <div className="row home-row">
                     <div className="col-md-3 img-col">
-                        <img src={arugula}/>
+                        <img src={this.state.recipe_image}/>
                     </div>
 
                     <div className="col-md-9">
@@ -365,9 +399,9 @@ class RecipeDetails extends Component {
                             </div>
                         </div>
                         <div className="row card-row">
-                            <div onClick={this.toggle_apply_to_device.bind(this, this.recipe_uuid)}
-                                 id={this.recipe_uuid}>Apply Recipe
-                            </div>
+                            <Button onClick={this.toggle_apply_to_device.bind(this, this.recipe_uuid)}
+                                    id={this.recipe_uuid}>Apply Recipe
+                            </Button>
                         </div>
 
                     </div>
