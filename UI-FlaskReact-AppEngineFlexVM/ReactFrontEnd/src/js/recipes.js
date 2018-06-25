@@ -2,7 +2,10 @@ import React, {Component} from 'react';
 import {BrowserRouter as Router, Route} from "react-router-dom";
 import '../css/recipes.css';
 import {Cookies, withCookies} from "react-cookie";
-import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input} from 'reactstrap';
+import {
+    Button, ButtonGroup, Modal, ModalHeader, ModalBody, ModalFooter,
+    Form, FormGroup, Label, Input
+} from 'reactstrap';
 
 import {RecipeCard} from './components/recipe_card';
 import * as api from './utils/api';
@@ -228,10 +231,17 @@ class recipes extends Component {
         let listRecipes = <p>Loading</p>
         let recipes = [];
         if (this.state.all_recipes.size) {
-            if (this.state.filter_recipe_button_state == 'my') {
-                recipes = [...this.state.filtered_recipes.values()];
-            } else {
-                recipes = [...this.state.all_recipes.values()];
+            switch (this.state.filter_recipe_button_state) {
+                case 'my':
+                    recipes = [...this.state.filtered_recipes.values()];
+                    break;
+                case 'starred':
+                    recipes = [...this.state.all_recipes.values()].filter(recipe =>
+                        recipe.starred
+                    )
+                    break;
+                default:
+                    recipes = [...this.state.all_recipes.values()]
             }
 
             listRecipes = recipes.map((recipe) =>
@@ -247,29 +257,33 @@ class recipes extends Component {
         return (
             <Router>
                 <div className="recipe-container">
-                    <div className="row buttons-row">
-                        <div className="button__group">
-                            <a
-                                href="javascript:void(0)"
-                                className={`
-                                button button__toggle
-                                ${this.state.filter_recipe_button_state === 'all' && 'button-selected'}
-                            `}
+                    <div className="buttons-row">
+                        <ButtonGroup>
+                            <Button
+                                outline
                                 onClick={() => this.onFilterRecipe('all')}
+                                active={this.state.filter_recipe_button_state == 'all'}
+                                color="primary"
                             >
-                                All Climate Recipes
-                            </a>
-                            <a
-                                href="javascript:void(0)"
-                                className={`
-                                button button__toggle
-                                ${this.state.filter_recipe_button_state === 'my' && 'button-selected'}
-                            `}
+                                All Recipes
+                            </Button>
+                            <Button
+                                outline
                                 onClick={() => this.onFilterRecipe('my')}
+                                active={this.state.filter_recipe_button_state == 'my'}
+                                color="primary"
                             >
-                                My Climate Recipes
-                            </a>
-                        </div>
+                                My Recipes
+                            </Button>
+                            <Button
+                                outline
+                                onClick={() => this.onFilterRecipe('starred')}
+                                active={this.state.filter_recipe_button_state == 'starred'}
+                                color="primary"
+                            >
+                                Starred Recipes
+                            </Button>
+                        </ButtonGroup>
                     </div>
                     <div className="recipe-cards">
                         <div className="card recipe-card">

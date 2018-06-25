@@ -30,60 +30,9 @@ input {
     width: 250px;
 }
 
-a {
-    text-decoration: none;
-}
-
-.button {
-    display: inline-block;
-    padding: 4px 16px;
-    height: 36px;
-    background-color: #883c63;
-    color: white;
-    border-radius: 18px;
-}
-
-.button__group {
+.buttons-row {
     display: flex;
-    flex-direction: row;
-    flex-wrap: no-wrap;
-    align-content: stretch;
-    overflow: hidden;
-    border-radius: 20px;
-    border: 2px solid #883c63;
-}
-
-.button__group .button {
-    display: inline-block;
-    flex: 1 100%;
-    background-color: transparent;
-    border-radius: 0;
-    color: #883c63;
-    border-right: 2px solid #883c63;
-    transition: all .2s ease-out;
-}
-
-.button__group .button:last-child {
-    border-right: 0;
-}
-
-.button__group .button:hover,
-.button__group .button.active,
-.button__group .button-selected {
-    color: #fff !IMPORTANT;
-    background-color: #883c63 !IMPORTANT;
-}
-
-.button__group {
-
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.button__group .button {
-    width: 200px;
-    text-align: center;
+    justify-content: center;
 }
 
 .recipe-cards {
