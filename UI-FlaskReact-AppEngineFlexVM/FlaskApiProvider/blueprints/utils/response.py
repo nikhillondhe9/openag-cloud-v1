@@ -26,5 +26,5 @@ def pre_serialize_device(device_entity):
         'user_uuid': device_entity.get("user_uuid", ""),
         'permissions': device_entity.get("permission", ""),
         'device_name': device_entity.get("device_name", ""),
-        'peripherals':device_entity.get("peripherals",[])
+        'peripherals':device_entity.get("peripherals", [])
     }
