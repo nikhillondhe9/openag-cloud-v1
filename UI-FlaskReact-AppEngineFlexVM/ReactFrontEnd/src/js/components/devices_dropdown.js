@@ -13,7 +13,7 @@ import {
  * - devices (array): Device objects to display.
  * - selectedDevice (string): Name of the currently selected device.
  * - onSelectDevice (function): callback for when a device is selected from
- * the dropdown.
+ * the dropdown. Called with the device uuid.
  * - onAddDevice (function): callback for when "Add a new device" is clicked.
  * - onAddAccessCode (function): callback for when "Add access code" is
  * clicked.
@@ -30,6 +30,10 @@ export class DevicesDropdown extends React.PureComponent {
         });
     }
 
+    onSelectDevice = (e) => {
+        this.props.onSelectDevice(e.target.value);
+    }
+
     render() {
         return (
             <Dropdown isOpen={this.state.isOpen} toggle={this.toggle} >
@@ -42,7 +46,7 @@ export class DevicesDropdown extends React.PureComponent {
                         <DropdownItem
                             key={device.device_uuid}
                             value={device.device_uuid}
-                            onClick={this.props.onSelectDevice}>
+                            onClick={this.onSelectDevice}>
                             {device.device_name} ({device.device_reg_no})
                         </DropdownItem>
                     )}

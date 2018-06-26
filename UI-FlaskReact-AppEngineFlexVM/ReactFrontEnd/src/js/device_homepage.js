@@ -110,7 +110,6 @@ class DeviceHomepage extends Component {
         this.toggleTempData = this.toggleTempData.bind(this);
         this.handleColorChange = this.handleColorChange.bind(this);
         this.modalToggle = this.modalToggle.bind(this);
-        this.onSelectDevice = this.onSelectDevice.bind(this);
         this.sensorOnChange = this.sensorOnChange.bind(this);
         this.echo = this.echo.bind(this);
         this.InputChange = this.InputChange.bind(this);
@@ -304,7 +303,6 @@ class DeviceHomepage extends Component {
                 'Access-Control-Allow-Origin': '*'
             },
             body: JSON.stringify({
-                'user_uuid': this.state.user_uuid,
                 'user_token': this.props.cookies.get('user_token')
             })
         })
@@ -312,39 +310,49 @@ class DeviceHomepage extends Component {
             .then((responseJson) => {
                 console.log(responseJson)
                 if (responseJson["response_code"] == 200) {
-
-                    var devs = [];                  // make array
-                    devs = responseJson["results"]; // assign array
-                    var device_uuid = 'None'
-                    if (devs.length > 0) {         // if we have devices
-                        // default the selected device to the first/only dev.
-                        var name = devs[0].device_name + ' (' +
-                            devs[0].device_reg_no + ')';
-                        device_uuid = devs[0].device_uuid;
-                        this.setState({
-                            selected_device: name,
-                            selected_device_uuid: device_uuid
-                        });
+                    const devices = responseJson["results"];
+                    let devices_map = new Map();
+                    for (const device of devices) {
+                        devices_map.set(device['device_uuid'], device);
                     }
 
-                    let devices = new Map();
-                    for (const device of responseJson["results"]) {
-                        devices.set(device.device_uuid, device);
-                    }
-                    this.setState({user_devices: devices});
-
-                    // Now go get the data that requires a device id
-                    this.getTempDetails(device_uuid);
-                    this.getCO2Details(device_uuid);
-                    this.getCurrentStats(device_uuid);
-                    this.getRecipeOnDevice(device_uuid);
+                    this.setState({
+                        user_devices: devices_map
+                    }, () => {
+                        if (!this.restoreSelectedDevice()) {
+                            // default the selected device to the first/only dev.
+                            this.onSelectDevice(devices[0].device_uuid)
+                        }
+                    });
+                    console.log("Response", responseJson["results"])
                 } else {
-                    this.setState({selected_device: 'No Devices'});
+                    this.setState({
+                        selected_device: 'No Devices',
+                        selected_device_uuid: ''
+                    });
                 }
             })
-            .catch((error) => {
-                console.error(error);
-            });
+    }
+
+    restoreSelectedDevice = () => {
+        const saved_device_uuid = this.props.cookies.get('selected_device_uuid', {path: '/'});
+        if (!saved_device_uuid) return;
+
+        const device = this.state.user_devices.get(saved_device_uuid);
+        if (device) {
+            this.onSelectDevice(saved_device_uuid);
+            return true;
+        }
+        return false;
+    }
+
+    saveSelectedDevice = () => {
+        const selected_device_uuid = this.state.selected_device_uuid;
+        if (selected_device_uuid) {
+            this.props.cookies.set('selected_device_uuid', selected_device_uuid, {path: '/'});
+        } else {
+            this.props.cookies.remove('selected_device_uuid', {path: '/'});
+        }
     }
 
     onSubmitAccessCode = (modal_state) => {
@@ -594,26 +602,24 @@ class DeviceHomepage extends Component {
         this.setState({'show_rh_line': !this.state.show_rh_line})
     }
 
-    onSelectDevice(e) {
-        this.setState({selected_device: e.target.textContent});
+    onSelectDevice = (device_uuid) => {
+        if (device_uuid != this.state.selected_device_uuid) {
+            const device = this.state.user_devices.get(device_uuid);
+            const name = `${device.device_name} (${device.device_reg_no})`;
+            this.setState({
+                selected_device: name,
+                selected_device_uuid: device.device_uuid,
+                control_level: device.permission,
+                current_rh: 'Loading',
+                current_temp: 'Loading',
+                current_co2: 'Loading'
+            }, this.saveSelectedDevice);
 
-        const device_uuid = e.target.value;
-        console.log(this.state.user_devices);
-        const devicePermissions = this.state.user_devices.get(device_uuid);
-        console.log(devicePermissions);
-
-        this.setState({
-            control_level: devicePermissions['permission'],
-            selected_device_uuid: device_uuid,
-            current_rh: 'Loading',
-            current_temp: 'Loading',
-            current_co2: 'Loading'
-        });
-
-        this.getTempDetails(device_uuid);
-        this.getCO2Details(device_uuid);
-        this.getCurrentStats(device_uuid);
-        this.getRecipeOnDevice(device_uuid);
+            this.getTempDetails(device_uuid);
+            this.getCO2Details(device_uuid);
+            this.getCurrentStats(device_uuid);
+            this.getRecipeOnDevice(device_uuid);
+        }
     }
 
     echo(text) {

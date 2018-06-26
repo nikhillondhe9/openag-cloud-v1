@@ -58,7 +58,9 @@ class App extends Component {
     }
 
     logout() {
+        // Remove all user related data.
         this.props.cookies.remove('user_token', { path: '/' });
+        this.props.cookies.remove('selected_device_uuid', { path: '/' });
         window.location = "/login";
     }
 

@@ -47,7 +47,6 @@ class Home extends Component {
         // This binding is necessary to make `this` work in the callback
         this.getUserDevices = this.getUserDevices.bind(this);
         this.postToTwitter = this.postToTwitter.bind(this);
-        this.onSelectDevice = this.onSelectDevice.bind(this);
     }
 
     componentWillMount() {
@@ -95,7 +94,6 @@ class Home extends Component {
                 'Access-Control-Allow-Origin': '*'
             },
             body: JSON.stringify({
-                'user_uuid': this.state.user_uuid,
                 'user_token': this.props.cookies.get('user_token')
             })
         })
@@ -103,35 +101,54 @@ class Home extends Component {
             .then((responseJson) => {
                 console.log(responseJson)
                 if (responseJson["response_code"] == 200) {
-
-                    var devs = [];                  // make array
-                    devs = responseJson["results"]; // assign array
-                    var device_uuid = 'None'
-                    if (devs.length > 0) {         // if we have devices
-                        // default the selected device to the first/only dev.
-                        var name = devs[0].device_name + ' (' +
-                            devs[0].device_reg_no + ')';
-                        device_uuid = devs[0].device_uuid;
-                        this.setState({
-                            selected_device: name,
-                            selected_device_uuid: device_uuid
-                        });
-                        // this.getDeviceImages(device_uuid);
+                    const devices = responseJson["results"];
+                    let devices_map = new Map();
+                    for (const device of devices) {
+                        devices_map.set(device['device_uuid'], device);
                     }
 
-                    let devices = new Map();
-                    for (const device of responseJson['results']) {
-                        devices.set(device['device_uuid'], device);
-                    }
-                    this.setState({user_devices: devices});
+                    this.setState({
+                        user_devices: devices_map
+                    }, () => {
+                        if (!this.restoreSelectedDevice()) {
+                            // default the selected device to the first/only dev.
+                            this.onSelectDevice(devices[0].device_uuid)
+                        }
+                        // this.getDeviceImages(devices[0].device_uuid);
+                    });
                     console.log("Response", responseJson["results"])
                 } else {
-                    this.setState({selected_device: 'No Devices'});
+                    this.setState({
+                        selected_device: 'No Devices',
+                        selected_device_uuid: ''
+                    });
                 }
             })
             .catch((error) => {
                 console.error(error);
             });
+    }
+
+    restoreSelectedDevice = () => {
+        const saved_device_uuid = this.props.cookies.get('selected_device_uuid', {path: '/'});
+        if (!saved_device_uuid) return;
+
+        const device = this.state.user_devices.get(saved_device_uuid);
+        if (device) {
+            this.onSelectDevice(saved_device_uuid);
+            return true;
+        }
+        return false;
+    }
+
+    saveSelectedDevice = () => {
+        const selected_device_uuid = this.state.selected_device_uuid;
+        console.log(selected_device_uuid);
+        if (selected_device_uuid) {
+            this.props.cookies.set('selected_device_uuid', selected_device_uuid, {path: '/'});
+        } else {
+            this.props.cookies.remove('selected_device_uuid', {path: '/'});
+        }
     }
 
     toggleDeviceModal = () => {
@@ -249,13 +266,15 @@ class Home extends Component {
             });
     }
 
-    onSelectDevice(e) {
-        if (e.target.value != this.state.selected_device_uuid) {
+    onSelectDevice = (device_uuid) => {
+        if (device_uuid != this.state.selected_device_uuid) {
+            const device = this.state.user_devices.get(device_uuid);
+            const name = `${device.device_name} (${device.device_reg_no})`;
             this.setState({
-                selected_device: e.target.textContent,
-                selected_device_uuid: e.target.value
-            });
-            // this.getDeviceImages(e.target.value);
+                selected_device: name,
+                selected_device_uuid: device.device_uuid
+            }, this.saveSelectedDevice);
+            // this.getDeviceImages(device_uuid);
         }
     }
 
