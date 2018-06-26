@@ -57,7 +57,7 @@ def get_all_recipes():
     user = utils.datastore.get_one(
         kind='Users', key='user_uuid', value=user_uuid
     )
-    starred_recipes = user.get('starred_recipes', [])
+    saved_recipes = user.get('saved_recipes', [])
 
     results_array = []
     for result in results:
@@ -69,7 +69,7 @@ def get_all_recipes():
             "recipe_json": recipe_json,
             "user_uuid": result['user_uuid'],
             "image_url": result["image_url"],
-            'starred': result['recipe_uuid'] in starred_recipes
+            'saved': result['recipe_uuid'] in saved_recipes
         })
 
     return success_response(

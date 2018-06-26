@@ -7,7 +7,8 @@ import {Button} from 'reactstrap';
  * props:
  * - recipe (recipe object): recipe object that represents the recipe.
  * - onSelectRecipe (function): callback for when a recipe gets selected.
- * - onStarRecipe (function): callback for when a recipe gets starred.
+ * - onSaveRecipe (function): callback for when a recipe gets saved.
+ * - onUnsaveRecipe (function): callback for when a recipe gets unsaved.
  */
 export class RecipeCard extends React.Component {
 
@@ -15,12 +16,12 @@ export class RecipeCard extends React.Component {
         this.props.onSelectRecipe(e.target.value);
     }
 
-    onStarRecipe = (e) => {
-        this.props.onStarRecipe(e.target.value);
+    onSaveRecipe = (e) => {
+        this.props.onSaveRecipe(e.target.value);
     }
 
-    onUnstarRecipe = (e) => {
-        this.props.onUnstarRecipe(e.target.value);
+    onUnsaveRecipe = (e) => {
+        this.props.onUnsaveRecipe(e.target.value);
     }
 
     render() {
@@ -42,19 +43,19 @@ export class RecipeCard extends React.Component {
                     >
                         View Recipe
                     </Button>
-                    {this.props.recipe.starred ? (
+                    {this.props.recipe.saved ? (
                         <Button
                             value={this.props.recipe.recipe_uuid}
-                            onClick={this.onUnstarRecipe}
+                            onClick={this.onUnsaveRecipe}
                         >
-                            Unstar
+                            Unsave
                         </Button>
                     ) : (
                         <Button
                             value={this.props.recipe.recipe_uuid}
-                            onClick={this.onStarRecipe}
+                            onClick={this.onSaveRecipe}
                         >
-                            Star
+                            Save
                         </Button>
                     )}
                 </div>

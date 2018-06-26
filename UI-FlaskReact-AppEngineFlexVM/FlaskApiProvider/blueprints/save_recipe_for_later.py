@@ -6,7 +6,7 @@ from .utils.auth import get_user_uuid_from_token
 from .utils.env_variables import datastore_client
 from . import utils
 
-star_recipe_bp = Blueprint('star_recipe_bp', __name__)
+save_for_later_bp = Blueprint('save_for_later_bp', __name__)
 
 def recipe_exists(recipe_uuid):
     return utils.datastore.get_one(
@@ -24,8 +24,8 @@ def check_recipe_uuid(recipe_uuid):
             message='The submitted recipe_uuid doesn\'t belong to any recipe.'
         )
 
-@star_recipe_bp.route('/api/star_recipe/', methods=['POST'])
-def star_recipe():
+@save_for_later_bp.route('/api/save_for_later/', methods=['POST'])
+def save_recipe():
     data = request.get_json()
     user_token = data.get('user_token')
     recipe_uuid = data.get('recipe_uuid')
@@ -40,20 +40,20 @@ def star_recipe():
     user = utils.datastore.get_one(
         kind='Users', key='user_uuid', value=user_uuid
     )
-    starred_recipes = user.get('starred_recipes')
-    if starred_recipes is None:
-        user['starred_recipes'] = [recipe_uuid]
+    saved_recipes = user.get('saved_recipes')
+    if saved_recipes is None:
+        user['saved_recipes'] = [recipe_uuid]
     else:
-        if recipe_uuid not in starred_recipes:
-            starred_recipes.append(recipe_uuid)
+        if recipe_uuid not in saved_recipes:
+            saved_recipes.append(recipe_uuid)
 
     datastore_client.put(user)
     return success_response(
-        message='Successfully starred recipe {}'.format(recipe_uuid)
+        message='Successfully saved recipe {}'.format(recipe_uuid)
     )
 
-@star_recipe_bp.route('/api/unstar_recipe/', methods=['POST'])
-def unstar_recipe():
+@save_for_later_bp.route('/api/unsave_for_later/', methods=['POST'])
+def unsave_recipe():
     data = request.get_json()
     user_token = data.get('user_token')
     recipe_uuid = data.get('recipe_uuid')
@@ -69,14 +69,14 @@ def unstar_recipe():
     user = utils.datastore.get_one(
         kind='Users', key='user_uuid', value=user_uuid
     )
-    starred_recipes = user.get('starred_recipes')
-    if not starred_recipes or recipe_uuid not in starred_recipes:
+    saved_recipes = user.get('saved_recipes')
+    if not saved_recipes or recipe_uuid not in saved_recipes:
         return error_response(
-            message='User did not star this recipe.'
+            message='User did not save this recipe.'
         )
 
-    starred_recipes.remove(recipe_uuid)
+    saved_recipes.remove(recipe_uuid)
     datastore_client.put(user)
     return success_response(
-        message='Successfully unstarred recipe {}'.format(recipe_uuid)
+        message='Successfully unsaved recipe {}'.format(recipe_uuid)
     )

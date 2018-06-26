@@ -182,40 +182,40 @@ class recipes extends Component {
             });
     }
 
-    onStarRecipe = (recipe_uuid) => {
-        api.starRecipe(
+    onSaveRecipe = (recipe_uuid) => {
+        api.saveRecipe(
             this.props.cookies.get('user_token'),
             recipe_uuid
         ).then(response => {
-            console.log(`Recipe: ${recipe_uuid} starred.`);
-            this.toggleStar(recipe_uuid);
+            console.log(`Recipe: ${recipe_uuid} saved.`);
+            this.toggleSave(recipe_uuid);
         }).catch(response => {
             console.error(response.message);
         });
     }
 
-    onUnstarRecipe = (recipe_uuid) => {
-        api.unstarRecipe(
+    onUnsaveRecipe = (recipe_uuid) => {
+        api.unsaveRecipe(
             this.props.cookies.get('user_token'),
             recipe_uuid
         ).then(response => {
-            console.log(`Recipe: ${recipe_uuid} unstarred.`);
-            this.toggleStar(recipe_uuid);
+            console.log(`Recipe: ${recipe_uuid} unsaved.`);
+            this.toggleSave(recipe_uuid);
         }).catch(response => {
             console.error(response.message);
         });
     }
 
-    toggleStar = (recipe_uuid) => {
+    toggleSave = (recipe_uuid) => {
         const recipes_map = new Map(this.state.all_recipes);
         const recipe = recipes_map.get(recipe_uuid);
-        recipe.starred = !recipe.starred;
+        recipe.saved = !recipe.saved;
         recipes_map.set(recipe_uuid, recipe);
 
         const filtered_map = new Map(this.state.filtered_recipes);
         const recipe_filtered = filtered_map.get(recipe_uuid);
         if (recipe_filtered) {
-            recipe_filtered.starred = !recipe_filtered.starred;
+            recipe_filtered.saved = !recipe_filtered.saved;
             filtered_map.set(recipe_uuid, recipe_filtered);
         }
 
@@ -235,9 +235,9 @@ class recipes extends Component {
                 case 'my':
                     recipes = [...this.state.filtered_recipes.values()];
                     break;
-                case 'starred':
+                case 'saved':
                     recipes = [...this.state.all_recipes.values()].filter(recipe =>
-                        recipe.starred
+                        recipe.saved
                     )
                     break;
                 default:
@@ -249,8 +249,8 @@ class recipes extends Component {
                     key={recipe.recipe_uuid}
                     recipe={recipe}
                     onSelectRecipe={this.goToRecipe}
-                    onStarRecipe={this.onStarRecipe}
-                    onUnstarRecipe={this.onUnstarRecipe}
+                    onSaveRecipe={this.onSaveRecipe}
+                    onUnsaveRecipe={this.onUnsaveRecipe}
                 />
             );
         }
@@ -277,11 +277,11 @@ class recipes extends Component {
                             </Button>
                             <Button
                                 outline
-                                onClick={() => this.onFilterRecipe('starred')}
-                                active={this.state.filter_recipe_button_state == 'starred'}
+                                onClick={() => this.onFilterRecipe('saved')}
+                                active={this.state.filter_recipe_button_state == 'saved'}
                                 color="primary"
                             >
-                                Starred Recipes
+                                Saved Recipes
                             </Button>
                         </ButtonGroup>
                     </div>

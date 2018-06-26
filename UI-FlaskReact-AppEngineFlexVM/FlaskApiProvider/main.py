@@ -8,8 +8,8 @@ from blueprints import (
     register_device, get_all_recipes, get_device_types, submit_recipe,
     get_plant_types, save_recipe, submit_recipe_change, verify_user_session,
     user_authenticate, upload_images, get_user_image, get_device_peripherals,
-    submit_access_code,get_current_recipe, get_device_images, star_recipe
-    device_is_running_recipe
+    submit_access_code,get_current_recipe, get_device_images,
+    device_is_running_recipe, save_recipe_for_later
 )
 
 app = Flask(__name__)
@@ -36,7 +36,7 @@ app.register_blueprint(get_plant_types.get_plant_types_bp)
 app.register_blueprint(get_all_recipes.get_all_recipes_bp)
 app.register_blueprint(get_recipe_by_uuid.get_recipe_by_uuid_bp)
 app.register_blueprint(device_is_running_recipe.device_is_running_bp)
-app.register_blueprint(star_recipe.star_recipe_bp)
+app.register_blueprint(save_recipe_for_later.save_for_later_bp)
 
 app.register_blueprint(upload_images.upload_images_bp)
 app.register_blueprint(get_user_image.get_user_image_bp)

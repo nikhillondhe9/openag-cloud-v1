@@ -17,12 +17,12 @@ function jsonRequest(endpoint, data, method = 'POST') {
         });
 }
 
-export function starRecipe(user_token, recipe_uuid) {
+export function saveRecipe(user_token, recipe_uuid) {
     const data = { user_token, recipe_uuid };
-    return jsonRequest('/api/star_recipe/', data);
+    return jsonRequest('/api/save_for_later/', data);
 }
 
-export function unstarRecipe(user_token, recipe_uuid) {
+export function unsaveRecipe(user_token, recipe_uuid) {
     const data = { user_token, recipe_uuid };
-    return jsonRequest('/api/unstar_recipe/', data);
+    return jsonRequest('/api/unsave_for_later/', data);
 }
