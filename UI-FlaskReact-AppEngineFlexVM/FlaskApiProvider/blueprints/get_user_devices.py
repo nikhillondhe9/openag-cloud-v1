@@ -28,6 +28,18 @@ def get_user_devices():
             message="Invalid User: Unauthorized"
         )
 
+    devices = get_devices_for_user(user_uuid)
+
+    if not devices:
+        return error_response(
+            message="No devices associated with user."
+        )
+
+    return success_response(
+        results=devices
+    )
+
+def get_devices_for_user(user_uuid):
     query = datastore_client.query(kind='Devices')
     query.add_filter('user_uuid', '=', user_uuid)
     query_results = list(query.fetch())
@@ -46,15 +58,7 @@ def get_user_devices():
 
     devices_from_access_codes = get_access_code_devices_for_user(user_uuid)
     devices.extend(devices_from_access_codes)
-
-    if not devices:
-        return error_response(
-            message="No devices associated with user."
-        )
-
-    return success_response(
-        results=devices
-    )
+    return devices
 
 def get_access_code_devices_for_user(user_uuid):
     """Returns a set of devices associated with the user's access codes"""
