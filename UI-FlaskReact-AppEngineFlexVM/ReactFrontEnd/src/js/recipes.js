@@ -2,14 +2,20 @@ import React, {Component} from 'react';
 import {BrowserRouter as Router, Route} from "react-router-dom";
 import '../css/recipes.css';
 import {Cookies, withCookies} from "react-cookie";
-import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input} from 'reactstrap';
+import {
+    Button, ButtonGroup, Modal, ModalHeader, ModalBody, ModalFooter,
+    Form, FormGroup, Label, Input
+} from 'reactstrap';
+
+import {RecipeCard} from './components/recipe_card';
+import * as api from './utils/api';
 
 class recipes extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            all_recipes: [],
-            filtered_recipes: [],
+            all_recipes: new Map(),
+            filtered_recipes: new Map(),
             filter_recipe_button_state: 'all',
             modal: false,
             apply_to_device_modal: false,
@@ -108,28 +114,33 @@ class recipes extends Component {
         })
             .then((response) => response.json())
             .then((responseJson) => {
-                console.log(responseJson)
-                if (responseJson["response_code"] == 200) {
-                    this.setState({devices: responseJson["devices"]})
+                console.log(responseJson);
+                if (responseJson['response_code'] == 200) {
+                    this.setState({devices: responseJson['devices']})
 
-                    // Filter recipes
-                    const own_uuid = responseJson["user_uuid"];
-                    const all_recipes = responseJson["results"];
-                    const filtered_recipes = all_recipes.filter(recipe =>
-                        recipe.user_uuid == own_uuid
-                    )
+                    const own_uuid = responseJson['user_uuid'];
+                    const all_recipes = responseJson['results'];
+
+                    let recipes_map = new Map();
+                    let filtered_map = new Map();
+
+                    // Filter recipes into filtered_recipes, put all into all_recipes
+                    for (const recipe of all_recipes) {
+                        if (recipe.user_uuid == own_uuid) {
+                            filtered_map.set(recipe.recipe_uuid, recipe);
+                        }
+                        recipes_map.set(recipe.recipe_uuid, recipe);
+                    }
 
                     this.setState({
-                        all_recipes: all_recipes,
-                        filtered_recipes, filtered_recipes,
-                        user_uuid: own_uuid
+                        all_recipes: recipes_map,
+                        filtered_recipes: filtered_map,
                     });
 
-                    var devs = [];                  // make array
-                    devs = responseJson["devices"]; // assign array
-                    if (devs.length > 0) {         // if we have devices
+                    const devices = responseJson['devices'];
+                    if (devices) {
                         // default the selected device to the first/only dev.
-                        this.state.selected_device_uuid = devs[0].device_uuid;
+                        this.state.selected_device_uuid = devices[0].device_uuid;
                     }
                 }
             })
@@ -171,97 +182,126 @@ class recipes extends Component {
             });
     }
 
+    onSaveRecipe = (recipe_uuid) => {
+        api.saveRecipe(
+            this.props.cookies.get('user_token'),
+            recipe_uuid
+        ).then(response => {
+            console.log(`Recipe: ${recipe_uuid} saved.`);
+            this.toggleSave(recipe_uuid);
+        }).catch(response => {
+            console.error(response.message);
+        });
+    }
+
+    onUnsaveRecipe = (recipe_uuid) => {
+        api.unsaveRecipe(
+            this.props.cookies.get('user_token'),
+            recipe_uuid
+        ).then(response => {
+            console.log(`Recipe: ${recipe_uuid} unsaved.`);
+            this.toggleSave(recipe_uuid);
+        }).catch(response => {
+            console.error(response.message);
+        });
+    }
+
+    toggleSave = (recipe_uuid) => {
+        const recipes_map = new Map(this.state.all_recipes);
+        const recipe = recipes_map.get(recipe_uuid);
+        recipe.saved = !recipe.saved;
+        recipes_map.set(recipe_uuid, recipe);
+
+        const filtered_map = new Map(this.state.filtered_recipes);
+        const recipe_filtered = filtered_map.get(recipe_uuid);
+        if (recipe_filtered) {
+            recipe_filtered.saved = !recipe_filtered.saved;
+            filtered_map.set(recipe_uuid, recipe_filtered);
+        }
+
+        console.log(recipes_map);
+
+        this.setState({
+            all_recipes: recipes_map,
+            filtered_recipes: filtered_map
+        });
+    }
+
     render() {
         let listRecipes = <p>Loading</p>
         let recipes = [];
-        if (this.state.all_recipes.length > 0) {
-            if (this.state.filter_recipe_button_state == 'my') {
-                recipes = this.state.filtered_recipes;
-            } else {
-                recipes = this.state.all_recipes;
+        if (this.state.all_recipes.size) {
+            switch (this.state.filter_recipe_button_state) {
+                case 'my':
+                    recipes = [...this.state.filtered_recipes.values()];
+                    break;
+                case 'saved':
+                    recipes = [...this.state.all_recipes.values()].filter(recipe =>
+                        recipe.saved
+                    )
+                    break;
+                default:
+                    recipes = [...this.state.all_recipes.values()]
             }
 
-            listRecipes = recipes.map((recipe) => {
-                console.log(recipe)
-                return <div className="col-md-3" key={recipe.recipe_uuid}>
-                    <div className="card">
-                        <div className="card-body">
-                            <div className="row ">
-                                <div className="col-md-4">
-                                    <img className="recipe-image" src={recipe.image_url}/>
-                                </div>
-                                <div className="col-md-8">
-                                    <h5 className="card-title">{recipe.name}</h5>
-                                    <h6 className="card-subtitle mb-2 text-muted">{recipe.description}</h6>
-                                    <div className="card-text">
-
-
-                                        {/*<Button onClick={this.toggle_apply_to_device.bind(this, recipe.recipe_uuid)}*/}
-                                             {/*id={recipe.recipe_uuid} className="button-card-link" >Apply Recipe*/}
-                                        {/*</Button>*/}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-footer"> <Button onClick={this.goToRecipe.bind(this, recipe.recipe_uuid)}
-                                             id={recipe.recipe_uuid} className="button-card-link" >View Recipe
-                        </Button></div>
-                    </div>
-                </div>
-            });
+            listRecipes = recipes.map((recipe) =>
+                <RecipeCard
+                    key={recipe.recipe_uuid}
+                    recipe={recipe}
+                    onSelectRecipe={this.goToRecipe}
+                    onSaveRecipe={this.onSaveRecipe}
+                    onUnsaveRecipe={this.onUnsaveRecipe}
+                />
+            );
         }
         return (
             <Router>
                 <div className="recipe-container">
-                    <div className="row buttons-row">
-                        <div className="button__group">
-                            <a
-                                href="javascript:void(0)"
-                                className={`
-                                button button__toggle
-                                ${this.state.filter_recipe_button_state === 'all' && 'button-selected'}
-                            `}
+                    <div className="buttons-row">
+                        <ButtonGroup>
+                            <Button
+                                outline
                                 onClick={() => this.onFilterRecipe('all')}
+                                active={this.state.filter_recipe_button_state == 'all'}
+                                color="primary"
                             >
-                                All Climate Recipes
-                            </a>
-                            <a
-                                href="javascript:void(0)"
-                                className={`
-                                button button__toggle
-                                ${this.state.filter_recipe_button_state === 'my' && 'button-selected'}
-                            `}
+                                All Recipes
+                            </Button>
+                            <Button
+                                outline
                                 onClick={() => this.onFilterRecipe('my')}
+                                active={this.state.filter_recipe_button_state == 'my'}
+                                color="primary"
                             >
-                                My Climate Recipes
-                            </a>
-                        </div>
+                                My Recipes
+                            </Button>
+                            <Button
+                                outline
+                                onClick={() => this.onFilterRecipe('saved')}
+                                active={this.state.filter_recipe_button_state == 'saved'}
+                                color="primary"
+                            >
+                                Saved Recipes
+                            </Button>
+                        </ButtonGroup>
                     </div>
-                    <div className="row card-row">
-                        <div className="col-md-3">
-                            <div className="card">
-                                <div className="row">
-                                    <div className="col-md-4">
-                                        {/*<img className="recipe-image" src="http://via.placeholder.com/200x200"/>*/}
-                                    </div>
-                                    <div className="col-md-8">
-                                        <div className="card-body">
-                                            <h5 className="card-title">New Recipe</h5>
-                                            <h6 className="card-subtitle mb-2 text-muted"></h6>
-                                            <div className="card-text">Use this template recipe to create your custom
-                                                recipes
-                                            </div>
-
-                                        </div>
-                                    </div>
+                    <div className="recipe-cards">
+                        <div className="card recipe-card">
+                            {/*<img className="recipe-image" src="http://via.placeholder.com/200x200"/>*/}
+                            <div className="card-body">
+                                <h5 className="card-title">New Recipe</h5>
+                                <h6 className="card-subtitle mb-2 text-muted"></h6>
+                                <div className="card-text">Use this template recipe to create your custom
+                                    recipes
                                 </div>
-                                <div className="card-footer">
-                                     <Button onClick={this.editRecipe.bind(this, '0')}
-                                                     className="button-card-link"> Create Recipe
-                                                </Button>
-                                </div>
-
-
+                            </div>
+                            <div className="card-footer">
+                                <Button
+                                    onClick={this.editRecipe.bind(this, '0')}
+                                    className="button-card-link"
+                                >
+                                    Create Recipe
+                                </Button>
                             </div>
                         </div>
                         {listRecipes}
