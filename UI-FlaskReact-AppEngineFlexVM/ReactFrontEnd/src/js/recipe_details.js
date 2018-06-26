@@ -36,33 +36,71 @@ class RecipeDetails extends Component {
                 'off_red': '',
                 'off_far_red': ''
             },
-            apply_to_device_modal: false
+            apply_to_device_modal: false,
+            apply_confirmation_modal: false
         };
         this.getRecipeDetails = this.getRecipeDetails.bind(this);
-        this.toggle_apply_to_device = this.toggle_apply_to_device.bind(this);
         this.handleChange = this.handleChange.bind(this);
-
     }
 
     handleChange(event) {
         this.setState({
             [event.target.name]: event.target.value
-        }, () => {
-            // console.log("State", this.state);
         });
         event.preventDefault();
 
     }
 
     componentDidMount() {
-        this.getRecipeDetails()
+        this.getRecipeDetails();
     }
 
-    toggle_apply_to_device(recipe_uuid) {
-        this.setState({
-            apply_to_device_modal: !this.state.apply_to_device_modal,
-            selected_recipe_uuid: recipe_uuid
+    toggleApplyToDevice = () => {
+        this.setState(prevState => ({
+            apply_to_device_modal: !prevState.apply_to_device_modal,
+        }));
+    }
+
+    toggleApplyConfirmation = () => {
+        this.setState(prevState => ({
+            apply_confirmation_modal: !prevState.apply_confirmation_modal
+        }));
+    }
+
+    applyToDevice = () => {
+        console.log(`Recipe ${this.state.recipe_uuid} applied to device... (not really)`);
+        if (this.state.apply_confirmation_modal) {
+            this.setState({
+                apply_confirmation_modal: false
+            });
+        }
+    }
+
+    checkApply = () => {
+        fetch(process.env.REACT_APP_FLASK_URL + '/api/device_is_running_recipe/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({
+                'user_token': this.props.cookies.get('user_token'),
+                'device_uuid': this.state.selected_device_uuid
+            })
         })
+            .then(response => response.json())
+            .then(response => {
+                // If is running
+                if (response.result) {
+                    // Close first modal and open the second.
+                    this.toggleApplyToDevice();
+                    this.toggleApplyConfirmation();
+                } else {
+                    this.applyToDevice();
+                    this.toggleApplyToDevice();
+                }
+            });
     }
 
     getRecipeDetails() {
@@ -399,8 +437,8 @@ class RecipeDetails extends Component {
                             </div>
                         </div>
                         <div className="row card-row">
-                            <Button onClick={this.toggle_apply_to_device.bind(this, this.recipe_uuid)}
-                                    id={this.recipe_uuid}>Apply Recipe
+                            <Button onClick={this.toggleApplyToDevice}>
+                                Apply Recipe
                             </Button>
                         </div>
 
@@ -408,23 +446,56 @@ class RecipeDetails extends Component {
 
 
                 </div>
-                <Modal isOpen={this.state.apply_to_device_modal} toggle={this.toggle_apply_to_device}
-                       className={this.props.className}>
-                    <ModalHeader toggle={this.toggle_apply_to_device}>Select a device to apply this recipe
-                        to </ModalHeader>
+
+                <Modal
+                    isOpen={this.state.apply_to_device_modal}
+                    toggle={this.toggleApplyToDevice}
+                    className={this.props.className}
+                >
+                    <ModalHeader
+                        toggle={this.toggleApplyToDevice}
+                    >
+                        Select a device to apply this recipe to
+                    </ModalHeader>
                     <ModalBody>
-                        <select className="form-control smallInput" onChange={this.handleChange}
-                                id="selected_device_uuid" name="selected_device_uuid"
-                                value={this.selected_device_uuid}>
-                            {this.state.devices.map(function (device) {
-                                return <option key={device.device_uuid}
-                                               value={device.device_uuid}>{device.device_name}</option>
-                            })}
-                        </select>
+                        <Input
+                            type="select"
+                            onChange={this.handleChange} name="selected_device_uuid"
+                            value={this.state.selected_device_uuid}
+                        >
+                            {this.state.devices.map(device =>
+                                <option
+                                    key={device.device_uuid}
+                                    value={device.device_uuid}
+                                >
+                                    {device.device_name}
+                                </option>
+                            )}
+                        </Input>
                     </ModalBody>
                     <ModalFooter>
-                        <Button color="primary" onClick={this.apply_to_device}>Apply to this device</Button>
-                        <Button color="secondary" onClick={this.toggle_apply_to_device}>Close</Button>
+                        <Button color="primary" onClick={this.checkApply}>Apply to this device</Button>
+                        <Button color="secondary" onClick={this.toggleApplyToDevice}>Close</Button>
+                    </ModalFooter>
+                </Modal>
+
+                <Modal
+                    isOpen={this.state.apply_confirmation_modal}
+                    toggle={this.toggleApplyConfirmation}
+                    className={this.props.className}
+                >
+                    <ModalHeader
+                        toggle={this.toggleApplyConfirmation}
+                    >
+                        Warning
+                    </ModalHeader>
+                    <ModalBody>
+                        There's an existing recipe running on the device. Are you sure you
+                        want to continue?
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="danger" onClick={this.applyToDevice}>Apply</Button>
+                        <Button color="secondary" onClick={this.toggleApplyConfirmation}>Cancel</Button>
                     </ModalFooter>
                 </Modal>
 
