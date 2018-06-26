@@ -28,15 +28,17 @@ def get_recipe_by_uuid():
     # Get all user devices
     devices = get_devices_for_user(user_uuid)
 
-    query = datastore_client.query(kind='Recipes')
-    query.add_filter("recipe_uuid","=",recipe_uuid)
-    results = list(query.fetch())
+    # Get queried recipe
+    recipes_query = datastore_client.query(kind='Recipes')
+    recipes_query.add_filter("recipe_uuid","=",recipe_uuid)
+    recipes_query_results = list(recipes_query.fetch())
     results_array = []
-    for result in results:
-        recipe_details_json = json.loads(result["recipe"])
-        device_type = result['device_type']
-        peripherals = []
+    for recipe in recipes_query_results:
+        recipe_details_json = json.loads(recipe["recipe"])
+        device_type = recipe['device_type']
+
         # Get Peripherals needed for this device type
+        peripherals = []
         device_type_query = datastore_client.query(kind='DeviceType')
         device_type_results = list(device_type_query.fetch())
         device_type_results_array = []
@@ -66,11 +68,9 @@ def get_recipe_by_uuid():
                     }
                     peripherals.append(peripheral_detail_json)
 
-
-
         recipe_json = {
             'name':recipe_details_json['name'],
-            'image_url':result['image_url'],
+            'image_url':recipe['image_url'],
             'description':recipe_details_json['description']['verbose'],
             'device_type':device_type,
             'plant_type':recipe_details_json['cultivars'][0]['name'],
