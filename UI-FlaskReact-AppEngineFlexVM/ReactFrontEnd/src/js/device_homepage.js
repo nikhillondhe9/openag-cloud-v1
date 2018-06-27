@@ -66,7 +66,7 @@ class DeviceHomepage extends Component {
             sensor_rh_border: "",
             led_on_border: "",
             led_off_border: "",
-            standard_day:'',
+            standard_day: '',
             config: {'displaylogo': false},
             current_rh: "Loading",
             current_temp: "Loading",
@@ -84,13 +84,13 @@ class DeviceHomepage extends Component {
                 'on_red': 0,
                 'on_far_red': 0,
                 'off_cool_white': 0,
-                'off_warm_white':0,
+                'off_warm_white': 0,
                 'off_blue': 0,
                 'off_green': 0,
                 'off_red': 0,
                 'off_far_red': 0,
-                'on_illumination_distance':0,
-                'off_illumination_distance':0
+                'on_illumination_distance': 0,
+                'off_illumination_distance': 0
             },
             temp_data_x: [],
             temp_data_y: [],
@@ -143,29 +143,31 @@ class DeviceHomepage extends Component {
     }
 
     setLEDStates() {
-        console.log(this.state.current_recipe)
-        let standard_day = this.state.current_recipe['environments']['standard_day']['light_spectrum_nm_percent']
-        let standard_night = this.state.current_recipe['environments']['standard_day']['light_spectrum_nm_percent']
+        
+        let standard_day = resultJson["recipe_json"]['environments']['standard_day']
+        let standard_night = resultJson["recipe_json"]['environments']['standard_night']
 
         let led_data = {
-            'on_cool_white': standard_day['400-449'],
-            'on_warm_white': standard_day['449-499'],
-            'on_blue': standard_day['500-549'],
-            'on_green': standard_day['550-599'],
-            'on_red': standard_day['600-649'],
-            'on_far_red': standard_day['650-699'],
-            'off_cool_white': standard_night['400-449'],
-            'off_warm_white': standard_night['449-499'],
-            'off_blue': standard_night['500-549'],
-            'off_green': standard_night['550-599'],
-            'off_red': standard_night['600-649'],
-            'off_far_red': standard_night['650-699']
+            'on_cool_white': standard_day['light_spectrum_nm_percent']['400-449'],
+            'on_warm_white': standard_day['light_spectrum_nm_percent']['449-499'],
+            'on_blue': standard_day['light_spectrum_nm_percent']['500-549'],
+            'on_green': standard_day['light_spectrum_nm_percent']['550-599'],
+            'on_red': standard_day['light_spectrum_nm_percent']['600-649'],
+            'on_far_red': standard_day['light_spectrum_nm_percent']['650-699'],
+            'on_illumination_distance': standard_day['light_illumination_distance_cm'],
+            'off_cool_white': standard_night['light_spectrum_nm_percent']['400-449'],
+            'off_warm_white': standard_night['light_spectrum_nm_percent']['449-499'],
+            'off_blue': standard_night['light_spectrum_nm_percent']['500-549'],
+            'off_green': standard_night['light_spectrum_nm_percent']['550-599'],
+            'off_red': standard_night['light_spectrum_nm_percent']['600-649'],
+            'off_far_red': standard_night['light_spectrum_nm_percent']['650-699'],
+            'off_illumination_distance': standard_day['light_illumination_distance_cm']
         }
 
         let standard_day_duration = this.state.current_recipe["phases"][0]['cycles'][0]['duration_hours']
         let standard_night_duration = this.state.current_recipe["phases"][0]['cycles'][1]['duration_hours']
-        this.setState({standard_day:standard_day_duration})
-        this.setState({standard_night:standard_night_duration})
+        this.setState({standard_day: standard_day_duration})
+        this.setState({standard_night: standard_night_duration})
         this.setState({
             led_panel_dac5578: led_data
         })
@@ -248,15 +250,15 @@ class DeviceHomepage extends Component {
     }
 
     LEDPanelChange(led_data_type, color_channel, value) {
-        console.log(color_channel,value)
-            if (led_data_type === "led_panel_dac5578") {
-                let color_json = this.state['led_panel_dac5578'];
-                color_json[color_channel] = value;
-                this.setState({led_panel_dac5578: color_json})
-                this.changes['led_panel_dac5578'][color_channel] = value;
-                // this.setState({["led_on_border"]: "3px solid #883c63"})
-                this.setState({changes: this.changes})
-            }
+        console.log(color_channel, value)
+        if (led_data_type === "led_panel_dac5578") {
+            let color_json = this.state['led_panel_dac5578'];
+            color_json[color_channel] = value;
+            this.setState({led_panel_dac5578: color_json})
+            this.changes['led_panel_dac5578'][color_channel] = value;
+            // this.setState({["led_on_border"]: "3px solid #883c63"})
+            this.setState({changes: this.changes})
+        }
 
     }
 
@@ -757,400 +759,450 @@ class DeviceHomepage extends Component {
                     </div>
                 </div>
                 <div className="row graphs-row">
-                     {/*<Draggable cancel="strong">*/}
-                        <div className="col-md-4">
-                            <div className="card current-stats-card">
-                                <div className="card-block">
-                                    <h4 className="card-title "> Temperature </h4>
-                                    <div className="card-text">
-                                        <div className="graph">
-                                            <div className="knob_data">{this.state.current_temp}
-                                            </div>
-                                            <span className="txt_smaller"><sup>o</sup>C (Celsius) </span>
+                    {/*<Draggable cancel="strong">*/}
+                    <div className="col-md-4">
+                        <div className="card current-stats-card">
+                            <div className="card-block">
+                                <h4 className="card-title "> Temperature </h4>
+                                <div className="card-text">
+                                    <div className="graph">
+                                        <div className="knob_data">{this.state.current_temp}
                                         </div>
+                                        <span className="txt_smaller"><sup>o</sup>C (Celsius) </span>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                     {/*</Draggable>*/}
-                     {/*<Draggable cancel="strong">*/}
-                        <div className="col-md-4">
-                            <div className="card current-stats-card">
-                                <div className="card-block">
-                                    <h4 className="card-title "> Relative Humidity </h4>
-                                    <div className="card-text">
-                                        <div className="graph">
-                                            <div className="knob_data">{this.state.current_rh}
-                                            </div>
-                                            <span className="txt_smaller"><sup>o</sup>% (Percent) </span>
+                    </div>
+                    {/*</Draggable>*/}
+                    {/*<Draggable cancel="strong">*/}
+                    <div className="col-md-4">
+                        <div className="card current-stats-card">
+                            <div className="card-block">
+                                <h4 className="card-title "> Relative Humidity </h4>
+                                <div className="card-text">
+                                    <div className="graph">
+                                        <div className="knob_data">{this.state.current_rh}
                                         </div>
+                                        <span className="txt_smaller"><sup>o</sup>% (Percent) </span>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                     {/*</Draggable>*/}
-                     {/*<Draggable cancel="strong">*/}
-                        <div className="col-md-4">
-                            <div className="card current-stats-card">
-                                <div className="card-block">
-                                    <h4 className="card-title "> CO2 Sensor </h4>
-                                    <div className="card-text">
-                                        <div className="graph">
-                                            <div className="knob_data">{this.state.current_co2}
-                                            </div>
-                                            <span className="txt_smaller"><sup>o</sup>ppm (Parts per million) </span>
+                    </div>
+                    {/*</Draggable>*/}
+                    {/*<Draggable cancel="strong">*/}
+                    <div className="col-md-4">
+                        <div className="card current-stats-card">
+                            <div className="card-block">
+                                <h4 className="card-title "> CO2 Sensor </h4>
+                                <div className="card-text">
+                                    <div className="graph">
+                                        <div className="knob_data">{this.state.current_co2}
                                         </div>
+                                        <span className="txt_smaller"><sup>o</sup>ppm (Parts per million) </span>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                     {/*</Draggable>*/}
+                    </div>
+                    {/*</Draggable>*/}
                 </div>
 
                 <div className="row graphs-row">
                     {/*<Draggable cancel="strong">*/}
-                        <div className="col-md-6">
-                            <div className="card led-stats-card" style={{border: this.state.led_on_border}}>
-                                <div className="card-block">
-                                    <h4 className="card-title "> LED Panel - ON </h4>
-                                    <div className="card-text">
-                                        <div className="graph">
-                                            <div className="">
-                                                <div className="row colors-row">
-                                                    <div className="col-md-4">
-                                                        <span>Cool White</span>
-                                                    </div>
-                                                    <div className="col-md-6">
-                                                        <Slider onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'on_cool_white')} min={0} max={100} value={this.state['led_panel_dac5578']['on_cool_white']} handle={handle}/>
-                                                    </div>
-                                                    <div className="col-md-2">
-                                                        {this.state['led_panel_dac5578']['on_cool_white']}
-                                                    </div>
-                                                </div>
-
-                                                <div className="row colors-row">
-                                                    <div className="col-md-4">
-                                                        <span>Warm White</span>
-                                                    </div>
-                                                    <div className="col-md-6">
-                                                         <Slider onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'on_warm_white')} min={0} max={100} value={this.state['led_panel_dac5578']['on_warm_white']} handle={handle}/>
-                                                    </div>
-                                                     <div className="col-md-2">
-                                                        {this.state['led_panel_dac5578']['on_warm_white']}
-                                                    </div>
-                                                </div>
-                                                <div className="row colors-row">
-                                                    <div className="col-md-4">
-                                                        <span>Blue</span>
-                                                    </div>
-                                                    <div className="col-md-6">
-                                                        <Slider onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'on_blue')} min={0} max={100} value={this.state['led_panel_dac5578']['on_blue']} handle={handle}/>
-                                                    </div>
-                                                      <div className="col-md-2">
-                                                        {this.state['led_panel_dac5578']['on_blue']}
-                                                    </div>
-                                                </div>
-                                                <div className="row colors-row">
-                                                    <div className="col-md-4">
-                                                        <span>Green</span>
-                                                    </div>
-                                                    <div className="col-md-6">
-                                                       <Slider onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'on_green')} min={0} max={100} value={this.state['led_panel_dac5578']['on_green']} handle={handle}/>
-
-                                                    </div>
-                                                     <div className="col-md-2">
-                                                        {this.state['led_panel_dac5578']['on_green']}
-                                                    </div>
-                                                </div>
-                                                <div className="row colors-row">
-                                                    <div className="col-md-4">
-                                                        <span>Red</span>
-                                                    </div>
-                                                    <div className="col-md-6">
-                                                        <Slider onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'on_red')} min={0} max={100} value={this.state['led_panel_dac5578']['on_red']} handle={handle}/>
-
-                                                    </div>
-                                                     <div className="col-md-2">
-                                                        {this.state['led_panel_dac5578']['on_red']}
-                                                    </div>
-                                                </div>
-                                                <div className="row colors-row">
-                                                    <div className="col-md-4">
-                                                        <span>Far Red</span>
-                                                    </div>
-                                                    <div className="col-md-6">
-                                                        <Slider onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'on_far_red')} min={0} max={100} value={this.state['led_panel_dac5578']['on_far_red']} handle={handle}/>
-
-                                                    </div>
-                                                     <div className="col-md-2">
-                                                        {this.state['led_panel_dac5578']['on_far_red']}
-                                                    </div>
-                                                </div>
-
-                                            </div>
-
-
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="card-footer">
-                                            <div className="row">
-                                                 <div className="col-md-4">
-                                                    <span>Illumination Distance  <br/>   (in <i>cm</i>)</span>
+                    <div className="col-md-6">
+                        <div className="card led-stats-card" style={{border: this.state.led_on_border}}>
+                            <div className="card-block">
+                                <h4 className="card-title "> LED Panel - ON </h4>
+                                <div className="card-text">
+                                    <div className="graph">
+                                        <div className="">
+                                            <div className="row colors-row">
+                                                <div className="col-md-4">
+                                                    <span>Cool White</span>
                                                 </div>
                                                 <div className="col-md-6">
-                                                    <Slider  min={0} max={19}
-                                                                    value={this.state['led_panel_dac5578']['on_illumination_distance']}
-                                                                    handle={handle} onChange={this.LEDPanelChange.bind(this,'led_panel_dac5578','on_illumination_distance')}/>
+                                                    <Slider
+                                                        onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'on_cool_white')}
+                                                        min={0} max={100}
+                                                        value={this.state['led_panel_dac5578']['on_cool_white']}
+                                                        handle={handle}/>
                                                 </div>
                                                 <div className="col-md-2">
-                                                    {this.state['led_panel_dac5578']['on_illumination_distance']} cm
-                                                </div>
-                                            </div>
-                                        </div>
-                            </div>
-                        </div>
-                    {/*</Draggable>*/}
-                    {/*<Draggable cancel="strong">*/}
-                        <div className="col-md-6">
-                            <div className="card led-stats-card" style={{border: this.state.led_off_border}}>
-                                <div className="card-block">
-                                    <h4 className="card-title "> LED Panel - OFF </h4>
-                                    <div className="card-text">
-                                        <div className="graph">
-                                            <div className="">
-                                                <div className="row colors-row">
-                                                    <div className="col-md-4">
-                                                        <span>Cool White</span>
-                                                    </div>
-                                                    <div className="col-md-6">
-                                                        <Slider onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'off_cool_white')} min={0} max={100} value={this.state['led_panel_dac5578']['off_cool_white']} handle={handle}/>
-
-                                                       </div>
-                                                     <div className="col-md-2">
-                                                        {this.state['led_panel_dac5578']['off_cool_white']}
-                                                    </div>
-                                                </div>
-
-                                                <div className="row colors-row">
-                                                    <div className="col-md-4">
-                                                        <span>Warm White</span>
-                                                    </div>
-                                                    <div className="col-md-6">
-                                                         <Slider onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'off_warm_white')} min={0} max={100} value={this.state['led_panel_dac5578']['off_warm_white']} handle={handle}/>
-
-
-                                                    </div>
-                                                     <div className="col-md-2">
-                                                        {this.state['led_panel_dac5578']['off_warm_white']}
-                                                    </div>
-                                                </div>
-                                                <div className="row colors-row">
-                                                    <div className="col-md-4">
-                                                        <span>Blue</span>
-                                                    </div>
-                                                    <div className="col-md-6">
-                                                    <Slider onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'off_blue')} min={0} max={100} value={this.state['led_panel_dac5578']['off_blue']} handle={handle}/>
-
-
-                                                    </div>
-                                                      <div className="col-md-2">
-                                                        {this.state['led_panel_dac5578']['off_blue']}
-                                                    </div>
-                                                </div>
-                                                <div className="row colors-row">
-                                                    <div className="col-md-4">
-                                                        <span>Green</span>
-                                                    </div>
-                                                    <div className="col-md-6">
-                                                      <Slider onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'off_green')} min={0} max={100} value={this.state['led_panel_dac5578']['off_green']} handle={handle}/>
-
-
-                                                    </div>
-                                                      <div className="col-md-2">
-                                                        {this.state['led_panel_dac5578']['off_green']}
-                                                    </div>
-                                                </div>
-                                                <div className="row colors-row">
-                                                    <div className="col-md-4">
-                                                        <span>Red</span>
-                                                    </div>
-                                                    <div className="col-md-6">
-                                                      <Slider onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'off_red')} min={0} max={100} value={this.state['led_panel_dac5578']['off_red']} handle={handle}/>
-
-
-                                                    </div>
-                                                     <div className="col-md-2">
-                                                        {this.state['led_panel_dac5578']['off_red']}
-                                                    </div>
-                                                </div>
-                                                <div className="row colors-row">
-                                                    <div className="col-md-4">
-                                                        <span>Far Red</span>
-                                                    </div>
-                                                    <div className="col-md-6">
-                                                        <Slider onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'off_far_red')} min={0} max={100} value={this.state['led_panel_dac5578']['off_far_red']} handle={handle}/>
-
-                                                    </div>
-                                                     <div className="col-md-2">
-                                                        {this.state['led_panel_dac5578']['off_far_red']}
-                                                    </div>
+                                                    {this.state['led_panel_dac5578']['on_cool_white']}
                                                 </div>
                                             </div>
 
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="card-footer">
-                                            <div className="row">
-                                                 <div className="col-md-4">
-                                                    <span>Illumination Distance  <br/>   (in <i>cm</i>)</span>
+                                            <div className="row colors-row">
+                                                <div className="col-md-4">
+                                                    <span>Warm White</span>
                                                 </div>
                                                 <div className="col-md-6">
-                                                    <Slider  min={0} max={19}
-                                                                    value={this.state['led_panel_dac5578']['on_illumination_distance']}
-                                                                    handle={handle} onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'on_illumination_distance')}/>
+                                                    <Slider
+                                                        onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'on_warm_white')}
+                                                        min={0} max={100}
+                                                        value={this.state['led_panel_dac5578']['on_warm_white']}
+                                                        handle={handle}/>
                                                 </div>
                                                 <div className="col-md-2">
-                                                    {this.state['led_panel_dac5578']['on_illumination_distance']} cm
+                                                    {this.state['led_panel_dac5578']['on_warm_white']}
+                                                </div>
+                                            </div>
+                                            <div className="row colors-row">
+                                                <div className="col-md-4">
+                                                    <span>Blue</span>
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <Slider
+                                                        onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'on_blue')}
+                                                        min={0} max={100}
+                                                        value={this.state['led_panel_dac5578']['on_blue']}
+                                                        handle={handle}/>
+                                                </div>
+                                                <div className="col-md-2">
+                                                    {this.state['led_panel_dac5578']['on_blue']}
+                                                </div>
+                                            </div>
+                                            <div className="row colors-row">
+                                                <div className="col-md-4">
+                                                    <span>Green</span>
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <Slider
+                                                        onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'on_green')}
+                                                        min={0} max={100}
+                                                        value={this.state['led_panel_dac5578']['on_green']}
+                                                        handle={handle}/>
+
+                                                </div>
+                                                <div className="col-md-2">
+                                                    {this.state['led_panel_dac5578']['on_green']}
+                                                </div>
+                                            </div>
+                                            <div className="row colors-row">
+                                                <div className="col-md-4">
+                                                    <span>Red</span>
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <Slider
+                                                        onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'on_red')}
+                                                        min={0} max={100}
+                                                        value={this.state['led_panel_dac5578']['on_red']}
+                                                        handle={handle}/>
+
+                                                </div>
+                                                <div className="col-md-2">
+                                                    {this.state['led_panel_dac5578']['on_red']}
+                                                </div>
+                                            </div>
+                                            <div className="row colors-row">
+                                                <div className="col-md-4">
+                                                    <span>Far Red</span>
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <Slider
+                                                        onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'on_far_red')}
+                                                        min={0} max={100}
+                                                        value={this.state['led_panel_dac5578']['on_far_red']}
+                                                        handle={handle}/>
+
+                                                </div>
+                                                <div className="col-md-2">
+                                                    {this.state['led_panel_dac5578']['on_far_red']}
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="card-footer">
+                                <div className="row">
+                                    <div className="col-md-4">
+                                        <span>Illumination Distance  <br/>   (in <i>cm</i>)</span>
+                                    </div>
+                                    <div className="col-md-6">
+                                        <Slider min={0} max={19}
+                                                value={this.state['led_panel_dac5578']['on_illumination_distance']}
+                                                handle={handle}
+                                                onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'on_illumination_distance')}/>
+                                    </div>
+                                    <div className="col-md-2">
+                                        {this.state['led_panel_dac5578']['on_illumination_distance']} cm
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {/*</Draggable>*/}
+                    {/*<Draggable cancel="strong">*/}
+                    <div className="col-md-6">
+                        <div className="card led-stats-card" style={{border: this.state.led_off_border}}>
+                            <div className="card-block">
+                                <h4 className="card-title "> LED Panel - OFF </h4>
+                                <div className="card-text">
+                                    <div className="graph">
+                                        <div className="">
+                                            <div className="row colors-row">
+                                                <div className="col-md-4">
+                                                    <span>Cool White</span>
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <Slider
+                                                        onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'off_cool_white')}
+                                                        min={0} max={100}
+                                                        value={this.state['led_panel_dac5578']['off_cool_white']}
+                                                        handle={handle}/>
+
+                                                </div>
+                                                <div className="col-md-2">
+                                                    {this.state['led_panel_dac5578']['off_cool_white']}
+                                                </div>
+                                            </div>
+
+                                            <div className="row colors-row">
+                                                <div className="col-md-4">
+                                                    <span>Warm White</span>
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <Slider
+                                                        onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'off_warm_white')}
+                                                        min={0} max={100}
+                                                        value={this.state['led_panel_dac5578']['off_warm_white']}
+                                                        handle={handle}/>
+
+
+                                                </div>
+                                                <div className="col-md-2">
+                                                    {this.state['led_panel_dac5578']['off_warm_white']}
+                                                </div>
+                                            </div>
+                                            <div className="row colors-row">
+                                                <div className="col-md-4">
+                                                    <span>Blue</span>
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <Slider
+                                                        onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'off_blue')}
+                                                        min={0} max={100}
+                                                        value={this.state['led_panel_dac5578']['off_blue']}
+                                                        handle={handle}/>
+
+
+                                                </div>
+                                                <div className="col-md-2">
+                                                    {this.state['led_panel_dac5578']['off_blue']}
+                                                </div>
+                                            </div>
+                                            <div className="row colors-row">
+                                                <div className="col-md-4">
+                                                    <span>Green</span>
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <Slider
+                                                        onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'off_green')}
+                                                        min={0} max={100}
+                                                        value={this.state['led_panel_dac5578']['off_green']}
+                                                        handle={handle}/>
+
+
+                                                </div>
+                                                <div className="col-md-2">
+                                                    {this.state['led_panel_dac5578']['off_green']}
+                                                </div>
+                                            </div>
+                                            <div className="row colors-row">
+                                                <div className="col-md-4">
+                                                    <span>Red</span>
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <Slider
+                                                        onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'off_red')}
+                                                        min={0} max={100}
+                                                        value={this.state['led_panel_dac5578']['off_red']}
+                                                        handle={handle}/>
+
+
+                                                </div>
+                                                <div className="col-md-2">
+                                                    {this.state['led_panel_dac5578']['off_red']}
+                                                </div>
+                                            </div>
+                                            <div className="row colors-row">
+                                                <div className="col-md-4">
+                                                    <span>Far Red</span>
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <Slider
+                                                        onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'off_far_red')}
+                                                        min={0} max={100}
+                                                        value={this.state['led_panel_dac5578']['off_far_red']}
+                                                        handle={handle}/>
+
+                                                </div>
+                                                <div className="col-md-2">
+                                                    {this.state['led_panel_dac5578']['off_far_red']}
                                                 </div>
                                             </div>
                                         </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="card-footer">
+                                <div className="row">
+                                    <div className="col-md-4">
+                                        <span>Illumination Distance  <br/>   (in <i>cm</i>)</span>
+                                    </div>
+                                    <div className="col-md-6">
+                                        <Slider min={0} max={19}
+                                                value={this.state['led_panel_dac5578']['on_illumination_distance']}
+                                                handle={handle}
+                                                onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'on_illumination_distance')}/>
+                                    </div>
+                                    <div className="col-md-2">
+                                        {this.state['led_panel_dac5578']['on_illumination_distance']} cm
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                    </div>
                     {/*</Draggable>*/}
                 </div>
                 <div className="row graphs-row">
                     {/*<Draggable cancel="strong">*/}
-                        <div className="col-md-6">
-                            <div className="card environment-card">
-                                <div className="card-block">
-                                    <h4 className="card-title "> Standard Day</h4>
-                                    <div className="card-text">
-                                        <div className="graph">
-                                            <strong className="no-cursor">
+                    <div className="col-md-6">
+                        <div className="card environment-card">
+                            <div className="card-block">
+                                <h4 className="card-title "> Standard Day</h4>
+                                <div className="card-text">
+                                    <div className="graph">
+                                        <strong className="no-cursor">
 
-                                                <span className="txt_smaller"></span>
-                                                <div className="knob_data">
-                                                    <input type="text" className="recipe-details-text"
-                                                           placeholder="" id="standard_day" value={this.state.standard_day}
-                                                           name="standard_day" onChange={this.sensorOnChange}/>
-                                                </div>
-                                                <span className="txt_smaller">hours</span>
+                                            <span className="txt_smaller"></span>
+                                            <div className="knob_data">
+                                                <input type="text" className="recipe-details-text"
+                                                       placeholder="" id="standard_day" value={this.state.standard_day}
+                                                       name="standard_day" onChange={this.sensorOnChange}/>
+                                            </div>
+                                            <span className="txt_smaller">hours</span>
 
-                                            </strong>
-                                        </div>
+                                        </strong>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
 
                     {/*</Draggable>*/}
                     {/*<Draggable cancel="strong">*/}
-                        <div className="col-md-6">
-                            <div className="card environment-card">
-                                <div className="card-block">
-                                    <h4 className="card-title "> Standard Night </h4>
-                                    <div className="card-text">
-                                        <div className="graph">
+                    <div className="col-md-6">
+                        <div className="card environment-card">
+                            <div className="card-block">
+                                <h4 className="card-title "> Standard Night </h4>
+                                <div className="card-text">
+                                    <div className="graph">
 
-                                            <strong className="no-cursor">
+                                        <strong className="no-cursor">
 
-                                                <span className="txt_smaller"></span>
-                                                <div className="knob_data">
-                                                    <input type="number" className="recipe-details-text"
-                                                           placeholder=""
-                                                           id="standard_night" name="standard_night"
-                                                           value={this.state.standard_night}/>
-                                                </div>
-                                                <span className="txt_smaller">hours</span>
+                                            <span className="txt_smaller"></span>
+                                            <div className="knob_data">
+                                                <input type="number" className="recipe-details-text"
+                                                       placeholder=""
+                                                       id="standard_night" name="standard_night"
+                                                       value={this.state.standard_night}/>
+                                            </div>
+                                            <span className="txt_smaller">hours</span>
 
-                                            </strong>
-                                        </div>
-
-
+                                        </strong>
                                     </div>
+
+
                                 </div>
                             </div>
                         </div>
+                    </div>
 
 
                     {/*</Draggable>*/}
                 </div>
                 <div className="row graphs-row">
                     {/*<Draggable cancel="strong">*/}
-                        <div className="col-md-6">
-                            <div className="card value-card">
-                                <div className="card-block">
-                                    <h4 className="card-title "> Temperature Sensor </h4>
-                                    <div className="row plot-row" style={{display: 'block'}}>
-                                        <strong className="no-cursor"> <Plot data={this.state.temp_data}
-                                                                             layout={this.state.temp_layout}
-                                                                             onInitialized={(figure) => this.setState(figure)}
-                                                                             onUpdate={(figure) => this.setState(figure)}/>
-                                        </strong>
-                                    </div>
+                    <div className="col-md-6">
+                        <div className="card value-card">
+                            <div className="card-block">
+                                <h4 className="card-title "> Temperature Sensor </h4>
+                                <div className="row plot-row" style={{display: 'block'}}>
+                                    <strong className="no-cursor"> <Plot data={this.state.temp_data}
+                                                                         layout={this.state.temp_layout}
+                                                                         onInitialized={(figure) => this.setState(figure)}
+                                                                         onUpdate={(figure) => this.setState(figure)}/>
+                                    </strong>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
 
                     {/*</Draggable>*/}
                     {/*<Draggable cancel="strong">*/}
-                        <div className="col-md-6">
+                    <div className="col-md-6">
 
-                            <div className="card value-card">
-                                <div className="card-block">
-                                    <h4 className="card-title "> Relative Humidity Sensor </h4>
+                        <div className="card value-card">
+                            <div className="card-block">
+                                <h4 className="card-title "> Relative Humidity Sensor </h4>
 
-                                    <div className="row plot-row" style={{display: 'block'}}>
-                                        <strong className="no-cursor"> <Plot data={this.state.rh_data}
-                                                                             layout={this.state.rh_layout}
-                                                                             onInitialized={(figure) => this.setState(figure)}
-                                                                             onUpdate={(figure) => this.setState(figure)}/>
-                                        </strong>
-                                    </div>
+                                <div className="row plot-row" style={{display: 'block'}}>
+                                    <strong className="no-cursor"> <Plot data={this.state.rh_data}
+                                                                         layout={this.state.rh_layout}
+                                                                         onInitialized={(figure) => this.setState(figure)}
+                                                                         onUpdate={(figure) => this.setState(figure)}/>
+                                    </strong>
                                 </div>
                             </div>
                         </div>
+                    </div>
                     {/*</Draggable>*/}
                 </div>
                 <div className="row graphs-row">
                     {/*<Draggable cancel="strong">*/}
-                        <div className="col-md-6">
-                            <div className="card value-card">
-                                <div className="card-block">
-                                    <h4 className="card-title "> Carbon Dioxide Sensor </h4>
+                    <div className="col-md-6">
+                        <div className="card value-card">
+                            <div className="card-block">
+                                <h4 className="card-title "> Carbon Dioxide Sensor </h4>
 
-                                    <div className="row plot-row" style={{display: 'block'}}>
-                                        <strong className="no-cursor"> <Plot data={this.state.co2_data}
-                                                                             layout={this.state.co2_layout}
-                                                                             onInitialized={(figure) => this.setState(figure)}
-                                                                             onUpdate={(figure) => this.setState(figure)}
-                                                                             config={this.state.config}/>
-                                        </strong>
-                                    </div>
+                                <div className="row plot-row" style={{display: 'block'}}>
+                                    <strong className="no-cursor"> <Plot data={this.state.co2_data}
+                                                                         layout={this.state.co2_layout}
+                                                                         onInitialized={(figure) => this.setState(figure)}
+                                                                         onUpdate={(figure) => this.setState(figure)}
+                                                                         config={this.state.config}/>
+                                    </strong>
                                 </div>
                             </div>
                         </div>
+                    </div>
                     {/*</Draggable>*/}
                     {/*<Draggable cancel="strong">*/}
-                        <div className="col-md-6">
-                            <div className="card value-card">
-                                <div className="card-block">
-                                    <h4 className="card-title "> LED Panel History </h4>
-                                    <div className="row plot-row" style={{display: 'block'}}>
-                                        <strong className="no-cursor"> <Plot data={this.state.led_data}
-                                                                             layout={this.state.led_layout}
-                                                                             onInitialized={(figure) => this.setState(figure)}
-                                                                             onUpdate={(figure) => this.setState(figure)}
-                                                                             config={this.state.config}/>
-                                        </strong>
-                                    </div>
+                    <div className="col-md-6">
+                        <div className="card value-card">
+                            <div className="card-block">
+                                <h4 className="card-title "> LED Panel History </h4>
+                                <div className="row plot-row" style={{display: 'block'}}>
+                                    <strong className="no-cursor"> <Plot data={this.state.led_data}
+                                                                         layout={this.state.led_layout}
+                                                                         onInitialized={(figure) => this.setState(figure)}
+                                                                         onUpdate={(figure) => this.setState(figure)}
+                                                                         config={this.state.config}/>
+                                    </strong>
                                 </div>
                             </div>
                         </div>
+                    </div>
                     {/*</Draggable>*/}
                 </div>
                 <AddDeviceModal

@@ -150,22 +150,24 @@ class RecipeDetails extends Component {
                     this.setState({recipe_json: resultJson["recipe_json"]})
                     this.setState({peripherals: (resultJson["peripherals"])})
                     this.setState({devices: responseJson["devices"]})
-                    let standard_day = resultJson["recipe_json"]['environments']['standard_day']['light_spectrum_nm_percent']
-                    let standard_night = resultJson["recipe_json"]['environments']['standard_day']['light_spectrum_nm_percent']
+                    let standard_day = resultJson["recipe_json"]['environments']['standard_day']
+                    let standard_night = resultJson["recipe_json"]['environments']['standard_night']
 
                     let led_data = {
-                        'on_cool_white': standard_day['400-449'],
-                        'on_warm_white': standard_day['449-499'],
-                        'on_blue': standard_day['500-549'],
-                        'on_green': standard_day['550-599'],
-                        'on_red': standard_day['600-649'],
-                        'on_far_red': standard_day['650-699'],
-                        'off_cool_white': standard_night['400-449'],
-                        'off_warm_white': standard_night['449-499'],
-                        'off_blue': standard_night['500-549'],
-                        'off_green': standard_night['550-599'],
-                        'off_red': standard_night['600-649'],
-                        'off_far_red': standard_night['650-699']
+                        'on_cool_white': standard_day['light_spectrum_nm_percent']['400-449'],
+                        'on_warm_white': standard_day['light_spectrum_nm_percent']['449-499'],
+                        'on_blue': standard_day['light_spectrum_nm_percent']['500-549'],
+                        'on_green': standard_day['light_spectrum_nm_percent']['550-599'],
+                        'on_red': standard_day['light_spectrum_nm_percent']['600-649'],
+                        'on_far_red': standard_day['light_spectrum_nm_percent']['650-699'],
+                        'on_illumination_distance':standard_day['light_illumination_distance_cm'],
+                        'off_cool_white': standard_night['light_spectrum_nm_percent']['400-449'],
+                        'off_warm_white': standard_night['light_spectrum_nm_percent']['449-499'],
+                        'off_blue': standard_night['light_spectrum_nm_percent']['500-549'],
+                        'off_green': standard_night['light_spectrum_nm_percent']['550-599'],
+                        'off_red': standard_night['light_spectrum_nm_percent']['600-649'],
+                        'off_far_red': standard_night['light_spectrum_nm_percent']['650-699'],
+                        'off_illumination_distance':standard_day['light_illumination_distance_cm']
                     }
                     this.setState({
                         led_panel_dac5578: led_data
