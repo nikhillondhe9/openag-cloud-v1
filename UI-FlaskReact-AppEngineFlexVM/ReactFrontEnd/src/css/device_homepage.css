@@ -1,18 +1,3 @@
-
-.home-container
-{
-    top: 100px;
-    width: 100%;
-    padding-top: 30px;
-    padding-left: 30px;
-    padding-right: 20px;
-    background: white;
-    overflow-y: scroll;
-    max-width: 100%;
-    position: relative;
-    font-family: "Roboto", sans-serif;
-    min-height:1000px;
-}
 .plot-container
 {
     top:0;
@@ -88,16 +73,6 @@
 {
     width:100%;
     height:100%;
-}
-
-
-h3{
-    color: #f8fdff;
-    padding-left: 20px;
-    padding-top: 20px;
-    opacity: .8;
-    font-weight: 400;
-    font-size: 20px;
 }
 
 .top{

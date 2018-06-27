@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {BrowserRouter as Router} from "react-router-dom";
-import '../css/home.css';
+import '../scss/home.scss';
 import {
     Button,
     Form,
@@ -282,94 +282,51 @@ class Home extends Component {
         return (
             <Router>
                 <div className="home-container">
-                    <div className="row dropdown-row">
-                        <div className="col-md-6">
-                            <DevicesDropdown
-                                devices={[...this.state.user_devices.values()]}
-                                selectedDevice={this.state.selected_device}
-                                onSelectDevice={this.onSelectDevice}
-                                onAddDevice={this.toggleDeviceModal}
-                                onAddAccessCode={this.toggleAccessCodeModal}
-                            />
-                        </div>
-                        <div className="col-md-6">
-                            <Button className="postbutton" onClick={this.postToTwitter}>Post status to twitter</Button>
+                    <DevicesDropdown
+                        devices={[...this.state.user_devices.values()]}
+                        selectedDevice={this.state.selected_device}
+                        onSelectDevice={this.onSelectDevice}
+                        onAddDevice={this.toggleDeviceModal}
+                        onAddAccessCode={this.toggleAccessCodeModal}
+                    />
+                    <Button className="postbutton" onClick={this.postToTwitter}>
+                        Post status to twitter
+                    </Button>
+                    <div className="card notifications">
+                        <div className="card-body">
+                            <div className="card-title">
+                                <h3>Notifications</h3>
+                                <img src={notification}/>
+                            </div>
+                            <p> Your Basil is 3 weeks old. Congratulations! </p>
+                            <hr/>
+                            <p> <a href="#">See edits </a> to your recipes  </p>
+                            <hr/>
+                            <p> Water needs refilling soon </p>
                         </div>
                     </div>
-
-
-                    <div className="row">
-
-                        <div className="col-md-3">
-                            <div className="card notifications-card">
-                                <div className="card-title">
-                                    <div className="row">
-                                        <div className="col-md-8">
-                                            <h3>Notifications </h3>
-                                        </div>
-                                        <div className="col-md-4">
-                                            <img src={notification} className="notification-img"/>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="card-body">
-                                    <div className="row">
-                                        <div className="col-md-12">
-                                            <p> Your Basil is 3 weeks old. Congratulations! </p>
-                                        </div>
-                                    </div>
-                                    <hr/>
-                                    <div className="row">
-                                        <div className="col-md-12">
-                                            <p> <a href="#">See edits </a> to your recipes  </p>
-                                        </div>
-                                    </div>
-                                    <hr/>
-                                    <div className="row">
-                                        <div className="col-md-12">
-                                            <p> Water needs refilling soon </p>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="col-md-5">
-                            <ImageTimelapse
-                                imageClass="timelapse-img"
-                                inputClass="range-slider__range"
-                                images={this.state.device_images}
-                            />
-                            <div className="row status-row">
-                                <div className="status-col">
-                                    Status : Good
-                                </div>
-                            </div>
-                            <div className="row">
-                                <div className="status-col">
-                                    Temp : 72F
-                                </div>
-                            </div>
-                            <div className="row">
-                                <div className="status-col">
-                                    Next Manual Nutrient Dosing : 2 days
-                                </div>
-                            </div>
-
-                        </div>
-                        <div className="col-md-4 twitter-col">
-                            <Timeline
-                                dataSource={{
-                                    sourceType: 'profile',
-                                    screenName: 'food_computer'
-                                }}
-                                options={{
-                                    username: 'FoodComputer'
-                                }}
-                                onLoad={() => console.log('Timeline is loaded!')}
-                            />
-                        </div>
+                    <div className="timelapse">
+                        <ImageTimelapse
+                            imageClass="timelapse-img"
+                            inputClass="range-slider__range"
+                            images={this.state.device_images}
+                        />
+                    </div>
+                    <div className="status">
+                        <div>Status: Good</div>
+                        <div>Temperature: 25&#8451;</div>
+                    </div>
+                    <div className="twitter">
+                        <Timeline
+                            dataSource={{
+                                sourceType: 'profile',
+                                screenName: 'food_computer'
+                            }}
+                            options={{
+                                username: 'FoodComputer'
+                            }}
+                            onLoad={() => console.log('Timeline is loaded!')}
+                        />
                     </div>
                     <AddDeviceModal
                         isOpen={this.state.add_device_modal}
