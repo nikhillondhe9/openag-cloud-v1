@@ -134,7 +134,7 @@ class DeviceHomepage extends Component {
         this.modalToggle = this.modalToggle.bind(this);
         this.sensorOnChange = this.sensorOnChange.bind(this);
         this.echo = this.echo.bind(this);
-        this.InputChange = this.InputChange.bind(this);
+        this.LEDPanelChange = this.LEDPanelChange.bind(this);
         this.applyChanges = this.applyChanges.bind(this);
         this.handleApplySubmit = this.handleApplySubmit.bind(this);
         this.timeonChange = this.timeonChange.bind(this);
@@ -248,14 +248,14 @@ class DeviceHomepage extends Component {
         this.getUserDevices()
     }
 
-    InputChange(led_data_type, color_channel, value) {
+    LEDPanelChange(led_data_type, color_channel, value) {
         console.log(color_channel,value)
             if (led_data_type === "led_panel_dac5578") {
                 let color_json = this.state['led_panel_dac5578'];
                 color_json[color_channel] = value;
                 this.setState({led_panel_dac5578: color_json})
                 this.changes['led_panel_dac5578'][color_channel] = value;
-                this.setState({["led_on_border"]: "3px solid #883c63"})
+                // this.setState({["led_on_border"]: "3px solid #883c63"})
                 this.setState({changes: this.changes})
             }
 
@@ -822,7 +822,7 @@ class DeviceHomepage extends Component {
                                                         <span>Cool White</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                        <Slider onChange={this.InputChange.bind(this, 'led_panel_dac5578', 'on_cool_white')} min={0} max={100} value={this.state['led_panel_dac5578']['on_cool_white']} handle={handle}/>
+                                                        <Slider onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'on_cool_white')} min={0} max={100} value={this.state['led_panel_dac5578']['on_cool_white']} handle={handle}/>
                                                     </div>
                                                     <div className="col-md-2">
                                                         {this.state['led_panel_dac5578']['on_cool_white']}
@@ -834,7 +834,7 @@ class DeviceHomepage extends Component {
                                                         <span>Warm White</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                         <Slider onChange={this.InputChange.bind(this, 'led_panel_dac5578', 'on_warm_white')} min={0} max={100} value={this.state['led_panel_dac5578']['on_warm_white']} handle={handle}/>
+                                                         <Slider onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'on_warm_white')} min={0} max={100} value={this.state['led_panel_dac5578']['on_warm_white']} handle={handle}/>
                                                     </div>
                                                      <div className="col-md-2">
                                                         {this.state['led_panel_dac5578']['on_warm_white']}
@@ -845,7 +845,7 @@ class DeviceHomepage extends Component {
                                                         <span>Blue</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                        <Slider onChange={this.InputChange.bind(this, 'led_panel_dac5578', 'on_blue')} min={0} max={100} value={this.state['led_panel_dac5578']['on_blue']} handle={handle}/>
+                                                        <Slider onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'on_blue')} min={0} max={100} value={this.state['led_panel_dac5578']['on_blue']} handle={handle}/>
                                                     </div>
                                                       <div className="col-md-2">
                                                         {this.state['led_panel_dac5578']['on_blue']}
@@ -856,7 +856,7 @@ class DeviceHomepage extends Component {
                                                         <span>Green</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                       <Slider onChange={this.InputChange.bind(this, 'led_panel_dac5578', 'on_green')} min={0} max={100} value={this.state['led_panel_dac5578']['on_green']} handle={handle}/>
+                                                       <Slider onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'on_green')} min={0} max={100} value={this.state['led_panel_dac5578']['on_green']} handle={handle}/>
 
                                                     </div>
                                                      <div className="col-md-2">
@@ -868,7 +868,7 @@ class DeviceHomepage extends Component {
                                                         <span>Red</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                        <Slider onChange={this.InputChange.bind(this, 'led_panel_dac5578', 'on_red')} min={0} max={100} value={this.state['led_panel_dac5578']['on_red']} handle={handle}/>
+                                                        <Slider onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'on_red')} min={0} max={100} value={this.state['led_panel_dac5578']['on_red']} handle={handle}/>
 
                                                     </div>
                                                      <div className="col-md-2">
@@ -880,7 +880,7 @@ class DeviceHomepage extends Component {
                                                         <span>Far Red</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                        <Slider onChange={this.InputChange.bind(this, 'led_panel_dac5578', 'on_far_red')} min={0} max={100} value={this.state['led_panel_dac5578']['on_far_red']} handle={handle}/>
+                                                        <Slider onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'on_far_red')} min={0} max={100} value={this.state['led_panel_dac5578']['on_far_red']} handle={handle}/>
 
                                                     </div>
                                                      <div className="col-md-2">
@@ -910,7 +910,7 @@ class DeviceHomepage extends Component {
                                                         <span>Cool White</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                        <Slider onChange={this.InputChange.bind(this, 'led_panel_dac5578', 'off_cool_white')} min={0} max={100} value={this.state['led_panel_dac5578']['off_cool_white']} handle={handle}/>
+                                                        <Slider onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'off_cool_white')} min={0} max={100} value={this.state['led_panel_dac5578']['off_cool_white']} handle={handle}/>
 
                                                        </div>
                                                      <div className="col-md-2">
@@ -923,7 +923,7 @@ class DeviceHomepage extends Component {
                                                         <span>Warm White</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                         <Slider onChange={this.InputChange.bind(this, 'led_panel_dac5578', 'off_warm_white')} min={0} max={100} value={this.state['led_panel_dac5578']['off_warm_white']} handle={handle}/>
+                                                         <Slider onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'off_warm_white')} min={0} max={100} value={this.state['led_panel_dac5578']['off_warm_white']} handle={handle}/>
 
 
                                                     </div>
@@ -936,7 +936,7 @@ class DeviceHomepage extends Component {
                                                         <span>Blue</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                    <Slider onChange={this.InputChange.bind(this, 'led_panel_dac5578', 'off_blue')} min={0} max={100} value={this.state['led_panel_dac5578']['off_blue']} handle={handle}/>
+                                                    <Slider onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'off_blue')} min={0} max={100} value={this.state['led_panel_dac5578']['off_blue']} handle={handle}/>
 
 
                                                     </div>
@@ -949,7 +949,7 @@ class DeviceHomepage extends Component {
                                                         <span>Green</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                      <Slider onChange={this.InputChange.bind(this, 'led_panel_dac5578', 'off_green')} min={0} max={100} value={this.state['led_panel_dac5578']['off_green']} handle={handle}/>
+                                                      <Slider onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'off_green')} min={0} max={100} value={this.state['led_panel_dac5578']['off_green']} handle={handle}/>
 
 
                                                     </div>
@@ -962,7 +962,7 @@ class DeviceHomepage extends Component {
                                                         <span>Red</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                      <Slider onChange={this.InputChange.bind(this, 'led_panel_dac5578', 'off_red')} min={0} max={100} value={this.state['led_panel_dac5578']['off_red']} handle={handle}/>
+                                                      <Slider onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'off_red')} min={0} max={100} value={this.state['led_panel_dac5578']['off_red']} handle={handle}/>
 
 
                                                     </div>
@@ -975,7 +975,7 @@ class DeviceHomepage extends Component {
                                                         <span>Far Red</span>
                                                     </div>
                                                     <div className="col-md-6">
-                                                        <Slider onChange={this.InputChange.bind(this, 'led_panel_dac5578', 'off_far_red')} min={0} max={100} value={this.state['led_panel_dac5578']['off_far_red']} handle={handle}/>
+                                                        <Slider onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'off_far_red')} min={0} max={100} value={this.state['led_panel_dac5578']['off_far_red']} handle={handle}/>
 
                                                     </div>
                                                      <div className="col-md-2">
