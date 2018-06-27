@@ -3,7 +3,7 @@ import '../css/device_homepage.css';
 import {Cookies, withCookies} from "react-cookie";
 import * as d3 from "d3";
 import {$, jQuery} from 'jquery';
-import Draggable from 'react-draggable';
+// import Draggable from 'react-draggable';
 import Plot from 'react-plotly.js';
 import 'rc-time-picker/assets/index.css';
 import Console from 'react-console-component';
@@ -677,11 +677,10 @@ class DeviceHomepage extends Component {
 
     applyChanges() {
 
-
         this.setState({
             modal: !this.state.modal
         });
-        console.log("Current State", this.state)
+
     }
 
     handleApplySubmit() {
@@ -759,7 +758,7 @@ class DeviceHomepage extends Component {
                     </div>
                 </div>
                 <div className="row graphs-row">
-                    <Draggable cancel="strong">
+                     {/*<Draggable cancel="strong">*/}
                         <div className="col-md-4">
                             <div className="card current-stats-card">
                                 <div className="card-block">
@@ -774,8 +773,8 @@ class DeviceHomepage extends Component {
                                 </div>
                             </div>
                         </div>
-                    </Draggable>
-                    <Draggable cancel="strong">
+                     {/*</Draggable>*/}
+                     {/*<Draggable cancel="strong">*/}
                         <div className="col-md-4">
                             <div className="card current-stats-card">
                                 <div className="card-block">
@@ -790,8 +789,8 @@ class DeviceHomepage extends Component {
                                 </div>
                             </div>
                         </div>
-                    </Draggable>
-                    <Draggable cancel="strong">
+                     {/*</Draggable>*/}
+                     {/*<Draggable cancel="strong">*/}
                         <div className="col-md-4">
                             <div className="card current-stats-card">
                                 <div className="card-block">
@@ -806,11 +805,11 @@ class DeviceHomepage extends Component {
                                 </div>
                             </div>
                         </div>
-                    </Draggable>
+                     {/*</Draggable>*/}
                 </div>
 
                 <div className="row graphs-row">
-                    <Draggable cancel="strong">
+                    {/*<Draggable cancel="strong">*/}
                         <div className="col-md-6">
                             <div className="card led-stats-card" style={{border: this.state.led_on_border}}>
                                 <div className="card-block">
@@ -897,8 +896,8 @@ class DeviceHomepage extends Component {
                                 </div>
                             </div>
                         </div>
-                    </Draggable>
-                    <Draggable cancel="strong">
+                    {/*</Draggable>*/}
+                    {/*<Draggable cancel="strong">*/}
                         <div className="col-md-6">
                             <div className="card led-stats-card" style={{border: this.state.led_off_border}}>
                                 <div className="card-block">
@@ -990,10 +989,10 @@ class DeviceHomepage extends Component {
                                 </div>
                             </div>
                         </div>
-                    </Draggable>
+                    {/*</Draggable>*/}
                 </div>
                 <div className="row graphs-row">
-                    <Draggable cancel="strong">
+                    {/*<Draggable cancel="strong">*/}
                         <div className="col-md-6">
                             <div className="card environment-card">
                                 <div className="card-block">
@@ -1018,8 +1017,8 @@ class DeviceHomepage extends Component {
                         </div>
 
 
-                    </Draggable>
-                    <Draggable cancel="strong">
+                    {/*</Draggable>*/}
+                    {/*<Draggable cancel="strong">*/}
                         <div className="col-md-6">
                             <div className="card environment-card">
                                 <div className="card-block">
@@ -1048,10 +1047,10 @@ class DeviceHomepage extends Component {
                         </div>
 
 
-                    </Draggable>
+                    {/*</Draggable>*/}
                 </div>
                 <div className="row graphs-row">
-                    <Draggable cancel="strong">
+                    {/*<Draggable cancel="strong">*/}
                         <div className="col-md-6">
                             <div className="card value-card">
                                 <div className="card-block">
@@ -1068,8 +1067,8 @@ class DeviceHomepage extends Component {
                         </div>
 
 
-                    </Draggable>
-                    <Draggable cancel="strong">
+                    {/*</Draggable>*/}
+                    {/*<Draggable cancel="strong">*/}
                         <div className="col-md-6">
 
                             <div className="card value-card">
@@ -1086,10 +1085,10 @@ class DeviceHomepage extends Component {
                                 </div>
                             </div>
                         </div>
-                    </Draggable>
+                    {/*</Draggable>*/}
                 </div>
                 <div className="row graphs-row">
-                    <Draggable cancel="strong">
+                    {/*<Draggable cancel="strong">*/}
                         <div className="col-md-6">
                             <div className="card value-card">
                                 <div className="card-block">
@@ -1106,8 +1105,8 @@ class DeviceHomepage extends Component {
                                 </div>
                             </div>
                         </div>
-                    </Draggable>
-                    <Draggable cancel="strong">
+                    {/*</Draggable>*/}
+                    {/*<Draggable cancel="strong">*/}
                         <div className="col-md-6">
                             <div className="card value-card">
                                 <div className="card-block">
@@ -1123,7 +1122,7 @@ class DeviceHomepage extends Component {
                                 </div>
                             </div>
                         </div>
-                    </Draggable>
+                    {/*</Draggable>*/}
                 </div>
                 <AddDeviceModal
                     isOpen={this.state.add_device_modal}
