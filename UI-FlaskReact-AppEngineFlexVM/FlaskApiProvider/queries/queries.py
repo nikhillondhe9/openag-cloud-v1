@@ -68,4 +68,16 @@ ORDER BY REGEXP_EXTRACT(id, r'(?:[^\~]*\~){2}([^~]*)') DESC
 LIMIT 1"""
 
 
-
+#------------------------------------------------------------------------------
+# There is one replaceable {} parameter for device_id in this query:
+fetch_peripheral_history = """#standardsql
+SELECT
+FORMAT_TIMESTAMP( '%c', TIMESTAMP( REGEXP_EXTRACT(id, r'(?:[^\~]*\~){2}([^~]*)')), 'America/New_York') as eastern_time,
+values
+FROM openag_public_user_data.vals
+WHERE 'PlaceHolderForPeripheralType' = REGEXP_EXTRACT(id, r'(?:[^\~]*\~){1}([^~]*)')
+AND 'PlaceHolderForDeviceUUID' = REGEXP_EXTRACT(id, r'(?:[^\~]*\~){3}([^~]*)')
+AND TIMESTAMP( REGEXP_EXTRACT(id, r'(?:[^\~]*\~){2}([^~]*)')) <= TIMESTAMP(CURRENT_DATE())
+AND TIMESTAMP( REGEXP_EXTRACT(id, r'(?:[^\~]*\~){2}([^~]*)')) >= TIMESTAMP(DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY))
+ORDER BY REGEXP_EXTRACT(id, r'(?:[^\~]*\~){2}([^~]*)') DESC 
+LIMIT 2500"""

@@ -6,7 +6,26 @@ import {DevicesDropdown} from './components/devices_dropdown';
 import {ViewEditToggle} from './components/view_edit_toggle';
 import 'rc-time-picker/assets/index.css';
 import 'react-console-component/main.css';
+import Slider from 'rc-slider';
+import Tooltip from 'rc-tooltip';
 
+const createSliderWithTooltip = Slider.createSliderWithTooltip;
+const Range = createSliderWithTooltip(Slider.Range);
+const Handle = Slider.Handle;
+const handle = (props) => {
+    const {value, dragging, index, ...restProps} = props;
+    return (
+        <Tooltip
+            prefixCls="rc-slider-tooltip"
+            overlay={value}
+            visible={dragging}
+            placement="top"
+            key={index}
+        >
+            <Handle value={value} {...restProps} />
+        </Tooltip>
+    );
+};
 
 class MyPFC extends Component {
     constructor(props) {
@@ -202,6 +221,7 @@ class MyPFC extends Component {
                 </div>
             )
         return (<div className="mypfc-container">
+               dsgfdsgdfag <Slider max={255} min={0}/>
                 <div className="row">
                     <div className="col-md-6"><DevicesDropdown
                         devices={[...this.state.user_devices.values()]}

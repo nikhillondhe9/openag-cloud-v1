@@ -6,7 +6,7 @@ from .utils.auth import get_user_uuid_from_token
 from .utils.env_variables import *
 from .utils.response import success_response, error_response
 import uuid
-
+from datetime import datetime,timedelta
 submit_recipe_bp = Blueprint('submit_recipe', __name__)
 
 
@@ -170,6 +170,45 @@ def submit_recipe():
     })
 
     datastore_client.put(recipe_reg_task)
+
+    # Add the user to the users kind of entity
+    key = datastore_client.key('DeviceHistory')
+
+    # Indexes every other column except the description
+    apply_to_device_task = datastore.Entity(key, exclude_from_indexes=[])
+
+    if device_uuid is None or current_recipe_uuid is None or user_token is None:
+        return error_response(
+            message="Please make sure you have added values for all the fields"
+        )
+
+    date_applied = datetime.now()
+    recipe_session_token = str(uuid.uuid4())
+    apply_to_device_task.update({
+        'recipe_session_token': recipe_session_token,
+        # Used to track the recipe applied to the device and modifications made to it.
+        'device_uuid': device_uuid,
+        'recipe_uuid': current_recipe_uuid,
+        'date_applied': date_applied,
+        'date_expires': date_applied + timedelta(days=3000),
+        'user_uuid': user_uuid
+    })
+
+    # Add a new recipe history record to indicate an event for when you applied this recipe to this device
+    key = datastore_client.key('RecipeHistory')
+    device_reg_task = datastore.Entity(key, exclude_from_indexes=["recipe_state"])
+    device_reg_task.update({
+        "device_uuid": device_uuid,
+        "recipe_uuid": current_recipe_uuid,
+        "user_uuid": user_uuid,
+        "recipe_session_token": str(uuid.uuid4()),
+        "recipe_state": str(recipe_format),
+        "updated_at": datetime.now()
+    })
+
+    datastore_client.put(device_reg_task)
+
+    datastore_client.put(apply_to_device_task)
 
     # convert the values in the dict into what the Jbrain expects
     commands_list = convert_UI_recipe_to_commands(current_recipe_uuid,recipe_format)
