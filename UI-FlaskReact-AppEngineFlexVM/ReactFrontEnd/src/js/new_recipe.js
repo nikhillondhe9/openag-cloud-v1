@@ -76,8 +76,8 @@ class NewRecipe extends Component {
                 'off_green': 0,
                 'off_red': 0,
                 'off_far_red': 0,
-                'on_illumination_distance': 0,
-                'off_illumination_distance': 0
+                'on_illumination_distance': 5,
+                'off_illumination_distance': 5
             }
         }
         this.LEDPanelChange = this.LEDPanelChange.bind(this);
