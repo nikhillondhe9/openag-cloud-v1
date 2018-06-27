@@ -150,14 +150,14 @@ class DeviceHomepage extends Component {
 
         let led_data = {
             'on_cool_white': standard_day['light_spectrum_nm_percent']['400-449'],
-            'on_warm_white': standard_day['light_spectrum_nm_percent']['449-499'],
+            'on_warm_white': standard_day['light_spectrum_nm_percent']['450-499'],
             'on_blue': standard_day['light_spectrum_nm_percent']['500-549'],
             'on_green': standard_day['light_spectrum_nm_percent']['550-599'],
             'on_red': standard_day['light_spectrum_nm_percent']['600-649'],
             'on_far_red': standard_day['light_spectrum_nm_percent']['650-699'],
             'on_illumination_distance': standard_day['light_illumination_distance_cm'],
             'off_cool_white': standard_night['light_spectrum_nm_percent']['400-449'],
-            'off_warm_white': standard_night['light_spectrum_nm_percent']['449-499'],
+            'off_warm_white': standard_night['light_spectrum_nm_percent']['450-499'],
             'off_blue': standard_night['light_spectrum_nm_percent']['500-549'],
             'off_green': standard_night['light_spectrum_nm_percent']['550-599'],
             'off_red': standard_night['light_spectrum_nm_percent']['600-649'],
