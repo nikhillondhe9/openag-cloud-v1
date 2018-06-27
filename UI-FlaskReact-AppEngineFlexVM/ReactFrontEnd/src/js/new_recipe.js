@@ -18,6 +18,7 @@ import {ImageUploader} from './components/image_uploader'
 
 import Tooltip from 'rc-tooltip';
 import Slider from 'rc-slider';
+import {LEDPanelCard} from './components/led_component';
 
 const createSliderWithTooltip = Slider.createSliderWithTooltip;
 const Range = createSliderWithTooltip(Slider.Range);
@@ -331,6 +332,7 @@ class NewRecipe extends Component {
 
     LEDPanelChange(led_data_type, color_channel, value) {
 
+
         if (led_data_type === "led_panel_dac5578") {
             let color_json = this.state['led_panel_dac5578'];
             color_json[color_channel] = value;
@@ -384,256 +386,14 @@ class NewRecipe extends Component {
 
                         peripheral_html.push(<div className="row">
                                 <div className="col-md-6">
-                                    <div className="card led-stats-card">
-                                        <div className="card-block">
-                                            <h4 className="card-title "> LED Panel - ON </h4>
-                                            <div className="card-text">
-                                                <div className="graph">
-                                                    <div className="">
-                                                        <div className="row colors-row">
-                                                            <div className="col-md-4">
-                                                                <span>Cool White</span>
-                                                            </div>
-                                                            <div className="col-md-6">
-                                                                <Slider
-                                                                    onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'on_cool_white')}
-                                                                    min={0} max={100}
-                                                                    value={this.state['led_panel_dac5578']['on_cool_white']}
-                                                                    handle={handle}/>
-                                                            </div>
-                                                            <div className="col-md-2">
-                                                                {this.state['led_panel_dac5578']['on_cool_white']}
-                                                            </div>
-                                                        </div>
-
-                                                        <div className="row colors-row">
-                                                            <div className="col-md-4">
-                                                                <span>Warm White</span>
-                                                            </div>
-                                                            <div className="col-md-6">
-                                                                <Slider
-                                                                    onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'on_warm_white')}
-                                                                    min={0} max={100}
-                                                                    value={this.state['led_panel_dac5578']['on_warm_white']}
-                                                                    handle={handle}/>
-                                                            </div>
-                                                            <div className="col-md-2">
-                                                                {this.state['led_panel_dac5578']['on_warm_white']}
-                                                            </div>
-                                                        </div>
-                                                        <div className="row colors-row">
-                                                            <div className="col-md-4">
-                                                                <span>Blue</span>
-                                                            </div>
-                                                            <div className="col-md-6">
-                                                                <Slider
-                                                                    onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'on_blue')}
-                                                                    min={0} max={100}
-                                                                    value={this.state['led_panel_dac5578']['on_blue']}
-                                                                    handle={handle}/>
-                                                            </div>
-                                                            <div className="col-md-2">
-                                                                {this.state['led_panel_dac5578']['on_blue']}
-                                                            </div>
-                                                        </div>
-                                                        <div className="row colors-row">
-                                                            <div className="col-md-4">
-                                                                <span>Green</span>
-                                                            </div>
-                                                            <div className="col-md-6">
-                                                                <Slider
-                                                                    onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'on_green')}
-                                                                    min={0} max={100}
-                                                                    value={this.state['led_panel_dac5578']['on_green']}
-                                                                    handle={handle}/>
-
-                                                            </div>
-                                                            <div className="col-md-2">
-                                                                {this.state['led_panel_dac5578']['on_green']}
-                                                            </div>
-                                                        </div>
-                                                        <div className="row colors-row">
-                                                            <div className="col-md-4">
-                                                                <span>Red</span>
-                                                            </div>
-                                                            <div className="col-md-6">
-                                                                <Slider
-                                                                    onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'on_red')}
-                                                                    min={0} max={100}
-                                                                    value={this.state['led_panel_dac5578']['on_red']}
-                                                                    handle={handle}/>
-
-                                                            </div>
-                                                            <div className="col-md-2">
-                                                                {this.state['led_panel_dac5578']['on_red']}
-                                                            </div>
-                                                        </div>
-                                                        <div className="row colors-row">
-                                                            <div className="col-md-4">
-                                                                <span>Far Red</span>
-                                                            </div>
-                                                            <div className="col-md-6">
-                                                                <Slider
-                                                                    onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'on_far_red')}
-                                                                    min={0} max={100}
-                                                                    value={this.state['led_panel_dac5578']['on_far_red']}
-                                                                    handle={handle}/>
-
-                                                            </div>
-                                                            <div className="col-md-2">
-                                                                {this.state['led_panel_dac5578']['on_far_red']}
-                                                            </div>
-                                                        </div>
-
-                                                    </div>
-
-
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="card-footer">
-                                            <div className="row">
-                                                <div className="col-md-4">
-                                                    <span>Illumination Distance  <br/>   (in <i>cm</i>)</span>
-                                                </div>
-                                                <div className="col-md-6">
-                                                    <Slider min={0} max={19}
-                                                            value={this.state['led_panel_dac5578']['on_illumination_distance']}
-                                                            handle={handle}
-                                                            onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'on_illumination_distance')}/>
-                                                </div>
-                                                <div className="col-md-2">
-                                                    {this.state['led_panel_dac5578']['on_illumination_distance']} cm
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <LEDPanelCard led_panel_dac5578={this.state.led_panel_dac5578}
+                                                  onLEDPanelChange={(led_name, color_channel, value) => this.LEDPanelChange(led_name, color_channel, value)}
+                                                  title="LED Panel - ON" prefix="on"/>
                                 </div>
                                 <div className="col-md-6">
-                                    <div className="card led-stats-card">
-                                        <div className="card-block">
-                                            <h4 className="card-title "> LED Panel - off </h4>
-                                            <div className="card-text">
-                                                <div className="graph">
-                                                    <div className="">
-                                                        <div className="row colors-row">
-                                                            <div className="col-md-4">
-                                                                <span>Cool White</span>
-                                                            </div>
-                                                            <div className="col-md-6">
-                                                                <Slider
-                                                                    onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'off_cool_white')}
-                                                                    min={0} max={100}
-                                                                    value={this.state['led_panel_dac5578']['off_cool_white']}
-                                                                    handle={handle}/>
-                                                            </div>
-                                                            <div className="col-md-2">
-                                                                {this.state['led_panel_dac5578']['off_cool_white']}
-                                                            </div>
-                                                        </div>
-
-                                                        <div className="row colors-row">
-                                                            <div className="col-md-4">
-                                                                <span>Warm White</span>
-                                                            </div>
-                                                            <div className="col-md-6">
-                                                                <Slider
-                                                                    onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'off_warm_white')}
-                                                                    min={0} max={100}
-                                                                    value={this.state['led_panel_dac5578']['off_warm_white']}
-                                                                    handle={handle}/>
-                                                            </div>
-                                                            <div className="col-md-2">
-                                                                {this.state['led_panel_dac5578']['off_warm_white']}
-                                                            </div>
-                                                        </div>
-                                                        <div className="row colors-row">
-                                                            <div className="col-md-4">
-                                                                <span>Blue</span>
-                                                            </div>
-                                                            <div className="col-md-6">
-                                                                <Slider
-                                                                    onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'off_blue')}
-                                                                    min={0} max={100}
-                                                                    value={this.state['led_panel_dac5578']['off_blue']}
-                                                                    handle={handle}/>
-                                                            </div>
-                                                            <div className="col-md-2">
-                                                                {this.state['led_panel_dac5578']['off_blue']}
-                                                            </div>
-                                                        </div>
-                                                        <div className="row colors-row">
-                                                            <div className="col-md-4">
-                                                                <span>Green</span>
-                                                            </div>
-                                                            <div className="col-md-6">
-                                                                <Slider
-                                                                    onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'off_green')}
-                                                                    min={0} max={100}
-                                                                    value={this.state['led_panel_dac5578']['off_green']}
-                                                                    handle={handle}/>
-
-                                                            </div>
-                                                            <div className="col-md-2">
-                                                                {this.state['led_panel_dac5578']['off_green']}
-                                                            </div>
-                                                        </div>
-                                                        <div className="row colors-row">
-                                                            <div className="col-md-4">
-                                                                <span>Red</span>
-                                                            </div>
-                                                            <div className="col-md-6">
-                                                                <Slider
-                                                                    onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'off_red')}
-                                                                    min={0} max={100}
-                                                                    value={this.state['led_panel_dac5578']['off_red']}
-                                                                    handle={handle}/>
-
-                                                            </div>
-                                                            <div className="col-md-2">
-                                                                {this.state['led_panel_dac5578']['off_red']}
-                                                            </div>
-                                                        </div>
-                                                        <div className="row colors-row">
-                                                            <div className="col-md-4">
-                                                                <span>Far Red</span>
-                                                            </div>
-                                                            <div className="col-md-6">
-                                                                <Slider
-                                                                    onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'off_far_red')}
-                                                                    min={0} max={100}
-                                                                    value={this.state['led_panel_dac5578']['off_far_red']}
-                                                                    handle={handle}/>
-
-                                                            </div>
-                                                            <div className="col-md-2">
-                                                                {this.state['led_panel_dac5578']['off_far_red']}
-                                                            </div>
-                                                        </div>
-
-                                                    </div>
-
-
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="card-footer">
-                                            <div className="row">
-                                                <div className="col-md-4">
-                                                    <span>Illuminatioff Distance  <br/>   (in <i>cm</i>)</span>
-                                                </div>
-                                                <div className="col-md-6">
-                                                    <Slider min={0} max={19}
-                                                            value={this.state['led_panel_dac5578']['off_illuminatioff_distance']}
-                                                            handle={handle}
-                                                            onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'off_illuminatioff_distance')}/>
-                                                </div>
-                                                <div className="col-md-2">
-                                                    {this.state['led_panel_dac5578']['off_illuminatioff_distance']} cm
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <LEDPanelCard led_panel_dac5578={this.state.led_panel_dac5578}
+                                                  onLEDPanelChange={(led_name, color_channel, value) => this.LEDPanelChange(led_name, color_channel, value)}
+                                                  title="LED Panel - OFF" prefix="off"/>
 
                                 </div>
                             </div>
