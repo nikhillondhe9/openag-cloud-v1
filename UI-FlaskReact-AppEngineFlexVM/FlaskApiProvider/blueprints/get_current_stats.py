@@ -48,13 +48,18 @@ def get_current_stats():
     query_result = query_job.result()
     for row in list(query_result):
         values_json = (ast.literal_eval(row[1]))
+        # This depends on getting results in order, RH first, then temp.
         if "values" in values_json:
             values = values_json["values"]
-            if len(values) > 0:
+            if "current_rh" not in result_json:
+                result_json["current_rh"] = "{0:.2f}".format(float(values[0]['value']))
+                continue
+            if "current_temp" not in result_json:
                 result_json["current_temp"] = "{0:.2f}".format(float(values[0]['value']))
-                if len(values) > 1:
-                    result_json["current_rh"] = "{0:.2f}".format(float(values[1]['value']))
+                continue
 
     return success_response(
         results=result_json
     )
+
+
