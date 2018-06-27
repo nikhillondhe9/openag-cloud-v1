@@ -21,6 +21,8 @@ def get_current_stats():
     if device_uuid is None:
         device_uuid = 'None'
 
+    # NOTE: you must use a NEW QueryJobConfig for each query, or you will get 
+    # this error: google.api_core.exceptions.BadRequest: 400 Cannot explicitly modify anonymous table
     job_config = bigquery.QueryJobConfig()
     job_config.use_legacy_sql = False
 
@@ -35,6 +37,10 @@ def get_current_stats():
         if "values" in values_json:
             values = values_json["values"]
             result_json["current_co2"] = "{0:.2f}".format(float(values[0]['value']))
+
+    # use a NEW QueryJobConfig for each query!
+    job_config = bigquery.QueryJobConfig()
+    job_config.use_legacy_sql = False
     query_str = queries.formatQuery(
         queries.fetch_temp_results_history, device_uuid)
 
