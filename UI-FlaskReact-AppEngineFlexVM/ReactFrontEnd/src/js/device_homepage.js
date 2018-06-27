@@ -39,8 +39,7 @@ const handle = (props) => {
         </Tooltip>
     );
 };
-const showSecond = true;
-const str = showSecond ? 'HH:mm:ss' : 'HH:mm';
+
 const displayNamesLookup = {
     "cool_white": "Cool White",
     "warm_white": "Warm White",

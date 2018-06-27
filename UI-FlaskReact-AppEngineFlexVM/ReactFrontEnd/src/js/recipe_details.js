@@ -1,12 +1,33 @@
 import React, {Component} from 'react';
 import {Cookies, withCookies} from "react-cookie";
 import "../css/recipe_details.css";
-import arugula from "../images/arugula.jpg";
 import '../css/new_recipe.css';
 import Tooltip from 'rc-tooltip';
 import 'rc-time-picker/assets/index.css';
-import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input} from 'reactstrap';
+import {Button, Input, Modal, ModalBody, ModalFooter, ModalHeader} from 'reactstrap';
 
+import 'rc-slider/assets/index.css';
+import 'rc-tooltip/assets/bootstrap.css';
+import Slider from 'rc-slider';
+
+const createSliderWithTooltip = Slider.createSliderWithTooltip;
+const Range = createSliderWithTooltip(Slider.Range);
+const Handle = Slider.Handle;
+
+const handle = (props) => {
+    const {value, dragging, index, ...restProps} = props;
+    return (
+        <Tooltip
+            prefixCls="rc-slider-tooltip"
+            overlay={value}
+            visible={dragging}
+            placement="top"
+            key={index}
+        >
+            <Handle value={value} {...restProps} />
+        </Tooltip>
+    );
+};
 
 class RecipeDetails extends Component {
     constructor(props) {
@@ -211,69 +232,94 @@ class RecipeDetails extends Component {
                                                 <div className="graph">
                                                     <div className="">
                                                         <div className="row colors-row">
-                                                            <div className="col-md-6">
+                                                            <div className="col-md-4">
                                                                 <span>Cool White</span>
                                                             </div>
                                                             <div className="col-md-6">
+                                                                <Slider
 
-                                                                <Input value={this.state['led_panel_dac5578']['on_cool_white']}
-
-                                                                />
+                                                                    min={0} max={100}
+                                                                    value={this.state['led_panel_dac5578']['on_cool_white']}
+                                                                    handle={handle}/>
+                                                            </div>
+                                                            <div className="col-md-2">
+                                                                {this.state['led_panel_dac5578']['on_cool_white']}
                                                             </div>
                                                         </div>
 
                                                         <div className="row colors-row">
-                                                            <div className="col-md-6">
+                                                            <div className="col-md-4">
                                                                 <span>Warm White</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Input value={this.state['led_panel_dac5578']['on_warm_white']}
+                                                                <Slider
 
-                                                                />
+                                                                    min={0} max={100}
+                                                                    value={this.state['led_panel_dac5578']['on_warm_white']}
+                                                                    handle={handle}/>
+                                                            </div>
+                                                            <div className="col-md-2">
+                                                                {this.state['led_panel_dac5578']['on_warm_white']}
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
-                                                            <div className="col-md-6">
+                                                            <div className="col-md-4">
                                                                 <span>Blue</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Input
+                                                                <Slider
+
+                                                                    min={0} max={100}
                                                                     value={this.state['led_panel_dac5578']['on_blue']}
-
-                                                                />
+                                                                    handle={handle}/>
+                                                            </div>
+                                                            <div className="col-md-2">
+                                                                {this.state['led_panel_dac5578']['on_blue']}
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
-                                                            <div className="col-md-6">
-                                                                <span>Green</span>
+                                                            <div className="col-md-4">
+                                                                <span> Green </span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Input
+                                                                <Slider
+
+                                                                    min={0} max={100}
                                                                     value={this.state['led_panel_dac5578']['on_green']}
-
-                                                                />
+                                                                    handle={handle}/>
+                                                            </div>
+                                                            <div className="col-md-2">
+                                                                {this.state['led_panel_dac5578']['on_green']}
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
-                                                            <div className="col-md-6">
-                                                                <span>Red</span>
+                                                            <div className="col-md-4">
+                                                                <span> Red</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Input
-                                                                   value={this.state['led_panel_dac5578']['on_red']}
+                                                                <Slider
 
-                                                                />
+                                                                    min={0} max={100}
+                                                                    value={this.state['led_panel_dac5578']['on_red']}
+                                                                    handle={handle}/>
+                                                            </div>
+                                                            <div className="col-md-2">
+                                                                {this.state['led_panel_dac5578']['on_red']}
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
-                                                            <div className="col-md-6">
+                                                            <div className="col-md-4">
                                                                 <span>Far Red</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Input
-                                                                   value={this.state['led_panel_dac5578']['on_far_red']}
+                                                                <Slider
 
-                                                                />
+                                                                    min={0} max={100}
+                                                                    value={this.state['led_panel_dac5578']['on_far_red']}
+                                                                    handle={handle}/>
+                                                            </div>
+                                                            <div className="col-md-2">
+                                                                {this.state['led_panel_dac5578']['on_far_red']}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -292,71 +338,97 @@ class RecipeDetails extends Component {
                                                 <div className="graph">
                                                     <div className="">
                                                         <div className="row colors-row">
-                                                            <div className="col-md-6">
+                                                            <div className="col-md-4">
                                                                 <span>Cool White</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Input
-                                                                   value={this.state['led_panel_dac5578']['off_cool_white']}
+                                                                <Slider
 
-                                                                />
+                                                                    min={0} max={100}
+                                                                    value={this.state['led_panel_dac5578']['off_cool_white']}
+                                                                    handle={handle}/>
+                                                            </div>
+                                                            <div className="col-md-2">
+                                                                {this.state['led_panel_dac5578']['off_cool_white']}
                                                             </div>
                                                         </div>
 
                                                         <div className="row colors-row">
-                                                            <div className="col-md-6">
+                                                            <div className="col-md-4">
                                                                 <span>Warm White</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Input
-                                                                   value={this.state['led_panel_dac5578']['off_warm_white']}
+                                                                <Slider
 
-                                                                />
+                                                                    min={0} max={100}
+                                                                    value={this.state['led_panel_dac5578']['off_warm_white']}
+                                                                    handle={handle}/>
+                                                            </div>
+                                                            <div className="col-md-2">
+                                                                {this.state['led_panel_dac5578']['off_warm_white']}
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
-                                                            <div className="col-md-6">
+                                                            <div className="col-md-4">
                                                                 <span>Blue</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Input
-                                                                  value={this.state['led_panel_dac5578']['off_blue']}
+                                                                <Slider
 
-                                                                />
+                                                                    min={0} max={100}
+                                                                    value={this.state['led_panel_dac5578']['off_blue']}
+                                                                    handle={handle}/>
+                                                            </div>
+                                                            <div className="col-md-2">
+                                                                {this.state['led_panel_dac5578']['off_blue']}
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
-                                                            <div className="col-md-6">
-                                                                <span>Green</span>
+                                                            <div className="col-md-4">
+                                                                <span> Green </span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Input
-                                                                   value={this.state['led_panel_dac5578']['off_green']}
+                                                                <Slider
 
-                                                                />
+                                                                    min={0} max={100}
+                                                                    value={this.state['led_panel_dac5578']['off_green']}
+                                                                    handle={handle}/>
+                                                            </div>
+                                                            <div className="col-md-2">
+                                                                {this.state['led_panel_dac5578']['off_green']}
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
-                                                            <div className="col-md-6">
-                                                                <span>Red</span>
+                                                            <div className="col-md-4">
+                                                                <span> Red</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                          <Input  value={this.state['led_panel_dac5578']['off_red']}
+                                                                <Slider
 
-                                                                />
+                                                                    min={0} max={100}
+                                                                    value={this.state['led_panel_dac5578']['off_red']}
+                                                                    handle={handle}/>
+                                                            </div>
+                                                            <div className="col-md-2">
+                                                                {this.state['led_panel_dac5578']['off_red']}
                                                             </div>
                                                         </div>
                                                         <div className="row colors-row">
-                                                            <div className="col-md-6">
+                                                            <div className="col-md-4">
                                                                 <span>Far Red</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Input
-                                                                  value={this.state['led_panel_dac5578']['off_far_red']}
+                                                                <Slider
 
-                                                                />
+                                                                    min={0} max={100}
+                                                                    value={this.state['led_panel_dac5578']['off_far_red']}
+                                                                    handle={handle}/>
+                                                            </div>
+                                                            <div className="col-md-2">
+                                                                {this.state['led_panel_dac5578']['off_far_red']}
                                                             </div>
                                                         </div>
+
                                                     </div>
 
 
