@@ -90,12 +90,31 @@ class RecipeDetails extends Component {
 
     applyToDevice = () => {
         console.log(`Recipe ${this.state.recipe_uuid} applied to device... (not really)`);
-        if (this.state.apply_confirmation_modal) {
-            this.setState({
-                apply_confirmation_modal: false
+
+        fetch(process.env.REACT_APP_FLASK_URL + '/api/apply_recipe_to_device/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({
+                'user_token': this.props.cookies.get('user_token'),
+                'device_uuid': this.state.selected_device_uuid,
+                'recipe_uuid': this.state.recipe_uuid
+            })
+        })
+            .then(response => response.json())
+            .then(response => {
+                console.log(response)
+                // If is running
+                if (this.state.apply_confirmation_modal) {
+                    this.setState({
+                        apply_confirmation_modal: false
+                    });
+                }
             });
-        }
-    }
+    };
 
     checkApply = () => {
         fetch(process.env.REACT_APP_FLASK_URL + '/api/device_is_running_recipe/', {
@@ -160,14 +179,14 @@ class RecipeDetails extends Component {
                         'on_green': standard_day['light_spectrum_nm_percent']['550-599'],
                         'on_red': standard_day['light_spectrum_nm_percent']['600-649'],
                         'on_far_red': standard_day['light_spectrum_nm_percent']['650-699'],
-                        'on_illumination_distance':standard_day['light_illumination_distance_cm'],
+                        'on_illumination_distance': standard_day['light_illumination_distance_cm'],
                         'off_cool_white': standard_night['light_spectrum_nm_percent']['400-449'],
                         'off_warm_white': standard_night['light_spectrum_nm_percent']['449-499'],
                         'off_blue': standard_night['light_spectrum_nm_percent']['500-549'],
                         'off_green': standard_night['light_spectrum_nm_percent']['550-599'],
                         'off_red': standard_night['light_spectrum_nm_percent']['600-649'],
                         'off_far_red': standard_night['light_spectrum_nm_percent']['650-699'],
-                        'off_illumination_distance':standard_day['light_illumination_distance_cm']
+                        'off_illumination_distance': standard_day['light_illumination_distance_cm']
                     }
                     this.setState({
                         led_panel_dac5578: led_data
@@ -332,15 +351,15 @@ class RecipeDetails extends Component {
                                                 </div>
                                             </div>
                                         </div>
-                                       <div className="card-footer">
+                                        <div className="card-footer">
                                             <div className="row">
-                                                 <div className="col-md-4">
+                                                <div className="col-md-4">
                                                     <span>Illumination Distance (in <i>cm</i>)</span>
                                                 </div>
                                                 <div className="col-md-6">
-                                                    <Slider  min={0} max={19}
-                                                                    value={this.state['led_panel_dac5578']['on_illumination_distance']}
-                                                                    handle={handle}/>
+                                                    <Slider min={0} max={19}
+                                                            value={this.state['led_panel_dac5578']['on_illumination_distance']}
+                                                            handle={handle}/>
                                                 </div>
                                                 <div className="col-md-2">
                                                     {this.state['led_panel_dac5578']['on_illumination_distance']} cm
@@ -456,13 +475,13 @@ class RecipeDetails extends Component {
                                         </div>
                                         <div className="card-footer">
                                             <div className="row">
-                                                 <div className="col-md-4">
+                                                <div className="col-md-4">
                                                     <span>Illumination Distance (in <i>cm</i>)</span>
                                                 </div>
                                                 <div className="col-md-6">
-                                                    <Slider  min={0} max={19}
-                                                                    value={this.state['led_panel_dac5578']['off_illumination_distance']}
-                                                                    handle={handle}/>
+                                                    <Slider min={0} max={19}
+                                                            value={this.state['led_panel_dac5578']['off_illumination_distance']}
+                                                            handle={handle}/>
                                                 </div>
                                                 <div className="col-md-2">
                                                     {this.state['led_panel_dac5578']['off_illumination_distance']} cm
