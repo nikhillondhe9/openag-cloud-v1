@@ -322,13 +322,31 @@ class RecipeDetails extends Component {
                                                                 {this.state['led_panel_dac5578']['on_far_red']}
                                                             </div>
                                                         </div>
+
+
                                                     </div>
 
 
                                                 </div>
                                             </div>
                                         </div>
+                                       <div className="card-footer">
+                                            <div className="row">
+                                                 <div className="col-md-4">
+                                                    <span>Illumination Distance (in <i>cm</i>)</span>
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <Slider  min={0} max={19}
+                                                                    value={this.state['led_panel_dac5578']['on_illumination_distance']}
+                                                                    handle={handle}/>
+                                                </div>
+                                                <div className="col-md-2">
+                                                    {this.state['led_panel_dac5578']['on_illumination_distance']} cm
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
+
                                 </div>
                                 <div className="col-md-6">
                                     <div className="card led-stats-card">
@@ -418,20 +436,34 @@ class RecipeDetails extends Component {
                                                                 <span>Far Red</span>
                                                             </div>
                                                             <div className="col-md-6">
-                                                                <Slider
-
-                                                                    min={0} max={100}
-                                                                    value={this.state['led_panel_dac5578']['off_far_red']}
-                                                                    handle={handle}/>
+                                                                <Slider min={0} max={100}
+                                                                        value={this.state['led_panel_dac5578']['off_far_red']}
+                                                                        handle={handle}/>
                                                             </div>
                                                             <div className="col-md-2">
                                                                 {this.state['led_panel_dac5578']['off_far_red']}
                                                             </div>
                                                         </div>
 
+
                                                     </div>
 
 
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="card-footer">
+                                            <div className="row">
+                                                 <div className="col-md-4">
+                                                    <span>Illumination Distance (in <i>cm</i>)</span>
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <Slider  min={0} max={19}
+                                                                    value={this.state['led_panel_dac5578']['off_illumination_distance']}
+                                                                    handle={handle}/>
+                                                </div>
+                                                <div className="col-md-2">
+                                                    {this.state['led_panel_dac5578']['off_illumination_distance']} cm
                                                 </div>
                                             </div>
                                         </div>

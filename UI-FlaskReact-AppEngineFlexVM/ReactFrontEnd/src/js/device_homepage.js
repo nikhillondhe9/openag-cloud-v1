@@ -8,7 +8,6 @@ import Plot from 'react-plotly.js';
 import 'rc-time-picker/assets/index.css';
 import Console from 'react-console-component';
 import 'react-console-component/main.css';
-import {Button, Form, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader} from 'reactstrap';
 import FileSaver from 'file-saver';
 
 import {DevicesDropdown} from './components/devices_dropdown';
@@ -19,7 +18,6 @@ import 'rc-slider/assets/index.css';
 import 'rc-tooltip/assets/bootstrap.css';
 import Tooltip from 'rc-tooltip';
 import Slider from 'rc-slider';
-import {Dropdown, DropdownToggle, DropdownMenu, DropdownItem} from 'reactstrap';
 
 const createSliderWithTooltip = Slider.createSliderWithTooltip;
 const Range = createSliderWithTooltip(Slider.Range);
@@ -90,7 +88,9 @@ class DeviceHomepage extends Component {
                 'off_blue': 0,
                 'off_green': 0,
                 'off_red': 0,
-                'off_far_red': 0
+                'off_far_red': 0,
+                'on_illumination_distance':0,
+                'off_illumination_distance':0
             },
             temp_data_x: [],
             temp_data_y: [],
@@ -893,6 +893,21 @@ class DeviceHomepage extends Component {
                                         </div>
                                     </div>
                                 </div>
+                                <div className="card-footer">
+                                            <div className="row">
+                                                 <div className="col-md-4">
+                                                    <span>Illumination Distance  <br/>   (in <i>cm</i>)</span>
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <Slider  min={0} max={19}
+                                                                    value={this.state['led_panel_dac5578']['on_illumination_distance']}
+                                                                    handle={handle} onChange={this.LEDPanelChange.bind(this,'led_panel_dac5578','on_illumination_distance')}/>
+                                                </div>
+                                                <div className="col-md-2">
+                                                    {this.state['led_panel_dac5578']['on_illumination_distance']} cm
+                                                </div>
+                                            </div>
+                                        </div>
                             </div>
                         </div>
                     {/*</Draggable>*/}
@@ -986,6 +1001,21 @@ class DeviceHomepage extends Component {
                                         </div>
                                     </div>
                                 </div>
+                                <div className="card-footer">
+                                            <div className="row">
+                                                 <div className="col-md-4">
+                                                    <span>Illumination Distance  <br/>   (in <i>cm</i>)</span>
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <Slider  min={0} max={19}
+                                                                    value={this.state['led_panel_dac5578']['on_illumination_distance']}
+                                                                    handle={handle} onChange={this.LEDPanelChange.bind(this, 'led_panel_dac5578', 'on_illumination_distance')}/>
+                                                </div>
+                                                <div className="col-md-2">
+                                                    {this.state['led_panel_dac5578']['on_illumination_distance']} cm
+                                                </div>
+                                            </div>
+                                        </div>
                             </div>
                         </div>
                     {/*</Draggable>*/}

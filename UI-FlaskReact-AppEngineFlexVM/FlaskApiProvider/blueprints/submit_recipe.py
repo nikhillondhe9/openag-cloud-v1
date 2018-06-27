@@ -6,7 +6,8 @@ from .utils.auth import get_user_uuid_from_token
 from .utils.env_variables import *
 from .utils.response import success_response, error_response
 import uuid
-from datetime import datetime,timedelta
+from datetime import datetime, timedelta
+
 submit_recipe_bp = Blueprint('submit_recipe', __name__)
 
 
@@ -17,9 +18,8 @@ def submit_recipe():
     received_form_response = json.loads(request.data.decode('utf-8'))
     recipe_state = received_form_response.get("state", {})
     user_token = received_form_response.get("user_token", "")
-    device_uuid = received_form_response.get("device_uuid","")
-    image_url = received_form_response.get("image_url","")
-
+    device_uuid = received_form_response.get("device_uuid", "")
+    image_url = received_form_response.get("image_url", "")
 
     user_details_query = datastore_client.query(kind='Users')
 
@@ -40,7 +40,6 @@ def submit_recipe():
         user_name = user_results[0]["username"]
         email_address = user_results[0]["email_address"]
 
-
     query = datastore_client.query(kind='RecipeFormat')
     query.add_filter("device_type", '=', recipe_state.get("device_type_caret", ""))
     query_result = list(query.fetch())
@@ -48,17 +47,16 @@ def submit_recipe():
     if len(query_result) > 0:
         recipe_format = json.loads(query_result[0]["recipe_json"])
 
-
     recipe_format["format"] = query_result[0]["format_name"]
-    recipe_format["version"] =" ".join(str(x) for x in [2])
+    recipe_format["version"] = " ".join(str(x) for x in [2])
     recipe_format["authors"] = [
         {
-            "name":str(user_name),
-            "uuid":str(user_uuid),
-            "email":str(email_address)
+            "name": str(user_name),
+            "uuid": str(user_uuid),
+            "email": str(email_address)
         }
     ]
-    recipe_format["parent_recipe_uuid"]= str(uuid.uuid4())
+    recipe_format["parent_recipe_uuid"] = str(uuid.uuid4())
     recipe_format["support_recipe_uuids"] = None
 
     recipe_format["creation_timestamp_utc"] = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S:%f')[:-4] + 'Z'
@@ -77,96 +75,104 @@ def submit_recipe():
 
     recipe_format["environments"]["standard_day"] = {
         "name": "Standard Day",
-        "light_spectrum_nm_percent": {"400-449": float(recipe_state.get("led_panel_dac5578_on_red", 16.67)) ,
-                                      "449-499": float(recipe_state.get("led_panel_dac5578_on_blue", 16.67)) ,
-                                      "500-549": float(recipe_state.get("led_panel_dac5578_on_green", 16.67)) ,
-                                      "550-599": float(recipe_state.get("led_panel_dac5578_on_far_red", 16.67)) ,
-                                      "600-649": float(recipe_state.get("led_panel_dac5578_on_warm_white", 16.67)) ,
-                                      "650-699": float(recipe_state.get("led_panel_dac5578_on_cool_white", 16.67)) },
+        "light_spectrum_nm_percent": {"400-449": float(recipe_state.get("led_panel_dac5578", {}).get("on_red", 0)),
+                                      "449-499": float(recipe_state.get("led_panel_dac5578", {}).get("on_blue", 0)),
+                                      "500-549": float(recipe_state.get("led_panel_dac5578", {}).get("on_green", 0)),
+                                      "550-599": float(recipe_state.get("led_panel_dac5578", {}).get("on_far_red", 0)),
+                                      "600-649": float(
+                                          recipe_state.get("led_panel_dac5578", {}).get("on_warm_white", 0)),
+                                      "650-699": float(
+                                          recipe_state.get("led_panel_dac5578", {}).get("on_cool_white", 0))},
         "light_intensity_watts": 100,
-        "light_illumination_distance_cm": 10,
+        "light_illumination_distance_cm": recipe_state.get("led_panel_dac5578", {}).get("on_illumination_distance", 0),
         "air_temperature_celcius": 22
     }
     recipe_format["environments"]["standard_night"] = {
         "name": "Standard Night",
-        "light_spectrum_nm_percent": {"400-449": float(recipe_state.get("led_panel_dac5578_off_red", 16.67)) ,
-                                      "449-499": float(recipe_state.get("led_panel_dac5578_off_blue", 16.67)) ,
-                                      "500-549": float(recipe_state.get("led_panel_dac5578_off_green", 16.67)) ,
-                                      "550-599": float(recipe_state.get("led_panel_dac5578_off_far_red", 16.67)) ,
-                                      "600-649": float(recipe_state.get("led_panel_dac5578_off_warm_white", 16.67)) ,
-                                      "650-699": float(recipe_state.get("led_panel_dac5578_off_cool_white", 16.67)) },
+        "light_spectrum_nm_percent": {"400-449": float(recipe_state.get("led_panel_dac5578", {}).get("off_red", 0)),
+                                      "449-499": float(recipe_state.get("led_panel_dac5578", {}).get("off_blue", 0)),
+                                      "500-549": float(recipe_state.get("led_panel_dac5578", {}).get("off_green", 0)),
+                                      "550-599": float(recipe_state.get("led_panel_dac5578", {}).get("off_far_red", 0)),
+                                      "600-649": float(
+                                          recipe_state.get("led_panel_dac5578", {}).get("off_warm_white", 0)),
+                                      "650-699": float(
+                                          recipe_state.get("led_panel_dac5578", {}).get("off_cool_white", 0))},
         "light_intensity_watts": 100,
-        "light_illumination_distance_cm": 10,
+        "light_illumination_distance_cm": recipe_state.get("led_panel_dac5578", {}).get("off_illumination_distance", 0),
         "air_temperature_celcius": 22
     }
     recipe_format["environments"]["cold_day"] = {
         "name": "Cold Day",
-        "light_spectrum_nm_percent": {"400-449": float(recipe_state.get("led_panel_dac5578_on_red", 16.67)) ,
-                                      "449-499": float(recipe_state.get("led_panel_dac5578_on_blue", 16.67)) ,
-                                      "500-549": float(recipe_state.get("led_panel_dac5578_on_green", 16.67)) ,
-                                      "550-599": float(recipe_state.get("led_panel_dac5578_on_far_red", 16.67)) ,
-                                      "600-649": float(recipe_state.get("led_panel_dac5578_on_warm_white", 16.67)) ,
-                                      "650-699": float(recipe_state.get("led_panel_dac5578_on_cool_white", 16.67)) },
+        "light_spectrum_nm_percent": {"400-449": float(recipe_state.get("led_panel_dac5578", {}).get("on_red", 0)),
+                                      "449-499": float(recipe_state.get("led_panel_dac5578", {}).get("on_blue", 0)),
+                                      "500-549": float(recipe_state.get("led_panel_dac5578", {}).get("on_green", 0)),
+                                      "550-599": float(recipe_state.get("led_panel_dac5578", {}).get("on_far_red", 0)),
+                                      "600-649": float(
+                                          recipe_state.get("led_panel_dac5578", {}).get("on_warm_white", 0)),
+                                      "650-699": float(
+                                          recipe_state.get("led_panel_dac5578", {}).get("on_cool_white", 0))},
         "light_intensity_watts": 100,
-        "light_illumination_distance_cm": 10,
+        "light_illumination_distance_cm": recipe_state.get("led_panel_dac5578", {}).get("on_illumination_distance", 0),
         "air_temperature_celcius": 10
     }
     recipe_format["environments"]["frost_night"] = {
         "name": "Frost Night",
-        "light_spectrum_nm_percent": {"400-449": float(recipe_state.get("led_panel_dac5578_off_red", 16.67)) ,
-                                      "449-499": float(recipe_state.get("led_panel_dac5578_off_blue", 16.67)) ,
-                                      "500-549": float(recipe_state.get("led_panel_dac5578_off_green", 16.67)) ,
-                                      "550-599": float(recipe_state.get("led_panel_dac5578_off_far_red", 16.67)) ,
-                                      "600-649": float(recipe_state.get("led_panel_dac5578_off_warm_white", 16.67)) ,
-                                      "650-699": float(recipe_state.get("led_panel_dac5578_off_cool_white", 16.67)) },
+        "light_spectrum_nm_percent": {"400-449": float(recipe_state.get("led_panel_dac5578", {}).get("off_red", 0)),
+                                      "449-499": float(recipe_state.get("led_panel_dac5578", {}).get("off_blue", 0)),
+                                      "500-549": float(recipe_state.get("led_panel_dac5578", {}).get("off_green", 0)),
+                                      "550-599": float(recipe_state.get("led_panel_dac5578", {}).get("off_far_red", 0)),
+                                      "600-649": float(
+                                          recipe_state.get("led_panel_dac5578", {}).get("off_warm_white", 0)),
+                                      "650-699": float(
+                                          recipe_state.get("led_panel_dac5578", {}).get("off_cool_white", 0))},
         "light_intensity_watts": 100,
-        "light_illumination_distance_cm": 10,
+        "light_illumination_distance_cm": recipe_state.get("led_panel_dac5578", {}).get("off_illumination_distance", 0),
         "air_temperature_celcius": 2
     }
-    recipe_format["phases"][0] =   {
-                "name": "Standard Growth",
-                "repeat": 29,
-                "cycles": [
-                    {
-                        "name": "Day",
-                        "environment": "standard_day",
-                        "duration_hours":  int(recipe_state.get("standard_day",1))
-                    },
-                    {
-                        "name": "Night",
-                        "environment": "standard_night",
-                        "duration_hours": int(recipe_state.get("standard_night",1))
-                    }
-                ]
+    recipe_format["phases"][0] = {
+        "name": "Standard Growth",
+        "repeat": 29,
+        "cycles": [
+            {
+                "name": "Day",
+                "environment": "standard_day",
+                "duration_hours": int(recipe_state.get("standard_day", 1))
+            },
+            {
+                "name": "Night",
+                "environment": "standard_night",
+                "duration_hours": int(recipe_state.get("standard_night", 1))
             }
-    recipe_format["phases"][1]={
-                "name": "Frosty Growth",
-                "repeat": 1,
-                "cycles": [
-                    {
-                        "name": "Day",
-                        "environment": "cold_day",
-                        "duration_hours": 18
-                    },
-                    {
-                        "name": "Night",
-                        "environment": "frost_night",
-                        "duration_hours": 6
-                    }
-                ]
+        ]
+    }
+    recipe_format["phases"][1] = {
+        "name": "Frosty Growth",
+        "repeat": 1,
+        "cycles": [
+            {
+                "name": "Day",
+                "environment": "cold_day",
+                "duration_hours": 18
+            },
+            {
+                "name": "Night",
+                "environment": "frost_night",
+                "duration_hours": 6
+            }
+        ]
 
-            }
+    }
 
     current_recipe_uuid = str(uuid.uuid4())
     recipe_format["uuid"] = current_recipe_uuid
     recipe_reg_task.update({
-        "recipe_uuid":current_recipe_uuid,
+        "recipe_uuid": current_recipe_uuid,
         "user_uuid": user_uuid,
         "recipe": json.dumps(recipe_format),
         "date_created": datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S:%f')[:-4] + 'Z',
         "device_type": recipe_state.get("device_type_caret", ""),
-        "format":query_result[0]["format_name"],
-        "image_url":image_url
+        "format": query_result[0]["format_name"],
+        "image_url": image_url
     })
 
     datastore_client.put(recipe_reg_task)
@@ -211,7 +217,7 @@ def submit_recipe():
     datastore_client.put(apply_to_device_task)
 
     # convert the values in the dict into what the Jbrain expects
-    commands_list = convert_UI_recipe_to_commands(current_recipe_uuid,recipe_format)
+    commands_list = convert_UI_recipe_to_commands(current_recipe_uuid, recipe_format)
     send_recipe_to_device_via_IoT(iot_client, device_uuid, commands_list)
 
     return success_response(

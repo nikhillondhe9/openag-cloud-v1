@@ -78,3 +78,8 @@
      width:200px;
      text-align: center;
 }
+.led-stats-card
+{
+    padding:0px;
+    padding-top:20px;
+}
