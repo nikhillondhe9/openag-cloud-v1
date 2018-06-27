@@ -482,7 +482,8 @@ class RecipeDetails extends Component {
                 <Modal
                     isOpen={this.state.apply_confirmation_modal}
                     toggle={this.toggleApplyConfirmation}
-                    className={this.props.className}>
+                    className={this.props.className}
+                >
                     <ModalHeader
                         toggle={this.toggleApplyConfirmation}
                     >

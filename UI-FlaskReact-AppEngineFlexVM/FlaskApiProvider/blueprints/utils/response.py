@@ -13,6 +13,11 @@ def json_response(**kwargs):
     data = json.dumps(kwargs)
     return Response(data, kwargs["response_code"], mimetype='application/json')
 
+unauthorized_response = json_response(
+    response_code=401,
+    message="Invalid token. Unauthorized."
+)
+
 def pre_serialize_device(device_entity):
     """Prepares a device entity for JSON serialization"""
 
@@ -26,5 +31,5 @@ def pre_serialize_device(device_entity):
         'user_uuid': device_entity.get("user_uuid", ""),
         'permissions': device_entity.get("permission", ""),
         'device_name': device_entity.get("device_name", ""),
-        'peripherals':device_entity.get("peripherals",[])
+        'peripherals':device_entity.get("peripherals", [])
     }

@@ -3,6 +3,7 @@ from flask import request
 from .utils.auth import get_user_uuid_from_token
 from .utils.env_variables import *
 from .utils.response import success_response, error_response
+from .get_user_devices import get_devices_for_user
 
 get_recipe_by_uuid_bp = Blueprint('get_recipe_by_uuid_bp', __name__)
 
@@ -10,9 +11,10 @@ get_recipe_by_uuid_bp = Blueprint('get_recipe_by_uuid_bp', __name__)
 @get_recipe_by_uuid_bp.route('/api/get_recipe_by_uuid/', methods=['GET', 'POST'])
 def get_recipe_by_uuid():
 
-    received_form_response = json.loads(request.data.decode('utf-8'))
-    user_token = received_form_response.get("user_token", None)
-    if user_token is None:
+    received_form_response = request.get_json()
+    user_token = received_form_response.get("user_token")
+    recipe_uuid = received_form_response.get("recipe_uuid")
+    if user_token is None or recipe_uuid is None:
         return error_response(
             message="Please make sure you have added values for all the fields"
         )
@@ -24,46 +26,19 @@ def get_recipe_by_uuid():
         )
 
     # Get all user devices
-    query = datastore_client.query(kind='Devices')
-    query.add_filter('user_uuid', '=', user_uuid)
-    query_result = list(query.fetch())
-    results = list(query_result)
-    devices_array = []
-    if len(results) > 0:
-        for result_row in results:
-            device_id = result_row.get("device_uuid", "")
-            device_reg_no = result_row.get("device_reg_no", "")
-            device_name = result_row.get("device_name", "")
-            print('  {}, {}, {}'.format(
-                device_id, device_reg_no, device_name))
-            result_json = {
-                'device_uuid': device_id,
-                'device_notes': result_row.get("device_notes", ""),
-                'device_type': result_row.get("device_type", ""),
-                'device_reg_no': device_reg_no,
-                'registration_date': result_row.get("registration_date", "").strftime("%Y-%m-%d %H:%M:%S"),
-                'user_uuid': result_row.get("user_uuid", ""),
-                'device_name': device_name
-            }
-            devices_array.append(result_json)
+    devices = get_devices_for_user(user_uuid)
 
-    recipe_uuid = received_form_response.get("recipe_uuid",None)
-    if recipe_uuid is None:
-        return error_response(
-            message="Invalid Recipe: Unauthorized"
-        )
-
-
-
-    query = datastore_client.query(kind='Recipes')
-    query.add_filter("recipe_uuid","=",recipe_uuid)
-    results = list(query.fetch())
+    # Get queried recipe
+    recipes_query = datastore_client.query(kind='Recipes')
+    recipes_query.add_filter("recipe_uuid","=",recipe_uuid)
+    recipes_query_results = list(recipes_query.fetch())
     results_array = []
-    for result in results:
-        recipe_details_json = json.loads(result["recipe"])
-        device_type = result['device_type']
-        peripherals = []
+    for recipe in recipes_query_results:
+        recipe_details_json = json.loads(recipe["recipe"])
+        device_type = recipe['device_type']
+
         # Get Peripherals needed for this device type
+        peripherals = []
         device_type_query = datastore_client.query(kind='DeviceType')
         device_type_results = list(device_type_query.fetch())
         device_type_results_array = []
@@ -93,11 +68,9 @@ def get_recipe_by_uuid():
                     }
                     peripherals.append(peripheral_detail_json)
 
-
-
         recipe_json = {
             'name':recipe_details_json['name'],
-            'image_url':result['image_url'],
+            'image_url':recipe['image_url'],
             'description':recipe_details_json['description']['verbose'],
             'device_type':device_type,
             'plant_type':recipe_details_json['cultivars'][0]['name'],
@@ -109,5 +82,5 @@ def get_recipe_by_uuid():
 
     return success_response(
         results=results_array,
-        devices=devices_array
+        devices=devices
     )
