@@ -143,9 +143,9 @@ class DeviceHomepage extends Component {
     }
 
     setLEDStates() {
-        
-        let standard_day = resultJson["recipe_json"]['environments']['standard_day']
-        let standard_night = resultJson["recipe_json"]['environments']['standard_night']
+
+        let standard_day = this.state.current_recipe['environments']['standard_day']
+        let standard_night = this.state.current_recipe['environments']['standard_night']
 
         let led_data = {
             'on_cool_white': standard_day['light_spectrum_nm_percent']['400-449'],
