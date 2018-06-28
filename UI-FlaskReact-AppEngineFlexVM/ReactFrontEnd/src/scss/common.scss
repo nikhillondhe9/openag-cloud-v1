@@ -1,0 +1,15 @@
+@import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700|Roboto:400,300,700,500,100);
+
+.card {
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  border-radius: 0.25rem;
+}
+
+// Match the container for the contents of the page,
+// which comes right after the header
+.header + div {
+  position: relative;
+  top: 100px;
+  padding: 20px;
+  font-family: "Roboto", sans-serif;
+}

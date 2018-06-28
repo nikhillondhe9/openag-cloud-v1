@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Cookies, withCookies} from "react-cookie";
-import '../css/profile.css';
+import '../scss/profile.scss';
 import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input} from 'reactstrap';
 
 import {ImageUploader} from './components/image_uploader';

@@ -1,92 +1,68 @@
-@import url(https://fonts.googleapis.com/css?family=Roboto:300);
-
-.body {
-    background: white;
-}
-
-.title {
+.profile-container {
+  .title {
     text-align: center;
     font-weight: 100;
-}
+  }
 
-.profile-container {
-    top: 100px;
-    width: 100%;
-    padding-top: 20px;
-    padding-left: 20px;
-    padding-right: 20px;
-    background: white;
-    overflow-y: scroll;
-    max-width: 100%;
-    position: relative;
-    font-family: "Roboto", sans-serif;
-
-}
-
-.profile-card {
+  .profile-card {
     height: 500px;
     margin-bottom: 20px;
-}
+  }
 
-.wrapper {
+  .wrapper {
     display: block;
     margin-left: auto;
     margin-right: auto;
-}
+  }
 
-.image--cover {
-
+  .image--cover {
     display: block;
     width: 200px;
     height: 200px;
     border-radius: 50%;
     margin-left: auto;
     margin-right: auto;
+  }
 
-}
-
-.profile-details-card {
+  .profile-details-card {
     height: 290px;
     margin-top: 10px;
-}
+  }
 
-.profile-row
-{
+  .profile-row {
     text-align:center;
     margin-top:10px;
-}
+  }
 
-.profile-row.wrapper
-{
+  .profile-row.wrapper {
     text-align: center;
-}
+  }
 
-.profile-card-row
-{
+  .profile-card-row {
     padding-left:20px;
-}
+  }
 
-.col-center-label
-{
+  .col-center-label {
     text-align: center;
-}
-.centered-header
-{
-    text-align: center;
-}
+  }
 
-.create-access-code-body {
+  .centered-header {
+    text-align: center;
+  }
+
+  .create-access-code-body {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr;
     justify-items: center;
     align-items: center;
-}
+  }
 
-.device-name {
+  .device-name {
     justify-self: start;
-}
+  }
 
-.create-access-code-body input {
+  .create-access-code-body input {
     width: auto;
     margin: 0;
+  }
 }

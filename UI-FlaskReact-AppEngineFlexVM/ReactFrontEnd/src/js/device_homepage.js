@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import '../css/device_homepage.css';
+import '../scss/device_homepage.scss';
 import {Cookies, withCookies} from "react-cookie";
 import * as d3 from "d3";
 import {$, jQuery} from 'jquery';
@@ -765,7 +765,7 @@ class DeviceHomepage extends Component {
 
         return (
 
-            <div className="home-container">
+            <div className="device-homepage-container">
                 <div className="row dropdown-row">
                     <div className="col-md-8">
                         <DevicesDropdown
