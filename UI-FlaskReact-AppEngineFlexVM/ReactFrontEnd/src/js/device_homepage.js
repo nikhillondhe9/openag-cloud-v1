@@ -721,7 +721,8 @@ class DeviceHomepage extends Component {
             },
             body: JSON.stringify({
                 'user_token': this.props.cookies.get('user_token'),
-                'recipe_state': JSON.stringify(this.state)
+                'recipe_state': JSON.stringify(this.state),
+                'device_uuid': this.state.selected_device_uuid
             })
         })
             .then((response) => response.json())

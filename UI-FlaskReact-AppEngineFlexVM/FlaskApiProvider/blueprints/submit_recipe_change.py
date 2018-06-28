@@ -18,42 +18,159 @@ def submit_recipe_change():
     received_form_response = json.loads(request.data.decode('utf-8'))
     recipe_state = received_form_response.get("recipe_state", {})
     user_token = received_form_response.get("user_token", "")
+    device_uuid = received_form_response.get("device_uuid", "")
 
     recipe_session_token = received_form_response.get("recipe_session_token", "")
     key = datastore_client.key('RecipeHistory')
-    device_reg_task = datastore.Entity(key, exclude_from_indexes=[])
+    device_reg_task = datastore.Entity(key, exclude_from_indexes=['recipe_state'])
 
+#debugrob, this is copied from submit_recipe.py, put in common class!
     # Get user uuid associated with this sesssion token
     user_uuid = get_user_uuid_from_token(user_token)
     if user_uuid is None:
         return error_response(
             message="Invalid User: Unauthorized"
         )
+    user_details_query = datastore_client.query(kind='Users')
+    user_details_query.add_filter("user_uuid", "=", user_uuid)
+    user_results = list(user_details_query.fetch())
+    user_name = ""
+    email_address = ""
+    if len(user_results) > 0:
+        user_name = user_results[0]["username"]
+        email_address = user_results[0]["email_address"]
 
-    # Build a custom recipe dict from the dashboard values
-    recipe_dict = {}
-    recipe_state = json.loads(recipe_state)
-    device_uuid = recipe_state.get("selected_device_uuid", "")
-    recipe_dict['temp_humidity_sht25'] = str(recipe_state['sensor_temp'])
-    recipe_dict['co2_t6713'] = str(recipe_state['sensor_co2'])
-    led_on = recipe_state['led_on_data']
-    recipe_dict['LED_panel_on_far_red'] = str(led_on['far_red'])
-    recipe_dict['LED_panel_on_red'] = str(led_on['red'])
-    recipe_dict['LED_panel_on_warm_white'] = str(led_on['warm_white'])
-    recipe_dict['LED_panel_on_green'] = str(led_on['green'])
-    recipe_dict['LED_panel_on_cool_white'] = str(led_on['cool_white'])
-    recipe_dict['LED_panel_on_blue'] = str(led_on['blue'])
-    led_off = recipe_state['led_off_data']
-    recipe_dict['LED_panel_off_far_red'] = str(led_off['far_red'])
-    recipe_dict['LED_panel_off_red'] = str(led_off['red'])
-    recipe_dict['LED_panel_off_warm_white'] = str(led_off['warm_white'])
-    recipe_dict['LED_panel_off_green'] = str(led_off['green'])
-    recipe_dict['LED_panel_off_cool_white'] = str(led_off['cool_white'])
-    recipe_dict['LED_panel_off_blue'] = str(led_off['blue'])
+    query = datastore_client.query(kind='RecipeFormat')
+
+    # device_type_caret is NOT in the state!
+    #query.add_filter("device_type", '=', recipe_state.get("device_type_caret", ""))
+    query.add_filter("device_type", '=', "PFC_EDU")
+    query_result = list(query.fetch())
+    recipe_format = {}
+    if len(query_result) > 0:
+        recipe_format = json.loads(query_result[0]["recipe_json"])
+
+    recipe_format["format"] = query_result[0]["format_name"]
+    recipe_format["version"] = " ".join(str(x) for x in [2])
+    recipe_format["authors"] = [
+        {
+            "name": str(user_name),
+            "uuid": str(user_uuid),
+            "email": str(email_address)
+        }
+    ]
+    recipe_format["parent_recipe_uuid"] = str(uuid.uuid4())
+    recipe_format["support_recipe_uuids"] = None
+
+    recipe_format["creation_timestamp_utc"] = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S:%f')[:-4] + 'Z'
+
+    rdict = json.loads( recipe_state )
+    recipe_format["name"] = rdict.get("recipe_name", "")
+    recipe_format["description"]['verbose'] = rdict.get("recipe_description", "")
+    recipe_format["description"]['brief'] = rdict.get("recipe_description", "")[:75] if len(
+        rdict.get("recipe_description", "")) > 75 else rdict.get("recipe_description", "")
+    recipe_format["cultivars"] = [{
+        "name": rdict.get("plant_type_caret", "") + "/" + rdict.get("variant_type_caret", ""),
+        "uuid": str(uuid.uuid4())
+    }]
+    recipe_format["cultivation_methods"] = [{
+        "name": "Shallow Water Culture",
+        "uuid": str(uuid.uuid4())
+    }]
+
+    recipe_format["environments"]["standard_day"] = {
+        "name": "Standard Day",
+        "light_spectrum_nm_percent": {"400-449": float(rdict.get("led_panel_dac5578", {}).get("on_red", 0)),
+                                      "450-499": float(rdict.get("led_panel_dac5578", {}).get("on_blue", 0)),
+                                      "500-549": float(rdict.get("led_panel_dac5578", {}).get("on_green", 0)),
+                                      "550-599": float(rdict.get("led_panel_dac5578", {}).get("on_far_red", 0)),
+                                      "600-649": float(
+                                          rdict.get("led_panel_dac5578", {}).get("on_warm_white", 0)),
+                                      "650-699": float(
+                                          rdict.get("led_panel_dac5578", {}).get("on_cool_white", 0))},
+        "light_intensity_watts": 100,
+        "light_illumination_distance_cm": rdict.get("led_panel_dac5578", {}).get("on_illumination_distance", 5),
+        "air_temperature_celcius": 22
+    }
+    recipe_format["environments"]["standard_night"] = {
+        "name": "Standard Night",
+        "light_spectrum_nm_percent": {"400-449": float(rdict.get("led_panel_dac5578", {}).get("off_red", 0)),
+                                      "450-499": float(rdict.get("led_panel_dac5578", {}).get("off_blue", 0)),
+                                      "500-549": float(rdict.get("led_panel_dac5578", {}).get("off_green", 0)),
+                                      "550-599": float(rdict.get("led_panel_dac5578", {}).get("off_far_red", 0)),
+                                      "600-649": float(
+                                          rdict.get("led_panel_dac5578", {}).get("off_warm_white", 0)),
+                                      "650-699": float(
+                                          rdict.get("led_panel_dac5578", {}).get("off_cool_white", 0))},
+        "light_intensity_watts": 100,
+        "light_illumination_distance_cm": rdict.get("led_panel_dac5578", {}).get("off_illumination_distance", 5),
+        "air_temperature_celcius": 22
+    }
+    recipe_format["environments"]["cold_day"] = {
+        "name": "Cold Day",
+        "light_spectrum_nm_percent": {"400-449": float(rdict.get("led_panel_dac5578", {}).get("on_red", 0)),
+                                      "450-499": float(rdict.get("led_panel_dac5578", {}).get("on_blue", 0)),
+                                      "500-549": float(rdict.get("led_panel_dac5578", {}).get("on_green", 0)),
+                                      "550-599": float(rdict.get("led_panel_dac5578", {}).get("on_far_red", 0)),
+                                      "600-649": float(
+                                          rdict.get("led_panel_dac5578", {}).get("on_warm_white", 0)),
+                                      "650-699": float(
+                                          rdict.get("led_panel_dac5578", {}).get("on_cool_white", 0))},
+        "light_intensity_watts": 100,
+        "light_illumination_distance_cm": rdict.get("led_panel_dac5578", {}).get("on_illumination_distance", 5),
+        "air_temperature_celcius": 10
+    }
+    recipe_format["environments"]["frost_night"] = {
+        "name": "Frost Night",
+        "light_spectrum_nm_percent": {"400-449": float(rdict.get("led_panel_dac5578", {}).get("off_red", 0)),
+                                      "450-499": float(rdict.get("led_panel_dac5578", {}).get("off_blue", 0)),
+                                      "500-549": float(rdict.get("led_panel_dac5578", {}).get("off_green", 0)),
+                                      "550-599": float(rdict.get("led_panel_dac5578", {}).get("off_far_red", 0)),
+                                      "600-649": float(
+                                          rdict.get("led_panel_dac5578", {}).get("off_warm_white", 0)),
+                                      "650-699": float(
+                                          rdict.get("led_panel_dac5578", {}).get("off_cool_white", 0))},
+        "light_intensity_watts": 100,
+        "light_illumination_distance_cm": rdict.get("led_panel_dac5578", {}).get("off_illumination_distance", 5),
+        "air_temperature_celcius": 2
+    }
+    recipe_format["phases"][0] = {
+        "name": "Standard Growth",
+        "repeat": 29,
+        "cycles": [
+            {
+                "name": "Day",
+                "environment": "standard_day",
+                "duration_hours": int(rdict.get("standard_day", 1))
+            },
+            {
+                "name": "Night",
+                "environment": "standard_night",
+                "duration_hours": int(rdict.get("standard_night", 1))
+            }
+        ]
+    }
+    recipe_format["phases"][1] = {
+        "name": "Frosty Growth",
+        "repeat": 1,
+        "cycles": [
+            {
+                "name": "Day",
+                "environment": "cold_day",
+                "duration_hours": 18
+            },
+            {
+                "name": "Night",
+                "environment": "frost_night",
+                "duration_hours": 6
+            }
+        ]
+
+    }
 
     current_recipe_uuid = ""
-    recipe_session_token = ""
-    # Get the recipe the device is currently running based on entry in the DeviceHisotry
+    # Get the recipe the device is currently running based on entry in the
+    # DeviceHisotry
 
     query_device_history = datastore_client.query(kind="DeviceHistory")
     query_device_history.add_filter('device_uuid', '=', device_uuid)
@@ -62,18 +179,19 @@ def submit_recipe_change():
 
     if len(query_device_history_result) >= 1:
         current_recipe_uuid = query_device_history_result[0]['recipe_uuid']
-        recipe_session_token = query_device_history_result[0]['recipe_session_token']
 
     # make sure we have a valid recipe uuid
     if None == current_recipe_uuid or 0 == len(current_recipe_uuid):
         current_recipe_uuid = str(uuid.uuid4())
+
+    recipe_format["uuid"] = current_recipe_uuid
 
     device_reg_task.update({
         "device_uuid": device_uuid,
         "recipe_uuid": current_recipe_uuid,
         "user_uuid": user_uuid,
         "recipe_session_token": recipe_session_token,
-        "recipe_state": str(recipe_dict),
+        "recipe_state": str(recipe_state),
         "updated_at": datetime.now()
     })
 
@@ -81,7 +199,7 @@ def submit_recipe_change():
 
     # convert the values in the dict into what the Jbrain expects
     commands_list = convert_UI_recipe_to_commands(current_recipe_uuid,
-                                                  recipe_dict)
+                                                  recipe_format)
     send_recipe_to_device_via_IoT(iot_client, device_uuid, commands_list)
 
     return success_response(

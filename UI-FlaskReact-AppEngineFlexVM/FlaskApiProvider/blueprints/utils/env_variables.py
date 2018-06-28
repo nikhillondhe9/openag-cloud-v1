@@ -100,106 +100,11 @@ def validDictKey(d, key):
 
 
 # ------------------------------------------------------------------------------
-# Return a new recipe, in the format expected by the Jbrain.
-def make_recipe(recipe_uuid, \
-                dayFR, dayR, dayB, dayG, dayCW, dayWW, \
-                day_intensity, day_temp, \
-                nightFR, nightR, nightB, nightG, nightCW, nightWW, \
-                night_intensity, night_temp, \
-                day_hours, night_hours,recipe_json):
-    # make sure we have a valid recipe uuid
-    if None == recipe_uuid or 0 == len(recipe_uuid):
-        print("Error in make_recipe, missing recipe_uuid.")
-        return ''
-
-    recipe_template = recipe_json
-
-    utc = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S:%f')[:-4] + 'Z'
-    recipe = recipe_template
-
-    # make it pretty json
-    rdict = recipe
-    recipe = json.dumps(rdict)
-    return recipe
-
-
-# ------------------------------------------------------------------------------
-# debugrob: this is temporary, just until the UI writes the correct recipe format
-# return a scaled int.
-def convert_LED_value(led_str):
-    led_i = int(led_str)
-    return int(led_i / 2.55)
-
-
-# ------------------------------------------------------------------------------
 # Convert the UI display fields into a command set for the device.
 # Returns a valid Jbrain recipe.
 def convert_UI_recipe_to_commands(recipe_uuid, recipe_dict):
     try:
-        # The 6 LED string vals are "0" to "255" (off)
-        led_panel_dac5578_off_far_red = 16.67
-        led_panel_dac5578_off_red = 16.67
-        led_panel_dac5578_off_warm_white = 16.67
-        led_panel_dac5578_off_green = 16.67
-        led_panel_dac5578_off_cool_white = 16.67
-        led_panel_dac5578_off_blue =16.67
-        led_panel_dac5578_on_far_red = 0
-        led_panel_dac5578_on_red = 0
-        led_panel_dac5578_on_warm_white = 0
-        led_panel_dac5578_on_green = 0
-        led_panel_dac5578_on_cool_white = 0
-        led_panel_dac5578_on_blue = 0
-        if validDictKey(recipe_dict, 'led_panel_dac5578_off_far_red'):
-            led_panel_dac5578_off_far_red = recipe_dict['led_panel_dac5578_off_far_red']
-        if validDictKey(recipe_dict, 'led_panel_dac5578_off_red'):
-            led_panel_dac5578_off_red = recipe_dict['led_panel_dac5578_off_red']
-        if validDictKey(recipe_dict, 'led_panel_dac5578_off_warm_white'):
-            led_panel_dac5578_off_warm_white = recipe_dict['led_panel_dac5578_off_warm_white']
-        if validDictKey(recipe_dict, 'led_panel_dac5578_off_green'):
-            led_panel_dac5578_off_green = recipe_dict['led_panel_dac5578_off_green']
-        if validDictKey(recipe_dict, 'led_panel_dac5578_off_cool_white'):
-            led_panel_dac5578_off_cool_white = recipe_dict['led_panel_dac5578_off_cool_white']
-        if validDictKey(recipe_dict, 'led_panel_dac5578_off_blue'):
-            led_panel_dac5578_off_blue = recipe_dict['led_panel_dac5578_off_blue']
-        if validDictKey(recipe_dict, 'led_panel_dac5578_on_far_red'):
-            led_panel_dac5578_on_far_red = recipe_dict['led_panel_dac5578_on_far_red']
-        if validDictKey(recipe_dict, 'led_panel_dac5578_on_red'):
-            led_panel_dac5578_on_red = recipe_dict['led_panel_dac5578_on_red']
-        if validDictKey(recipe_dict, 'led_panel_dac5578_on_warm_white'):
-            led_panel_dac5578_on_warm_white = recipe_dict['led_panel_dac5578_on_warm_white']
-        if validDictKey(recipe_dict, 'led_panel_dac5578_on_green'):
-            led_panel_dac5578_on_green = recipe_dict['led_panel_dac5578_on_green']
-        if validDictKey(recipe_dict, 'led_panel_dac5578_on_cool_white'):
-            led_panel_dac5578_on_cool_white = recipe_dict['led_panel_dac5578_on_cool_white']
-        if validDictKey(recipe_dict, 'led_panel_dac5578_on_blue'):
-            led_panel_dac5578_on_blue = recipe_dict['led_panel_dac5578_on_blue']
-
-        dayFR = convert_LED_value(led_panel_dac5578_on_far_red)
-        dayR = convert_LED_value(led_panel_dac5578_on_red)
-        dayB = convert_LED_value(led_panel_dac5578_on_blue)
-        dayG = convert_LED_value(led_panel_dac5578_on_green)
-        dayCW = convert_LED_value(led_panel_dac5578_on_cool_white)
-        dayWW = convert_LED_value(led_panel_dac5578_on_warm_white)
-        nightFR = convert_LED_value(led_panel_dac5578_off_far_red)
-        nightR = convert_LED_value(led_panel_dac5578_off_red)
-        nightB = convert_LED_value(led_panel_dac5578_off_blue)
-        nightG = convert_LED_value(led_panel_dac5578_off_green)
-        nightCW = convert_LED_value(led_panel_dac5578_off_cool_white)
-        nightWW = convert_LED_value(led_panel_dac5578_off_warm_white)
-        # debugrob, defaults UI will have to fill in later
-        day_intensity = 50
-        night_intensity = 0
-        day_temp = 22
-        night_temp = 18
-        day_hours = 18
-        night_hours = (24 - day_hours)
-
-        recipe_json = make_recipe(recipe_uuid, \
-                                  dayFR, dayR, dayB, dayG, dayCW, dayWW, \
-                                  day_intensity, day_temp, \
-                                  nightFR, nightR, nightB, nightG, nightCW, nightWW, \
-                                  night_intensity, night_temp, \
-                                  day_hours, night_hours,recipe_json=recipe_dict)
+        recipe_json = json.dumps(recipe_dict)
 
         # Currently we can only send a start or stop command.
         return_list = []
