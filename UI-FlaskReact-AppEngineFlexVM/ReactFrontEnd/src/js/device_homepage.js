@@ -13,6 +13,7 @@ import FileSaver from 'file-saver';
 import {DevicesDropdown} from './components/devices_dropdown';
 import {AddAccessCodeModal} from './components/add_access_code_modal';
 import {AddDeviceModal} from './components/add_device_modal';
+import {DeviceIsRunningModal} from './components/device_is_running_modal';
 import {LEDPanelCard} from './components/led_component';
 
 import 'rc-slider/assets/index.css';
@@ -116,6 +117,7 @@ class DeviceHomepage extends Component {
             add_access_modal: false,
             access_code_error_message: '',
             add_device_error_message: '',
+            apply_confirmation_modal: false,
             changes: {},
             control_level: 'view',
             current_recipe: {}
@@ -135,7 +137,6 @@ class DeviceHomepage extends Component {
         this.sensorOnChange = this.sensorOnChange.bind(this);
         this.echo = this.echo.bind(this);
         this.LEDPanelChange = this.LEDPanelChange.bind(this);
-        this.applyChanges = this.applyChanges.bind(this);
         this.handleApplySubmit = this.handleApplySubmit.bind(this);
         this.timeonChange = this.timeonChange.bind(this);
         this.downloadCSV = this.downloadCSV.bind(this);
@@ -197,6 +198,38 @@ class DeviceHomepage extends Component {
                 access_code_error_message: ''
             }
         });
+    }
+
+    toggleApplyConfirmation = () => {
+        this.setState(prevState => {
+            return {
+                apply_confirmation_modal: !prevState.apply_confirmation_modal
+            }
+        });
+    }
+
+    checkApply = () => {
+        fetch(process.env.REACT_APP_FLASK_URL + '/api/device_is_running_recipe/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({
+                'user_token': this.props.cookies.get('user_token'),
+                'device_uuid': this.state.selected_device_uuid
+            })
+        })
+            .then(response => response.json())
+            .then(response => {
+                // If is running recipe
+                if (response.result) {
+                    this.toggleApplyConfirmation();
+                } else {
+                    this.handleApplySubmit();
+                }
+            });
     }
 
     onSubmitDevice = (modal_state) => {
@@ -677,14 +710,6 @@ class DeviceHomepage extends Component {
         })
     }
 
-    applyChanges() {
-
-        this.setState({
-            modal: !this.state.modal
-        });
-
-    }
-
     handleApplySubmit() {
         console.log(this.state)
         return fetch(process.env.REACT_APP_FLASK_URL + '/api/submit_recipe_change/', {
@@ -702,7 +727,7 @@ class DeviceHomepage extends Component {
             .then((response) => response.json())
             .then((responseJson) => {
                 console.log(responseJson)
-                this.modalToggle()
+                this.toggleApplyConfirmation();
                 window.location.reload()
             })
             .catch((error) => {
@@ -755,7 +780,8 @@ class DeviceHomepage extends Component {
                         </button>
                     </div>
                     <div className="col-md-2">
-                        <button className="apply-button btn btn-secondary" onClick={this.applyChanges}>Apply Changes
+                        <button className="apply-button btn btn-secondary" onClick={this.checkApply}>
+                            Apply Changes
                         </button>
                     </div>
                 </div>
@@ -967,6 +993,12 @@ class DeviceHomepage extends Component {
                     toggle={this.toggleAccessCodeModal}
                     onSubmit={this.onSubmitAccessCode}
                     error_message={this.state.access_code_error_message}
+                />
+                <DeviceIsRunningModal
+                    isOpen={this.state.apply_confirmation_modal}
+                    toggle={this.toggleApplyConfirmation}
+                    onApplyToDevice={this.handleApplySubmit}
+                    className={this.props.className}
                 />
             </div>
         )

@@ -10,6 +10,8 @@ import 'rc-slider/assets/index.css';
 import 'rc-tooltip/assets/bootstrap.css';
 import Slider from 'rc-slider';
 
+import {DeviceIsRunningModal} from './components/device_is_running_modal';
+
 const createSliderWithTooltip = Slider.createSliderWithTooltip;
 const Range = createSliderWithTooltip(Slider.Range);
 const Handle = Slider.Handle;
@@ -89,7 +91,7 @@ class RecipeDetails extends Component {
     }
 
     applyToDevice = () => {
-        console.log(`Recipe ${this.state.recipe_uuid} applied to device... (not really)`);
+        console.log(`Recipe ${this.state.recipe_uuid} applied to device...`);
 
         fetch(process.env.REACT_APP_FLASK_URL + '/api/apply_recipe_to_device/', {
             method: 'POST',
@@ -603,27 +605,12 @@ class RecipeDetails extends Component {
                         <Button color="secondary" onClick={this.toggleApplyToDevice}>Close</Button>
                     </ModalFooter>
                 </Modal>
-
-                <Modal
+                <DeviceIsRunningModal
                     isOpen={this.state.apply_confirmation_modal}
                     toggle={this.toggleApplyConfirmation}
+                    onApplyToDevice={this.applyToDevice}
                     className={this.props.className}
-                >
-                    <ModalHeader
-                        toggle={this.toggleApplyConfirmation}
-                    >
-                        Warning
-                    </ModalHeader>
-                    <ModalBody>
-                        There's an existing recipe running on the device. Are you sure you
-                        want to continue?
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button color="danger" onClick={this.applyToDevice}>Apply</Button>
-                        <Button color="secondary" onClick={this.toggleApplyConfirmation}>Cancel</Button>
-                    </ModalFooter>
-                </Modal>
-
+                />
             </div>
 
         )
