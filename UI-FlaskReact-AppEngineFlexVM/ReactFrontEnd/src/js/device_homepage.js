@@ -20,6 +20,7 @@ import 'rc-slider/assets/index.css';
 import 'rc-tooltip/assets/bootstrap.css';
 import Tooltip from 'rc-tooltip';
 import Slider from 'rc-slider';
+import {LEDSpectrumOptions} from "./components/led_spectrum_options";
 
 const createSliderWithTooltip = Slider.createSliderWithTooltip;
 const Range = createSliderWithTooltip(Slider.Range);
@@ -79,20 +80,10 @@ class DeviceHomepage extends Component {
             rh_data: [],
             co2_data: [],
             led_panel_dac5578: {
-                'on_cool_white': 0,
-                'on_warm_white': 0,
-                'on_blue': 0,
-                'on_green': 0,
-                'on_red': 0,
-                'on_far_red': 0,
-                'off_cool_white': 0,
-                'off_warm_white': 0,
-                'off_blue': 0,
-                'off_green': 0,
-                'off_red': 0,
-                'off_far_red': 0,
                 'on_illumination_distance': 5,
-                'off_illumination_distance': 5
+                'off_illumination_distance': 5,
+                'off_selected_spectrum':"flat",
+                "on_selected_spectrum":"flat"
             },
             temp_data_x: [],
             temp_data_y: [],
@@ -142,6 +133,7 @@ class DeviceHomepage extends Component {
         this.downloadCSV = this.downloadCSV.bind(this);
         this.getRecipeOnDevice = this.getRecipeOnDevice.bind(this);
         this.setLEDStates = this.setLEDStates.bind(this);
+        this.LEDSpectrumSelection = this.LEDSpectrumSelection.bind(this);
     }
 
     setLEDStates() {
@@ -272,7 +264,16 @@ class DeviceHomepage extends Component {
                 console.error(error);
             });
     }
+     LEDSpectrumSelection(led_data_type, color_channel, spectrum_type,value)
+    {
 
+        if (led_data_type === "led_panel_dac5578") {
+            let color_json = this.state['led_panel_dac5578'];
+            color_json[color_channel] = spectrum_type;
+            this.setState({led_panel_dac5578: color_json})
+            console.log(this.state.led_panel_dac5578)
+        }
+    }
     modalToggle() {
         this.setState({
             modal: !this.state.modal
@@ -838,13 +839,15 @@ class DeviceHomepage extends Component {
 
                <div className="row graphs-row">
                                 <div className="col-md-6">
-                                    <LEDPanelCard led_panel_dac5578={this.state.led_panel_dac5578}
+                                    <LEDSpectrumOptions led_panel_dac5578={this.state.led_panel_dac5578}
                                                   onLEDPanelChange={(led_name, color_channel, value) => this.LEDPanelChange(led_name, color_channel, value)}
-                                                  title="LED Panel - ON" prefix="on"/>
+                                                  onLEDSpectrumSelection={(led_data_type, color_channel, spectrum_type,value) => this.LEDSpectrumSelection(led_data_type, color_channel, spectrum_type,value)}
+                                                        title="LED Panel - ON" prefix="on"/>
                                 </div>
                                 <div className="col-md-6">
-                                    <LEDPanelCard led_panel_dac5578={this.state.led_panel_dac5578}
+                                    <LEDSpectrumOptions led_panel_dac5578={this.state.led_panel_dac5578}
                                                   onLEDPanelChange={(led_name, color_channel, value) => this.LEDPanelChange(led_name, color_channel, value)}
+                                                  onLEDSpectrumSelection={(led_data_type, color_channel, spectrum_type,value) => this.LEDSpectrumSelection(led_data_type, color_channel, spectrum_type,value)}
                                                   title="LED Panel - OFF" prefix="off"/>
 
                                 </div>

@@ -1,0 +1,14 @@
+@import "../global_variables";
+
+
+.spectrum-button.btn.btn-secondary {
+  margin-left: 5px;
+  margin-top: 5px;
+}
+.selected-spectrum-button.btn.btn-secondary {
+  margin-left: 5px;
+  margin-top: 5px;
+  background-color: $orange-color;
+  border-color: $orange-color;
+}
+
