@@ -10,6 +10,8 @@ import Slider from 'rc-slider';
 
 import {DeviceIsRunningModal} from './components/device_is_running_modal';
 
+import * as api from './utils/api';
+
 const createSliderWithTooltip = Slider.createSliderWithTooltip;
 const Range = createSliderWithTooltip(Slider.Range);
 const Handle = Slider.Handle;
@@ -117,30 +119,19 @@ class RecipeDetails extends Component {
     };
 
     checkApply = () => {
-        fetch(process.env.REACT_APP_FLASK_URL + '/api/device_is_running_recipe/', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            body: JSON.stringify({
-                'user_token': this.props.cookies.get('user_token'),
-                'device_uuid': this.state.selected_device_uuid
-            })
-        })
-            .then(response => response.json())
-            .then(response => {
-                // If is running
-                if (response.result) {
-                    // Close first modal and open the second.
-                    this.toggleApplyToDevice();
-                    this.toggleApplyConfirmation();
-                } else {
-                    this.applyToDevice();
-                    this.toggleApplyToDevice();
-                }
-            });
+        api.getCurrentRecipeInfo(
+            this.props.cookies.get('user_token'),
+            this.state.selected_device_uuid
+        ).then(response => {
+            // If is running recipe
+            if (!response.expired) {
+                this.toggleApplyToDevice();
+                this.toggleApplyConfirmation();
+            } else {
+                this.applyToDevice();
+                this.toggleApplyToDevice();
+            }
+        });
     }
 
     getRecipeDetails() {
