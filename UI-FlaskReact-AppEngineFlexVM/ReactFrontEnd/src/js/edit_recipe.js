@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import '../css/edit_recipe.css';
 import {Input} from 'reactstrap';
 import ReactDOM from 'react-dom';
 import Slider from 'rc-slider';

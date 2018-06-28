@@ -1,6 +1,9 @@
+import '../../scss/components/led_component.scss';
+
 import React from 'react';
 import Tooltip from 'rc-tooltip';
 import Slider from 'rc-slider';
+import {Card, CardBody, CardTitle, CardText, CardFooter} from 'reactstrap';
 
 const createSliderWithTooltip = Slider.createSliderWithTooltip;
 const Range = createSliderWithTooltip(Slider.Range);
@@ -37,10 +40,10 @@ export class LEDPanelCard extends React.Component {
 
     render() {
         return (
-            <div className="card led-stats-card">
-                <div className="card-block">
-                    <h4 className="card-title "> {this.props.title} </h4>
-                    <div className="card-text">
+            <Card className="led-stats-card">
+                <CardBody>
+                    <CardTitle>{this.props.title}</CardTitle>
+                    <CardText>
                         <div className="graph">
                             <div className="">
                                 <div className="row colors-row">
@@ -135,9 +138,9 @@ export class LEDPanelCard extends React.Component {
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-                <div className="card-footer">
+                    </CardText>
+                </CardBody>
+                <CardFooter>
                     <div className="row">
                         <div className="col-md-4">
                             <span>Illumination Distance  <br/>   (in <i>cm</i>)</span>
@@ -152,8 +155,8 @@ export class LEDPanelCard extends React.Component {
                            {this.props.led_panel_dac5578[this.props.prefix+'_illumination_distance']}
                         </div>
                     </div>
-                </div>
-            </div>
+                </CardFooter>
+            </Card>
         )
     }
 
