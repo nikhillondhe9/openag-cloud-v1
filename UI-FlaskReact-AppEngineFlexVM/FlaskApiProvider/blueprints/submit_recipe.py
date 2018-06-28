@@ -26,6 +26,7 @@ def submit_recipe():
     key = datastore_client.key('Recipes')
     recipe_reg_task = datastore.Entity(key, exclude_from_indexes=["recipe"])
 
+#debugrob, this is also used in submit_recipe_change.py, put in common class!
     # Get user uuid associated with this sesssion token
     user_uuid = get_user_uuid_from_token(user_token)
     if user_uuid is None:
