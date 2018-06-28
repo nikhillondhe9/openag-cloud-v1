@@ -462,12 +462,9 @@ class DeviceHomepage extends Component {
                 console.log(responseJson)
                 if (responseJson["response_code"] == 200) {
 
-                    let parseTime = d3.timeParse("%abdI:%M:%SY");
-                    var formatTime = d3.timeFormat("%Y-%m-%dH:%M:%S");
                     let co2Data = responseJson["results"]
 
                     co2Data.forEach(function (d) {
-                        d.time = formatTime(parseTime(d.time));
                         d.value = parseFloat(d.value);
                     });
 
@@ -533,17 +530,13 @@ class DeviceHomepage extends Component {
                 console.log(responseJson)
                 if (responseJson["response_code"] == 200) {
 
-                    let parseTime = d3.timeParse("%abdI:%M:%SY");
-                    var formatTime = d3.timeFormat("%Y-%m-%dH:%M:%S");
                     let tempData = responseJson["results"]["temp"]
                     let RHData = responseJson["results"]["RH"]
 
                     tempData.forEach(function (d) {
-                        d.time = formatTime(parseTime(d.time));
                         d.value = parseFloat(d.value);
                     });
                     RHData.forEach(function (d) {
-                        d.time = formatTime(parseTime(d.time));
                         d.value = parseFloat(d.value)
                     });
                     let rh_data_x = []

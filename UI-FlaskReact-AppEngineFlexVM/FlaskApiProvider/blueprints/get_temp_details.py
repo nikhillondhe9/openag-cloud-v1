@@ -27,7 +27,6 @@ def get_temp_details():
         queries.fetch_temp_results_history, device_uuid)
 
     query_job = bigquery_client.query(query_str, job_config=job_config)
-
     query_result = query_job.result()
     humidity_array = []
     temp_array = []
@@ -36,15 +35,18 @@ def get_temp_details():
         'temp': temp_array
     }
     for row in list(query_result):
-        values_json = (ast.literal_eval(row[1]))
-        if "values" in values_json:
+        rvalues = row[2] # can't use row.values
+        values_json = (ast.literal_eval(rvalues))
+
+        if 'air_temperature_celcius' == row.var and 'values' in values_json:
             values = values_json["values"]
-            if len(values) > 0:
-                result_json["temp"].append(
-                    {'value': values[0]['value'], 'time': row.eastern_time})
-                if len(values) > 1:
-                    result_json["RH"].append(
-                        {'value': values[1]['value'] if values[1]['value'] else 'N/A', 'time': row.eastern_time})
+            result_json["temp"].append(
+                {'value': values[0]['value'], 'time': row.eastern_time})
+
+        if 'air_humidity_percent' == row.var and 'values' in values_json:
+            values = values_json["values"]
+            result_json["RH"].append(
+                {'value': values[0]['value'], 'time': row.eastern_time})
 
     return success_response(
         results=result_json

@@ -14,9 +14,11 @@ def formatQuery( query, device_id ):
 
 #------------------------------------------------------------------------------
 # There is one replaceable {} parameter for device_id in this query:
+# Time format %F%X is the same as "%Y-%m-%dH:%M:%S
 fetch_temp_results_history = """#standardsql
 SELECT
-FORMAT_TIMESTAMP( '%c', TIMESTAMP( REGEXP_EXTRACT(id, r'(?:[^\~]*\~){2}([^~]*)')), 'America/New_York') as eastern_time,
+FORMAT_TIMESTAMP( '%F%X', TIMESTAMP( REGEXP_EXTRACT(id, r'(?:[^\~]*\~){2}([^~]*)')), 'America/New_York') as eastern_time,
+REGEXP_EXTRACT(id, r'(?:[^\~]*\~){1}([^~]*)') as var,
 values
 FROM openag_public_user_data.vals
 WHERE 
@@ -31,9 +33,10 @@ LIMIT 2500"""
 
 #------------------------------------------------------------------------------
 # There is one replaceable {} parameter for device_id in this query:
+# Time format %F%X is the same as "%Y-%m-%dH:%M:%S
 fetch_co2_results_history = """#standardsql
 SELECT
-FORMAT_TIMESTAMP( '%c', TIMESTAMP( REGEXP_EXTRACT(id, r'(?:[^\~]*\~){2}([^~]*)')), 'America/New_York') as eastern_time,
+FORMAT_TIMESTAMP( '%F%X', TIMESTAMP( REGEXP_EXTRACT(id, r'(?:[^\~]*\~){2}([^~]*)')), 'America/New_York') as eastern_time,
 values
 FROM openag_public_user_data.vals
 WHERE 'air_carbon_dioxide_ppm' = REGEXP_EXTRACT(id, r'(?:[^\~]*\~){1}([^~]*)')
