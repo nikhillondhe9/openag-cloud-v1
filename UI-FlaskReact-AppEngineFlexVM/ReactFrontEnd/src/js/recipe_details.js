@@ -1,7 +1,5 @@
 import React, {Component} from 'react';
 import {Cookies, withCookies} from "react-cookie";
-import "../css/recipe_details.css";
-import '../css/new_recipe.css';
 import Tooltip from 'rc-tooltip';
 import 'rc-time-picker/assets/index.css';
 import {Button, Input, Modal, ModalBody, ModalFooter, ModalHeader} from 'reactstrap';
@@ -501,7 +499,7 @@ class RecipeDetails extends Component {
             }
         }, this);
         return (
-            <div className="home-container">
+            <div className="recipe-detail-container">
                 <div className="row">
                     <div className="col-md-4">
                         <a href="/recipes"> Back to climate recipes</a>

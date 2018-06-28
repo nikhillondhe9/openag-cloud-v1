@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import '../css/new_recipe.css';
+import '../scss/recipe_detail.scss';
 import {
     Button,
     Dropdown,
@@ -420,7 +420,7 @@ class NewRecipe extends Component {
                                       onClick={this.changeDeviceType.bind(this, device_type.device_type_id)}> {device_type.name} </DropdownItem>)
             }
         )
-        return (<div className="recipe-container">
+        return (<div className="recipe-detail-container">
                 <div className="details-container">
                     <div className="row input-row">
                         <div className="col-md-4">

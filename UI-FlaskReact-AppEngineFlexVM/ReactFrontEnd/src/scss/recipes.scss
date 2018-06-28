@@ -1,0 +1,43 @@
+.recipe-container {
+  .buttons-row {
+    display: flex;
+    justify-content: center;
+  }
+
+  .recipe-cards {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 20px;
+  }
+
+  .recipe-cards {
+    .card-body {
+      display: grid;
+      grid-column-gap: 10px;
+      grid-template-areas:
+        "title title"
+        "image description";
+    }
+
+    .card-title {
+      grid-area: title;
+    }
+
+    h6 {
+      grid-area: description;
+    }
+
+    img {
+      width: 100px;
+      height: 100px;
+      grid-area: image;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+    }
+  }
+
+}

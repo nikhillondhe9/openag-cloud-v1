@@ -1,11 +1,4 @@
-@import url(https://fonts.googleapis.com/css?family=Roboto:300);
-
 .home-container {
-  top: 100px;
-  position: relative;
-  padding: 30px 20px;
-  background-color: white;
-  font-family: "Roboto", sans-serif;
   display: grid;
   grid-template-areas:
     "devices-dropdown . post-twitter"

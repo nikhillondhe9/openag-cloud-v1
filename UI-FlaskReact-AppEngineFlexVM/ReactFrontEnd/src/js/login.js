@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import logo from '../images/logo.svg';
-import '../css/App.css';
-import '../css/login.css';
+import '../scss/login.scss';
 import {Link} from "react-router-dom";
 import {Cookies, withCookies} from "react-cookie";
 
@@ -119,7 +118,7 @@ class login extends Component {
                         <div className="image-section">
                             <img className="logo" src={logo}></img>
                         </div>
-                        <form className="login-form" onSubmit={this.handleSubmit}>
+                        <form onSubmit={this.handleSubmit}>
                             <input type="text" placeholder="username" name="username" value={this.state.username}
                                    onChange={this.handleChange}/>
                             <input type="password" placeholder="password" name="password" value={this.state.password}
