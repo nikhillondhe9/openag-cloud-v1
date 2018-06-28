@@ -25,10 +25,8 @@ def get_current_stats():
     # this error: google.api_core.exceptions.BadRequest: 400 Cannot explicitly modify anonymous table
     job_config = bigquery.QueryJobConfig()
     job_config.use_legacy_sql = False
-
     query_str = queries.formatQuery(
         queries.fetch_current_co2_value, device_uuid)
-
     query_job = bigquery_client.query(query_str, job_config=job_config)
     query_result = query_job.result()
     result_json = {}
@@ -36,14 +34,14 @@ def get_current_stats():
         values_json = (ast.literal_eval(row[1]))
         if "values" in values_json:
             values = values_json["values"]
-            result_json["current_co2"] = "{0:.2f}".format(float(values[0]['value']))
+            result_json["current_co2"] = \
+                    "{0:.2f}".format(float(values[0]['value']))
 
     # use a NEW QueryJobConfig for each query!
     job_config = bigquery.QueryJobConfig()
     job_config.use_legacy_sql = False
     query_str = queries.formatQuery(
-        queries.fetch_temp_results_history, device_uuid)
-
+        queries.fetch_current_temperature_value, device_uuid)
     query_job = bigquery_client.query(query_str, job_config=job_config)
     query_result = query_job.result()
     for row in list(query_result):
@@ -51,12 +49,23 @@ def get_current_stats():
         # This depends on getting results in order, RH first, then temp.
         if "values" in values_json:
             values = values_json["values"]
-            if "current_rh" not in result_json:
-                result_json["current_rh"] = "{0:.2f}".format(float(values[0]['value']))
-                continue
-            if "current_temp" not in result_json:
-                result_json["current_temp"] = "{0:.2f}".format(float(values[0]['value']))
-                continue
+            result_json["current_temp"] = \
+                    "{0:.2f}".format(float(values[0]['value']))
+
+    # use a NEW QueryJobConfig for each query!
+    job_config = bigquery.QueryJobConfig()
+    job_config.use_legacy_sql = False
+    query_str = queries.formatQuery(
+        queries.fetch_current_RH_value, device_uuid)
+    query_job = bigquery_client.query(query_str, job_config=job_config)
+    query_result = query_job.result()
+    for row in list(query_result):
+        values_json = (ast.literal_eval(row[1]))
+        # This depends on getting results in order, RH first, then temp.
+        if "values" in values_json:
+            values = values_json["values"]
+            result_json["current_rh"] = \
+                    "{0:.2f}".format(float(values[0]['value']))
 
     return success_response(
         results=result_json

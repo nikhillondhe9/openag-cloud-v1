@@ -59,6 +59,32 @@ LIMIT 50"""
 
 #------------------------------------------------------------------------------
 # There is one replaceable {} parameter for device_id in this query:
+fetch_current_temperature_value = """#standardsql
+SELECT
+FORMAT_TIMESTAMP( '%c', TIMESTAMP( REGEXP_EXTRACT(id, r'(?:[^\~]*\~){2}([^~]*)')), 'America/New_York') as eastern_time,
+values
+FROM openag_public_user_data.vals
+WHERE 'air_temperature_celcius' = REGEXP_EXTRACT(id, r'(?:[^\~]*\~){1}([^~]*)')
+AND 'PlaceHolderForDeviceUUID' = REGEXP_EXTRACT(id, r'(?:[^\~]*\~){3}([^~]*)')
+ORDER BY REGEXP_EXTRACT(id, r'(?:[^\~]*\~){2}([^~]*)') DESC 
+LIMIT 1"""
+
+
+#------------------------------------------------------------------------------
+# There is one replaceable {} parameter for device_id in this query:
+fetch_current_RH_value = """#standardsql
+SELECT
+FORMAT_TIMESTAMP( '%c', TIMESTAMP( REGEXP_EXTRACT(id, r'(?:[^\~]*\~){2}([^~]*)')), 'America/New_York') as eastern_time,
+values
+FROM openag_public_user_data.vals
+WHERE 'air_humidity_percent' = REGEXP_EXTRACT(id, r'(?:[^\~]*\~){1}([^~]*)')
+AND 'PlaceHolderForDeviceUUID' = REGEXP_EXTRACT(id, r'(?:[^\~]*\~){3}([^~]*)')
+ORDER BY REGEXP_EXTRACT(id, r'(?:[^\~]*\~){2}([^~]*)') DESC 
+LIMIT 1"""
+
+
+#------------------------------------------------------------------------------
+# There is one replaceable {} parameter for device_id in this query:
 fetch_current_co2_value = """#standardsql
 SELECT
 FORMAT_TIMESTAMP( '%c', TIMESTAMP( REGEXP_EXTRACT(id, r'(?:[^\~]*\~){2}([^~]*)')), 'America/New_York') as eastern_time,
