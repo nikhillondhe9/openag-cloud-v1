@@ -1,5 +1,7 @@
 import React from 'react';
-import {Button} from 'reactstrap';
+import {
+  Button, Card, CardBody, CardTitle, CardText, CardFooter
+} from 'reactstrap';
 
 /**
  * RecipeCard
@@ -26,17 +28,17 @@ export class RecipeCard extends React.Component {
 
     render() {
         return (
-            <div className="card recipe-card">
-                <div className="card-body">
-                    <h5 className="card-title">
+            <Card className="recipe-card">
+                <CardBody>
+                    <CardTitle>
                         {this.props.recipe.name}
-                    </h5>
+                    </CardTitle>
                     <img src={this.props.recipe.image_url} />
                     <h6 className="text-muted">
                         {this.props.recipe.description}
                     </h6>
-                </div>
-                <div className="card-footer">
+                </CardBody>
+                <CardFooter>
                     <Button
                         value={this.props.recipe.recipe_uuid}
                         onClick={this.onSelectRecipe}
@@ -58,8 +60,8 @@ export class RecipeCard extends React.Component {
                             Save
                         </Button>
                     )}
-                </div>
-            </div>
+                </CardFooter>
+            </Card>
         )
     }
 
