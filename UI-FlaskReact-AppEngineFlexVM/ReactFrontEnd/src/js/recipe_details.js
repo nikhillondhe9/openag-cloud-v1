@@ -69,24 +69,14 @@ class RecipeDetails extends Component {
 
     LEDPanelChange(led_data_type, color_channel, value) {
 
-
-        if (led_data_type === "led_panel_dac5578") {
-            let color_json = this.state['led_panel_dac5578'];
-            console.log(color_channel, value)
-            color_json[color_channel] = value;
-            this.setState({led_panel_dac5578: color_json})
-        }
+        console.log("View Only")
 
     }
 
     LEDSpectrumSelection(led_data_type, color_channel, spectrum_type, value) {
 
-        if (led_data_type === "led_panel_dac5578") {
-            let color_json = this.state['led_panel_dac5578'];
-            color_json[color_channel] = spectrum_type;
-            this.setState({led_panel_dac5578: color_json})
-            console.log(this.state.led_panel_dac5578)
-        }
+        console.log("View Only")
+
     }
 
     componentDidMount() {
@@ -198,7 +188,7 @@ class RecipeDetails extends Component {
                     this.setState({
                         led_panel_dac5578: led_data
                     })
-                    console.log(led_data,"FF")
+                    console.log(led_data, "FF")
                     var devs = [];                  // make array
                     devs = responseJson["devices"]; // assign array
                     if (devs.length > 0) {         // if we have devices
@@ -255,10 +245,14 @@ class RecipeDetails extends Component {
                         peripheral_html.push(<div className="row">
                                 <div className="col-md-6">
                                     <LEDSpectrumOptions led_panel_dac5578={this.state.led_panel_dac5578}
+                                                        onLEDPanelChange={(led_name, color_channel, value) => this.LEDPanelChange(led_name, color_channel, value)}
+                                                        onLEDSpectrumSelection={(led_data_type, color_channel, spectrum_type, value) => this.LEDSpectrumSelection(led_data_type, color_channel, spectrum_type, value)}
                                                         title="LED Panel - ON" prefix="on"/>
                                 </div>
                                 <div className="col-md-6">
                                     <LEDSpectrumOptions led_panel_dac5578={this.state.led_panel_dac5578}
+                                                        onLEDPanelChange={(led_name, color_channel, value) => this.LEDPanelChange(led_name, color_channel, value)}
+                                                        onLEDSpectrumSelection={(led_data_type, color_channel, spectrum_type, value) => this.LEDSpectrumSelection(led_data_type, color_channel, spectrum_type, value)}
                                                         title="LED Panel - OFF" prefix="off"/>
 
                                 </div>
@@ -285,7 +279,8 @@ class RecipeDetails extends Component {
                     <div className="col-md-9">
 
                         <div className="row card-row">
-                            <div className="col-md-12 "><h3>{this.state.recipe_name} for {this.state.recipe_plant} </h3></div>
+                            <div className="col-md-12 "><h3>{this.state.recipe_name} for {this.state.recipe_plant} </h3>
+                            </div>
                         </div>
 
                         <div className="row card-row">
@@ -304,7 +299,7 @@ class RecipeDetails extends Component {
                         </div>
                         <div className="row card-row">
 
-                            <div className="col-md-12 ">  <h3>Peripherals used in this climate recipe </h3></div>
+                            <div className="col-md-12 "><h3>Peripherals used in this climate recipe </h3></div>
 
                         </div>
                         <div className="row card-row">
@@ -321,7 +316,7 @@ class RecipeDetails extends Component {
                         </div>
                         <div className="row card-row">
 
-                            <div className="col-md-12 "> <h3>Parameters of the Climate Recipe </h3> </div>
+                            <div className="col-md-12 "><h3>Parameters of the Climate Recipe </h3></div>
 
                         </div>
                         <div className="row card-row">
