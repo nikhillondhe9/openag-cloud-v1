@@ -28,6 +28,8 @@ import {DevicesDropdown} from './components/devices_dropdown';
 import {AddDeviceModal} from './components/add_device_modal';
 import {AddAccessCodeModal} from './components/add_access_code_modal';
 
+import * as api from './utils/api';
+
 class Home extends Component {
     constructor(props) {
         super(props);
@@ -41,7 +43,9 @@ class Home extends Component {
             user_uuid: this.user_uuid,
             user_devices: new Map(),
             selected_device: 'Loading',
-            device_images: [image1,image2,image3,image4,image5,image6,image7]
+            device_images: [image1,image2,image3,image4,image5,image6,image7],
+            current_plant_type: '',
+            current_recipe_runtime: ''
         };
 
         // This binding is necessary to make `this` work in the callback
@@ -82,6 +86,18 @@ class Home extends Component {
             .catch(error => {
                 console.error(error);
             })
+    }
+
+    getCurrentRecipeInfo(device_uuid) {
+        api.getCurrentRecipeInfo(
+            this.props.cookies.get('user_token'),
+            device_uuid
+        ).then(response => {
+            this.setState({
+                current_plant_type: response.plant_type,
+                current_recipe_runtime: response.runtime
+            })
+        });
     }
 
     getUserDevices() {
@@ -273,7 +289,10 @@ class Home extends Component {
             this.setState({
                 selected_device: name,
                 selected_device_uuid: device.device_uuid
-            }, this.saveSelectedDevice);
+            }, () => {
+                this.getCurrentRecipeInfo(device_uuid);
+                this.saveSelectedDevice();
+            });
             // this.getDeviceImages(device_uuid);
         }
     }
@@ -298,7 +317,16 @@ class Home extends Component {
                                 <h3>Notifications</h3>
                                 <img src={notification}/>
                             </div>
-                            <p> Your Basil is 3 weeks old. Congratulations! </p>
+                            {this.state.current_plant_type ? (
+                                <p>
+                                    Your {this.state.current_plant_type} is {this.state.current_recipe_runtime}
+                                    &nbsp;old. Congratulations!
+                                </p>
+                            ) : (
+                                <p>
+                                    Loading recipe information.
+                                </p>
+                            )}
                             <hr/>
                             <p> <a href="#">See edits </a> to your recipes  </p>
                             <hr/>
