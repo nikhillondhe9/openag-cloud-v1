@@ -142,21 +142,11 @@ class DeviceHomepage extends Component {
         let standard_night = this.state.current_recipe['environments']['standard_night']
 
         let led_data = {
-            'on_cool_white': standard_day['light_spectrum_nm_percent']['400-449'],
-            'on_warm_white': standard_day['light_spectrum_nm_percent']['450-499'],
-            'on_blue': standard_day['light_spectrum_nm_percent']['500-549'],
-            'on_green': standard_day['light_spectrum_nm_percent']['550-559'],
-            'on_red': standard_day['light_spectrum_nm_percent']['600-649'],
-            'on_far_red': standard_day['light_spectrum_nm_percent']['650-699'],
-            'on_illum_dist': standard_day['light_illumination_distance_cm'],
-            'off_cool_white': standard_night['light_spectrum_nm_percent']['400-449'],
-            'off_warm_white': standard_night['light_spectrum_nm_percent']['450-499'],
-            'off_blue': standard_night['light_spectrum_nm_percent']['500-549'],
-            'off_green': standard_night['light_spectrum_nm_percent']['550-559'],
-            'off_red': standard_night['light_spectrum_nm_percent']['600-649'],
-            'off_far_red': standard_night['light_spectrum_nm_percent']['650-699'],
-            'off_illum_dist': standard_night['light_illumination_distance_cm']
-        }
+                        'on_illumination_distance': standard_day['light_illumination_distance_cm'],
+                        "off_selected_spectrum": standard_night["spectrum_key"],
+                        "on_selected_spectrum": standard_day["spectrum_key"],
+                        'off_illumination_distance': standard_day['light_illumination_distance_cm']
+                    };
 
         let standard_day_duration = this.state.current_recipe["phases"][0]['cycles'][0]['duration_hours']
         let standard_night_duration = this.state.current_recipe["phases"][0]['cycles'][1]['duration_hours']

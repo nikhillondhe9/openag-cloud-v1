@@ -4,12 +4,30 @@ from flask import Blueprint
 from flask import Response
 from flask import request
 from google.cloud import datastore
-
+import ast
 from .utils.env_variables import *
 from .utils.response import success_response, error_response
 from .utils.auth import get_user_uuid_from_token
 
 submit_recipe_change_bp = Blueprint('submit_recipe_change_bp',__name__)
+
+def get_existing_recipes(recipe_key):
+    print(recipe_key)
+    if recipe_key == "flat":
+        spectrum_json = {"400-449": 16.67, "450-499": 16.67, "500-549": 16.67, "550-559": 16.67, "600-649": 16.17, "650-699": 16.67}
+    elif recipe_key == "low_end":
+        spectrum_json = {"400-449": 50.0, "450-499": 50.0, "500-549": 0.0, "550-559": 0.0, "600-649": 0.0, "650-699": 0.0}
+    elif recipe_key == "off":
+        spectrum_json = {"400-449": 0.0, "450-499": 0.0, "500-549": 0.0, "550-559": 0.0, "600-649": 0.0,
+                         "650-699": 0.0}
+    elif recipe_key == "mid_end":
+        spectrum_json =  {"400-449": 0, "450-499": 0, "500-549": 50.0, "550-559": 50.0, "600-649": 0, "650-699": 0}
+    else:
+        spectrum_json = {"400-449": 0.0, "450-499": 0.0, "500-549": 0.0, "550-559": 0.0, "600-649": 50.0,
+                         "650-699": 50.0}
+
+    return ast.literal_eval(json.dumps(spectrum_json))
+
 
 # ------------------------------------------------------------------------------
 # Handle Change to a recipe running on a device
@@ -77,61 +95,42 @@ def submit_recipe_change():
         "name": "Shallow Water Culture",
         "uuid": str(uuid.uuid4())
     }]
+    led_panel_dac5578 = rdict.get("led_panel_dac5578", {})
+    standard_day_led_spectrum = get_existing_recipes(recipe_key=led_panel_dac5578.get("on_selected_spectrum", ""))
+    standard_night_led_spectrum = get_existing_recipes(recipe_key=led_panel_dac5578.get("off_selected_spectrum", ""))
+    off_illumination_distance = led_panel_dac5578.get("off_illumination_distance", 5)
+    on_illumination_distance = led_panel_dac5578.get("on_illumination_distance", 5)
 
     recipe_format["environments"]["standard_day"] = {
         "name": "Standard Day",
-        "light_spectrum_nm_percent": {"400-449": float(rdict.get("led_panel_dac5578", {}).get("on_red", 0)),
-                                      "450-499": float(rdict.get("led_panel_dac5578", {}).get("on_blue", 0)),
-                                      "500-549": float(rdict.get("led_panel_dac5578", {}).get("on_green", 0)),
-                                      "550-599": float(rdict.get("led_panel_dac5578", {}).get("on_far_red", 0)),
-                                      "600-649": float(
-                                          rdict.get("led_panel_dac5578", {}).get("on_warm_white", 0)),
-                                      "650-699": float(
-                                          rdict.get("led_panel_dac5578", {}).get("on_cool_white", 0))},
+        "spectrum_key": led_panel_dac5578.get("on_selected_spectrum", ""),
+        "light_spectrum_nm_percent":standard_day_led_spectrum,
         "light_intensity_watts": 100,
-        "light_illumination_distance_cm": rdict.get("led_panel_dac5578", {}).get("on_illumination_distance", 5),
+        "light_illumination_distance_cm": on_illumination_distance,
         "air_temperature_celcius": 22
     }
     recipe_format["environments"]["standard_night"] = {
         "name": "Standard Night",
-        "light_spectrum_nm_percent": {"400-449": float(rdict.get("led_panel_dac5578", {}).get("off_red", 0)),
-                                      "450-499": float(rdict.get("led_panel_dac5578", {}).get("off_blue", 0)),
-                                      "500-549": float(rdict.get("led_panel_dac5578", {}).get("off_green", 0)),
-                                      "550-599": float(rdict.get("led_panel_dac5578", {}).get("off_far_red", 0)),
-                                      "600-649": float(
-                                          rdict.get("led_panel_dac5578", {}).get("off_warm_white", 0)),
-                                      "650-699": float(
-                                          rdict.get("led_panel_dac5578", {}).get("off_cool_white", 0))},
+        "spectrum_key": led_panel_dac5578.get("off_selected_spectrum", ""),
+        "light_spectrum_nm_percent": standard_night_led_spectrum,
         "light_intensity_watts": 100,
-        "light_illumination_distance_cm": rdict.get("led_panel_dac5578", {}).get("off_illumination_distance", 5),
+        "light_illumination_distance_cm": off_illumination_distance,
         "air_temperature_celcius": 22
     }
     recipe_format["environments"]["cold_day"] = {
         "name": "Cold Day",
-        "light_spectrum_nm_percent": {"400-449": float(rdict.get("led_panel_dac5578", {}).get("on_red", 0)),
-                                      "450-499": float(rdict.get("led_panel_dac5578", {}).get("on_blue", 0)),
-                                      "500-549": float(rdict.get("led_panel_dac5578", {}).get("on_green", 0)),
-                                      "550-599": float(rdict.get("led_panel_dac5578", {}).get("on_far_red", 0)),
-                                      "600-649": float(
-                                          rdict.get("led_panel_dac5578", {}).get("on_warm_white", 0)),
-                                      "650-699": float(
-                                          rdict.get("led_panel_dac5578", {}).get("on_cool_white", 0))},
+        "spectrum_key": led_panel_dac5578.get("on_selected_spectrum", ""),
+        "light_spectrum_nm_percent": standard_day_led_spectrum,
         "light_intensity_watts": 100,
-        "light_illumination_distance_cm": rdict.get("led_panel_dac5578", {}).get("on_illumination_distance", 5),
+        "light_illumination_distance_cm": on_illumination_distance,
         "air_temperature_celcius": 10
     }
     recipe_format["environments"]["frost_night"] = {
         "name": "Frost Night",
-        "light_spectrum_nm_percent": {"400-449": float(rdict.get("led_panel_dac5578", {}).get("off_red", 0)),
-                                      "450-499": float(rdict.get("led_panel_dac5578", {}).get("off_blue", 0)),
-                                      "500-549": float(rdict.get("led_panel_dac5578", {}).get("off_green", 0)),
-                                      "550-599": float(rdict.get("led_panel_dac5578", {}).get("off_far_red", 0)),
-                                      "600-649": float(
-                                          rdict.get("led_panel_dac5578", {}).get("off_warm_white", 0)),
-                                      "650-699": float(
-                                          rdict.get("led_panel_dac5578", {}).get("off_cool_white", 0))},
+        "spectrum_key": led_panel_dac5578.get("off_selected_spectrum", ""),
+        "light_spectrum_nm_percent": standard_night_led_spectrum,
         "light_intensity_watts": 100,
-        "light_illumination_distance_cm": rdict.get("led_panel_dac5578", {}).get("off_illumination_distance", 5),
+        "light_illumination_distance_cm": off_illumination_distance,
         "air_temperature_celcius": 2
     }
     recipe_format["phases"][0] = {
