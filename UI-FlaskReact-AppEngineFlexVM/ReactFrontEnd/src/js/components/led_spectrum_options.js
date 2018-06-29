@@ -50,10 +50,11 @@ export class LEDSpectrumOptions extends React.Component {
                     {this.props.title}
                 </CardTitle>
                 <CardBody>
-                    <Button onClick={this.OnLEDSpectrumSelection.bind(this, 'led_panel_dac5578', this.props.prefix + '_selected_spectrum','flat')} className={this.props.led_panel_dac5578[this.props.prefix + '_selected_spectrum']==="flat"? "selected-spectrum-button" : "spectrum-button"} > Flat (General)</Button>
-                    <Button onClick={this.OnLEDSpectrumSelection.bind(this, 'led_panel_dac5578', this.props.prefix + '_selected_spectrum','low_end')} className={this.props.led_panel_dac5578[this.props.prefix + '_selected_spectrum']==="low_end"? "selected-spectrum-button" : "spectrum-button"}  > Low End (Blue-ish)</Button>
-                    <Button onClick={this.OnLEDSpectrumSelection.bind(this, 'led_panel_dac5578', this.props.prefix + '_selected_spectrum','mid_end')} className={this.props.led_panel_dac5578[this.props.prefix + '_selected_spectrum']==="mid_end"? "selected-spectrum-button" : "spectrum-button"}  > Mid End (Green-ish)</Button>
-                    <Button onClick={this.OnLEDSpectrumSelection.bind(this, 'led_panel_dac5578', this.props.prefix + '_selected_spectrum','high_end')} className={this.props.led_panel_dac5578[this.props.prefix + '_selected_spectrum']==="high_end"? "selected-spectrum-button" : "spectrum-button"} > High End (Red-ish)</Button>
+                    <Button onClick={this.OnLEDSpectrumSelection.bind(this, 'led_panel_dac5578', this.props.prefix + '_selected_spectrum','off')} className={this.props.led_panel_dac5578[this.props.prefix + '_selected_spectrum']==="off"? "selected-spectrum-button" : "spectrum-button"} > No Spectrum </Button>
+                    <Button onClick={this.OnLEDSpectrumSelection.bind(this, 'led_panel_dac5578', this.props.prefix + '_selected_spectrum','flat')} className={this.props.led_panel_dac5578[this.props.prefix + '_selected_spectrum']==="flat"? "selected-spectrum-button" : "spectrum-button"} > White Spectrum </Button>
+                    <Button onClick={this.OnLEDSpectrumSelection.bind(this, 'led_panel_dac5578', this.props.prefix + '_selected_spectrum','low_end')} className={this.props.led_panel_dac5578[this.props.prefix + '_selected_spectrum']==="low_end"? "selected-spectrum-button" : "spectrum-button"}  > Blue Spectrum </Button>
+                    <Button onClick={this.OnLEDSpectrumSelection.bind(this, 'led_panel_dac5578', this.props.prefix + '_selected_spectrum','mid_end')} className={this.props.led_panel_dac5578[this.props.prefix + '_selected_spectrum']==="mid_end"? "selected-spectrum-button" : "spectrum-button"}  > Green Spectrum </Button>
+                    <Button onClick={this.OnLEDSpectrumSelection.bind(this, 'led_panel_dac5578', this.props.prefix + '_selected_spectrum','high_end')} className={this.props.led_panel_dac5578[this.props.prefix + '_selected_spectrum']==="high_end"? "selected-spectrum-button" : "spectrum-button"} > Red Spectrum </Button>
                 </CardBody>
                 <CardFooter>
                     <div className="row">

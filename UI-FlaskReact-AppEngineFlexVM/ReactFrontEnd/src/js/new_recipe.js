@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import '../scss/recipe_detail.scss';
+import '../scss/new_recipe.scss';
 import {
     Button,
     Dropdown,
@@ -67,8 +67,8 @@ class NewRecipe extends Component {
             led_panel_dac5578: {
                 'on_illumination_distance': 5,
                 'off_illumination_distance': 5,
-                'off_selected_spectrum':"flat",
-                "on_selected_spectrum":"flat"
+                'off_selected_spectrum': "flat",
+                "on_selected_spectrum": "flat"
             }
         };
         this.LEDPanelChange = this.LEDPanelChange.bind(this);
@@ -126,7 +126,7 @@ class NewRecipe extends Component {
     }
 
     submitRecipe() {
-        console.log("Applying to device", this.state.selected_device_uuid)
+        console.log("Applying to device", this.state.led_panel_dac5578)
         return fetch(process.env.REACT_APP_FLASK_URL + "/api/submit_recipe/", {
             method: 'POST',
             headers: {
@@ -327,13 +327,14 @@ class NewRecipe extends Component {
 
         if (led_data_type === "led_panel_dac5578") {
             let color_json = this.state['led_panel_dac5578'];
+            console.log(color_channel,value)
             color_json[color_channel] = value;
             this.setState({led_panel_dac5578: color_json})
         }
 
     }
-    LEDSpectrumSelection(led_data_type, color_channel, spectrum_type,value)
-    {
+
+    LEDSpectrumSelection(led_data_type, color_channel, spectrum_type, value) {
 
         if (led_data_type === "led_panel_dac5578") {
             let color_json = this.state['led_panel_dac5578'];
@@ -342,6 +343,7 @@ class NewRecipe extends Component {
             console.log(this.state.led_panel_dac5578)
         }
     }
+
     componentWillMount() {
         this.getDropdownValues()
         this.getUserDevices()
@@ -388,15 +390,15 @@ class NewRecipe extends Component {
                         peripheral_html.push(<div className="row">
                                 <div className="col-md-6">
                                     <LEDSpectrumOptions led_panel_dac5578={this.state.led_panel_dac5578}
-                                                  onLEDPanelChange={(led_name, color_channel, value) => this.LEDPanelChange(led_name, color_channel, value)}
-                                                  onLEDSpectrumSelection={(led_data_type, color_channel, spectrum_type,value) => this.LEDSpectrumSelection(led_data_type, color_channel, spectrum_type,value)}
+                                                        onLEDPanelChange={(led_name, color_channel, value) => this.LEDPanelChange(led_name, color_channel, value)}
+                                                        onLEDSpectrumSelection={(led_data_type, color_channel, spectrum_type, value) => this.LEDSpectrumSelection(led_data_type, color_channel, spectrum_type, value)}
                                                         title="LED Panel - ON" prefix="on"/>
                                 </div>
                                 <div className="col-md-6">
                                     <LEDSpectrumOptions led_panel_dac5578={this.state.led_panel_dac5578}
-                                                  onLEDPanelChange={(led_name, color_channel, value) => this.LEDPanelChange(led_name, color_channel, value)}
-                                                  onLEDSpectrumSelection={(led_data_type, color_channel, spectrum_type,value) => this.LEDSpectrumSelection(led_data_type, color_channel, spectrum_type,value)}
-                                                  title="LED Panel - OFF" prefix="off"/>
+                                                        onLEDPanelChange={(led_name, color_channel, value) => this.LEDPanelChange(led_name, color_channel, value)}
+                                                        onLEDSpectrumSelection={(led_data_type, color_channel, spectrum_type, value) => this.LEDSpectrumSelection(led_data_type, color_channel, spectrum_type, value)}
+                                                        title="LED Panel - OFF" prefix="off"/>
 
                                 </div>
                             </div>
@@ -423,11 +425,9 @@ class NewRecipe extends Component {
                                       onClick={this.changeDeviceType.bind(this, device_type.device_type_id)}> {device_type.name} </DropdownItem>)
             }
         )
-        return (<div className="recipe-detail-container">
+        return (<div className="new-recipe-container">
                 <div className="details-container">
                     <div className="row input-row">
-                        <div className="col-md-4">
-                        </div>
                         <div className="col-md-8 dropdown-col">
                             <div className="row">
                                 <div className="col-md-12 selection-col"> Please choose a device type :</div>
@@ -449,92 +449,102 @@ class NewRecipe extends Component {
                         </div>
 
                     </div>
-                    <div className="row input-row">
-                        <div className="col-md-4">
-                            <img width="200" src={this.state.image_url}/>
-                            <ImageUploader
-                                url={process.env.REACT_APP_FLASK_URL + "/api/upload_images/"}
-                                data={{
-                                    type: 'recipe',
-                                    user_token: this.props.cookies.get('user_token')
-                                }}
-                                onDone={this.onImageUpload}
-                                className="image-uploader"/>
-                        </div>
-                        <div className="col-md-8">
-                            <Input type="text" className="recipe-details-text" placeholder="Recipe Name"
-                                   id="recipe_name" name="recipe_name" onChange={this.sensorOnChange}/>
-                            <textarea className="recipe-details-text" placeholder="Recipe Description"
-                                      id="recipe_description" name="recipe_description" onChange={this.sensorOnChange}/>
-                            <div className="row plant-type-dropdowns">
+                    <div
+                        className={this.state.device_type_caret === "Choose a Device Type" ? "hidden-div" : "visible-div"}>
 
-                                <div className="plant-type"><Dropdown isOpen={this.state.plant_variant_dropdown_toggle}
-                                                                      toggle={this.plant_variant_type_dropdowntoggle}
-                                                                      className="row dropdown-row">
-                                    <DropdownToggle caret>
-                                        {this.state.plant_type_caret}
-                                    </DropdownToggle>
-                                    <DropdownMenu>
-                                        {plant_type_dropdown_values}
-                                    </DropdownMenu>
-                                </Dropdown></div>
-                                <div className="variant-type"><Dropdown isOpen={this.state.plant_type_dropdown_toggle}
-                                                                        toggle={this.plant_type_dropdowntoggle}
-                                                                        className="row dropdown-row">
-                                    <DropdownToggle caret>
-                                        {this.state.variant_type_caret}
-                                    </DropdownToggle>
-                                    <DropdownMenu>
-                                        {plant_variant_type_dropdown_values}
-                                    </DropdownMenu>
-                                </Dropdown></div>
 
+                            <div className="card recipe-details-card">
+                                <div className="card-title">Recipe Details</div>
+                                <div className="card-body">
+                                    <div className="row">
+
+                                        <div className="col-md-4">
+                                            <img width="200" src={this.state.image_url}/>
+                                            <ImageUploader
+                                                url={process.env.REACT_APP_FLASK_URL + "/api/upload_images/"}
+                                                data={{
+                                                    type: 'recipe',
+                                                    user_token: this.props.cookies.get('user_token')
+                                                }}
+                                                onDone={this.onImageUpload}
+                                                className="image-uploader"/>
+                                        </div>
+                                        <div className="col-md-8">
+                                            <Input type="text" className="recipe-details-text" placeholder="Recipe Name"
+                                                   id="recipe_name" name="recipe_name" onChange={this.sensorOnChange}/>
+                                            <textarea className="recipe-details-text" placeholder="Recipe Description"
+                                                      id="recipe_description" name="recipe_description"
+                                                      onChange={this.sensorOnChange}/>
+                                            <div className="row plant-type-dropdowns">
+
+                                                <div className="plant-type"><Dropdown
+                                                    isOpen={this.state.plant_variant_dropdown_toggle}
+                                                    toggle={this.plant_variant_type_dropdowntoggle}
+                                                    className="row dropdown-row">
+                                                    <DropdownToggle caret>
+                                                        {this.state.plant_type_caret}
+                                                    </DropdownToggle>
+                                                    <DropdownMenu>
+                                                        {plant_type_dropdown_values}
+                                                    </DropdownMenu>
+                                                </Dropdown></div>
+                                                <div className="variant-type"><Dropdown
+                                                    isOpen={this.state.plant_type_dropdown_toggle}
+                                                    toggle={this.plant_type_dropdowntoggle}
+                                                    className="row dropdown-row">
+                                                    <DropdownToggle caret>
+                                                        {this.state.variant_type_caret}
+                                                    </DropdownToggle>
+                                                    <DropdownMenu>
+                                                        {plant_variant_type_dropdown_values}
+                                                    </DropdownMenu>
+                                                </Dropdown></div>
+
+                                            </div>
+
+
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
 
-                        </div>
+
+                        {list_components}
+
+
+
+                        <div className="card recipe-details-card">
+                             <div className="card-title">Environments & Phases</div>
+                            <div className="card-body">
+                                <div className="row">
+                                    <div className="col-md-6">
+                                         Standard Day (in hr)
+                                    </div>
+                                     <div className="col-md-6">
+                                          Standard Night (in hr)
+                                    </div>
+                                </div>
+                                 <div className="row">
+                                     <div className="col-md-6">
+                                           <Input type="number" className="recipe-details-text" placeholder="6"
+                                           id="standard_day"
+                                           name="standard_day" onChange={this.sensorOnChange}/>
+                                    </div>
+                                     <div className="col-md-6">
+                                          <Input type="number" className="recipe-details-text"
+                                           placeholder="24hr - Standard Day" />
+
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            </div>
+
+                        <Button className="submit-recipe-button"
+                                onClick={this.toggle_apply_to_device.bind(this, "New Recipe")}>Submit Recipe</Button>
                     </div>
-                    <div className="row">
-                        <div className="col-md-6">
-                            <h3>Peripherals Attached</h3>
-                            <hr></hr>
-                        </div>
-                    </div>
-
-                    {list_components}
-
-
-                    <div className="row">
-                        <div className="col-md-6">
-                            <h3>Environments & Phases</h3>
-                            <hr></hr>
-                        </div>
-                    </div>
-                    <div className="row field-row">
-                        <div className="col-md-5 field-col">
-                            <div className="row">
-                                Standard Day (in hr)
-                            </div>
-                            <div className="row">
-                                <Input type="number" className="recipe-details-text" placeholder="6" id="standard_day"
-                                       name="standard_day" onChange={this.sensorOnChange}/>
-                            </div>
-                        </div>
-                        <div className="col-sm-1 field-col">
-                        </div>
-                        <div className="col-md-5 field-col">
-                            <div className="row">
-                                Standard Night (in hr)
-                            </div>
-                            <div className="row">
-                                <Input type="number" className="recipe-details-text" placeholder="24hr - Standard Day"
-                                       id="standard_night" name="standard_night" value={this.state.standard_night}/>
-                            </div>
-                        </div>
-
-                    </div>
-                    <Button className="submit-recipe-button"
-                            onClick={this.toggle_apply_to_device.bind(this, "New Recipe")}>Submit Recipe</Button>
                 </div>
                 <Modal isOpen={this.state.apply_to_device_modal} toggle={this.toggle_apply_to_device}
                        className={this.props.className}>

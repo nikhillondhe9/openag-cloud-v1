@@ -31,3 +31,8 @@ export function getCurrentRecipeInfo(user_token, device_uuid) {
     const data = { user_token, device_uuid };
     return jsonRequest('/api/get_current_recipe_info/', data);
 }
+
+export function getUserInfo(user_token) {
+    const data = { user_token };
+    return jsonRequest('/api/get_user_info/', data);
+}

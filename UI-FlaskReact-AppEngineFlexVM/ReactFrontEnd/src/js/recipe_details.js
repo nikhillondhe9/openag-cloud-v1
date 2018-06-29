@@ -3,12 +3,13 @@ import {Cookies, withCookies} from "react-cookie";
 import Tooltip from 'rc-tooltip';
 import 'rc-time-picker/assets/index.css';
 import {Button, Input, Modal, ModalBody, ModalFooter, ModalHeader} from 'reactstrap';
-
+import "../scss/recipe_detail.scss";
 import 'rc-slider/assets/index.css';
 import 'rc-tooltip/assets/bootstrap.css';
 import Slider from 'rc-slider';
 
 import {DeviceIsRunningModal} from './components/device_is_running_modal';
+import {LEDSpectrumOptions} from "./components/led_spectrum_options";
 
 import * as api from './utils/api';
 
@@ -46,24 +47,18 @@ class RecipeDetails extends Component {
             history: {},
             devices: [],
             led_panel_dac5578: {
-                'on_cool_white': '',
-                'on_warm_white': '',
-                'on_blue': '',
-                'on_green': '',
-                'on_red': '',
-                'on_far_red': '',
-                'off_cool_white': '',
-                'off_warm_white': '',
-                'off_blue': '',
-                'off_green': '',
-                'off_red': '',
-                'off_far_red': ''
+                'on_illumination_distance': 5,
+                'off_illumination_distance': 5,
+                'off_selected_spectrum': "flat",
+                "on_selected_spectrum": "flat",
             },
             apply_to_device_modal: false,
             apply_confirmation_modal: false
         };
         this.getRecipeDetails = this.getRecipeDetails.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.LEDPanelChange = this.LEDPanelChange.bind(this);
+        this.LEDSpectrumSelection = this.LEDSpectrumSelection.bind(this);
     }
 
     handleChange(event) {
@@ -71,6 +66,18 @@ class RecipeDetails extends Component {
             [event.target.name]: event.target.value
         });
         event.preventDefault();
+
+    }
+
+    LEDPanelChange(led_data_type, color_channel, value) {
+
+        console.log("View Only")
+
+    }
+
+    LEDSpectrumSelection(led_data_type, color_channel, spectrum_type, value) {
+
+        console.log("View Only")
 
     }
 
@@ -162,26 +169,17 @@ class RecipeDetails extends Component {
                     this.setState({devices: responseJson["devices"]})
                     let standard_day = resultJson["recipe_json"]['environments']['standard_day']
                     let standard_night = resultJson["recipe_json"]['environments']['standard_night']
-
+                    console.log(standard_day)
                     let led_data = {
-                        'on_cool_white': standard_day['light_spectrum_nm_percent']['400-449'],
-                        'on_warm_white': standard_day['light_spectrum_nm_percent']['450-499'],
-                        'on_blue': standard_day['light_spectrum_nm_percent']['500-549'],
-                        'on_green': standard_day['light_spectrum_nm_percent']['550-599'],
-                        'on_red': standard_day['light_spectrum_nm_percent']['600-649'],
-                        'on_far_red': standard_day['light_spectrum_nm_percent']['650-699'],
                         'on_illumination_distance': standard_day['light_illumination_distance_cm'],
-                        'off_cool_white': standard_night['light_spectrum_nm_percent']['400-449'],
-                        'off_warm_white': standard_night['light_spectrum_nm_percent']['450-499'],
-                        'off_blue': standard_night['light_spectrum_nm_percent']['500-549'],
-                        'off_green': standard_night['light_spectrum_nm_percent']['550-599'],
-                        'off_red': standard_night['light_spectrum_nm_percent']['600-649'],
-                        'off_far_red': standard_night['light_spectrum_nm_percent']['650-699'],
+                        "off_selected_spectrum": standard_night["spectrum_key"],
+                        "on_selected_spectrum": standard_day["spectrum_key"],
                         'off_illumination_distance': standard_day['light_illumination_distance_cm']
-                    }
+                    };
                     this.setState({
                         led_panel_dac5578: led_data
                     })
+                    console.log(led_data, "FF")
                     var devs = [];                  // make array
                     devs = responseJson["devices"]; // assign array
                     if (devs.length > 0) {         // if we have devices
@@ -237,249 +235,17 @@ class RecipeDetails extends Component {
 
                         peripheral_html.push(<div className="row">
                                 <div className="col-md-6">
-                                    <div className="card led-stats-card">
-                                        <div className="card-block">
-                                            <h4 className="card-title "> Choose LED Spectrum for Standard Day </h4>
-                                            <div className="card-text">
-                                                <div className="graph">
-                                                    <div className="">
-                                                        <div className="row colors-row">
-                                                            <div className="col-md-4">
-                                                                <span>Cool White</span>
-                                                            </div>
-                                                            <div className="col-md-6">
-                                                                <Slider
-
-                                                                    min={0} max={100}
-                                                                    value={this.state['led_panel_dac5578']['on_cool_white']}
-                                                                    handle={handle}/>
-                                                            </div>
-                                                            <div className="col-md-2">
-                                                                {this.state['led_panel_dac5578']['on_cool_white']}
-                                                            </div>
-                                                        </div>
-
-                                                        <div className="row colors-row">
-                                                            <div className="col-md-4">
-                                                                <span>Warm White</span>
-                                                            </div>
-                                                            <div className="col-md-6">
-                                                                <Slider
-
-                                                                    min={0} max={100}
-                                                                    value={this.state['led_panel_dac5578']['on_warm_white']}
-                                                                    handle={handle}/>
-                                                            </div>
-                                                            <div className="col-md-2">
-                                                                {this.state['led_panel_dac5578']['on_warm_white']}
-                                                            </div>
-                                                        </div>
-                                                        <div className="row colors-row">
-                                                            <div className="col-md-4">
-                                                                <span>Blue</span>
-                                                            </div>
-                                                            <div className="col-md-6">
-                                                                <Slider
-
-                                                                    min={0} max={100}
-                                                                    value={this.state['led_panel_dac5578']['on_blue']}
-                                                                    handle={handle}/>
-                                                            </div>
-                                                            <div className="col-md-2">
-                                                                {this.state['led_panel_dac5578']['on_blue']}
-                                                            </div>
-                                                        </div>
-                                                        <div className="row colors-row">
-                                                            <div className="col-md-4">
-                                                                <span> Green </span>
-                                                            </div>
-                                                            <div className="col-md-6">
-                                                                <Slider
-
-                                                                    min={0} max={100}
-                                                                    value={this.state['led_panel_dac5578']['on_green']}
-                                                                    handle={handle}/>
-                                                            </div>
-                                                            <div className="col-md-2">
-                                                                {this.state['led_panel_dac5578']['on_green']}
-                                                            </div>
-                                                        </div>
-                                                        <div className="row colors-row">
-                                                            <div className="col-md-4">
-                                                                <span> Red</span>
-                                                            </div>
-                                                            <div className="col-md-6">
-                                                                <Slider
-
-                                                                    min={0} max={100}
-                                                                    value={this.state['led_panel_dac5578']['on_red']}
-                                                                    handle={handle}/>
-                                                            </div>
-                                                            <div className="col-md-2">
-                                                                {this.state['led_panel_dac5578']['on_red']}
-                                                            </div>
-                                                        </div>
-                                                        <div className="row colors-row">
-                                                            <div className="col-md-4">
-                                                                <span>Far Red</span>
-                                                            </div>
-                                                            <div className="col-md-6">
-                                                                <Slider
-
-                                                                    min={0} max={100}
-                                                                    value={this.state['led_panel_dac5578']['on_far_red']}
-                                                                    handle={handle}/>
-                                                            </div>
-                                                            <div className="col-md-2">
-                                                                {this.state['led_panel_dac5578']['on_far_red']}
-                                                            </div>
-                                                        </div>
-
-
-                                                    </div>
-
-
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="card-footer">
-                                            <div className="row">
-                                                <div className="col-md-4">
-                                                    <span>Illumination Distance (in <i>cm</i>)</span>
-                                                </div>
-                                                <div className="col-md-6">
-                                                    <Slider min={0} max={19}
-                                                            value={this.state['led_panel_dac5578']['on_illumination_distance']}
-                                                            handle={handle}/>
-                                                </div>
-                                                <div className="col-md-2">
-                                                    {this.state['led_panel_dac5578']['on_illumination_distance']} cm
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
+                                    <LEDSpectrumOptions led_panel_dac5578={this.state.led_panel_dac5578}
+                                                        onLEDPanelChange={(led_name, color_channel, value) => this.LEDPanelChange(led_name, color_channel, value)}
+                                                        onLEDSpectrumSelection={(led_data_type, color_channel, spectrum_type, value) => this.LEDSpectrumSelection(led_data_type, color_channel, spectrum_type, value)}
+                                                        title="LED Panel - ON" prefix="on"/>
                                 </div>
                                 <div className="col-md-6">
-                                    <div className="card led-stats-card">
-                                        <div className="card-block">
-                                            <h4 className="card-title "> Choose LED Spectrum for Standard Night </h4>
-                                            <div className="card-text">
-                                                <div className="graph">
-                                                    <div className="">
-                                                        <div className="row colors-row">
-                                                            <div className="col-md-4">
-                                                                <span>Cool White</span>
-                                                            </div>
-                                                            <div className="col-md-6">
-                                                                <Slider
+                                    <LEDSpectrumOptions led_panel_dac5578={this.state.led_panel_dac5578}
+                                                        onLEDPanelChange={(led_name, color_channel, value) => this.LEDPanelChange(led_name, color_channel, value)}
+                                                        onLEDSpectrumSelection={(led_data_type, color_channel, spectrum_type, value) => this.LEDSpectrumSelection(led_data_type, color_channel, spectrum_type, value)}
+                                                        title="LED Panel - OFF" prefix="off"/>
 
-                                                                    min={0} max={100}
-                                                                    value={this.state['led_panel_dac5578']['off_cool_white']}
-                                                                    handle={handle}/>
-                                                            </div>
-                                                            <div className="col-md-2">
-                                                                {this.state['led_panel_dac5578']['off_cool_white']}
-                                                            </div>
-                                                        </div>
-
-                                                        <div className="row colors-row">
-                                                            <div className="col-md-4">
-                                                                <span>Warm White</span>
-                                                            </div>
-                                                            <div className="col-md-6">
-                                                                <Slider
-
-                                                                    min={0} max={100}
-                                                                    value={this.state['led_panel_dac5578']['off_warm_white']}
-                                                                    handle={handle}/>
-                                                            </div>
-                                                            <div className="col-md-2">
-                                                                {this.state['led_panel_dac5578']['off_warm_white']}
-                                                            </div>
-                                                        </div>
-                                                        <div className="row colors-row">
-                                                            <div className="col-md-4">
-                                                                <span>Blue</span>
-                                                            </div>
-                                                            <div className="col-md-6">
-                                                                <Slider
-
-                                                                    min={0} max={100}
-                                                                    value={this.state['led_panel_dac5578']['off_blue']}
-                                                                    handle={handle}/>
-                                                            </div>
-                                                            <div className="col-md-2">
-                                                                {this.state['led_panel_dac5578']['off_blue']}
-                                                            </div>
-                                                        </div>
-                                                        <div className="row colors-row">
-                                                            <div className="col-md-4">
-                                                                <span> Green </span>
-                                                            </div>
-                                                            <div className="col-md-6">
-                                                                <Slider
-
-                                                                    min={0} max={100}
-                                                                    value={this.state['led_panel_dac5578']['off_green']}
-                                                                    handle={handle}/>
-                                                            </div>
-                                                            <div className="col-md-2">
-                                                                {this.state['led_panel_dac5578']['off_green']}
-                                                            </div>
-                                                        </div>
-                                                        <div className="row colors-row">
-                                                            <div className="col-md-4">
-                                                                <span> Red</span>
-                                                            </div>
-                                                            <div className="col-md-6">
-                                                                <Slider
-
-                                                                    min={0} max={100}
-                                                                    value={this.state['led_panel_dac5578']['off_red']}
-                                                                    handle={handle}/>
-                                                            </div>
-                                                            <div className="col-md-2">
-                                                                {this.state['led_panel_dac5578']['off_red']}
-                                                            </div>
-                                                        </div>
-                                                        <div className="row colors-row">
-                                                            <div className="col-md-4">
-                                                                <span>Far Red</span>
-                                                            </div>
-                                                            <div className="col-md-6">
-                                                                <Slider min={0} max={100}
-                                                                        value={this.state['led_panel_dac5578']['off_far_red']}
-                                                                        handle={handle}/>
-                                                            </div>
-                                                            <div className="col-md-2">
-                                                                {this.state['led_panel_dac5578']['off_far_red']}
-                                                            </div>
-                                                        </div>
-
-
-                                                    </div>
-
-
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="card-footer">
-                                            <div className="row">
-                                                <div className="col-md-4">
-                                                    <span>Illumination Distance (in <i>cm</i>)</span>
-                                                </div>
-                                                <div className="col-md-6">
-                                                    <Slider min={0} max={19}
-                                                            value={this.state['led_panel_dac5578']['off_illumination_distance']}
-                                                            handle={handle}/>
-                                                </div>
-                                                <div className="col-md-2">
-                                                    {this.state['led_panel_dac5578']['off_illumination_distance']} cm
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         )
@@ -497,14 +263,15 @@ class RecipeDetails extends Component {
                     </div>
                 </div>
                 <div className="row home-row">
-                    <div className="col-md-3 img-col">
-                        <img src={this.state.recipe_image}/>
+                    <div className="col-md-3">
+                        <img src={this.state.recipe_image} className="image-recipe" width="300"/>
                     </div>
 
                     <div className="col-md-9">
 
                         <div className="row card-row">
-                            <h3>{this.state.recipe_name} for {this.state.recipe_plant} </h3>
+                            <div className="col-md-12 "><h3>{this.state.recipe_name} for {this.state.recipe_plant} </h3>
+                            </div>
                         </div>
 
                         <div className="row card-row">
@@ -523,7 +290,7 @@ class RecipeDetails extends Component {
                         </div>
                         <div className="row card-row">
 
-                            <h3>Peripherals used in this climate recipe </h3>
+                            <div className="col-md-12 "><h3>Peripherals used in this climate recipe </h3></div>
 
                         </div>
                         <div className="row card-row">
@@ -540,7 +307,7 @@ class RecipeDetails extends Component {
                         </div>
                         <div className="row card-row">
 
-                            <h3>Parameters of the Climate Recipe </h3>
+                            <div className="col-md-12 "><h3>Parameters of the Climate Recipe </h3></div>
 
                         </div>
                         <div className="row card-row">
@@ -553,7 +320,7 @@ class RecipeDetails extends Component {
                             </div>
                         </div>
                         <div className="row card-row">
-                            <Button onClick={this.toggleApplyToDevice}>
+                            <Button onClick={this.toggleApplyToDevice} className="submit-recipe-button">
                                 Apply Recipe
                             </Button>
                         </div>
