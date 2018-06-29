@@ -6,6 +6,8 @@ import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Lab
 import {ImageUploader} from './components/image_uploader';
 import {CreateAccessCodeModal} from './components/create_access_code_modal.js';
 
+import * as api from './utils/api';
+
 class profile extends Component {
     constructor(props) {
         super(props);
@@ -15,18 +17,20 @@ class profile extends Component {
             get_devices_status: 'Loading',
             digit_modal: false,
             code: "",
-            profile_picture_url: ""
+            profile_picture_url: '',
+            username: '',
+            email_address: '',
+            organization: ''
         };
         this.getUserDevices = this.getUserDevices.bind(this);
-        this.getUserImage = this.getUserImage.bind(this);
         this.toggle_digit_modal = this.toggle_digit_modal.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.onImageUpload = this.onImageUpload.bind(this);
     }
 
     componentDidMount() {
-        this.getUserDevices()
-        this.getUserImage();
+        this.getUserDevices();
+        this.getUserInfo();
     }
 
     toggleAccessCodeModal = () => {
@@ -107,30 +111,15 @@ class profile extends Component {
             });
     }
 
-    getUserImage() {
-        fetch(process.env.REACT_APP_FLASK_URL + '/api/get_user_image/', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            body: JSON.stringify({
-                'user_token': this.props.cookies.get('user_token')
-            })
-        })
-            .then((response) => {
-                console.log(response);
-                return response.json();
-            })
-            .then((responseJson) => {
-                console.log(responseJson)
-                if (responseJson['response_code'] == 200) {
-                    this.setState({profile_picture_url: responseJson['url']})
-                }
-            })
-            .catch((error) => {
-                console.error(error);
+    getUserInfo = () => {
+        api.getUserInfo(this.props.cookies.get('user_token'))
+            .then(response => {
+                this.setState({
+                    profile_picture_url: response.profile_image,
+                    email_address: response.email_address,
+                    username: response.username,
+                    organization: response.organization
+                })
             });
     }
 
@@ -206,13 +195,13 @@ class profile extends Component {
                         <div className="row profile-row">
                             <div className="wrapper">
                                 <div className="row">
-                                    Manvitha Ponnapati
+                                    {this.state.username}
                                 </div>
                                 <div className="row">
-                                    manvitha@mit.edu
+                                    {this.state.email_address}
                                 </div>
                                 <div className="row">
-                                    OpenAg Initiative
+                                    {this.state.organization}
                                 </div>
                             </div>
                         </div>

@@ -26,3 +26,8 @@ export function unsaveRecipe(user_token, recipe_uuid) {
     const data = { user_token, recipe_uuid };
     return jsonRequest('/api/unsave_for_later/', data);
 }
+
+export function getUserInfo(user_token) {
+    const data = { user_token };
+    return jsonRequest('/api/get_user_info/', data);
+}

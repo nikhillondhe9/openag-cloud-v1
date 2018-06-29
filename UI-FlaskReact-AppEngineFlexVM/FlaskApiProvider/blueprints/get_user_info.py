@@ -5,12 +5,11 @@ from .utils.env_variables import datastore_client
 from .utils.response import success_response, error_response
 from .utils.auth import get_user_uuid_from_token
 
-get_user_image_bp = Blueprint('get_user_image_bp', __name__)
+get_user_info_bp = Blueprint('get_user_info_bp', __name__)
 
-@get_user_image_bp.route('/api/get_user_image/', methods=['POST'])
+@get_user_info_bp.route('/api/get_user_info/', methods=['POST'])
 def get_user_image():
-    print("Fetching user image")
-    received_form_response = json.loads(request.data.decode('utf-8'))
+    received_form_response = request.get_json()
 
     user_token = received_form_response.get("user_token")
     if user_token is None:
@@ -28,12 +27,9 @@ def get_user_image():
     query.add_filter('user_uuid', '=', user_uuid)
     user = list(query.fetch(1))[0]
 
-    image_url = user.get('profile_image')
-    if image_url is None:
-        return error_response(
-            message='No profile picture found.'
-        )
-
     return success_response(
-        url=image_url
+        profile_image=user.get('profile_image'),
+        username=user.get('username'),
+        email_address=user.get('email_address'),
+        organization=user.get('organization')
     )
