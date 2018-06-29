@@ -145,26 +145,54 @@ class DeviceHomepage extends Component {
             'on_cool_white': standard_day['light_spectrum_nm_percent']['400-449'],
             'on_warm_white': standard_day['light_spectrum_nm_percent']['450-499'],
             'on_blue': standard_day['light_spectrum_nm_percent']['500-549'],
-            'on_green': standard_day['light_spectrum_nm_percent']['550-599'],
+            'on_green': standard_day['light_spectrum_nm_percent']['550-559'],
             'on_red': standard_day['light_spectrum_nm_percent']['600-649'],
             'on_far_red': standard_day['light_spectrum_nm_percent']['650-699'],
-            'on_illumination_distance': standard_day['light_illumination_distance_cm'],
+            'on_illum_dist': standard_day['light_illumination_distance_cm'],
             'off_cool_white': standard_night['light_spectrum_nm_percent']['400-449'],
             'off_warm_white': standard_night['light_spectrum_nm_percent']['450-499'],
             'off_blue': standard_night['light_spectrum_nm_percent']['500-549'],
-            'off_green': standard_night['light_spectrum_nm_percent']['550-599'],
+            'off_green': standard_night['light_spectrum_nm_percent']['550-559'],
             'off_red': standard_night['light_spectrum_nm_percent']['600-649'],
             'off_far_red': standard_night['light_spectrum_nm_percent']['650-699'],
-            'off_illumination_distance': standard_day['light_illumination_distance_cm']
+            'off_illum_dist': standard_night['light_illumination_distance_cm']
         }
 
         let standard_day_duration = this.state.current_recipe["phases"][0]['cycles'][0]['duration_hours']
         let standard_night_duration = this.state.current_recipe["phases"][0]['cycles'][1]['duration_hours']
         this.setState({standard_day: standard_day_duration})
         this.setState({standard_night: standard_night_duration})
+
+        let spectrum_x = []
+        let value_y = []
+        Object.keys( led_data ).forEach( function(k) {
+            spectrum_x.push( k );
+            value_y.push( led_data[k] );
+        });
         this.setState({
-            led_panel_dac5578: led_data
-        })
+            'led_chart_data': [{
+                type: 'bar',
+                name: '',
+                x: spectrum_x,
+                y: value_y,
+                line: {color: '#ECAD48'}
+            }]
+        });
+
+        this.setState({
+            'led_layout': {
+                width: 650,
+                height: 520,
+                xaxis: {
+                    autorange: true,
+                    type: 'category'
+                },
+                yaxis: {
+                    autorange: true,
+                    type: 'linear'
+                }
+            }
+        });
     }
 
     timeonChange(data_type, value) {
@@ -965,9 +993,9 @@ class DeviceHomepage extends Component {
                     <div className="col-md-6">
                         <div className="card value-card">
                             <div className="card-block">
-                                <h4 className="card-title "> LED Panel History </h4>
+                                <h4 className="card-title "> LED Panel Details </h4>
                                 <div className="row plot-row" style={{display: 'block'}}>
-                                    <strong className="no-cursor"> <Plot data={this.state.led_data}
+                                    <strong className="no-cursor"> <Plot data={this.state.led_chart_data}
                                                                          layout={this.state.led_layout}
                                                                          onInitialized={(figure) => this.setState(figure)}
                                                                          onUpdate={(figure) => this.setState(figure)}
