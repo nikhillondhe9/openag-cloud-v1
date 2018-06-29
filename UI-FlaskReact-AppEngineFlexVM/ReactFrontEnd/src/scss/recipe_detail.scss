@@ -1,4 +1,7 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i');
+@import "global_variables";
 .recipe-detail-container {
+
   .recipe-details-text {
     margin-top: 10px;
     text-align: left;
@@ -60,6 +63,11 @@
     margin-top: 10px;
   }
 
+  .card-row
+  {
+    margin-top:10px;
+  }
+
   .label-row {
     text-decoration-color: white;
     padding: 10px;
@@ -70,46 +78,72 @@
     border-radius: 5px;
     color: white;
     font-size: 18px;
-
+    width:400px;
+    padding-left:10px;
   }
 
   .rounded-col:hover {
     font-size: 22px;
   }
 
-
   .field-row {
     padding: 12px;
   }
-  .field-col
-  {
-    padding:10px;
+  .field-col {
+    padding: 10px;
   }
 
-  .dropdown-type
-  {
-    width:250px;
+  .dropdown-type {
+    width: 250px;
   }
-  .dropdown-col
-  {
-    width:250px;
+  .dropdown-col {
+    width: 250px;
   }
-  .selection-col
-  {
-    text-align:left;
+  .selection-col {
+    text-align: left;
   }
 
-  .file-upload__input
-  {
-   background-color: #008BC2;
+  .file-upload__input {
+    background-color: #008BC2;
   }
 
-  .plant-type
-  {
-    width:200px;
+  .plant-type {
+    width: 200px;
   }
-  .plant-type-dropdowns
+  .plant-type-dropdowns {
+    padding-left: 20px;
+  }
+  .hidden-div {
+    visibility: hidden;
+  }
+  .visible-div {
+    visibility: visible;
+  }
+
+  .recipe-details-card {
+    padding: 20px;
+    margin-top: 10px;
+    .card-title {
+      padding-left: 20px;
+      font-family: 'Roboto', sans-serif;
+      font-weight: 400;
+      font-size: 1.5em;
+    }
+  }
+  .led-stats-card
   {
-    padding-left:20px;
+    .card-title{
+      padding-left: 20px;
+      padding-top: 10px;
+      font-family: 'Roboto', sans-serif;
+      font-weight: 400;
+      font-size: 1.5em;
+    }
+  ;
+  }
+  .submit-recipe-button.btn.btn-secondary
+  {
+    //background-color:$purple-color;
+    width:100%;
   }
 }

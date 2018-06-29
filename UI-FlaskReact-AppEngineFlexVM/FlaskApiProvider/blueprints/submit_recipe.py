@@ -1,4 +1,3 @@
-
 from flask import Blueprint
 from flask import request
 from google.cloud import datastore
@@ -13,19 +12,19 @@ submit_recipe_bp = Blueprint('submit_recipe', __name__)
 
 
 def get_existing_recipes(recipe_key):
-
+    print(recipe_key)
     if recipe_key == "flat":
-        spectrum_json ={'400-449': 18.41, '450-499': 18.41, '500-549': 14.86, '550-559':12.03, '600-649': 18.00, '650-699': 18.00}
+        spectrum_json = {"400-449": 16.67, "450-499": 16.67, "500-549": 16.67, "550-559": 16.67, "600-649": 16.17, "650-699": 16.67}
     elif recipe_key == "low_end":
         spectrum_json = {"400-449": 50.0, "450-499": 50.0, "500-549": 0.0, "550-559": 0.0, "600-649": 0.0, "650-699": 0.0}
     elif recipe_key == "mid_end":
-        spectrum_json = {"400-449": 25.0, "450-499":25.0, "500-549": 0.0, "550-559": 25.0, "600-649": 25.0, "650-699": 0.0}
+        spectrum_json =  {"400-449": 0, "450-499": 0, "500-549": 50.0, "550-559": 50.0, "600-649": 0, "650-699": 0}
     else:
-        spectrum_json = {"400-449": 0.0, "450-499": 0.0, "500-549": 0.0, "550-559": 0.0, "600-649": 50.0, "650-699": 50.0}
+        spectrum_json = {"400-449": 0.0, "450-499": 0.0, "500-549": 0.0, "550-559": 0.0, "600-649": 50.0,
+                         "650-699": 50.0}
 
-    print(spectrum_json)
-    print(ast.literal_eval(json.dumps(spectrum_json)))
     return ast.literal_eval(json.dumps(spectrum_json))
+
 
 
 # ------------------------------------------------------------------------------
@@ -43,7 +42,7 @@ def submit_recipe():
     key = datastore_client.key('Recipes')
     recipe_reg_task = datastore.Entity(key, exclude_from_indexes=["recipe"])
 
-#debugrob, this is also used in submit_recipe_change.py, put in common class!
+    # debugrob, this is also used in submit_recipe_change.py, put in common class!
     # Get user uuid associated with this sesssion token
     user_uuid = get_user_uuid_from_token(user_token)
     if user_uuid is None:
@@ -92,28 +91,31 @@ def submit_recipe():
     }]
     led_panel_dac5578 = (recipe_state.get("led_panel_dac5578", {}))
 
-    standard_day_led_spectrum = get_existing_recipes(recipe_key=led_panel_dac5578.get("on_selected_spectrum",""))
+    standard_day_led_spectrum = get_existing_recipes(recipe_key=led_panel_dac5578.get("on_selected_spectrum", ""))
     standard_night_led_spectrum = get_existing_recipes(recipe_key=led_panel_dac5578.get("off_selected_spectrum", ""))
     off_illumination_distance = led_panel_dac5578.get("off_illumination_distance", 5)
     on_illumination_distance = led_panel_dac5578.get("on_illumination_distance", 5)
 
     recipe_format["environments"]["standard_day"] = {
         "name": "Standard Day",
+        "spectrum_key":led_panel_dac5578.get("on_selected_spectrum", ""),
         "light_spectrum_nm_percent": standard_day_led_spectrum,
         "light_intensity_watts": 100,
         "light_illumination_distance_cm": on_illumination_distance,
         "air_temperature_celcius": 22
     }
-    print(standard_day_led_spectrum)
+
     recipe_format["environments"]["standard_night"] = {
         "name": "Standard Night",
+        "spectrum_key": led_panel_dac5578.get("off_selected_spectrum", ""),
         "light_spectrum_nm_percent": standard_night_led_spectrum,
         "light_intensity_watts": 100,
-        "light_illumination_distance_cm":off_illumination_distance ,
+        "light_illumination_distance_cm": off_illumination_distance,
         "air_temperature_celcius": 22
     }
     recipe_format["environments"]["cold_day"] = {
         "name": "Cold Day",
+        "spectrum_key": led_panel_dac5578.get("on_selected_spectrum", ""),
         "light_spectrum_nm_percent": standard_day_led_spectrum,
         "light_intensity_watts": 100,
         "light_illumination_distance_cm": on_illumination_distance,
@@ -121,6 +123,7 @@ def submit_recipe():
     }
     recipe_format["environments"]["frost_night"] = {
         "name": "Frost Night",
+        "spectrum_key": led_panel_dac5578.get("off_selected_spectrum", ""),
         "light_spectrum_nm_percent": standard_night_led_spectrum,
         "light_intensity_watts": 100,
         "light_illumination_distance_cm": off_illumination_distance,
@@ -213,7 +216,7 @@ def submit_recipe():
 
     datastore_client.put(apply_to_device_task)
 
-    #convert the values in the dict into what the Jbrain expects
+    # convert the values in the dict into what the Jbrain expects
     commands_list = convert_UI_recipe_to_commands(current_recipe_uuid, recipe_format)
     send_recipe_to_device_via_IoT(iot_client, device_uuid, commands_list)
 

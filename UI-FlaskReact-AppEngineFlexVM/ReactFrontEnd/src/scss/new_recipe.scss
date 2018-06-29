@@ -1,0 +1,144 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i');
+@import "global_variables";
+.new-recipe-container {
+
+  .recipe-details-text {
+    margin-top: 10px;
+    text-align: left;
+    width: 100%;
+  }
+
+  .details-container {
+    width: 80%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .input-row {
+    padding-top: 10px;
+  }
+
+  textarea {
+    padding: 10px;
+  }
+
+  .row.dropdown-row {
+    padding-left: 13px;
+  }
+
+  .button-col {
+    width: 180px;
+    height: 180px;
+    text-align: center;
+    color: #F7F3F3;
+    background-color: #008BC2;
+    border-radius: 20px;
+    padding: 10px;
+    margin-left: 10px;
+  }
+
+  .centered-image {
+    width: 80px;
+    height: 80px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 5px;
+  }
+
+  .button-row {
+    padding-left: 30px;
+  }
+
+  .text-row-bottom {
+    padding-top: 15px;
+  }
+
+  .input-modal-row {
+    margin-left: 25px;
+  }
+
+  .submit-recipe-button {
+    margin-top: 10px;
+  }
+
+  .label-row {
+    text-decoration-color: white;
+    padding: 10px;
+
+  }
+
+  .rounded-col {
+    border-radius: 5px;
+    color: white;
+    font-size: 18px;
+    width:400px;
+    padding-left:10px;
+  }
+
+  .rounded-col:hover {
+    font-size: 22px;
+  }
+
+  .field-row {
+    padding: 12px;
+  }
+  .field-col {
+    padding: 10px;
+  }
+
+  .dropdown-type {
+    width: 250px;
+  }
+  .dropdown-col {
+    width: 250px;
+  }
+  .selection-col {
+    text-align: left;
+  }
+
+  .file-upload__input {
+    background-color: #008BC2;
+  }
+
+  .plant-type {
+    width: 200px;
+  }
+  .plant-type-dropdowns {
+    padding-left: 20px;
+  }
+  .hidden-div {
+    visibility: hidden;
+  }
+  .visible-div {
+    visibility: visible;
+  }
+
+  .recipe-details-card {
+    padding: 20px;
+    margin-top: 10px;
+    .card-title {
+      padding-left: 20px;
+      font-family: 'Roboto', sans-serif;
+      font-weight: 400;
+      font-size: 1.5em;
+    }
+  }
+  .led-stats-card
+  {
+    .card-title{
+      padding-left: 20px;
+      padding-top: 10px;
+      font-family: 'Roboto', sans-serif;
+      font-weight: 400;
+      font-size: 1.5em;
+    }
+  ;
+  }
+  .submit-recipe-button.btn.btn-secondary
+  {
+    //background-color:$purple-color;
+    width:100%;
+  }
+}
