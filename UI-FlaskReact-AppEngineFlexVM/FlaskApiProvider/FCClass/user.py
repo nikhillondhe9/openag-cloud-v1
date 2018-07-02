@@ -39,6 +39,6 @@ class User:
         # if the user exists then veriify password and return the uuid of the user
         if len(query_result) == 1:
             if pbkdf2_sha256.verify(self.password, query_result[0]['password']):
-                return query_result[0]['user_uuid']
+                return query_result[0]['user_uuid'],query_result[0]['is_admin']
 
 

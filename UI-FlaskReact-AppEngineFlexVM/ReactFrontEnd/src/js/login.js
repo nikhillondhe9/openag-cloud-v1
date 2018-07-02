@@ -92,6 +92,7 @@ class login extends Component {
                 if (responseJson["response_code"]== 200){
                     let user_uuid = responseJson["user_uuid"]
                     this.props.cookies.set('user_token',responseJson['user_token'])
+                    this.props.cookies.set('is_admin',responseJson['is_admin'])
                     window.location.href = "/home/"+(user_uuid).toString()
                 } else {
                     let error_message = responseJson["message"]

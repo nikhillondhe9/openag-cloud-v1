@@ -228,7 +228,9 @@ class recipes extends Component {
     }
 
     render() {
-        let listRecipes = <p>Loading</p>
+        let listRecipes = []
+
+
         let recipes = [];
         if (this.state.all_recipes.size) {
             switch (this.state.filter_recipe_button_state) {
@@ -244,7 +246,28 @@ class recipes extends Component {
                     recipes = [...this.state.all_recipes.values()]
             }
 
-            listRecipes = recipes.map((recipe) =>
+            if (this.props.cookies.get('is_admin') === 'true') {
+                listRecipes.push(<div className="card recipe-card">
+                    {/*<img className="recipe-image" src="http://via.placeholder.com/200x200"/>*/}
+                    <div className="card-body">
+                        <h5 className="card-title">New Recipe</h5>
+                        <h6 className="card-subtitle mb-2 text-muted"></h6>
+                        <div className="card-text">Use this template recipe to create your custom
+                            recipes
+                        </div>
+                    </div>
+                    <div className="card-footer">
+                        <Button
+                            onClick={this.editRecipe.bind(this, '0')}
+                            className="button-card-link"
+                        >
+                            Create Recipe
+                        </Button>
+                    </div>
+                </div>)
+            }
+
+            listRecipes.push(recipes.map((recipe) =>
                 <RecipeCard
                     key={recipe.recipe_uuid}
                     recipe={recipe}
@@ -252,7 +275,8 @@ class recipes extends Component {
                     onSaveRecipe={this.onSaveRecipe}
                     onUnsaveRecipe={this.onUnsaveRecipe}
                 />
-            );
+            ));
+
         }
         return (
             <Router>
@@ -286,24 +310,7 @@ class recipes extends Component {
                         </ButtonGroup>
                     </div>
                     <div className="recipe-cards">
-                        <div className="card recipe-card">
-                            {/*<img className="recipe-image" src="http://via.placeholder.com/200x200"/>*/}
-                            <div className="card-body">
-                                <h5 className="card-title">New Recipe</h5>
-                                <h6 className="card-subtitle mb-2 text-muted"></h6>
-                                <div className="card-text">Use this template recipe to create your custom
-                                    recipes
-                                </div>
-                            </div>
-                            <div className="card-footer">
-                                <Button
-                                    onClick={this.editRecipe.bind(this, '0')}
-                                    className="button-card-link"
-                                >
-                                    Create Recipe
-                                </Button>
-                            </div>
-                        </div>
+
                         {listRecipes}
                     </div>
 
