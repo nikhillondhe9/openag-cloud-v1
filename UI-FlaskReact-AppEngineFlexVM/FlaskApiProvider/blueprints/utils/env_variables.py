@@ -131,7 +131,6 @@ def send_recipe_to_device_via_IoT(iot_client, device_id, commands_list):
     configs = devices.configVersions().list(name=device_path
                                             ).execute().get('deviceConfigs', [])
 
-    print("MEEEEE")
     latestVersion = 1  # the first / default version
     if 0 < len(configs):
         latestVersion = configs[0].get('version')
