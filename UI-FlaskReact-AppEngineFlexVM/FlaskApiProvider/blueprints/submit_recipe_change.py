@@ -194,7 +194,7 @@ def submit_recipe_change():
         'date_expires': date_applied + timedelta(days=3000),
         "recipe_uuid": current_recipe_uuid,
         "user_uuid": user_uuid,
-        "recipe_state": str(recipe_state),
+        "recipe_state": str(recipe_format),
         "updated_at": datetime.now()
     })
 
