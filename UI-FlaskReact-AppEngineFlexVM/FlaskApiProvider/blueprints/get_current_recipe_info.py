@@ -1,6 +1,6 @@
 import json
 from flask import Blueprint, request
-from datetime import datetime, timezone
+from datetime import datetime, timedelta
 
 from .utils.env_variables import datastore_client
 from .utils.response import success_response, error_response
