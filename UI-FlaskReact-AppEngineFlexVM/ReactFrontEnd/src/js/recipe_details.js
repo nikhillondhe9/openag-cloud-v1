@@ -130,6 +130,7 @@ class RecipeDetails extends Component {
             this.props.cookies.get('user_token'),
             this.state.selected_device_uuid
         ).then(response => {
+
             // If is running recipe
             if (!response.expired) {
                 this.toggleApplyToDevice();

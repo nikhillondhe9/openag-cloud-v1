@@ -47,7 +47,7 @@ def apply_recipe_to_device():
 
     key = datastore_client.key('DeviceHistory')
     # Indexes every other column except the description
-    apply_to_device_task = datastore.Entity(key, exclude_from_indexes=[])
+    apply_to_device_task = datastore.Entity(key, exclude_from_indexes=['recipe_state'])
     date_applied = datetime.now()
     recipe_session_token = str(uuid.uuid4())
     apply_to_device_task.update({
@@ -57,25 +57,12 @@ def apply_recipe_to_device():
         'recipe_uuid': recipe_uuid,
         'date_applied': date_applied,
         'date_expires': date_applied + timedelta(days=3000),
-        'user_uuid': user_uuid
+        'user_uuid': user_uuid,
+        "recipe_state": str(recipe_json)
     })
 
-    # Add a new recipe history record to indicate an event for when you applied this recipe to this device
-    key = datastore_client.key('RecipeHistory')
-    device_reg_task = datastore.Entity(key, exclude_from_indexes=["recipe_state"])
-    device_reg_task.update({
-        "device_uuid": device_uuid,
-        "recipe_uuid": recipe_uuid,
-        "user_uuid": user_uuid,
-        "recipe_session_token": str(uuid.uuid4()),
-        "recipe_state": str(recipe_json),
-        "updated_at": datetime.now()
-    })
-
-    datastore_client.put(device_reg_task)
 
     datastore_client.put(apply_to_device_task)
-
 
     # convert the values in the dict into what the Jbrain expects
     commands_list = convert_UI_recipe_to_commands(recipe_uuid, recipe_json)

@@ -84,8 +84,8 @@ class DeviceHomepage extends Component {
             led_panel_dac5578: {
                 'on_illumination_distance': 5,
                 'off_illumination_distance': 5,
-                'off_selected_spectrum':"flat",
-                "on_selected_spectrum":"flat"
+                'off_selected_spectrum': "flat",
+                "on_selected_spectrum": "flat"
             },
             temp_data_x: [],
             temp_data_y: [],
@@ -140,15 +140,18 @@ class DeviceHomepage extends Component {
 
     setLEDStates() {
 
-        let standard_day = this.state.current_recipe['environments']['standard_day']
-        let standard_night = this.state.current_recipe['environments']['standard_night']
-
+        let standard_day =  this.state.current_recipe["recipe_json"]['environments']['standard_day']
+        let standard_night =  this.state.current_recipe["recipe_json"]['environments']['standard_night']
+        console.log(standard_day)
         let led_data = {
-                        'on_illumination_distance': standard_day['light_illumination_distance_cm'],
-                        "off_selected_spectrum": standard_night["spectrum_key"],
-                        "on_selected_spectrum": standard_day["spectrum_key"],
-                        'off_illumination_distance': standard_day['light_illumination_distance_cm']
-                    };
+            'on_illumination_distance': standard_day['light_illumination_distance_cm'],
+            "off_selected_spectrum": standard_night["spectrum_key"],
+            "on_selected_spectrum": standard_day["spectrum_key"],
+            'off_illumination_distance': standard_day['light_illumination_distance_cm']
+        };
+        this.setState({
+            led_panel_dac5578: led_data
+        })
 
         let standard_day_duration = this.state.current_recipe["phases"][0]['cycles'][0]['duration_hours']
         let standard_night_duration = this.state.current_recipe["phases"][0]['cycles'][1]['duration_hours']
@@ -157,9 +160,9 @@ class DeviceHomepage extends Component {
 
         let spectrum_x = []
         let value_y = []
-        Object.keys( led_data ).forEach( function(k) {
-            spectrum_x.push( k );
-            value_y.push( led_data[k] );
+        Object.keys(led_data).forEach(function (k) {
+            spectrum_x.push(k);
+            value_y.push(led_data[k]);
         });
         this.setState({
             'led_chart_data': [{
@@ -274,8 +277,8 @@ class DeviceHomepage extends Component {
                 console.error(error);
             });
     }
-     LEDSpectrumSelection(led_data_type, color_channel, spectrum_type,value)
-    {
+
+    LEDSpectrumSelection(led_data_type, color_channel, spectrum_type, value) {
 
         if (led_data_type === "led_panel_dac5578") {
             let color_json = this.state['led_panel_dac5578'];
@@ -284,6 +287,7 @@ class DeviceHomepage extends Component {
             console.log(this.state.led_panel_dac5578)
         }
     }
+
     modalToggle() {
         this.setState({
             modal: !this.state.modal
@@ -841,21 +845,21 @@ class DeviceHomepage extends Component {
                     {/*</Draggable>*/}
                 </div>
 
-               <div className="row graphs-row">
-                                <div className="col-md-6">
-                                    <LEDSpectrumOptions led_panel_dac5578={this.state.led_panel_dac5578}
-                                                  onLEDPanelChange={(led_name, color_channel, value) => this.LEDPanelChange(led_name, color_channel, value)}
-                                                  onLEDSpectrumSelection={(led_data_type, color_channel, spectrum_type,value) => this.LEDSpectrumSelection(led_data_type, color_channel, spectrum_type,value)}
-                                                        title="LED Panel - ON" prefix="on"/>
-                                </div>
-                                <div className="col-md-6">
-                                    <LEDSpectrumOptions led_panel_dac5578={this.state.led_panel_dac5578}
-                                                  onLEDPanelChange={(led_name, color_channel, value) => this.LEDPanelChange(led_name, color_channel, value)}
-                                                  onLEDSpectrumSelection={(led_data_type, color_channel, spectrum_type,value) => this.LEDSpectrumSelection(led_data_type, color_channel, spectrum_type,value)}
-                                                  title="LED Panel - OFF" prefix="off"/>
+                <div className="row graphs-row">
+                    <div className="col-md-6">
+                        <LEDSpectrumOptions led_panel_dac5578={this.state.led_panel_dac5578}
+                                            onLEDPanelChange={(led_name, color_channel, value) => this.LEDPanelChange(led_name, color_channel, value)}
+                                            onLEDSpectrumSelection={(led_data_type, color_channel, spectrum_type, value) => this.LEDSpectrumSelection(led_data_type, color_channel, spectrum_type, value)}
+                                            title="LED Panel - ON" prefix="on"/>
+                    </div>
+                    <div className="col-md-6">
+                        <LEDSpectrumOptions led_panel_dac5578={this.state.led_panel_dac5578}
+                                            onLEDPanelChange={(led_name, color_channel, value) => this.LEDPanelChange(led_name, color_channel, value)}
+                                            onLEDSpectrumSelection={(led_data_type, color_channel, spectrum_type, value) => this.LEDSpectrumSelection(led_data_type, color_channel, spectrum_type, value)}
+                                            title="LED Panel - OFF" prefix="off"/>
 
-                                </div>
-                            </div>
+                    </div>
+                </div>
                 <div className="row graphs-row">
                     {/*<Draggable cancel="strong">*/}
                     <div className="col-md-6">

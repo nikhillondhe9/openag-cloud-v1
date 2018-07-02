@@ -30,9 +30,9 @@ def get_current_recipe_info():
                                    order=['-date_applied'])
     query.add_filter('device_uuid', '=', device_uuid)
     query_result = list(query.fetch(1))
-    if not query_result:
-        return error_response(
-            message='No recipe running on your device.'
+    if len(query_result) == 0:
+        return success_response(
+            expired=True
         )
 
     current_recipe = query_result[0]

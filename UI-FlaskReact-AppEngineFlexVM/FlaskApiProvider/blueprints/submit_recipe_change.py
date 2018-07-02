@@ -8,7 +8,7 @@ import ast
 from .utils.env_variables import *
 from .utils.response import success_response, error_response
 from .utils.auth import get_user_uuid_from_token
-
+from datetime import timedelta,datetime
 submit_recipe_change_bp = Blueprint('submit_recipe_change_bp',__name__)
 
 def get_existing_recipes(recipe_key):
@@ -37,10 +37,6 @@ def submit_recipe_change():
     recipe_state = received_form_response.get("recipe_state", {})
     user_token = received_form_response.get("user_token", "")
     device_uuid = received_form_response.get("device_uuid", "")
-
-    recipe_session_token = received_form_response.get("recipe_session_token", "")
-    key = datastore_client.key('RecipeHistory')
-    device_reg_task = datastore.Entity(key, exclude_from_indexes=['recipe_state'])
 
 #debugrob, this is copied from submit_recipe.py, put in common class!
     # Get user uuid associated with this sesssion token
@@ -185,16 +181,24 @@ def submit_recipe_change():
 
     recipe_format["uuid"] = current_recipe_uuid
 
-    device_reg_task.update({
+    # Add the user to the users kind of entity
+    key = datastore_client.key('DeviceHistory')
+
+    # Indexes every other column except the description
+    device_history_reg_task = datastore.Entity(key, exclude_from_indexes=['recipe_state'])
+
+    date_applied = datetime.now()
+    device_history_reg_task.update({
         "device_uuid": device_uuid,
+        'date_applied': date_applied,
+        'date_expires': date_applied + timedelta(days=3000),
         "recipe_uuid": current_recipe_uuid,
         "user_uuid": user_uuid,
-        "recipe_session_token": recipe_session_token,
         "recipe_state": str(recipe_state),
         "updated_at": datetime.now()
     })
 
-    datastore_client.put(device_reg_task)
+    datastore_client.put(device_history_reg_task)
 
     # convert the values in the dict into what the Jbrain expects
     commands_list = convert_UI_recipe_to_commands(current_recipe_uuid,

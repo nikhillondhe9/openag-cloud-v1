@@ -14,22 +14,13 @@ def get_current_recipe():
     received_form_response = json.loads(request.data.decode('utf-8'))
     device_uuid = received_form_response.get("selected_device_uuid", None)
 
-    #Get all user devices
-    query = datastore_client.query(kind='DeviceHistory')
+    query = datastore_client.query(kind='DeviceHistory',
+                                   order=['-date_applied'])
     query.add_filter('device_uuid', '=', device_uuid)
-    query_result = list(query.fetch())
+    query_result = list(query.fetch(1))
+    if not query_result:
+        return error_response(
+            message='No recipe running on your device.'
+        )
 
-    recipe_state = {}
-    if len(query_result) > 0:
-
-        recipe_uuid = query_result[0]['recipe_uuid']
-        recipe_state_query = datastore_client.query(kind='RecipeHistory')
-        recipe_state_query.add_filter("recipe_uuid","=",recipe_uuid)
-        recipe_results = list(recipe_state_query.fetch())
-        print(recipe_results)
-        if len(recipe_results) > 0:
-            recipe_state = ast.literal_eval(recipe_results[0]['recipe_state'])
-
-    return success_response(
-        results=recipe_state
-    )
+    print(query_result[0])

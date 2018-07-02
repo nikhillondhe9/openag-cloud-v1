@@ -184,7 +184,7 @@ def submit_recipe():
     key = datastore_client.key('DeviceHistory')
 
     # Indexes every other column except the description
-    apply_to_device_task = datastore.Entity(key, exclude_from_indexes=[])
+    apply_to_device_task = datastore.Entity(key, exclude_from_indexes=['recipe_state'])
 
     if device_uuid is None or current_recipe_uuid is None or user_token is None:
         return error_response(
@@ -192,30 +192,15 @@ def submit_recipe():
         )
 
     date_applied = datetime.now()
-    recipe_session_token = str(uuid.uuid4())
     apply_to_device_task.update({
-        'recipe_session_token': recipe_session_token,
         # Used to track the recipe applied to the device and modifications made to it.
         'device_uuid': device_uuid,
         'recipe_uuid': current_recipe_uuid,
         'date_applied': date_applied,
         'date_expires': date_applied + timedelta(days=3000),
-        'user_uuid': user_uuid
+        'user_uuid': user_uuid,
+        "recipe_state": str(recipe_format)
     })
-
-    # Add a new recipe history record to indicate an event for when you applied this recipe to this device
-    key = datastore_client.key('RecipeHistory')
-    device_reg_task = datastore.Entity(key, exclude_from_indexes=["recipe_state"])
-    device_reg_task.update({
-        "device_uuid": device_uuid,
-        "recipe_uuid": current_recipe_uuid,
-        "user_uuid": user_uuid,
-        "recipe_session_token": str(uuid.uuid4()),
-        "recipe_state": str(recipe_format),
-        "updated_at": datetime.now()
-    })
-
-    datastore_client.put(device_reg_task)
 
     datastore_client.put(apply_to_device_task)
 
