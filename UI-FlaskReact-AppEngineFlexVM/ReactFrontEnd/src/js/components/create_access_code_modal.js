@@ -9,6 +9,8 @@ import {
     Button
 } from 'reactstrap';
 
+import '../../scss/components/create_access_code_modal.scss';
+
 /**
  * CreateAccessCodeModal
  *
