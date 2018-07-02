@@ -1,7 +1,7 @@
 import json
 from flask import Blueprint, request
 from datetime import datetime
-from pytz import timezone
+import pytz
 from .utils.env_variables import datastore_client
 from .utils.response import success_response, error_response
 from .utils.auth import get_user_uuid_from_token
@@ -36,7 +36,7 @@ def get_current_recipe_info():
         )
 
     current_recipe = query_result[0]
-    expired = current_recipe['date_expires'] < datetime.now(timezone.utc)
+    expired = current_recipe['date_expires'] < datetime.now(pytz.utc)
     runtime = get_runtime_description(current_recipe['date_applied'])
     plant_type = get_recipe_plant_type(current_recipe['recipe_uuid'])
 
@@ -54,7 +54,7 @@ def get_current_recipe_info():
 
 def get_runtime_description(date_applied):
     """Returns recipe runtime in human readable form"""
-    time_passed = datetime.now(timezone.utc) - date_applied
+    time_passed = datetime.now(pytz.utc) - date_applied
 
     description = []
     days_passed = time_passed.days
