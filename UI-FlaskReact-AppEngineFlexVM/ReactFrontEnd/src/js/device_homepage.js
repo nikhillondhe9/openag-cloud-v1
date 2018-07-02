@@ -140,8 +140,8 @@ class DeviceHomepage extends Component {
 
     setLEDStates() {
 
-        let standard_day =  this.state.current_recipe["recipe_json"]['environments']['standard_day']
-        let standard_night =  this.state.current_recipe["recipe_json"]['environments']['standard_night']
+        let standard_day =  this.state.current_recipe['environments']['standard_day']
+        let standard_night =  this.state.current_recipe['environments']['standard_night']
         console.log(standard_day)
         let led_data = {
             'on_illumination_distance': standard_day['light_illumination_distance_cm'],

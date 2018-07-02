@@ -23,4 +23,10 @@ def get_current_recipe():
             message='No recipe running on your device.'
         )
 
-    print(query_result[0])
+    recipe_state = {}
+    if len(query_result) > 0:
+        recipe_state = ast.literal_eval(query_result[0]['recipe_state'])
+
+    return success_response(
+        results=recipe_state
+    )
