@@ -1,6 +1,6 @@
 service: flaskapi
 runtime: python
-env: standard
+env: flex
 api_version: 1
 threadsafe: true
 runtime_config:
