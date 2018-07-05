@@ -113,7 +113,8 @@ class DeviceHomepage extends Component {
             apply_confirmation_modal: false,
             changes: {},
             control_level: 'view',
-            current_recipe: {}
+            current_recipe: {},
+            edit_mode:false
         };
         this.child = {
             console: Console
@@ -136,12 +137,16 @@ class DeviceHomepage extends Component {
         this.getRecipeOnDevice = this.getRecipeOnDevice.bind(this);
         this.setLEDStates = this.setLEDStates.bind(this);
         this.LEDSpectrumSelection = this.LEDSpectrumSelection.bind(this);
+        this.toggleEditMode = this.toggleEditMode.bind(this)
     }
-
+    toggleEditMode()
+    {
+        this.setState({edit_mode:true})
+    }
     setLEDStates() {
 
-        let standard_day =  this.state.current_recipe['environments']['standard_day']
-        let standard_night =  this.state.current_recipe['environments']['standard_night']
+        let standard_day = this.state.current_recipe['environments']['standard_day']
+        let standard_night = this.state.current_recipe['environments']['standard_night']
         console.log(standard_day)
         let led_data = {
             'on_illumination_distance': standard_day['light_illumination_distance_cm'],
@@ -775,7 +780,7 @@ class DeviceHomepage extends Component {
 
             <div className="device-homepage-container">
                 <div className="row dropdown-row">
-                    <div className="col-md-8">
+                    <div className="col-md-4">
                         <DevicesDropdown
                             devices={[...this.state.user_devices.values()]}
                             selectedDevice={this.state.selected_device}
@@ -784,14 +789,25 @@ class DeviceHomepage extends Component {
                             onAddAccessCode={this.toggleAccessCodeModal}
                         />
                     </div>
+                    <div className="col-md-4">
+Turn on Edit Mode:
+<label class="button-toggle-wrap" onClick={this.toggleEditMode}>
+  <input class="toggler" type="checkbox" data-toggle="button-toggle"/>
+  <div class="button-toggle">
+    <div class="handle">
+      <div class="bars"></div>
+    </div>
+  </div>
+</label>
+                    </div>
                     <div className="col-md-2">
                         <button className="apply-button btn btn-secondary" onClick={this.downloadCSV}>Download as CSV
                         </button>
                     </div>
                     <div className="col-md-2">
-                        <button className="apply-button btn btn-secondary" onClick={this.checkApply}>
+                         { this.state.edit_mode ? <button className="apply-button btn btn-secondary" onClick={this.checkApply}>
                             Apply Changes
-                        </button>
+                        </button> :null}
                     </div>
                 </div>
                 <div className="row graphs-row">
@@ -845,79 +861,7 @@ class DeviceHomepage extends Component {
                     {/*</Draggable>*/}
                 </div>
 
-                <div className="row graphs-row">
-                    <div className="col-md-6">
-                        <LEDSpectrumOptions led_panel_dac5578={this.state.led_panel_dac5578}
-                                            onLEDPanelChange={(led_name, color_channel, value) => this.LEDPanelChange(led_name, color_channel, value)}
-                                            onLEDSpectrumSelection={(led_data_type, color_channel, spectrum_type, value) => this.LEDSpectrumSelection(led_data_type, color_channel, spectrum_type, value)}
-                                            title="LED Panel - ON" prefix="on"/>
-                    </div>
-                    <div className="col-md-6">
-                        <LEDSpectrumOptions led_panel_dac5578={this.state.led_panel_dac5578}
-                                            onLEDPanelChange={(led_name, color_channel, value) => this.LEDPanelChange(led_name, color_channel, value)}
-                                            onLEDSpectrumSelection={(led_data_type, color_channel, spectrum_type, value) => this.LEDSpectrumSelection(led_data_type, color_channel, spectrum_type, value)}
-                                            title="LED Panel - OFF" prefix="off"/>
 
-                    </div>
-                </div>
-                <div className="row graphs-row">
-                    {/*<Draggable cancel="strong">*/}
-                    <div className="col-md-6">
-                        <div className="card environment-card">
-                            <div className="card-block">
-                                <h4 className="card-title "> Standard Day</h4>
-                                <div className="card-text">
-                                    <div className="graph">
-                                        <strong className="no-cursor">
-
-                                            <span className="txt_smaller"></span>
-                                            <div className="knob_data">
-                                                <input type="text" className="recipe-details-text"
-                                                       placeholder="" id="standard_day" value={this.state.standard_day}
-                                                       name="standard_day" onChange={this.sensorOnChange}/>
-                                            </div>
-                                            <span className="txt_smaller">hours</span>
-
-                                        </strong>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    {/*</Draggable>*/}
-                    {/*<Draggable cancel="strong">*/}
-                    <div className="col-md-6">
-                        <div className="card environment-card">
-                            <div className="card-block">
-                                <h4 className="card-title "> Standard Night </h4>
-                                <div className="card-text">
-                                    <div className="graph">
-
-                                        <strong className="no-cursor">
-
-                                            <span className="txt_smaller"></span>
-                                            <div className="knob_data">
-                                                <input type="number" className="recipe-details-text"
-                                                       placeholder=""
-                                                       id="standard_night" name="standard_night"
-                                                       value={this.state.standard_night}/>
-                                            </div>
-                                            <span className="txt_smaller">hours</span>
-
-                                        </strong>
-                                    </div>
-
-
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    {/*</Draggable>*/}
-                </div>
                 <div className="row graphs-row">
                     {/*<Draggable cancel="strong">*/}
                     <div className="col-md-6">
@@ -993,6 +937,82 @@ class DeviceHomepage extends Component {
                     </div>
                     {/*</Draggable>*/}
                 </div>
+                 { this.state.edit_mode ? <div className="edit-container">
+                <div className="row graphs-row">
+                    <div className="col-md-6">
+                        <LEDSpectrumOptions led_panel_dac5578={this.state.led_panel_dac5578}
+                                            onLEDPanelChange={(led_name, color_channel, value) => this.LEDPanelChange(led_name, color_channel, value)}
+                                            onLEDSpectrumSelection={(led_data_type, color_channel, spectrum_type, value) => this.LEDSpectrumSelection(led_data_type, color_channel, spectrum_type, value)}
+                                            title="LED Panel - ON" prefix="on"/>
+                    </div>
+                    <div className="col-md-6">
+                        <LEDSpectrumOptions led_panel_dac5578={this.state.led_panel_dac5578}
+                                            onLEDPanelChange={(led_name, color_channel, value) => this.LEDPanelChange(led_name, color_channel, value)}
+                                            onLEDSpectrumSelection={(led_data_type, color_channel, spectrum_type, value) => this.LEDSpectrumSelection(led_data_type, color_channel, spectrum_type, value)}
+                                            title="LED Panel - OFF" prefix="off"/>
+
+                    </div>
+                </div>
+                <div className="row graphs-row">
+                    {/*<Draggable cancel="strong">*/}
+                    <div className="col-md-6">
+                        <div className="card environment-card">
+                            <div className="card-block">
+                                <h4 className="card-title "> Standard Day</h4>
+                                <div className="card-text">
+                                    <div className="graph">
+                                        <strong className="no-cursor">
+
+                                            <span className="txt_smaller"></span>
+                                            <div className="knob_data">
+                                                <input type="text" className="recipe-details-text"
+                                                       placeholder="" id="standard_day" value={this.state.standard_day}
+                                                       name="standard_day" onChange={this.sensorOnChange}/>
+                                            </div>
+                                            <span className="txt_smaller">hours</span>
+
+                                        </strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    {/*</Draggable>*/}
+                    {/*<Draggable cancel="strong">*/}
+                    <div className="col-md-6">
+                        <div className="card environment-card">
+                            <div className="card-block">
+                                <h4 className="card-title "> Standard Night </h4>
+                                <div className="card-text">
+                                    <div className="graph">
+
+                                        <strong className="no-cursor">
+
+                                            <span className="txt_smaller"></span>
+                                            <div className="knob_data">
+                                                <input type="number" className="recipe-details-text"
+                                                       placeholder=""
+                                                       id="standard_night" name="standard_night"
+                                                       value={this.state.standard_night}/>
+                                            </div>
+                                            <span className="txt_smaller">hours</span>
+
+                                        </strong>
+                                    </div>
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    {/*</Draggable>*/}
+                </div>
+                </div> : null }
+
                 <AddDeviceModal
                     isOpen={this.state.add_device_modal}
                     toggle={this.toggleDeviceModal}
