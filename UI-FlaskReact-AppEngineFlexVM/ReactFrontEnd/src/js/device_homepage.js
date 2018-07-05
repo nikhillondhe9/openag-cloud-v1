@@ -805,9 +805,9 @@ Turn on Edit Mode:
                         </button>
                     </div>
                     <div className="col-md-2">
-                         { this.state.edit_mode ? <button className="apply-button btn btn-secondary" onClick={this.checkApply}>
+                         { this.state.edit_mode?<button className="apply-button btn btn-secondary" onClick={this.checkApply}>
                             Apply Changes
-                        </button> :null}
+                        </button>:null}
                     </div>
                 </div>
                 <div className="row graphs-row">
@@ -938,6 +938,7 @@ Turn on Edit Mode:
                     {/*</Draggable>*/}
                 </div>
                  { this.state.edit_mode ? <div className="edit-container">
+                     Edit Climate Recipe
                 <div className="row graphs-row">
                     <div className="col-md-6">
                         <LEDSpectrumOptions led_panel_dac5578={this.state.led_panel_dac5578}

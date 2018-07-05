@@ -20,17 +20,33 @@ class profile extends Component {
             profile_picture_url: '',
             username: '',
             email_address: '',
-            organization: ''
+            organization: '',
+            edit_profile: false
         };
         this.getUserDevices = this.getUserDevices.bind(this);
         this.toggle_digit_modal = this.toggle_digit_modal.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.onImageUpload = this.onImageUpload.bind(this);
+        this.toggleEditProfile = this.toggleEditProfile.bind(this)
+        this.inputChange = this.inputChange.bind(this)
+        this.saveUserProfile = this.saveUserProfile.bind(this);
     }
 
     componentDidMount() {
         this.getUserDevices();
         this.getUserInfo();
+    }
+
+    inputChange(event) {
+        this.setState({
+            [event.target.name]: event.target.value
+        });
+        event.preventDefault();
+
+    }
+
+    toggleEditProfile() {
+        this.setState({edit_profile: !this.state.edit_profile})
     }
 
     toggleAccessCodeModal = () => {
@@ -83,6 +99,35 @@ class profile extends Component {
             });
     }
 
+    saveUserProfile() {
+        this.setState({edit_profile: !this.state.edit_profile})
+        window.location.reload()
+        // return fetch(process.env.REACT_APP_FLASK_URL + '/api/save_user_profile_changes/', {
+        //     method: 'POST',
+        //     headers: {
+        //         'Accept': 'application/json',
+        //         'Content-Type': 'application/json',
+        //         'Access-Control-Allow-Origin': '*'
+        //     },
+        //     body: JSON.stringify({
+        //         'user_uuid': this.state.user_uuid,
+        //         'user_token': this.props.cookies.get('user_token'),
+        //         'username':this.state.username,
+        //         'email_address':this.state.email_address,
+        //         'organization':this.state.organization
+        //     })
+        // })
+        //     .then((response) => response.json())
+        //     .then((responseJson) => {
+        //         console.log(responseJson)
+        //         this.setState({edit_profile:!this.state.edit_profile})
+        //     })
+        //     .catch((error) => {
+        //         console.error(error);
+        //     });
+
+    }
+
     getUserDevices() {
         return fetch(process.env.REACT_APP_FLASK_URL + '/api/get_user_devices/', {
             method: 'POST',
@@ -123,14 +168,13 @@ class profile extends Component {
             });
     }
 
-    handleChange(group_name,event) {
-        if(group_name==="device_permissions") {
+    handleChange(group_name, event) {
+        if (group_name === "device_permissions") {
             console.log(event.target.name)
             this.setState({[event.target.name]: event.target.checked});
             event.preventDefault();
         }
-        else
-        {
+        else {
             this.setState({[event.target.name]: event.target.value});
             event.preventDefault();
         }
@@ -164,12 +208,14 @@ class profile extends Component {
                                                                       name={'view_' + device.device_uuid}
                                                                       id={'view_' + device.device_uuid}
                                                                       checked={this.state['view_' + device.device_uuid]}
-                                                                      onChange={this.handleChange.bind(this,"device_permissions")}/></div>
+                                                                      onChange={this.handleChange.bind(this, "device_permissions")}/>
+                    </div>
                     <div className="col-md-2 col-center-label"><Input type="checkbox" aria-label="Control"
                                                                       name={'control_' + device.device_uuid}
                                                                       id={'control_' + device.device_uuid}
                                                                       checked={this.state['control_' + device.device_uuid]}
-                                                                      onChange={this.handleChange.bind(this,"device_permissions")}/></div>
+                                                                      onChange={this.handleChange.bind(this, "device_permissions")}/>
+                    </div>
                 </div>
             });
         }
@@ -193,7 +239,25 @@ class profile extends Component {
                             </div>
                         </div>
                         <div className="row profile-row">
-                            <div className="wrapper">
+                            {this.state.edit_profile ?
+                                <Button className="save-button" onClick={this.saveUserProfile}>Save</Button> :
+                                <Button className="edit-button" onClick={this.toggleEditProfile}>Edit</Button>}
+                        </div>
+                        <div className="row profile-row">
+                            {this.state.edit_profile ? <div className="wrapper">
+                                <div className="row">
+                                    Username : <input className="profile-input" value={this.state.username}
+                                                      name="username" onChange={this.inputChange}/>
+                                </div>
+                                <div className="row">
+                                    Email Address: <input className="profile-input" value={this.state.email_address}
+                                                          name="email_address" onChange={this.inputChange}/>
+                                </div>
+                                <div className="row">
+                                    Organization: <input className="profile-input" value={this.state.organization}
+                                                         name="organization" onChange={this.inputChange}/>
+                                </div>
+                            </div> : <div className="wrapper">
                                 <div className="row">
                                     {this.state.username}
                                 </div>
@@ -203,7 +267,8 @@ class profile extends Component {
                                 <div className="row">
                                     {this.state.organization}
                                 </div>
-                            </div>
+                            </div>}
+
                         </div>
 
                     </div>
