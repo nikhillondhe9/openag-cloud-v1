@@ -1,5 +1,6 @@
 import React from 'react';
-import { Input } from 'reactstrap';
+import { Button, Input } from 'reactstrap';
+import "../../scss/components/image_uploader.scss";
 
 /**
  * ImageUploader
@@ -40,12 +41,15 @@ export class ImageUploader extends React.PureComponent {
 
     render() {
         return (
-            <Input
-                type="file"
-                name="file"
-                onChange={this.uploadImage}
-                accept="image/*"
-                {...this.props} />
+            <Button className="image-uploader">
+                Edit
+                <Input
+                    type="file"
+                    name="file"
+                    onChange={this.uploadImage}
+                    accept="image/*"
+                    {...this.props} />
+            </Button>
         );
     }
 

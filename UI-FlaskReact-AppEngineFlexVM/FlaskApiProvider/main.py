@@ -45,7 +45,6 @@ app.register_blueprint(get_device_images.get_device_images_bp)
 app.register_blueprint(get_current_recipe.get_current_recipe_bp)
 app.register_blueprint(apply_recipe_to_device.apply_recipe_to_device_bp)
 
-# Remove this later - Only use it for testing purposes. Not safe to leave it here
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 CORS(app)
 

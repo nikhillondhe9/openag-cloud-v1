@@ -458,7 +458,7 @@ class NewRecipe extends Component {
                                 <div className="card-body">
                                     <div className="row">
 
-                                        <div className="col-md-4">
+                                        <div className="col-md-4 recipe-image-upload">
                                             <img width="200" src={this.state.image_url}/>
                                             <ImageUploader
                                                 url={process.env.REACT_APP_FLASK_URL + "/api/upload_images/"}
@@ -476,7 +476,6 @@ class NewRecipe extends Component {
                                                       id="recipe_description" name="recipe_description"
                                                       onChange={this.sensorOnChange}/>
                                             <div className="row plant-type-dropdowns">
-
                                                 <div className="plant-type"><Dropdown
                                                     isOpen={this.state.plant_variant_dropdown_toggle}
                                                     toggle={this.plant_variant_type_dropdowntoggle}
