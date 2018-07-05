@@ -21,7 +21,8 @@ class profile extends Component {
             username: '',
             email_address: '',
             organization: '',
-            edit_profile: false
+            edit_profile: false,
+            twitter_hashtag:'OpenAgPFCEDU2018'
         };
         this.getUserDevices = this.getUserDevices.bind(this);
         this.toggle_digit_modal = this.toggle_digit_modal.bind(this);
@@ -257,6 +258,10 @@ class profile extends Component {
                                     Organization: <input className="profile-input" value={this.state.organization}
                                                          name="organization" onChange={this.inputChange}/>
                                 </div>
+                                <div className="row">
+                                    Twitter Hashtag: <input className="profile-input" value={this.state.twitter_hashtag}
+                                                         name="twitter_hashtag" onChange={this.inputChange}/>
+                                </div>
                             </div> : <div className="wrapper">
                                 <div className="row">
                                     {this.state.username}
@@ -266,6 +271,9 @@ class profile extends Component {
                                 </div>
                                 <div className="row">
                                     {this.state.organization}
+                                </div>
+                                  <div className="row">
+                                    {this.state.twitter_hashtag}
                                 </div>
                             </div>}
 
