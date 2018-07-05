@@ -141,7 +141,7 @@ class DeviceHomepage extends Component {
     }
     toggleEditMode()
     {
-        this.setState({edit_mode:true})
+        this.setState({edit_mode:!this.state.edit_mode})
     }
     setLEDStates() {
 
@@ -791,9 +791,9 @@ class DeviceHomepage extends Component {
                     </div>
                     <div className="col-md-4">
 Turn on Edit Mode:
-<label class="button-toggle-wrap" onClick={this.toggleEditMode}>
+<label class="button-toggle-wrap" >
   <input class="toggler" type="checkbox" data-toggle="button-toggle"/>
-  <div class="button-toggle">
+  <div class="button-toggle" onClick={this.toggleEditMode}>
     <div class="handle">
       <div class="bars"></div>
     </div>
