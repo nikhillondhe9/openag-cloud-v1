@@ -27,11 +27,10 @@ def save_user_profile_changes():
     query.add_filter('user_uuid', '=', user_uuid)
     user = list(query.fetch(1))[0]
 
-    key = datastore_client.key('Users', user_uuid)
-    user_entity = datastore_client.get(key)
-    user.email_address = received_form_response.get("email_address",user.email_address)
-    user.username = received_form_response.get("username", user.username)
-    user.organization = received_form_response.get("organization", user.organization)
+    user['email_address'] = received_form_response.get("email_address",user['email_address'])
+    user['username'] = received_form_response.get("username", user['username'])
+    user['organization'] = received_form_response.get("organization", user['organization'])
+
 
     datastore_client.put(user)
 

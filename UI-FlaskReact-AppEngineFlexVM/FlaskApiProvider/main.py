@@ -9,7 +9,7 @@ from blueprints import (
     get_plant_types, save_recipe, submit_recipe_change, verify_user_session,
     user_authenticate, upload_images, get_user_info, get_device_peripherals,
     submit_access_code,get_current_recipe, get_device_images,
-    get_current_recipe_info, save_recipe_for_later,apply_recipe_to_device
+    get_current_recipe_info, save_recipe_for_later,apply_recipe_to_device,save_user_profile_changes
 )
 
 app = Flask(__name__)
@@ -44,7 +44,7 @@ app.register_blueprint(submit_access_code.submit_access_code_bp)
 app.register_blueprint(get_device_images.get_device_images_bp)
 app.register_blueprint(get_current_recipe.get_current_recipe_bp)
 app.register_blueprint(apply_recipe_to_device.apply_recipe_to_device_bp)
-
+app.register_blueprint(save_user_profile_changes.save_user_profile_bp)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 CORS(app)
 

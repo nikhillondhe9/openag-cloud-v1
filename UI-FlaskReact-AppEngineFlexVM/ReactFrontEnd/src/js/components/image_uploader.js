@@ -42,7 +42,7 @@ export class ImageUploader extends React.PureComponent {
     render() {
         return (
             <Button className="image-uploader">
-                Edit
+                Change Picture
                 <Input
                     type="file"
                     name="file"

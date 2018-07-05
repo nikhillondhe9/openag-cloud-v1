@@ -22,7 +22,7 @@ class profile extends Component {
             email_address: '',
             organization: '',
             edit_profile: false,
-            twitter_hashtag:'OpenAgPFCEDU2018'
+            twitter_hashtag: 'OpenAgPFCEDU2018'
         };
         this.getUserDevices = this.getUserDevices.bind(this);
         this.toggle_digit_modal = this.toggle_digit_modal.bind(this);
@@ -101,31 +101,30 @@ class profile extends Component {
     }
 
     saveUserProfile() {
-        this.setState({edit_profile: !this.state.edit_profile})
-        window.location.reload()
-        // return fetch(process.env.REACT_APP_FLASK_URL + '/api/save_user_profile_changes/', {
-        //     method: 'POST',
-        //     headers: {
-        //         'Accept': 'application/json',
-        //         'Content-Type': 'application/json',
-        //         'Access-Control-Allow-Origin': '*'
-        //     },
-        //     body: JSON.stringify({
-        //         'user_uuid': this.state.user_uuid,
-        //         'user_token': this.props.cookies.get('user_token'),
-        //         'username':this.state.username,
-        //         'email_address':this.state.email_address,
-        //         'organization':this.state.organization
-        //     })
-        // })
-        //     .then((response) => response.json())
-        //     .then((responseJson) => {
-        //         console.log(responseJson)
-        //         this.setState({edit_profile:!this.state.edit_profile})
-        //     })
-        //     .catch((error) => {
-        //         console.error(error);
-        //     });
+
+        return fetch(process.env.REACT_APP_FLASK_URL + '/api/save_user_profile_changes/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({
+                'user_uuid': this.state.user_uuid,
+                'user_token': this.props.cookies.get('user_token'),
+                'username': this.state.username,
+                'email_address': this.state.email_address,
+                'organization': this.state.organization
+            })
+        })
+            .then((response) => response.json())
+            .then((responseJson) => {
+                this.setState({edit_profile: !this.state.edit_profile})
+                window.location.reload()
+            })
+            .catch((error) => {
+                console.error(error);
+            });
 
     }
 
@@ -240,9 +239,14 @@ class profile extends Component {
                             </div>
                         </div>
                         <div className="row profile-row">
-                            {this.state.edit_profile ?
-                                <Button className="save-button" onClick={this.saveUserProfile}>Save</Button> :
-                                <Button className="edit-button" onClick={this.toggleEditProfile}>Edit</Button>}
+                            <div className="col-md-4"></div>
+                            <div className="col-md-4">
+                                {this.state.edit_profile ?
+                                    <Button className="save-button" onClick={this.saveUserProfile}>Save</Button> :
+                                    <Button className="edit-button" onClick={this.toggleEditProfile}>Edit
+                                        Profile</Button>}
+                            </div>
+                            <div className="col-md-4"></div>
                         </div>
                         <div className="row profile-row">
                             {this.state.edit_profile ? <div className="wrapper">
@@ -260,7 +264,7 @@ class profile extends Component {
                                 </div>
                                 <div className="row">
                                     Twitter Hashtag: <input className="profile-input" value={this.state.twitter_hashtag}
-                                                         name="twitter_hashtag" onChange={this.inputChange}/>
+                                                            name="twitter_hashtag" onChange={this.inputChange}/>
                                 </div>
                             </div> : <div className="wrapper">
                                 <div className="row">
@@ -272,7 +276,7 @@ class profile extends Component {
                                 <div className="row">
                                     {this.state.organization}
                                 </div>
-                                  <div className="row">
+                                <div className="row">
                                     {this.state.twitter_hashtag}
                                 </div>
                             </div>}
