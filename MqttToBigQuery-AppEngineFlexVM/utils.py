@@ -33,6 +33,11 @@ totalChunks_KEY = 'totalChunks'
 imageChunk_KEY = 'imageChunk'
 messageID_KEY = 'messageID'
 
+# keys for datastore Devices entity
+DS_Devices_KEY = 'Devices'
+DS_env_vars_KEY = 'env_vars'
+DS_env_vars_MAX_size = 1000 # maximum number of values in each env. var list
+
 
 #------------------------------------------------------------------------------
 def validDictKey( d, key ):
@@ -74,18 +79,18 @@ def makeBQEnvVarRowList( valueDict, deviceId, rowsList, idKey ):
         logging.error('makeBQEnvVarRowList: Missing key(s) in dict.')
         return
 
-    varName =   valueDict[ var_KEY ]
-    values =    valueDict[ values_KEY ]
+    varName = valueDict[ var_KEY ]
+    values = valueDict[ values_KEY ]
 
     # clean / scrub / check the values.  
-    deviceId =  deviceId.replace( '~', '' ) 
-    varName =   varName.replace( '~', '' ) 
+    deviceId = deviceId.replace( '~', '' ) 
+    varName = varName.replace( '~', '' ) 
 
     # NEW ID format:  <KEY>~<valName>~<created UTC TS>~<deviceId>
     ID = idKey + '~{}~{}~' + deviceId
 
     row = ( ID.format( varName, 
-        time.strftime( '%Y-%m-%dT%H:%M:%SZ', time.gmtime() )), # id column
+        time.strftime( '%FT%XZ', time.gmtime() )), # id column
         values ) # values column (no X or Y)
 
     rowsList.append( row )
@@ -140,7 +145,7 @@ def saveFileInCloudStorage( CS, varName, imageType, imageBytes,
 
     bucket = CS.bucket( CS_BUCKET )
     filename = '{}_{}_{}.{}'.format( deviceId, varName,
-        time.strftime( '%Y-%m-%dT%H:%M:%SZ', time.gmtime() ), imageType )
+        time.strftime( '%FT%XZ', time.gmtime() ), imageType )
     blob = bucket.blob( filename )
 
     content_type = 'image/{}'.format( imageType )
@@ -152,11 +157,12 @@ def saveFileInCloudStorage( CS, varName, imageType, imageBytes,
 
 
 #------------------------------------------------------------------------------
-# Save the URL as an entity in the datastore, so the UI can fetch it.
+# Save the URL to an image in cloud storage, as an entity in the datastore, 
+# so the UI can fetch it for display / time lapse.
 def saveImageURLtoDatastore( DS, deviceId, publicURL, cameraName ):
     key = DS.key( 'Images' )
     image = datastore.Entity( key, exclude_from_indexes=[] )
-    cd = time.strftime( '%Y-%m-%dT%H:%M:%SZ', time.gmtime())
+    cd = time.strftime( '%FT%XZ', time.gmtime())
     # Don't use a dict, the strings will be assumed to be "blob" and will be
     # shown as base64 in the console.
     # Use the Entity like a dict to get proper strings.
@@ -170,7 +176,7 @@ def saveImageURLtoDatastore( DS, deviceId, publicURL, cameraName ):
 
 
 #------------------------------------------------------------------------------
-# Save the URL as an entity in the datastore, so the UI can fetch it.
+# Save a partial b64 chunk of an image to a cache in the datastore.
 def saveImageChunkToDatastore( DS, deviceId, messageId, varName, imageType, \
         chunkNum, totalChunks, imageChunk ):
     key = DS.key( 'MqttServiceCache' )
@@ -319,13 +325,13 @@ def save_image( CS, DS, BQ, pydict, deviceId, PROJECT, DATASET, TABLE, \
 
         # Put the URL as an env. var in BQ.
         message_obj = {}
-        message_obj['messageType'] = messageType_Image
-        message_obj['var'] = varName
+        message_obj[ messageType_KEY ] = messageType_Image
+        message_obj[ var_KEY ] = varName
         valuesJson = "{'values':["
         valuesJson += "{'name':'URL', 'type':'str', 'value':'%s'}" % \
                             ( publicURL )
         valuesJson += "]}"
-        message_obj['values'] = valuesJson
+        message_obj[ values_KEY ] = valuesJson
         bq_data_insert( BQ, message_obj, deviceId, PROJECT, DATASET, TABLE )
 
 
@@ -336,7 +342,65 @@ def save_image( CS, DS, BQ, pydict, deviceId, PROJECT, DATASET, TABLE, \
 
 
 #------------------------------------------------------------------------------
-# Parse and save the (json/dict) data
+# Save a bounded list of the recent values of each env. var. to the Device
+# that produced them - for UI display / charting.
+def save_data_to_Device( DS, pydict, deviceId ):
+    try:
+        if messageType_EnvVar != validateMessageType( pydict ):
+            logging.error( "save_data_to_Device: invalid message type" )
+            return
+
+        # each received EnvVar type message must have these fields
+        if not validDictKey( pydict, var_KEY ) or \
+            not validDictKey( pydict, values_KEY ):
+            logging.error('save_data_to_Device: Missing key(s) in dict.')
+            return
+        varName = pydict[ var_KEY ]
+        values = pydict[ values_KEY ]
+
+        # add timestamp to this value, for UI display in charts if needed
+        values['timestamp'] = time.strftime( '%FT%XZ', time.gmtime())
+
+        # find this device in the datastore (if it exists)
+        query = DS.query( kind=DS_Devices_KEY )
+        query.add_filter( 'deviceId', '=', deviceId )
+        qiter = list( query.fetch( 1 ))
+        if not qiter:
+            logging.error('save_data_to_Device: deviceId {} not found ' \
+                    'in Devices'.format( deviceId ))
+            return
+        device = qiter[0] # should only be one result/row/device
+
+#debugrob: how to I specify that this (perhaps new) property on the entity should NOT be indexed?
+        # keep a dict of all var names, with a list of values
+        env_vars = device.get( DS_env_vars_KEY, {} )
+        valuesList = []
+        if varName in env_vars:
+            valuesList = env_vars[ varName ]
+
+        # put this value at the front of the list
+        valuesList.insert( 0, values )
+        # cap max size of list
+        while len( valuesList ) > DS_env_vars_MAX_size:
+            valuesList.pop() # remove last item in list
+
+        # update the dict
+        env_vars[ varName ] = valuesList 
+
+        # save the dict back to the Device entity in the datastore
+        DS.put( device )  
+        logging.info( "save_data_to_Device: saved list of {}".format( varName ))
+
+    except Exception as e:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        logging.critical( "Exception in save_data_to_Device(): %s" % e)
+        traceback.print_tb( exc_traceback, file=sys.stdout )
+
+
+#------------------------------------------------------------------------------
+# This method is the entry point for all day sent to our service, once 
+# the message type is validated.
+# Parse and save the (json/dict) data to the appropriate place.
 def save_data( CS, DS, BQ, pydict, deviceId, \
         PROJECT, DATASET, TABLE, CS_BUCKET ):
 
@@ -345,7 +409,11 @@ def save_data( CS, DS, BQ, pydict, deviceId, \
                 CS_BUCKET )
         return 
 
-    # insert into BQ (Env vars and command replies)
+    # Save the most recent data as properties on the Device entity in the
+    # datastore.
+    save_data_to_Device( DS, pydict, deviceId )
+
+    # Also insert into BQ (Env vars and command replies)
     bq_data_insert( BQ, pydict, deviceId, PROJECT, DATASET, TABLE )
 
 
@@ -370,7 +438,7 @@ def bq_data_insert( BQ, pydict, deviceId, PROJECT, DATASET, TABLE ):
         response = BQ.insert_rows( table, rows_to_insert )
         logging.info( 'bq response: {}'.format( response ))
 
-#debugrob: I need to look up the the user by deviceId, and find their openag flag (or role), to know the correct DATASET to write to.
+#debugrob: I need to look up the the User in the Datastore by deviceId, and find their openag flag (or role), to know the correct DATASET to write to.
 
         return True
 

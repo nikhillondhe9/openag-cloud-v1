@@ -29,7 +29,7 @@ signal.signal( signal.SIGINT, signal_handler )
 
 
 #------------------------------------------------------------------------------
-# This callback is called for each message we receive.
+# This callback is called for each PubSub/IoT message we receive.
 # We acknowledge the message, then validate and act on it if valid.
 def callback( msg ):
     try:

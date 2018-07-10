@@ -100,7 +100,9 @@ LIMIT 1"""
 
 
 #------------------------------------------------------------------------------
-# There is one replaceable {} parameter for device_id in this query:
+# There are two replaceable {} parameters in this query:
+# PlaceHolderForPeripheralType and PlaceHolderForDeviceUUID
+#debugrob: this appears to be unused.
 fetch_peripheral_history = """#standardsql
 SELECT
 FORMAT_TIMESTAMP( '%c', TIMESTAMP( REGEXP_EXTRACT(id, r'(?:[^\~]*\~){2}([^~]*)')), 'America/New_York') as eastern_time,
