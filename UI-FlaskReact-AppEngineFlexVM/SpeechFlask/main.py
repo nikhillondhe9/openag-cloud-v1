@@ -359,7 +359,7 @@ def share_headlines():
 
 @ask.intent("TurnLightsBlue")
 def turn_blue():
-    device_id = "EDU-3A7BB95F-38-d2-69-7b-8f-da"
+    device_id = "EDU-2B97073C-50-65-83-e7-9f-52"
     recipe_format = {
         "format": "openag-phased-environment-v1",
         "version": "2",
@@ -494,7 +494,7 @@ def turn_blue():
 
 @ask.intent("TurnLightsGreen")
 def turn_green():
-    device_id = "EDU-3A7BB95F-38-d2-69-7b-8f-da"
+    device_id = "EDU-2B97073C-50-65-83-e7-9f-52"
     recipe_format = {
         "format": "openag-phased-environment-v1",
         "version": "2",

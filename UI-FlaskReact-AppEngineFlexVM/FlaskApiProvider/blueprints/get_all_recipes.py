@@ -1,12 +1,76 @@
 from flask import Blueprint
 from flask import request
-
+from flask import Response
+import json
+from flask import request
+from google.cloud import bigquery
+from queries import queries
 from .utils.auth import get_user_uuid_from_token
 from .utils.env_variables import *
 from .utils.response import success_response, error_response
 from . import utils
-
+import ast
 get_all_recipes_bp = Blueprint('get_all_recipes', __name__)
+
+@get_all_recipes_bp.route('/api/alexa', methods=['GET', 'POST'])
+def alexa():
+    device_uuid = "EDU-184DFDB6-50-65-83-d3-38-eb"
+
+    if device_uuid is None:
+        device_uuid = 'None'
+
+    # NOTE: you must use a NEW QueryJobConfig for each query, or you will get
+    # this error: google.api_core.exceptions.BadRequest: 400 Cannot explicitly modify anonymous table
+    job_config = bigquery.QueryJobConfig()
+    job_config.use_legacy_sql = False
+    query_str = queries.formatQuery(
+        queries.fetch_current_co2_value, device_uuid)
+    query_job = bigquery_client.query(query_str, job_config=job_config)
+    query_result = query_job.result()
+    result_json = {}
+    for row in list(query_result):
+        values_json = (ast.literal_eval(row[1]))
+        if "values" in values_json:
+            values = values_json["values"]
+            result_json["current_co2"] = \
+                "{0:.2f}".format(float(values[0]['value']))
+
+    # use a NEW QueryJobConfig for each query!
+    job_config = bigquery.QueryJobConfig()
+    job_config.use_legacy_sql = False
+    query_str = queries.formatQuery(
+        queries.fetch_current_temperature_value, device_uuid)
+    query_job = bigquery_client.query(query_str, job_config=job_config)
+    query_result = query_job.result()
+    for row in list(query_result):
+        values_json = (ast.literal_eval(row[1]))
+        # This depends on getting results in order, RH first, then temp.
+        if "values" in values_json:
+            values = values_json["values"]
+            result_json["current_temp"] = \
+                "{0:.2f}".format(float(values[0]['value']))
+
+    # use a NEW QueryJobConfig for each query!
+    job_config = bigquery.QueryJobConfig()
+    job_config.use_legacy_sql = False
+    query_str = queries.formatQuery(
+        queries.fetch_current_RH_value, device_uuid)
+    query_job = bigquery_client.query(query_str, job_config=job_config)
+    query_result = query_job.result()
+    for row in list(query_result):
+        values_json = (ast.literal_eval(row[1]))
+        # This depends on getting results in order, RH first, then temp.
+        if "values" in values_json:
+            values = values_json["values"]
+            result_json["current_rh"] = \
+                "{0:.2f}".format(float(values[0]['value']))
+
+    print(result_json)
+    data = json.dumps({
+        "test":"test"
+    })
+    return Response("Your current temperature is",200)
+
 
 
 @get_all_recipes_bp.route('/api/get_all_recipes/', methods=['GET', 'POST'])

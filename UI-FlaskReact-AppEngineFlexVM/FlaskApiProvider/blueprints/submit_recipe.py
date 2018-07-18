@@ -212,7 +212,7 @@ def submit_recipe():
     recipe_format["environments"]["standard_night"].pop('spectrum_key', None)
     recipe_format["environments"]["cold_day"].pop('spectrum_key', None)
     recipe_format["environments"]["frost_night"].pop('spectrum_key', None)
-
+    print(recipe_format)
     # convert the values in the dict into what the Jbrain expects
     commands_list = convert_UI_recipe_to_commands(current_recipe_uuid, 
             recipe_format)

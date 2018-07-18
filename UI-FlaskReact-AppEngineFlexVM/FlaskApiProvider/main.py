@@ -48,6 +48,31 @@ app.register_blueprint(save_user_profile_changes.save_user_profile_bp)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 CORS(app)
 
+from flask import Flask, render_template
+from flask_ask import Ask, statement,question
+
+app = Flask(__name__)
+ask = Ask(app, '/')
+
+@ask.launch
+def start_skill():
+    welcome_message = 'Hello there '
+    return question(welcome_message)
+
+@ask.intent('HelloIntent')
+def hello():
+    print("DFSG")
+    return statement("What are you doing manu")
+
+@ask.intent("YesIntent")
+def share_headlines():
+    statement("Okay fetching your device status")
+    return statement("Okay 2")
+
+
+@ask.intent("StatusIntent")
+def get_status():
+    return statement("The current temperature inside your food computer is 27 Celsius and Relative humidity is 40.0. Your carbon dioxide is 0.")
 # ------------------------------------------------------------------------------
 if __name__ == '__main__':
     # This is used when running locally. Gunicorn is used to run the
