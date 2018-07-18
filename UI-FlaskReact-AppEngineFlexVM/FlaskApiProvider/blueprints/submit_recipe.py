@@ -204,15 +204,6 @@ def submit_recipe():
 
     datastore_client.put(apply_to_device_task)
 
-    # This "spectrum_key" is used to display the recipe.
-    # We have to remove it from the recipe before we send it to
-    # the device.   The brain doesn't know what to do with it (not part of
-    # official recipe format).  
-    recipe_format["environments"]["standard_day"].pop('spectrum_key', None)
-    recipe_format["environments"]["standard_night"].pop('spectrum_key', None)
-    recipe_format["environments"]["cold_day"].pop('spectrum_key', None)
-    recipe_format["environments"]["frost_night"].pop('spectrum_key', None)
-
     # convert the values in the dict into what the Jbrain expects
     commands_list = convert_UI_recipe_to_commands(current_recipe_uuid, 
             recipe_format)
