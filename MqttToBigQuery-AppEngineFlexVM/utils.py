@@ -363,7 +363,7 @@ def save_data_to_Device( DS, pydict, deviceId ):
 
         # find this device in the datastore (if it exists)
         query = DS.query( kind=DS_Devices_KEY )
-        query.add_filter( 'deviceId', '=', deviceId )
+        query.add_filter( 'device_uuid', '=', deviceId )
         qiter = list( query.fetch( 1 ))
         if not qiter:
             logging.error('save_data_to_Device: deviceId {} not found ' \
@@ -371,7 +371,6 @@ def save_data_to_Device( DS, pydict, deviceId ):
             return
         device = qiter[0] # should only be one result/row/device
 
-#debugrob: how to I specify that this (perhaps new) property on the entity should NOT be indexed?
         # keep a dict of all var names, with a list of values
         env_vars = device.get( DS_env_vars_KEY, {} )
         valuesList = []
@@ -388,8 +387,11 @@ def save_data_to_Device( DS, pydict, deviceId ):
         env_vars[ varName ] = valuesList 
 
         # save the dict back to the Device entity in the datastore
+        device.exclude_from_indexes = DS_env_vars_KEY
+        device[ DS_env_vars_KEY ] = env_vars
         DS.put( device )  
         logging.info( "save_data_to_Device: saved list of {}".format( varName ))
+        logging.debug( 'save_data_to_Device: env_vars {}'.format( env_vars ))
 
     except Exception as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()

@@ -90,7 +90,6 @@ def main():
         exit( 1 )
 
     # instantiate the clients we need
-    PS = pubsub.SubscriberClient()
     global BQ 
     BQ = bigquery.Client()
 
@@ -101,6 +100,7 @@ def main():
     DS = datastore.Client( os.getenv('GCLOUD_PROJECT'))
 
     # the resource path for the topic 
+    PS = pubsub.SubscriberClient()
     subs_path = PS.subscription_path( os.getenv('GCLOUD_PROJECT'), 
                                       os.getenv('GCLOUD_DEV_EVENTS') )
 
