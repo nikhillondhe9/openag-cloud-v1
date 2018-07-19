@@ -49,7 +49,8 @@ def get_current_recipe_info():
     return success_response(
         expired=expired,
         runtime=runtime,
-        plant_type=plant_type
+        plant_type=plant_type,
+        recipe_uuid=current_recipe['uuid']
     )
 
 def get_runtime_description(date_applied):
