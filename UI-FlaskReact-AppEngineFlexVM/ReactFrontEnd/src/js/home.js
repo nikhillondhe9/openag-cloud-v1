@@ -93,7 +93,9 @@ class Home extends Component {
             this.props.cookies.get('user_token'),
             device_uuid
         ).then(response => {
+            console.log(response,"SS")
             this.setState({
+                current_recipe_uuid:response.uuid,
                 current_plant_type: response.plant_type,
                 current_recipe_runtime: response.runtime
             })
@@ -249,12 +251,6 @@ class Home extends Component {
             });
     }
 
-    goToDeviceHomePage(device_uuid) {
-        console.log(device_uuid, "UU")
-        if (device_uuid) {
-            window.location.href = "/device/" + device_uuid.toString();
-        }
-    }
 
     postToTwitter() {
         return fetch(process.env.REACT_APP_FLASK_URL + '/api/posttwitter/', {
@@ -298,6 +294,8 @@ class Home extends Component {
     }
 
     render() {
+        console.log(this.state.selected_device_uuid,"FDFD")
+        let gotohistory = "/recipe_history/"+this.state.selected_device_uuid+"/"+this.state.current_recipe_uuid;
         return (
             <Router>
                 <div className="home-container">
@@ -328,7 +326,7 @@ class Home extends Component {
                                 </p>
                             )}
                             <hr/>
-                            <p> <a href="#">See edits </a> to your recipes  </p>
+                            <p> <a href={gotohistory}>See edits </a> to your recipes  </p>
                             <hr/>
                             <p> Water needs refilling soon </p>
                         </div>
