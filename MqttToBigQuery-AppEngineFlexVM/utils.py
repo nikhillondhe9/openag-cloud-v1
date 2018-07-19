@@ -4,7 +4,7 @@
     writing data to BigQuery.
 """
 
-import os, time, logging, struct, sys, traceback, base64
+import os, time, logging, struct, sys, traceback, base64, ast
 from datetime import datetime
 from google.cloud import bigquery
 from google.cloud import datastore
@@ -36,7 +36,7 @@ messageID_KEY = 'messageID'
 # keys for datastore Devices entity
 DS_Devices_KEY = 'Devices'
 DS_env_vars_KEY = 'env_vars'
-DS_env_vars_MAX_size = 1000 # maximum number of values in each env. var list
+DS_env_vars_MAX_size = 100 # maximum number of values in each env. var list
 
 
 #------------------------------------------------------------------------------
@@ -347,7 +347,6 @@ def save_image( CS, DS, BQ, pydict, deviceId, PROJECT, DATASET, TABLE, \
 def save_data_to_Device( DS, pydict, deviceId ):
     try:
         if messageType_EnvVar != validateMessageType( pydict ):
-            logging.error( "save_data_to_Device: invalid message type" )
             return
 
         # each received EnvVar type message must have these fields
@@ -356,10 +355,11 @@ def save_data_to_Device( DS, pydict, deviceId ):
             logging.error('save_data_to_Device: Missing key(s) in dict.')
             return
         varName = pydict[ var_KEY ]
-        values = pydict[ values_KEY ]
+        values = ast.literal_eval( pydict[ values_KEY ] )
+        valueToSave = values['values'][0]
 
         # add timestamp to this value, for UI display in charts if needed
-        values['timestamp'] = time.strftime( '%FT%XZ', time.gmtime())
+        valueToSave['timestamp'] = time.strftime( '%FT%XZ', time.gmtime())
 
         # find this device in the datastore (if it exists)
         query = DS.query( kind=DS_Devices_KEY )
@@ -378,7 +378,7 @@ def save_data_to_Device( DS, pydict, deviceId ):
             valuesList = env_vars[ varName ]
 
         # put this value at the front of the list
-        valuesList.insert( 0, values )
+        valuesList.insert( 0, valueToSave )
         # cap max size of list
         while len( valuesList ) > DS_env_vars_MAX_size:
             valuesList.pop() # remove last item in list
@@ -390,8 +390,6 @@ def save_data_to_Device( DS, pydict, deviceId ):
         device.exclude_from_indexes = DS_env_vars_KEY
         device[ DS_env_vars_KEY ] = env_vars
         DS.put( device )  
-        logging.info( "save_data_to_Device: saved list of {}".format( varName ))
-        logging.debug( 'save_data_to_Device: env_vars {}'.format( env_vars ))
 
     except Exception as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()
