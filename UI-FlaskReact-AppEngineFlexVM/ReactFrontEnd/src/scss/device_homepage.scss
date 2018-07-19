@@ -197,7 +197,7 @@
   }
 
   .apply-button {
-    float:right;
+    width:100%;
   }
 
   .plot-row {
@@ -264,5 +264,13 @@ h1 {
 .toggler:checked + .button-toggle .handle {
   left: 57px;
 }
-
+.recipe-details-text
+{
+  border:0px;
+  border-bottom: 2px solid #000;
+}
+  .edit-text
+  {
+        font-size: 2em;
+  }
 }
