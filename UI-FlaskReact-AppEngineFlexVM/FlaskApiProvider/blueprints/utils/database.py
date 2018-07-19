@@ -156,12 +156,10 @@ def get_co2_history( device_uuid ):
     valuesList = env_vars[ DS_co2_KEY ]
     for val in valuesList:
         print('debugrob get_co2_history: val={}'.format(val))
-        values_json = (ast.literal_eval( val['values'] ))
-        print('debugrob get_co2_history: values_json={}'.format(values_json))
-        if "values" in values_json:
-            values = values_json["values"]
-            results.append( {'value': values[0]['value'], 
-                             'time': val['timestamp'] } )
+        ts = val['timestamp']
+        if isinstance( ts, bytes ):
+            ts = ts.decode( 'utf-8' )
+        results.append( {'value': val['value'], 'time': ts })
     print('debugrob get_co2_history: results={}'.format(results))
     return results
 
@@ -186,13 +184,8 @@ def get_led_panel_history( device_uuid ):
     valuesList = env_vars[ DS_led_KEY ]
     for val in valuesList:
         print('debugrob get_led_panel_history: val={}'.format(val))
-        values_json = (ast.literal_eval( val['values'] ))
-        print('debugrob get_led_panel_history: values_json={}'.format(values_json))
-        if "values" in values_json:
-            values = values_json["values"]
-            if len( values ) > 0:
-                led_json = values[0]['value']
-                results.append( led_json )
+        led_json = val['value']
+        results.append( led_json )
     print('debugrob get_led_panel_history: results={}'.format(results))
     return results
 
@@ -222,36 +215,28 @@ def get_temp_and_humidity_history( device_uuid ):
         return get_temp_and_humidity_history_from_BQ( device_uuid )
 
     # process the env_vars dict from the DS into the same format as BQ
-    results = []
 
     # Get temp values
-    valuesList = env_vars[ DS_temp_KEY ]
-    for val in valuesList:
-        print('debugrob get_temp_and_humidity_history: temp val={}'.format(val))
-        values_json = (ast.literal_eval( val['values'] ))
-        print('debugrob get_temp_and_humidity_history: temp values_json={}'.format(values_json))
-        if "values" in values_json:
-            values = values_json["values"]
-            if len( values ) > 0:
-                results["temp"].append(
-                    {'value': values[0]['value'], 
-                     'time': val['timestamp'] } )
+    if DS_temp_KEY in env_vars:
+        valuesList = env_vars[ DS_temp_KEY ]
+        for val in valuesList:
+            ts = val['timestamp']
+            if isinstance( ts, bytes ):
+                ts = ts.decode( 'utf-8' )
+            result_json["temp"].append( {'value': val['value'], 'time': ts })
 
     # Get RH values
-    valuesList = env_vars[ DS_rh_KEY ]
-    for val in valuesList:
-        print('debugrob get_temp_and_humidity_history: RH val={}'.format(val))
-        values_json = (ast.literal_eval( val['values'] ))
-        print('debugrob get_temp_and_humidity_history: RH values_json={}'.format(values_json))
-        if "values" in values_json:
-            values = values_json["values"]
-            if len( values ) > 0:
-                results["RH"].append(
-                    {'value': values[0]['value'], 
-                     'time': val['timestamp'] } )
+    if DS_rh_KEY in env_vars:
+        valuesList = env_vars[ DS_rh_KEY ]
+        for val in valuesList:
+            ts = val['timestamp']
+            if isinstance( ts, bytes ):
+                ts = ts.decode( 'utf-8' )
+            result_json["RH"].append( 
+                    {'value': val['value'], 'time': ts })
 
-    print('debugrob get_temp_and_humidity_history: results={}'.format(results))
-    return results
+    print('debugrob get_temp_and_humidity_history: results={}'.format(result_json))
+    return result_json
 
 
 #------------------------------------------------------------------------------
@@ -260,7 +245,11 @@ def get_current_float_value_from_DS( key, device_uuid ):
     if device_uuid is None or device_uuid is 'None':
         return None
 
-    device = get_one( kind=DS_Devices_KEY, key=key, value=device_uuid )
+    device = get_one( kind=DS_Devices_KEY, key=DS_device_uuid_KEY, value=device_uuid )
+    if device is None:
+        return None
+    print('debugrob type of device: {}'.format(type(device)))
+    print('debugrob device: {}'.format( device ))
     env_vars = device.get( DS_env_vars_KEY )
     if env_vars is None or key not in env_vars:
         return None
@@ -270,11 +259,7 @@ def get_current_float_value_from_DS( key, device_uuid ):
     valuesList = env_vars[ key ]
     val = valuesList[0] # the first item in the list is most recent
     print('debugrob get_current_float_value_from_DS: val={}'.format(val))
-    values_json = (ast.literal_eval( val['values'] ))
-    print('debugrob get_current_float_value_from_DS: values_json={}'.format(values_json))
-    if "values" in values_json:
-        values = values_json["values"]
-        result = "{0:.2f}".format( float( values[0]['value'] ))
+    result = "{0:.2f}".format( float( val['value'] ))
     print('debugrob get_current_float_value_from_DS: key={}, result={}'.format(key, result))
     return result
 

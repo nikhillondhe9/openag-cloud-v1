@@ -390,6 +390,7 @@ def save_data_to_Device( DS, pydict, deviceId ):
         device.exclude_from_indexes = DS_env_vars_KEY
         device[ DS_env_vars_KEY ] = env_vars
         DS.put( device )  
+        logging.info('save_data_to_Device: {} {} {}'.format( deviceId, varName, valueToSave ))
 
     except Exception as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()
