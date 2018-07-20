@@ -34,7 +34,7 @@ imageChunk_KEY = 'imageChunk'
 messageID_KEY = 'messageID'
 
 # keys for datastore Devices entity
-DS_Devices_KEY = 'Devices'
+DS_device_data_KEY = 'DeviceData'
 DS_env_vars_KEY = 'env_vars'
 DS_env_vars_MAX_size = 100 # maximum number of values in each env. var list
 
@@ -342,11 +342,63 @@ def save_image( CS, DS, BQ, pydict, deviceId, PROJECT, DATASET, TABLE, \
 
 
 #------------------------------------------------------------------------------
+# Internal method to get the value from a string of data from the device
+# or DB.  Handles weird stuff like a string in a string.
+def _string_to_value( string ):
+    try:
+        values = ast.literal_eval( string ) # if this works, great!
+        firstVal = values['values'][0]
+        return firstVal['value']
+    except:
+        # If the above has issues, the string probably has an embedded string.
+        # Such as this:
+        # "{'values':[{'name':'LEDPanel-Top', 'type':'str', 'value':'{'400-449': 0.0, '450-499': 0.0, '500-549': 83.33, '550-559': 16.67, '600-649': 0.0, '650-699': 0.0}'}]}"
+        valueTag = "\'value\':\'"
+        endTag = "}]}"
+        valueStart = string.find( valueTag )
+        valueEnd = string.find( endTag )
+        if -1 == valueStart or -1 == valueEnd:
+            return string
+        valueStart += len( valueTag )
+        valueEnd -= 1
+        val = string[ valueStart:valueEnd ]
+        return ast.literal_eval( val ) # let exceptions from this flow up
+    return string
+
+
+#------------------------------------------------------------------------------
+# Internal method to get the name from a string of data from the device
+# or DB.  Handles weird stuff like a string in a string.
+def _string_to_name( string ):
+    try:
+        values = ast.literal_eval( string ) # if this works, great!
+        firstVal = values['values'][0]
+        return firstVal['name']
+    except:
+        # If the above has issues, the string probably has an embedded string.
+        # Such as this:
+        # "{'values':[{'name':'LEDPanel-Top', 'type':'str', 'value':'{'400-449': 0.0, '450-499': 0.0, '500-549': 83.33, '550-559': 16.67, '600-649': 0.0, '650-699': 0.0}'}]}"
+        nameTag = "\'name\':\'"
+        endTag = "\'"
+        nameStart = string.find( nameTag )
+        if -1 == nameStart:
+            return None
+        nameStart += len( nameTag )
+        nameEnd = string.find( endTag, nameStart )
+        if -1 == nameEnd:
+            return None
+        name = string[ nameStart:nameEnd ]
+        return name
+    return ''
+
+
+#------------------------------------------------------------------------------
 # Save a bounded list of the recent values of each env. var. to the Device
 # that produced them - for UI display / charting.
 def save_data_to_Device( DS, pydict, deviceId ):
     try:
-        if messageType_EnvVar != validateMessageType( pydict ):
+        if messageType_EnvVar != validateMessageType( pydict ) and \
+           messageType_CommandReply != validateMessageType( pydict ):
             return
 
         # each received EnvVar type message must have these fields
@@ -355,42 +407,60 @@ def save_data_to_Device( DS, pydict, deviceId ):
             logging.error('save_data_to_Device: Missing key(s) in dict.')
             return
         varName = pydict[ var_KEY ]
-        values = ast.literal_eval( pydict[ values_KEY ] )
-        valueToSave = values['values'][0]
 
-        # add timestamp to this value, for UI display in charts if needed
-        valueToSave['timestamp'] = time.strftime( '%FT%XZ', time.gmtime())
+        value = _string_to_value( pydict[ values_KEY ] )
+        name = _string_to_name( pydict[ values_KEY ] )
+        valueToSave = { 
+                'timestamp': str( time.strftime( '%FT%XZ', time.gmtime())),
+                'name': str( name ),
+                'value': str( value ) }
 
-        # find this device in the datastore (if it exists)
-        query = DS.query( kind=DS_Devices_KEY )
-        query.add_filter( 'device_uuid', '=', deviceId )
-        qiter = list( query.fetch( 1 ))
-        if not qiter:
-            logging.error('save_data_to_Device: deviceId {} not found ' \
-                    'in Devices'.format( deviceId ))
+        # Get this device data from the datastore (or create an empty one).
+        # These DeviceData entities are custom keyed with our deviceId.
+        ddkey = DS.key( DS_device_data_KEY, deviceId )
+        device = DS.get( ddkey ) 
+        if not device: 
+            # The device data entity doesn't exist, so create it
+            device = datastore.Entity( ddkey )
+            device.update( {} ) # empty entity
+            DS.put( device ) # write to DS
+
+        # retry the Entity update in a transaction until it succeeds
+        transactionWorked = False
+        for _ in range( 15 ):
+            try:
+                with DS.transaction():
+                    dd = DS.get( ddkey )
+
+                    # get a property named for the env var, which is a list of
+                    # dict values
+                    valuesList = dd.get( varName, [] )
+
+                    # put this value at the front of the list
+                    valuesList.insert( 0, valueToSave )
+                    # cap max size of list
+                    while len( valuesList ) > DS_env_vars_MAX_size:
+                        valuesList.pop() # remove last item in list
+
+                    # update the entity
+                    dd[ varName ] = valuesList 
+
+                    # save the entity to the datastore
+                    dd.exclude_from_indexes = dd.keys()
+                    DS.put( dd )  
+                    transactionWorked = True
+                    break
+            except Exception as e:
+                #logging.debug('save_data_to_Device: transaction failed '\
+                #        '{}'.format( e ))
+                continue
+        if not transactionWorked:
+            logging.error('save_data_to_Device: transaction failed for ' \
+                    'deviceId={} var={}'.format( deviceId, varName ))
             return
-        device = qiter[0] # should only be one result/row/device
 
-        # keep a dict of all var names, with a list of values
-        env_vars = device.get( DS_env_vars_KEY, {} )
-        valuesList = []
-        if varName in env_vars:
-            valuesList = env_vars[ varName ]
-
-        # put this value at the front of the list
-        valuesList.insert( 0, valueToSave )
-        # cap max size of list
-        while len( valuesList ) > DS_env_vars_MAX_size:
-            valuesList.pop() # remove last item in list
-
-        # update the dict
-        env_vars[ varName ] = valuesList 
-
-        # save the dict back to the Device entity in the datastore
-        device.exclude_from_indexes = DS_env_vars_KEY
-        device[ DS_env_vars_KEY ] = env_vars
-        DS.put( device )  
-        logging.info('save_data_to_Device: {} {} {}'.format( deviceId, varName, valueToSave ))
+        logging.info('save_data_to_Device: deviceId={} varName={} '\
+                'valuesToSave={}'.format( deviceId, varName, valueToSave ))
 
     except Exception as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()
