@@ -417,12 +417,12 @@ def save_data_to_Device( DS, pydict, deviceId ):
         # Get this device data from the datastore (or create an empty one).
         # These DeviceData entities are custom keyed with our deviceId.
         ddkey = DS.key( DS_device_data_KEY, deviceId )
-        device = DS.get( ddkey ) 
-        if not device: 
+        dd = DS.get( ddkey ) 
+        if not dd: 
             # The device data entity doesn't exist, so create it
-            device = datastore.Entity( ddkey )
-            device.update( {} ) # empty entity
-            DS.put( device ) # write to DS
+            dd = datastore.Entity( ddkey )
+            dd.update( {} ) # empty entity
+            DS.put( dd ) # write to DS
 
         # retry the Entity update in a transaction until it succeeds
         transactionWorked = False
