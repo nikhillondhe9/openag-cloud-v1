@@ -33,9 +33,8 @@ totalChunks_KEY = 'totalChunks'
 imageChunk_KEY = 'imageChunk'
 messageID_KEY = 'messageID'
 
-# keys for datastore Devices entity
+# keys for datastore DeviceData entity
 DS_device_data_KEY = 'DeviceData'
-DS_env_vars_KEY = 'env_vars'
 DS_env_vars_MAX_size = 100 # maximum number of values in each env. var list
 
 
