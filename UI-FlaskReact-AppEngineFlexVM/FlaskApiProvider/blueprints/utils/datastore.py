@@ -9,3 +9,11 @@ def get_one(kind, key, value):
         return None
 
     return result[0]
+
+
+def get_by_key( kind, key ):
+    _key = datastore_client.key( kind, key )
+    _ent = datastore_client.get( _key ) 
+    if not _ent: 
+        return None
+    return _ent

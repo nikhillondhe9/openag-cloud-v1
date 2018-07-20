@@ -12,17 +12,20 @@ from queries import queries
 
 from .env_variables import bigquery_client
 from .env_variables import datastore_client
-from .datastore import get_one
+from .datastore import get_one, get_by_key
 
-# keys for datastore Devices entity
-DS_Devices_KEY = 'Devices'
-DS_env_vars_KEY = 'env_vars'
+# keys for datastore DeviceData entity
+DS_device_data_KEY = 'DeviceData'
 DS_device_uuid_KEY = 'device_uuid'
 DS_co2_KEY = 'air_carbon_dioxide_ppm'
 DS_rh_KEY = 'air_humidity_percent' 
 DS_temp_KEY = 'air_temperature_celcius'
 DS_led_KEY = 'light_spectrum_nm_percent'
-DS_status_KEY = 'status'  # not used yet debugrob
+#debugrob: write getter funcs for the 4 below (currently not used)
+DS_led_dist_KEY = 'light_illumination_distance_cm'
+DS_led_intensity_KEY = 'light_intensity_watts'
+DS_boot_KEY = 'boot'  
+DS_status_KEY = 'status'  # not written by device yet debugrob
 
 
 # NOTE: The XX_from_BQ() methods are only used if there is no data found
@@ -136,6 +139,13 @@ def get_temp_and_humidity_history_from_BQ( device_uuid ):
 
 
 #------------------------------------------------------------------------------
+def _bytes_to_string( bs ):
+    if isinstance( bs, bytes ):
+        bs = bs.decode( 'utf-8' )
+    return bs
+
+
+#------------------------------------------------------------------------------
 # Get the historical CO2 values for this device.  
 # Returns a list.
 def get_co2_history( device_uuid ):
@@ -143,24 +153,18 @@ def get_co2_history( device_uuid ):
         return []
 
     # First, try to get the data from the datastore...
-    device = get_one(
-        kind=DS_Devices_KEY, key=DS_device_uuid_KEY, value=device_uuid
-    )
-    env_vars = device.get( DS_env_vars_KEY )
-    if env_vars is None or DS_co2_KEY not in env_vars:
+    device_data = get_by_key( DS_device_data_KEY, device_uuid )
+    if device_data is None or DS_co2_KEY not in device_data:
         # If we didn't find any data in the DS, look in BQ...
         return get_co2_history_from_BQ( device_uuid )
 
-    # process the env_vars dict from the DS into the same format as BQ
+    # process the vars list from the DS into the same format as BQ
     results = []
-    valuesList = env_vars[ DS_co2_KEY ]
+    valuesList = device_data[ DS_co2_KEY ]
     for val in valuesList:
-        print('debugrob get_co2_history: val={}'.format(val))
-        ts = val['timestamp']
-        if isinstance( ts, bytes ):
-            ts = ts.decode( 'utf-8' )
-        results.append( {'value': val['value'], 'time': ts })
-    print('debugrob get_co2_history: results={}'.format(results))
+        ts = _bytes_to_string( val['timestamp'] )
+        value = _bytes_to_string( val['value'] )
+        results.append( {'value': value, 'time': ts })
     return results
 
 
@@ -170,23 +174,19 @@ def get_co2_history( device_uuid ):
 def get_led_panel_history( device_uuid ):
     if device_uuid is None or device_uuid is 'None':
         return []
+
     # First, try to get the data from the datastore...
-    device = get_one(
-        kind=DS_Devices_KEY, key=DS_device_uuid_KEY, value=device_uuid
-    )
-    env_vars = device.get( DS_env_vars_KEY )
-    if env_vars is None or DS_led_KEY not in env_vars:
+    device_data = get_by_key( DS_device_data_KEY, device_uuid )
+    if device_data is None or DS_led_KEY not in device_data:
         # If we didn't find any data in the DS, look in BQ...
         return get_led_panel_history_from_BQ( device_uuid )
 
-    # process the env_vars dict from the DS into the same format as BQ
+    # process the vars list from the DS into the same format as BQ
     results = []
-    valuesList = env_vars[ DS_led_KEY ]
+    valuesList = device_data[ DS_led_KEY ]
     for val in valuesList:
-        print('debugrob get_led_panel_history: val={}'.format(val))
-        led_json = val['value']
+        led_json = _bytes_to_string( val['value'] )
         results.append( led_json )
-    print('debugrob get_led_panel_history: results={}'.format(results))
     return results
 
 
@@ -204,63 +204,50 @@ def get_temp_and_humidity_history( device_uuid ):
         return result_json 
 
     # First, try to get the data from the datastore...
-    device = get_one(
-        kind=DS_Devices_KEY, key=DS_device_uuid_KEY, value=device_uuid
-    )
-    env_vars = device.get( DS_env_vars_KEY )
-    if env_vars is None or \
-            ( DS_temp_KEY not in env_vars and \
-              DS_rh_KEY not in env_vars ):
+    device_data = get_by_key( DS_device_data_KEY, device_uuid )
+    if device_data is None or \
+            ( DS_temp_KEY not in device_data and \
+              DS_rh_KEY not in device_data ):
+
         # If we didn't find any data in the DS, look in BQ...
         return get_temp_and_humidity_history_from_BQ( device_uuid )
 
-    # process the env_vars dict from the DS into the same format as BQ
+    # process the vars list from the DS into the same format as BQ
 
     # Get temp values
-    if DS_temp_KEY in env_vars:
-        valuesList = env_vars[ DS_temp_KEY ]
+    if DS_temp_KEY in device_data:
+        valuesList = device_data[ DS_temp_KEY ]
         for val in valuesList:
-            ts = val['timestamp']
-            if isinstance( ts, bytes ):
-                ts = ts.decode( 'utf-8' )
-            result_json["temp"].append( {'value': val['value'], 'time': ts })
+            ts = _bytes_to_string( val['timestamp'] )
+            value = _bytes_to_string( val['value'] )
+            result_json["temp"].append( {'value': value, 'time': ts })
 
     # Get RH values
-    if DS_rh_KEY in env_vars:
-        valuesList = env_vars[ DS_rh_KEY ]
+    if DS_rh_KEY in device_data:
+        valuesList = device_data[ DS_rh_KEY ]
         for val in valuesList:
-            ts = val['timestamp']
-            if isinstance( ts, bytes ):
-                ts = ts.decode( 'utf-8' )
-            result_json["RH"].append( 
-                    {'value': val['value'], 'time': ts })
+            ts = _bytes_to_string( val['timestamp'] )
+            value = _bytes_to_string( val['value'] )
+            result_json["RH"].append( {'value': value, 'time': ts })
 
-    print('debugrob get_temp_and_humidity_history: results={}'.format(result_json))
     return result_json
 
 
 #------------------------------------------------------------------------------
-# Generic function to return a float value from Device.env_vars[key]
+# Generic function to return a float value from DeviceData[key]
 def get_current_float_value_from_DS( key, device_uuid ):
     if device_uuid is None or device_uuid is 'None':
         return None
 
-    device = get_one( kind=DS_Devices_KEY, key=DS_device_uuid_KEY, value=device_uuid )
-    if device is None:
-        return None
-    print('debugrob type of device: {}'.format(type(device)))
-    print('debugrob device: {}'.format( device ))
-    env_vars = device.get( DS_env_vars_KEY )
-    if env_vars is None or key not in env_vars:
+    device_data = get_by_key( DS_device_data_KEY, device_uuid )
+    if device_data is None or key not in device_data:
         return None
 
-    # process the env_vars dict from the DS into the same format as BQ
+    # process the vars list from the DS into the same format as BQ
     result = None
-    valuesList = env_vars[ key ]
+    valuesList = device_data[ key ]
     val = valuesList[0] # the first item in the list is most recent
-    print('debugrob get_current_float_value_from_DS: val={}'.format(val))
     result = "{0:.2f}".format( float( val['value'] ))
-    print('debugrob get_current_float_value_from_DS: key={}, result={}'.format(key, result))
     return result
 
 
