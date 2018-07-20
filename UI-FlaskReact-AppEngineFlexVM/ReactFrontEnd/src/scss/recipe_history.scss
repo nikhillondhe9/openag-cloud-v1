@@ -1,0 +1,58 @@
+.recipe-history-container {
+
+  .title {
+    text-align: center;
+    font-weight: 100;
+  }
+
+  .profile-card {
+    height: 500px;
+    margin-bottom: 20px;
+  }
+
+  .wrapper {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .image--cover {
+    display: block;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .profile-details-card {
+    height: 290px;
+    margin-top: 10px;
+  }
+
+  .profile-row {
+    text-align:center;
+    margin-top:10px;
+  }
+
+  .profile-row.wrapper {
+    text-align: center;
+  }
+
+  .profile-card-row {
+    padding-left:20px;
+  }
+
+  .col-center-label {
+    text-align: center;
+  }
+
+  .centered-header {
+    text-align: center;
+  }
+
+  .device-name {
+    justify-self: start;
+  }
+
+}

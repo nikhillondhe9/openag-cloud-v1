@@ -114,7 +114,7 @@ class DeviceHomepage extends Component {
             changes: {},
             control_level: 'view',
             current_recipe: {},
-            edit_mode:false
+            edit_mode: false
         };
         this.child = {
             console: Console
@@ -139,10 +139,11 @@ class DeviceHomepage extends Component {
         this.LEDSpectrumSelection = this.LEDSpectrumSelection.bind(this);
         this.toggleEditMode = this.toggleEditMode.bind(this)
     }
-    toggleEditMode()
-    {
-        this.setState({edit_mode:!this.state.edit_mode})
+
+    toggleEditMode() {
+        this.setState({edit_mode: !this.state.edit_mode})
     }
+
     setLEDStates() {
 
         let standard_day = this.state.current_recipe['environments']['standard_day']
@@ -227,7 +228,9 @@ class DeviceHomepage extends Component {
             }
         });
     }
+    submitMeasurements = () => {
 
+    }
     checkApply = () => {
         api.getCurrentRecipeInfo(
             this.props.cookies.get('user_token'),
@@ -790,25 +793,22 @@ class DeviceHomepage extends Component {
                         />
                     </div>
                     <div className="col-md-4">
-Turn on Edit Mode:
-<label class="button-toggle-wrap" >
-  <input class="toggler" type="checkbox" data-toggle="button-toggle"/>
-  <div class="button-toggle" onClick={this.toggleEditMode}>
-    <div class="handle">
-      <div class="bars"></div>
-    </div>
-  </div>
-</label>
+                        Turn on Edit Mode:
+                        <label class="button-toggle-wrap">
+                            <input class="toggler" type="checkbox" data-toggle="button-toggle"/>
+                            <div class="button-toggle" onClick={this.toggleEditMode}>
+                                <div class="handle">
+                                    <div class="bars"></div>
+                                </div>
+                            </div>
+                        </label>
                     </div>
+                    <div className="col-md-2"></div>
                     <div className="col-md-2">
                         <button className="apply-button btn btn-secondary" onClick={this.downloadCSV}>Download as CSV
                         </button>
                     </div>
-                    <div className="col-md-2">
-                         { this.state.edit_mode?<button className="apply-button btn btn-secondary" onClick={this.checkApply}>
-                            Apply Changes
-                        </button>:null}
-                    </div>
+
                 </div>
                 <div className="row graphs-row">
                     {/*<Draggable cancel="strong">*/}
@@ -937,29 +937,16 @@ Turn on Edit Mode:
                     </div>
                     {/*</Draggable>*/}
                 </div>
-                 { this.state.edit_mode ? <div className="edit-container">
-                     Edit Climate Recipe
                 <div className="row graphs-row">
-                    <div className="col-md-6">
-                        <LEDSpectrumOptions led_panel_dac5578={this.state.led_panel_dac5578}
-                                            onLEDPanelChange={(led_name, color_channel, value) => this.LEDPanelChange(led_name, color_channel, value)}
-                                            onLEDSpectrumSelection={(led_data_type, color_channel, spectrum_type, value) => this.LEDSpectrumSelection(led_data_type, color_channel, spectrum_type, value)}
-                                            title="LED Panel - ON" prefix="on"/>
-                    </div>
-                    <div className="col-md-6">
-                        <LEDSpectrumOptions led_panel_dac5578={this.state.led_panel_dac5578}
-                                            onLEDPanelChange={(led_name, color_channel, value) => this.LEDPanelChange(led_name, color_channel, value)}
-                                            onLEDSpectrumSelection={(led_data_type, color_channel, spectrum_type, value) => this.LEDSpectrumSelection(led_data_type, color_channel, spectrum_type, value)}
-                                            title="LED Panel - OFF" prefix="off"/>
-
-                    </div>
+                    <div className="col-md-6 edit-text">Horticulture Measurements</div>
                 </div>
+
                 <div className="row graphs-row">
                     {/*<Draggable cancel="strong">*/}
                     <div className="col-md-6">
                         <div className="card environment-card">
                             <div className="card-block">
-                                <h4 className="card-title "> Standard Day</h4>
+                                <h4 className="card-title "> Count leaves on the plant </h4>
                                 <div className="card-text">
                                     <div className="graph">
                                         <strong className="no-cursor">
@@ -967,10 +954,11 @@ Turn on Edit Mode:
                                             <span className="txt_smaller"></span>
                                             <div className="knob_data">
                                                 <input type="text" className="recipe-details-text"
-                                                       placeholder="" id="standard_day" value={this.state.standard_day}
-                                                       name="standard_day" onChange={this.sensorOnChange}/>
+                                                       placeholder="" id="count_leaves"
+                                                       value={this.state.count_leaves}
+                                                       name="count_leaves" onChange={this.sensorOnChange}/>
                                             </div>
-                                            <span className="txt_smaller">hours</span>
+                                            <span className="txt_smaller"></span>
 
                                         </strong>
                                     </div>
@@ -985,7 +973,7 @@ Turn on Edit Mode:
                     <div className="col-md-6">
                         <div className="card environment-card">
                             <div className="card-block">
-                                <h4 className="card-title "> Standard Night </h4>
+                                <h4 className="card-title "> Height of the plant </h4>
                                 <div className="card-text">
                                     <div className="graph">
 
@@ -993,12 +981,13 @@ Turn on Edit Mode:
 
                                             <span className="txt_smaller"></span>
                                             <div className="knob_data">
-                                                <input type="number" className="recipe-details-text"
-                                                       placeholder=""
-                                                       id="standard_night" name="standard_night"
-                                                       value={this.state.standard_night}/>
+                                                <input type="text" className="recipe-details-text"
+                                                       placeholder="" id="height_of_plant"
+                                                       value={this.state.height_of_plant}
+                                                       name="height_of_plant" onChange={this.sensorOnChange}/>
                                             </div>
-                                            <span className="txt_smaller">hours</span>
+                                            <span className="txt_smaller"> in centimeters ( cm )</span>
+
 
                                         </strong>
                                     </div>
@@ -1012,7 +1001,102 @@ Turn on Edit Mode:
 
                     {/*</Draggable>*/}
                 </div>
-                </div> : null }
+                <div className="row graphs-row">
+                        <div className="col-md-12">
+
+                                <button className="apply-button btn btn-secondary" onClick={this.submitMeasurements}>
+                                    Submit Measurements
+                                </button>
+                        </div>
+                    </div>
+                {this.state.edit_mode ? <div className="edit-container">
+                    <div className="row graphs-row">
+                        <div className="col-md-6 edit-text"> Edit Climate Recipe</div>
+                    </div>
+                    <div className="row graphs-row">
+                        <div className="col-md-6">
+                            <LEDSpectrumOptions led_panel_dac5578={this.state.led_panel_dac5578}
+                                                onLEDPanelChange={(led_name, color_channel, value) => this.LEDPanelChange(led_name, color_channel, value)}
+                                                onLEDSpectrumSelection={(led_data_type, color_channel, spectrum_type, value) => this.LEDSpectrumSelection(led_data_type, color_channel, spectrum_type, value)}
+                                                title="LED Panel - ON" prefix="on"/>
+                        </div>
+                        <div className="col-md-6">
+                            <LEDSpectrumOptions led_panel_dac5578={this.state.led_panel_dac5578}
+                                                onLEDPanelChange={(led_name, color_channel, value) => this.LEDPanelChange(led_name, color_channel, value)}
+                                                onLEDSpectrumSelection={(led_data_type, color_channel, spectrum_type, value) => this.LEDSpectrumSelection(led_data_type, color_channel, spectrum_type, value)}
+                                                title="LED Panel - OFF" prefix="off"/>
+
+                        </div>
+                    </div>
+                    <div className="row graphs-row">
+                        {/*<Draggable cancel="strong">*/}
+                        <div className="col-md-6">
+                            <div className="card environment-card">
+                                <div className="card-block">
+                                    <h4 className="card-title "> Standard Day</h4>
+                                    <div className="card-text">
+                                        <div className="graph">
+                                            <strong className="no-cursor">
+
+                                                <span className="txt_smaller"></span>
+                                                <div className="knob_data">
+                                                    <input type="text" className="recipe-details-text"
+                                                           placeholder="" id="standard_day"
+                                                           value={this.state.standard_day}
+                                                           name="standard_day" onChange={this.sensorOnChange}/>
+                                                </div>
+                                                <span className="txt_smaller">hours</span>
+
+                                            </strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        {/*</Draggable>*/}
+                        {/*<Draggable cancel="strong">*/}
+                        <div className="col-md-6">
+                            <div className="card environment-card">
+                                <div className="card-block">
+                                    <h4 className="card-title "> Standard Night </h4>
+                                    <div className="card-text">
+                                        <div className="graph">
+
+                                            <strong className="no-cursor">
+
+                                                <span className="txt_smaller"></span>
+                                                <div className="knob_data">
+                                                    <input type="number" className="recipe-details-text"
+                                                           placeholder=""
+                                                           id="standard_night" name="standard_night"
+                                                           value={this.state.standard_night}/>
+                                                </div>
+                                                <span className="txt_smaller">hours</span>
+
+                                            </strong>
+                                        </div>
+
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        {/*</Draggable>*/}
+                    </div>
+                    <div className="row graphs-row">
+                        <div className="col-md-12">
+                            {this.state.edit_mode ?
+                                <button className="apply-button btn btn-secondary" onClick={this.checkApply}>
+                                    Apply Changes
+                                </button> : null}
+                        </div>
+                    </div>
+
+                </div> : null}
 
                 <AddDeviceModal
                     isOpen={this.state.add_device_modal}

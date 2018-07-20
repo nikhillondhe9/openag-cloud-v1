@@ -19,6 +19,7 @@ import profileIcon from "../images/users.png";
 import toolsIcon from "../images/tools.png";
 import dashboardIcon from "../images/dashboard.png";
 import logoutIcon from "../images/logout.svg";
+import RecipeHistory from "./recipe_history";
 
 class App extends Component {
 
@@ -128,6 +129,7 @@ class App extends Component {
                             <Route path='/edit_recipe/:recipe_uuid' component={EditRecipe}/>
                             <Route path='/device/:device_uuid' component={MyPFC}/>
                             <Route path='/recipe_details/:recipe_uuid' component={RecipeDetails} />
+                            <Route path='/recipe_history/:recipe_uuid/:device_uuid' component={RecipeHistory} />
                             <Route path='/' component={Home}/>
                             <Route path='/home/:user_uuid' component={Home} />
                         </Switch>
