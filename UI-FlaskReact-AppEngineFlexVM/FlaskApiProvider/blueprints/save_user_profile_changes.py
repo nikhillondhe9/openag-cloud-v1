@@ -27,16 +27,28 @@ def save_user_profile_changes():
     query.add_filter('user_uuid', '=', user_uuid)
     user = list(query.fetch(1))[0]
 
-    user['email_address'] = received_form_response.get("email_address",user['email_address'])
-    user['username'] = received_form_response.get("username", user['username'])
-    user['organization'] = received_form_response.get("organization", user['organization'])
-
+    # This checks if inputs are empty strings as well.
+    user['email_address'] = get_non_empty(received_form_response,
+                                          'email_address',
+                                          user['email_address'])
+    user['username'] = get_non_empty(received_form_response,
+                                     'username',
+                                     user['username'])
+    user['organization'] = get_non_empty(received_form_response,
+                                         'organization',
+                                         user['organization'])
 
     datastore_client.put(user)
-
     return success_response(
         profile_image=user.get('profile_image'),
         username=user.get('username'),
         email_address=user.get('email_address'),
         organization=user.get('organization')
     )
+
+def get_non_empty(form_input, key, default):
+    """dict.get that replaces empty strings with the default value as well"""
+    value = form_input.get(key, default)
+    if not value:
+        value = default
+    return default
