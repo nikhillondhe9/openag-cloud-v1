@@ -126,7 +126,6 @@ class Home extends Component {
                             // default the selected device to the first/only dev.
                             this.onSelectDevice(devices[0].device_uuid)
                         }
-                        // this.getDeviceImages(devices[0].device_uuid);
                     });
                     console.log("Response", responseJson["results"])
                 } else {
@@ -282,8 +281,8 @@ class Home extends Component {
             }, () => {
                 this.getCurrentRecipeInfo(device_uuid);
                 this.saveSelectedDevice();
+                this.getDeviceImages(device_uuid);
             });
-            // this.getDeviceImages(device_uuid);
         }
     }
 
