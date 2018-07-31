@@ -33,18 +33,14 @@ class User:
     def login_user(self,client):
         query = client.query(kind='Users')
         query.add_filter('username', '=', self.username)
-        query_result = list(query.fetch())
+        query_result = list(query.fetch(1))
+        if not query_result:
+            return None, None
+        user = query_result[0]
 
-        #The above query should return only one user row back and
-        # if the user exists then veriify password and return the uuid of the user
-        if len(query_result) == 1:
-            if pbkdf2_sha256.verify(self.password, query_result[0]['password']):
-                user_uuid = None
-                is_admin = None
-                if 'user_uuid' in query_result[0]:
-                    user_uuid = query_result[0]['user_uuid']
-                if 'is_admin' in query_result[0]:
-                    is_admin = query_result[0]['is_admin']
-                return user_uuid,is_admin
+        if not pbkdf2_sha256.verify(self.password, user.get('password', '')):
+            return None, None
 
-
+        user_uuid = user.get('user_uuid')
+        is_admin = user.get('is_admin', False)
+        return user_uuid, is_admin

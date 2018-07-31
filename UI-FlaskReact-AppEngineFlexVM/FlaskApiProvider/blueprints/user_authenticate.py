@@ -51,16 +51,17 @@ def login():
             message="Please make sure you have added values for all the fields"
         )
 
-    user_uuid,is_admin = User(username=username, password=password).login_user(client=datastore_client)
-    if user_uuid:
-        session_token = UserSession(user_uuid=user_uuid).insert_into_db(client=datastore_client)
-        return success_response(
-            user_uuid=user_uuid,
-            user_token=session_token,
-            is_admin=is_admin,
-            message="Login Successful"
-        )
-    else:
+    user = User(username=username, password=password)
+    user_uuid, is_admin = user.login_user(client=datastore_client)
+    if user_uuid is None:
         return error_response(
-            message="Login failed. Please check your credentials"
+            message="Login failed. Please check your credentials."
         )
+
+    session_token = UserSession(user_uuid=user_uuid).insert_into_db(client=datastore_client)
+    return success_response(
+        user_uuid=user_uuid,
+        user_token=session_token,
+        is_admin=is_admin,
+        message="Login Successful"
+    )
