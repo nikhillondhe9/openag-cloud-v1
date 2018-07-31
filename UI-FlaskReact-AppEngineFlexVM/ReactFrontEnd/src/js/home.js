@@ -13,13 +13,7 @@ import {
     ModalHeader
 } from 'reactstrap';
 import {Cookies, withCookies} from "react-cookie";
-import image1 from '../images/1.jpg';
-import image2 from '../images/2.jpg';
-import image3 from '../images/3.jpg';
-import image4 from '../images/4.jpg';
-import image5 from '../images/5.jpg';
-import image6 from '../images/6.jpg';
-import image7 from '../images/7.jpg';
+import placeholder from "../images/no-image.png";
 import notification from '../images/notification.png';
 import {Timeline} from 'react-twitter-widgets'
 
@@ -43,7 +37,7 @@ class Home extends Component {
             user_uuid: this.user_uuid,
             user_devices: new Map(),
             selected_device: 'Loading',
-            device_images: [image1,image2,image3,image4,image5,image6,image7],
+            device_images: [placeholder],
             current_plant_type: '',
             current_recipe_runtime: ''
         };
@@ -132,7 +126,6 @@ class Home extends Component {
                             // default the selected device to the first/only dev.
                             this.onSelectDevice(devices[0].device_uuid)
                         }
-                        // this.getDeviceImages(devices[0].device_uuid);
                     });
                     console.log("Response", responseJson["results"])
                 } else {
@@ -288,8 +281,8 @@ class Home extends Component {
             }, () => {
                 this.getCurrentRecipeInfo(device_uuid);
                 this.saveSelectedDevice();
+                this.getDeviceImages(device_uuid);
             });
-            // this.getDeviceImages(device_uuid);
         }
     }
 

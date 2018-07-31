@@ -1,13 +1,10 @@
-import ast
-
 from flask import Blueprint
 from flask import Response
 from flask import request
-from google.cloud import bigquery
-from queries import queries
 
 from .utils.env_variables import *
 from .utils.response import success_response, error_response
+from .utils.database import get_temp_and_humidity_history
 
 get_temp_details_bp = Blueprint('get_temp_details_bp',__name__)
 
@@ -20,33 +17,7 @@ def get_temp_details():
     if device_uuid is None:
         device_uuid = 'None'
 
-    job_config = bigquery.QueryJobConfig()
-    job_config.use_legacy_sql = False
-
-    query_str = queries.formatQuery(
-        queries.fetch_temp_results_history, device_uuid)
-
-    query_job = bigquery_client.query(query_str, job_config=job_config)
-    query_result = query_job.result()
-    humidity_array = []
-    temp_array = []
-    result_json = {
-        'RH': humidity_array,
-        'temp': temp_array
-    }
-    for row in list(query_result):
-        rvalues = row[2] # can't use row.values
-        values_json = (ast.literal_eval(rvalues))
-
-        if 'air_temperature_celcius' == row.var and 'values' in values_json:
-            values = values_json["values"]
-            result_json["temp"].append(
-                {'value': values[0]['value'], 'time': row.eastern_time})
-
-        if 'air_humidity_percent' == row.var and 'values' in values_json:
-            values = values_json["values"]
-            result_json["RH"].append(
-                {'value': values[0]['value'], 'time': row.eastern_time})
+    result_json = get_temp_and_humidity_history( device_uuid )
 
     return success_response(
         results=result_json

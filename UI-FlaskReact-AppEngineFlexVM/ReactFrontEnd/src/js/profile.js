@@ -28,7 +28,6 @@ class profile extends Component {
         this.toggle_digit_modal = this.toggle_digit_modal.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.onImageUpload = this.onImageUpload.bind(this);
-        this.toggleEditProfile = this.toggleEditProfile.bind(this)
         this.inputChange = this.inputChange.bind(this)
         this.saveUserProfile = this.saveUserProfile.bind(this);
     }
@@ -46,7 +45,8 @@ class profile extends Component {
 
     }
 
-    toggleEditProfile() {
+    toggleEditProfile = (e) => {
+        e.preventDefault();
         this.setState({edit_profile: !this.state.edit_profile})
     }
 
@@ -238,51 +238,60 @@ class profile extends Component {
                                     className="image-uploader"/>
                             </div>
                         </div>
-                        <div className="row profile-row">
-                            <div className="col-md-4"></div>
-                            <div className="col-md-4">
-                                {this.state.edit_profile ?
-                                    <Button className="save-button" onClick={this.saveUserProfile}>Save</Button> :
-                                    <Button className="edit-button" onClick={this.toggleEditProfile}>Edit
-                                        Profile</Button>}
+                        <form onSubmit={this.saveUserProfile}>
+                            <div className="row profile-row">
+                                <div className="col-md-4"></div>
+                                <div className="col-md-4">
+                                    {this.state.edit_profile ?
+                                        <Button className="save-button">
+                                            Save
+                                        </Button>
+                                    :
+                                        <Button className="edit-button" onClick={this.toggleEditProfile}>
+                                            Edit Profile
+                                        </Button>
+                                    }
+                                </div>
+                                <div className="col-md-4"></div>
                             </div>
-                            <div className="col-md-4"></div>
-                        </div>
-                        <div className="row profile-row">
-                            {this.state.edit_profile ? <div className="wrapper">
-                                <div className="row">
-                                    Username : <input className="profile-input" value={this.state.username}
-                                                      name="username" onChange={this.inputChange}/>
-                                </div>
-                                <div className="row">
-                                    Email Address: <input className="profile-input" value={this.state.email_address}
-                                                          name="email_address" onChange={this.inputChange}/>
-                                </div>
-                                <div className="row">
-                                    Organization: <input className="profile-input" value={this.state.organization}
-                                                         name="organization" onChange={this.inputChange}/>
-                                </div>
-                                <div className="row">
-                                    Twitter Hashtag: <input className="profile-input" value={this.state.twitter_hashtag}
-                                                            name="twitter_hashtag" onChange={this.inputChange}/>
-                                </div>
-                            </div> : <div className="wrapper">
-                                <div className="row">
-                                    {this.state.username}
-                                </div>
-                                <div className="row">
-                                    {this.state.email_address}
-                                </div>
-                                <div className="row">
-                                    {this.state.organization}
-                                </div>
-                                <div className="row">
-                                    {this.state.twitter_hashtag}
-                                </div>
-                            </div>}
-
-                        </div>
-
+                            <div className="row profile-row">
+                                {this.state.edit_profile ? <div className="wrapper">
+                                    <div className="row">
+                                        Username :
+                                        <input className="profile-input" value={this.state.username} type="text"
+                                            name="username" onChange={this.inputChange} required/>
+                                    </div>
+                                    <div className="row">
+                                        Email Address:
+                                        <input className="profile-input" value={this.state.email_address} type="email"
+                                            name="email_address" onChange={this.inputChange} required/>
+                                    </div>
+                                    <div className="row">
+                                        Organization:
+                                        <input className="profile-input" value={this.state.organization} type="text"
+                                            name="organization" onChange={this.inputChange}/>
+                                    </div>
+                                    <div className="row">
+                                        Twitter Hashtag:
+                                        <input className="profile-input" value={this.state.twitter_hashtag} type="text"
+                                            name="twitter_hashtag" onChange={this.inputChange} required/>
+                                    </div>
+                                </div> : <div className="wrapper">
+                                    <div className="row">
+                                        {this.state.username}
+                                    </div>
+                                    <div className="row">
+                                        {this.state.email_address}
+                                    </div>
+                                    <div className="row">
+                                        {this.state.organization}
+                                    </div>
+                                    <div className="row">
+                                        {this.state.twitter_hashtag}
+                                    </div>
+                                </div>}
+                            </div>
+                        </form>
                     </div>
                     <div className="col-md-4">
                         <div className="card profile-card">

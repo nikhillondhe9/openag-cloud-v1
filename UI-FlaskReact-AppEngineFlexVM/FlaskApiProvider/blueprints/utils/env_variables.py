@@ -309,7 +309,7 @@ def get_key_differences(x, y):
     return diff_list
 
 
-# ------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Send the current recipe to the device.
 def send_recipe_to_device(device_id, recipe_uuid):
     print('send_recipe_to_device: dev={} rec={}'.format(
@@ -329,6 +329,8 @@ def send_recipe_to_device(device_id, recipe_uuid):
     commands_list = convert_UI_recipe_to_commands(recipe_uuid, recipe_dict)
     send_recipe_to_device_via_IoT(iot_client, device_id, commands_list)
 
+
+#------------------------------------------------------------------------------
 def get_device_name(device_uuid):
     query = datastore_client.query(kind='Devices')
     query.add_filter('device_uuid', '=', device_uuid)
@@ -337,3 +339,4 @@ def get_device_name(device_uuid):
         return results[0]["device_name"]
     else:
         return "Invalid device"
+

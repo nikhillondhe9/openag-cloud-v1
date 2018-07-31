@@ -29,7 +29,7 @@ signal.signal( signal.SIGINT, signal_handler )
 
 
 #------------------------------------------------------------------------------
-# This callback is called for each message we receive.
+# This callback is called for each PubSub/IoT message we receive.
 # We acknowledge the message, then validate and act on it if valid.
 def callback( msg ):
     try:
@@ -90,7 +90,6 @@ def main():
         exit( 1 )
 
     # instantiate the clients we need
-    PS = pubsub.SubscriberClient()
     global BQ 
     BQ = bigquery.Client()
 
@@ -101,6 +100,7 @@ def main():
     DS = datastore.Client( os.getenv('GCLOUD_PROJECT'))
 
     # the resource path for the topic 
+    PS = pubsub.SubscriberClient()
     subs_path = PS.subscription_path( os.getenv('GCLOUD_PROJECT'), 
                                       os.getenv('GCLOUD_DEV_EVENTS') )
 
