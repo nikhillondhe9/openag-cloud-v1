@@ -95,7 +95,7 @@ class Home extends Component {
         ).then(response => {
             console.log(response,"SS")
             this.setState({
-                current_recipe_uuid:response.uuid,
+                current_recipe_uuid:response.recipe_uuid,
                 current_plant_type: response.plant_type,
                 current_recipe_runtime: response.runtime
             })

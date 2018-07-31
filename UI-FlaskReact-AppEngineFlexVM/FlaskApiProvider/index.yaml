@@ -2,6 +2,8 @@ indexes:
 - kind: DeviceHistory
   properties:
   - name: device_uuid
+  - name: recipe_uuid
+  - name: recipe_session_token
   - name: date_applied
     direction: desc
 - kind: RecipeHistory
