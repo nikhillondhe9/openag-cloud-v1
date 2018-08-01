@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import '../scss/common.scss';
 import '../scss/header.scss';
-import {BrowserRouter as Router, Route, Link, Switch} from "react-router-dom";
+import {BrowserRouter as Router, Route, NavLink, Switch} from "react-router-dom";
 import {SignUp} from "./signup";
 import login from "./login";
 import profile from "./profile";
@@ -86,32 +86,32 @@ class App extends Component {
                         <div className="header">
                             <script async src="https://platform.twitter.com/widgets.js" charSet="utf-8">d</script>
 
-                            <Link to="/home">
+                            <NavLink to="/home" activeClassName='load-1-active'>
                                 <div className="load-1">
                                     {/*<img src={homeIcon} className="icon-image"></img>*/}
                                     <img className="home-icon" src={homeIcon}/>
                                     <div className="label">Home</div>
                                 </div>
-                            </Link>
-                            <Link to="/recipes">
+                            </NavLink>
+                            <NavLink to="/recipes" activeClassName='load-1-active'>
                                 <div className="load-1">
                                     <img className="home-icon" src={toolsIcon}/>
                                     <div className="label">Climate Recipes</div>
                                 </div>
-                            </Link>
-                            <Link to="/device_homepage">
+                            </NavLink>
+                            <NavLink to="/device_homepage" activeClassName='load-1-active'>
 
                                 <div className="load-1">
                                     <img className="home-icon" src={dashboardIcon}/>
                                     <div className="label">MyPFC</div>
                                 </div>
-                            </Link>
-                            <Link to="/profile">
+                            </NavLink>
+                            <NavLink to="/profile" activeClassName='load-1-active'>
                                 <div className="load-1">
                                     <img className="home-icon" src={profileIcon}/>
                                     <div className="label">Profile</div>
                                 </div>
-                            </Link>
+                            </NavLink>
                             <a href="javascript:void()" onClick={this.logout}>
                                 <div className="load-1">
                                     <img className="home-icon" src={logoutIcon}/>
