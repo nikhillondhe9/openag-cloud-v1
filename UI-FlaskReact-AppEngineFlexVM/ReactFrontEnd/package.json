@@ -51,6 +51,7 @@
     "promise": "8.0.1",
     "prop-types": "^15.6.1",
     "raf": "3.4.0",
+    "rc-progress": "^2.2.5",
     "rc-slider": "^8.6.1",
     "rc-time-picker": "^3.3.1",
     "react": "^16.2.0",

@@ -75,6 +75,8 @@
       padding: 0;
       display: block;
       margin-top: 10px;
+    margin-left:auto;
+    margin-right:auto;
   }
 
   .range-slider__range::-webkit-slider-thumb {
@@ -126,6 +128,40 @@
   input::-moz-focus-inner,
   input::-moz-focus-outer {
       border: 0;
+  }
+  .checkmark {
+    display:inline-block;
+    width: 22px;
+    height:22px;
+    -ms-transform: rotate(45deg); /* IE 9 */
+    -webkit-transform: rotate(45deg); /* Chrome, Safari, Opera */
+    transform: rotate(45deg);
+}
+
+.checkmark_circle {
+    position: absolute;
+    width:22px;
+    height:22px;
+    background-color: green;
+    border-radius:11px;
+    left:0;
+    top:0;
+}
+
+.checkmark-text {
+    position: absolute;
+    top:2px;
+    padding-left:5px;
+}
+
+
+  .rc-progress-line
+  {
+    height:15px;
+  }
+  .day-row
+  {
+    text-align:right;
   }
 
 }

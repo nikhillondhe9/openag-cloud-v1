@@ -1,17 +1,7 @@
 import React, {Component} from 'react';
 import {BrowserRouter as Router} from "react-router-dom";
 import '../scss/home.scss';
-import {
-    Button,
-    Form,
-    FormGroup,
-    Input,
-    Label,
-    Modal,
-    ModalBody,
-    ModalFooter,
-    ModalHeader
-} from 'reactstrap';
+import {Button} from 'reactstrap';
 import {Cookies, withCookies} from "react-cookie";
 import placeholder from "../images/no-image.png";
 import notification from '../images/notification.png';
@@ -21,6 +11,7 @@ import {ImageTimelapse} from './components/image_timelapse';
 import {DevicesDropdown} from './components/devices_dropdown';
 import {AddDeviceModal} from './components/add_device_modal';
 import {AddAccessCodeModal} from './components/add_access_code_modal';
+import {Circle, Line} from 'rc-progress';
 
 import * as api from './utils/api';
 
@@ -39,7 +30,10 @@ class Home extends Component {
             selected_device: 'Loading',
             device_images: [placeholder],
             current_plant_type: '',
-            current_recipe_runtime: ''
+            current_recipe_runtime: '',
+            current_temp:'',
+            progress:'0',
+            age_in_days:'0'
         };
 
         // This binding is necessary to make `this` work in the callback
@@ -57,7 +51,30 @@ class Home extends Component {
         console.log("Mouting component")
         this.getUserDevices()
     }
-
+     getCurrentDeviceStatus(device_uuid) {
+        return fetch(process.env.REACT_APP_FLASK_URL + '/api/get_current_device_status/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({
+                'user_token': this.props.cookies.get('user_token'),
+                'device_uuid': device_uuid
+            })
+        })
+            .then(response => response.json())
+            .then(responseJson => {
+                let results = responseJson["results"]
+                this.setState({current_temp:results["current_temp"]})
+                this.setState({progress:results["progress"]})
+                this.setState({age_in_days:results["age_in_days"]})
+            })
+            .catch(error => {
+                console.error(error);
+            })
+     }
     getDeviceImages(device_uuid) {
         return fetch(process.env.REACT_APP_FLASK_URL + '/api/get_device_images/', {
             method: 'POST',
@@ -87,9 +104,9 @@ class Home extends Component {
             this.props.cookies.get('user_token'),
             device_uuid
         ).then(response => {
-            console.log(response,"SS")
+            console.log(response, "SS")
             this.setState({
-                current_recipe_uuid:response.recipe_uuid,
+                current_recipe_uuid: response.recipe_uuid,
                 current_plant_type: response.plant_type,
                 current_recipe_runtime: response.runtime
             })
@@ -282,13 +299,14 @@ class Home extends Component {
                 this.getCurrentRecipeInfo(device_uuid);
                 this.saveSelectedDevice();
                 this.getDeviceImages(device_uuid);
+                this.getCurrentDeviceStatus(device_uuid);
             });
         }
     }
 
     render() {
-        console.log(this.state.selected_device_uuid,"FDFD")
-        let gotohistory = "/recipe_history/"+this.state.selected_device_uuid+"/"+this.state.current_recipe_uuid;
+        console.log(this.state.selected_device_uuid, "FDFD")
+        let gotohistory = "/recipe_history/" + this.state.selected_device_uuid + "/" + this.state.current_recipe_uuid;
         return (
             <Router>
                 <div className="home-container">
@@ -319,7 +337,7 @@ class Home extends Component {
                                 </p>
                             )}
                             <hr/>
-                            <p> <a href={gotohistory}>See edits </a> to your recipes  </p>
+                            <p><a href={gotohistory}>See edits </a> to your recipes </p>
                             <hr/>
                             <p> Water needs refilling soon </p>
                         </div>
@@ -332,8 +350,67 @@ class Home extends Component {
                         />
                     </div>
                     <div className="status">
-                        <div>Status: Good</div>
-                        <div>Temperature: 25&#8451;</div>
+                        <div className="row"><div className="col-md-6">Wifi Status</div><div className="col-md-6"> {this.state.wifi_status} </div></div>
+
+                        <div className="row">
+
+                            <div className="col-md-6"><b>Status</b></div>
+                             <div className="col-md-6 float-right">
+                                 <div className="row">
+                                <Line percent={this.state.progress} strokeWidth="4" trailWidth="4" strokeColor="#378A49"
+                                      strokeLinecap="round"/>
+                                 </div>
+                                 <div className="row">
+                                     Day {this.state.age_in_days}
+                                 </div>
+
+                            </div>
+                        </div>
+                        <div className="row">
+
+                            <div className="col-md-6">Temperature/Humidity Sensor</div>
+                            <div className="col-md-6">
+                                <span class="checkmark">
+                                     <div class="checkmark_circle"></div>
+
+                                    </span>
+                                 <span className="checkmark-text">Good</span>
+                            </div>
+
+                        </div>
+                        <div className="row">
+
+                            <div className="col-md-6">CO2 Sensor</div>
+                            <div className="col-md-6">
+                                    <span class="checkmark">
+                                     <div class="checkmark_circle"></div>
+
+                                    </span>
+                                 <span className="checkmark-text">Good</span>
+                            </div>
+
+                        </div>
+                        <div className="row">
+
+                            <div className="col-md-6">Lights</div>
+                            <div className="col-md-6">
+                                    <span class="checkmark">
+                                     <div class="checkmark_circle"></div>
+                                    </span>
+                                    <span className="checkmark-text">Good</span>
+                            </div>
+
+                        </div>
+                         <div className="row">
+
+                            <div className="col-md-6">Temperature</div>
+                            <div className="col-md-6">
+
+                                {this.state.current_temp}
+                            </div>
+
+                        </div>
+
                     </div>
                     <div className="twitter">
                         <Timeline
@@ -361,7 +438,6 @@ class Home extends Component {
                     />
                 </div>
             </Router>
-
 
 
         );
