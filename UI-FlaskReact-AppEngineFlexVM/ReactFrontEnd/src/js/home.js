@@ -317,9 +317,9 @@ class Home extends Component {
                         onAddDevice={this.toggleDeviceModal}
                         onAddAccessCode={this.toggleAccessCodeModal}
                     />
-                    <Button className="postbutton" onClick={this.postToTwitter}>
-                        Post status to twitter
-                    </Button>
+                    {/*<Button className="postbutton" onClick={this.postToTwitter}>*/}
+                        {/*Post status to twitter*/}
+                    {/*</Button>*/}
                     <div className="card notifications">
                         <div className="card-body">
                             <div className="card-title">
@@ -423,6 +423,7 @@ class Home extends Component {
                             }}
                             onLoad={() => console.log('Timeline is loaded!')}
                         />
+
                     </div>
                     <AddDeviceModal
                         isOpen={this.state.add_device_modal}
