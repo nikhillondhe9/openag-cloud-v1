@@ -31,9 +31,9 @@ class Home extends Component {
             device_images: [placeholder],
             current_plant_type: '',
             current_recipe_runtime: '',
-            current_temp:'',
-            progress:'0',
-            age_in_days:'0'
+            current_temp: '',
+            progress: '0',
+            age_in_days: '0'
         };
 
         // This binding is necessary to make `this` work in the callback
@@ -51,7 +51,8 @@ class Home extends Component {
         console.log("Mouting component")
         this.getUserDevices()
     }
-     getCurrentDeviceStatus(device_uuid) {
+
+    getCurrentDeviceStatus(device_uuid) {
         return fetch(process.env.REACT_APP_FLASK_URL + '/api/get_current_device_status/', {
             method: 'POST',
             headers: {
@@ -67,14 +68,16 @@ class Home extends Component {
             .then(response => response.json())
             .then(responseJson => {
                 let results = responseJson["results"]
-                this.setState({current_temp:results["current_temp"]})
-                this.setState({progress:results["progress"]})
-                this.setState({age_in_days:results["age_in_days"]})
+                this.setState({wifi_status:results["wifi_status"]})
+                this.setState({current_temp: results["current_temp"]})
+                this.setState({progress: results["progress"]})
+                this.setState({age_in_days: results["age_in_days"]})
             })
             .catch(error => {
                 console.error(error);
             })
-     }
+    }
+
     getDeviceImages(device_uuid) {
         return fetch(process.env.REACT_APP_FLASK_URL + '/api/get_device_images/', {
             method: 'POST',
@@ -318,7 +321,7 @@ class Home extends Component {
                         onAddAccessCode={this.toggleAccessCodeModal}
                     />
                     {/*<Button className="postbutton" onClick={this.postToTwitter}>*/}
-                        {/*Post status to twitter*/}
+                    {/*Post status to twitter*/}
                     {/*</Button>*/}
                     <div className="card notifications">
                         <div className="card-body">
@@ -350,58 +353,42 @@ class Home extends Component {
                         />
                     </div>
                     <div className="status">
-                        <div className="row"><div className="col-md-6">Wifi Status</div><div className="col-md-6"> {this.state.wifi_status} </div></div>
-
                         <div className="row">
-
-                            <div className="col-md-6"><b>Status</b></div>
-                             <div className="col-md-6 float-right">
-                                 <div className="row">
-                                <Line percent={this.state.progress} strokeWidth="4" trailWidth="4" strokeColor="#378A49"
-                                      strokeLinecap="round"/>
-                                 </div>
-                                 <div className="row">
-                                     Day {this.state.age_in_days}
-                                 </div>
-
-                            </div>
+                            <div className="col-md-4">Wifi Status</div>
+                            <div className="col-md-8"> {this.state.wifi_status} </div>
                         </div>
+
                         <div className="row">
 
-                            <div className="col-md-6">Temperature/Humidity Sensor</div>
                             <div className="col-md-6">
-                                <span class="checkmark">
+                                <div className="row">
+
+                                    <div className="col-md-8">Device Status</div>
+                                    <div className="col-md-4">
+                                   <span class="checkmark">
                                      <div class="checkmark_circle"></div>
 
                                     </span>
-                                 <span className="checkmark-text">Good</span>
-                            </div>
+                                        <span className="checkmark-text">OK</span>
+                                    </div>
 
+                                </div>
+                            </div>
+                            <div className="col-md-6 float-right">
+                                <div className="row">
+                                    <Line percent={this.state.progress} strokeWidth="4" trailWidth="4"
+                                          strokeColor="#378A49"
+                                          strokeLinecap="round"/>
+                                </div>
+                                <div className="row">
+                                    Day {this.state.age_in_days}
+                                </div>
+
+                            </div>
                         </div>
+
+
                         <div className="row">
-
-                            <div className="col-md-6">CO2 Sensor</div>
-                            <div className="col-md-6">
-                                    <span class="checkmark">
-                                     <div class="checkmark_circle"></div>
-
-                                    </span>
-                                 <span className="checkmark-text">Good</span>
-                            </div>
-
-                        </div>
-                        <div className="row">
-
-                            <div className="col-md-6">Lights</div>
-                            <div className="col-md-6">
-                                    <span class="checkmark">
-                                     <div class="checkmark_circle"></div>
-                                    </span>
-                                    <span className="checkmark-text">Good</span>
-                            </div>
-
-                        </div>
-                         <div className="row">
 
                             <div className="col-md-6">Temperature</div>
                             <div className="col-md-6">
