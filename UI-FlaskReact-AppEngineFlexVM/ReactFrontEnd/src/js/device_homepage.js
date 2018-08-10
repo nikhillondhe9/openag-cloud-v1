@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import '../scss/device_homepage.scss';
 import {Cookies, withCookies} from "react-cookie";
-import * as d3 from "d3";
 import {$, jQuery} from 'jquery';
 // import Draggable from 'react-draggable';
 import Plot from 'react-plotly.js';
@@ -14,7 +13,6 @@ import {DevicesDropdown} from './components/devices_dropdown';
 import {AddAccessCodeModal} from './components/add_access_code_modal';
 import {AddDeviceModal} from './components/add_device_modal';
 import {DeviceIsRunningModal} from './components/device_is_running_modal';
-import {LEDPanelCard} from './components/led_component';
 
 import 'rc-slider/assets/index.css';
 import 'rc-tooltip/assets/bootstrap.css';

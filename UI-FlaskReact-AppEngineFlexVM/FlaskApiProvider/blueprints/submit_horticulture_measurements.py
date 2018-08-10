@@ -1,12 +1,13 @@
-from flask import Blueprint, request
 import json
+from datetime import datetime
 
+from flask import Blueprint, request
+from google.cloud import datastore
+
+from .utils.auth import get_user_uuid_from_token
 from .utils.env_variables import datastore_client
 from .utils.response import (success_response, error_response)
-from .utils.auth import get_user_uuid_from_token
-from . import utils
-from google.cloud import datastore
-from datetime import datetime
+
 submit_horticulture_measurements_bp = Blueprint('submit_horticulture_measurements', __name__)
 
 @submit_horticulture_measurements_bp.route('/api/submit_horticulture_measurements/', methods=['POST'])
