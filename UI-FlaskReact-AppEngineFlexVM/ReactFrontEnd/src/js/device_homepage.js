@@ -137,7 +137,8 @@ class DeviceHomepage extends Component {
         this.getRecipeOnDevice = this.getRecipeOnDevice.bind(this);
         this.setLEDStates = this.setLEDStates.bind(this);
         this.LEDSpectrumSelection = this.LEDSpectrumSelection.bind(this);
-        this.toggleEditMode = this.toggleEditMode.bind(this)
+        this.toggleEditMode = this.toggleEditMode.bind(this);
+        this.accessChamber = this.accessChamber.bind(this);
     }
 
     toggleEditMode() {
@@ -229,6 +230,35 @@ class DeviceHomepage extends Component {
         });
     }
     submitMeasurements = () => {
+        return fetch(process.env.REACT_APP_FLASK_URL + '/api/submit_horticulture_measurements/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({
+                'user_uuid': this.state.user_uuid,
+                'user_token': this.props.cookies.get('user_token'),
+                'device_uuid':this.state.selected_device_uuid,
+                'measurement':({
+                    "plant_height":this.state.plant_height,
+                    "leaves_count":this.state.leaves_count
+                })
+            })
+        }).then((response) => response.json())
+            .then((responseJson) => {
+                console.log(responseJson)
+                if (responseJson["response_code"] == 200) {
+                    this.setState({plant_height:""})
+                    this.setState({leaves_count:""})
+                } else {
+                    console.log("Something went wrong")
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+            });
 
     }
     checkApply = () => {
@@ -446,8 +476,7 @@ class DeviceHomepage extends Component {
             },
             body: JSON.stringify({
                 'user_uuid': this.state.user_uuid,
-                'user_token': this.props.cookies.get('user_token'),
-                'access_code': modal_state.access_code
+                'user_token': this.props.cookies.get('user_token')
             })
         })
             .then((response) => response.json())
@@ -725,7 +754,51 @@ class DeviceHomepage extends Component {
             FileSaver.saveAs(blob, 'data.csv');
         })
     }
+    accessChamber()
+    {
+        return fetch(process.env.REACT_APP_FLASK_URL + '/api/submit_access_chamber/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({
+                'user_token': this.props.cookies.get('user_token'),
+                'device_uuid': this.state.selected_device_uuid
+            })
+        })
+            .then((response) => response.json())
+            .then((responseJson) => {
+                console.log(responseJson)
 
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }
+    submitRecipe()
+    {
+        return fetch(process.env.REACT_APP_FLASK_URL + '/api/submit_success_recipe/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({
+                'user_token': this.props.cookies.get('user_token'),
+                'device_uuid': this.state.selected_device_uuid
+            })
+        })
+            .then((response) => response.json())
+            .then((responseJson) => {
+                console.log(responseJson)
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }
     handleApplySubmit() {
         console.log(this.state)
         return fetch(process.env.REACT_APP_FLASK_URL + '/api/submit_recipe_change/', {
@@ -792,7 +865,7 @@ class DeviceHomepage extends Component {
                             onAddAccessCode={this.toggleAccessCodeModal}
                         />
                     </div>
-                    <div className="col-md-4">
+                    <div className="col-md-2">
                         Turn on Edit Mode:
                         <label class="button-toggle-wrap">
                             <input class="toggler" type="checkbox" data-toggle="button-toggle"/>
@@ -803,7 +876,14 @@ class DeviceHomepage extends Component {
                             </div>
                         </label>
                     </div>
-                    <div className="col-md-2"></div>
+                    <div className="col-md-2">
+                         <button className="apply-button btn btn-secondary" onClick={this.accessChamber}>Accessed Chamber
+                        </button>
+                    </div>
+                    <div className="col-md-2">
+                         <button className="apply-button btn btn-secondary" onClick={this.submitRecipe}> Submit Recipe
+                        </button>
+                    </div>
                     <div className="col-md-2">
                         <button className="apply-button btn btn-secondary" onClick={this.downloadCSV}>Download as CSV
                         </button>
@@ -954,9 +1034,9 @@ class DeviceHomepage extends Component {
                                             <span className="txt_smaller"></span>
                                             <div className="knob_data">
                                                 <input type="text" className="recipe-details-text"
-                                                       placeholder="" id="count_leaves"
-                                                       value={this.state.count_leaves}
-                                                       name="count_leaves" onChange={this.sensorOnChange}/>
+                                                       placeholder="" id="leaves_count"
+                                                       value={this.state.leaves_count}
+                                                       name="leaves_count" onChange={this.sensorOnChange}/>
                                             </div>
                                             <span className="txt_smaller"></span>
 
@@ -982,9 +1062,9 @@ class DeviceHomepage extends Component {
                                             <span className="txt_smaller"></span>
                                             <div className="knob_data">
                                                 <input type="text" className="recipe-details-text"
-                                                       placeholder="" id="height_of_plant"
-                                                       value={this.state.height_of_plant}
-                                                       name="height_of_plant" onChange={this.sensorOnChange}/>
+                                                       placeholder="" id="plant_height"
+                                                       value={this.state.plant_height}
+                                                       name="plant_height" onChange={this.sensorOnChange}/>
                                             </div>
                                             <span className="txt_smaller"> in centimeters ( cm )</span>
 
@@ -1001,9 +1081,34 @@ class DeviceHomepage extends Component {
 
                     {/*</Draggable>*/}
                 </div>
+
+                <div className="row graphs-row">
+                    <div className="col-md-6">
+                        <div className="card environment-card">
+                            <div className="card-block">
+                                <h4 className="card-title "> Solution pH </h4>
+                                <div className="card-text">
+                                    <div className="graph">
+                                        <strong className="no-cursor">
+
+                                            <span className="txt_smaller"></span>
+                                            <div className="knob_data">
+                                                <input type="text" className="recipe-details-text"
+                                                       placeholder="" id="solution_ph"
+                                                       value={this.state.solution_ph}
+                                                       name="solution_ph" onChange={this.sensorOnChange}/>
+                                            </div>
+                                            <span className="txt_smaller">(0-14)</span>
+
+                                        </strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div className="row graphs-row">
                         <div className="col-md-12">
-
                                 <button className="apply-button btn btn-secondary" onClick={this.submitMeasurements}>
                                     Submit Measurements
                                 </button>
