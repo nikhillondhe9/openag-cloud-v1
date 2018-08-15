@@ -2,7 +2,6 @@
 
 import ast
 from google.cloud import bigquery
-from google.cloud import datastore
 
 # Eventually we won't query BigQuery because it is so slow.  
 # Perhaps someday we will use it again for a research console that 
@@ -11,7 +10,6 @@ from google.cloud import datastore
 from queries import queries
 
 from .env_variables import bigquery_client
-from .env_variables import datastore_client
 from .datastore import get_one, get_by_key
 
 # keys for datastore DeviceData entity

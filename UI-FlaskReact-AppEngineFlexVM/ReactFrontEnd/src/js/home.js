@@ -18,7 +18,11 @@ import * as api from './utils/api';
 class Home extends Component {
     constructor(props) {
         super(props);
-        this.user_uuid = this.props.location.pathname.replace("/home/", "").replace("#", "")
+        var qs = require('url').parse(window.location.href, true).query;
+        if( typeof qs['uu'] != 'undefined') {
+            this.user_uuid = qs['uu'];
+        }
+
         this.state = {
             user_token: props.cookies.get('user_token') || '',
             add_device_modal: false,
@@ -39,6 +43,15 @@ class Home extends Component {
         // This binding is necessary to make `this` work in the callback
         this.getUserDevices = this.getUserDevices.bind(this);
         this.postToTwitter = this.postToTwitter.bind(this);
+
+        // If the URL contains &vcode=<code>, popup the registration modal
+        var vcode = qs['vcode'];
+        this.state.device_reg_no = ''
+        if( typeof vcode != 'undefined') {
+            console.log('Showing device reg with code='+ vcode);
+            this.state.device_reg_no = vcode;
+            this.state['add_device_modal'] = true;
+        }
     }
 
     componentWillMount() {
@@ -48,7 +61,7 @@ class Home extends Component {
     }
 
     componentDidMount() {
-        console.log("Mouting component")
+        console.log("Mounting Home component")
         this.getUserDevices()
     }
 
@@ -308,7 +321,6 @@ class Home extends Component {
     }
 
     render() {
-        console.log(this.state.selected_device_uuid, "FDFD")
         let gotohistory = "/recipe_history/" + this.state.selected_device_uuid + "/" + this.state.current_recipe_uuid;
         return (
             <Router>
@@ -417,6 +429,7 @@ class Home extends Component {
                         toggle={this.toggleDeviceModal}
                         onSubmit={this.onSubmitDevice}
                         error_message={this.state.add_device_error_message}
+                        device_reg_no={this.state.device_reg_no}
                     />
                     <AddAccessCodeModal
                         isOpen={this.state.add_access_modal}

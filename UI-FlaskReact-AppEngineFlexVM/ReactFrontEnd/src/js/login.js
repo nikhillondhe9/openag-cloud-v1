@@ -16,6 +16,12 @@ class login extends Component {
         // This binding is necessary to make `this` work in the callback
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+
+        // Save the vcode
+        var qs = require('url').parse(window.location.href, true).query;
+        if( typeof qs['vcode'] != 'undefined') {
+            this.state.vcode = qs['vcode'];
+        }
     }
 
     componentDidMount() {
@@ -51,7 +57,7 @@ class login extends Component {
                     this.props.cookies.remove("user_token");
                 } else {
                     const user_uuid = responseJson["user_uuid"];
-                    window.location.href = "/home/"+(user_uuid).toString()
+                    window.location.href = "/home?uu="+(user_uuid).toString()
                 }
             })
             .catch((error) => {
@@ -93,7 +99,11 @@ class login extends Component {
                     let user_uuid = responseJson["user_uuid"]
                     this.props.cookies.set('user_token',responseJson['user_token'])
                     this.props.cookies.set('is_admin',responseJson['is_admin'])
-                    window.location.href = "/home/"+(user_uuid).toString()
+                    var new_href = "/home?uu="+(user_uuid).toString()
+                    if( typeof this.state.vcode != 'undefined') {
+                        new_href += "&vcode=" + this.state.vcode;
+                    }
+                    window.location.href = new_href;
                 } else {
                     let error_message = responseJson["message"]
                     this.setState({error_message: error_message})

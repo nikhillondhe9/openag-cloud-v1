@@ -27,6 +27,7 @@ const DEFAULT_STATE = {
  * - onSubmit (function): Callback for form submission. Will be called
  * with the state, which contains the form responses.
  * - error_message (string): Error message to be displayed.
+ * - device_reg_no (string): Device registration number to display.
  */
 export class AddDeviceModal extends React.PureComponent {
 
@@ -76,7 +77,8 @@ export class AddDeviceModal extends React.PureComponent {
                             <Label for="device_reg_no">Device Number :</Label>
                             <Input
                                 type="text" name="device_reg_no" id="device_reg_no"
-                                value={this.state.device_reg_no} onChange={this.onChange}
+                                value={this.props.device_reg_no}
+                                onChange={this.onChange}
                                 required
                            />
                         </FormGroup>
