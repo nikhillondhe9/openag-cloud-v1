@@ -49,6 +49,8 @@ class Home extends Component {
         this.state.device_reg_no = ''
         if( typeof vcode != 'undefined') {
             console.log('Showing device reg with code='+ vcode);
+            // When we initialize the model, we take this Home.state.vcode and
+            // use it to initialize the modal's properties
             this.state.device_reg_no = vcode;
             this.state['add_device_modal'] = true;
         }

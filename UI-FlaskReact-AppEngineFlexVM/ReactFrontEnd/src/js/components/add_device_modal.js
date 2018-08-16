@@ -49,6 +49,8 @@ export class AddDeviceModal extends React.PureComponent {
     }
 
     render() {
+        // we must use the property set externally to update the state
+        this.state.device_reg_no = this.props.device_reg_no;
         return (
             <Modal
                 isOpen={this.props.isOpen}
@@ -77,7 +79,7 @@ export class AddDeviceModal extends React.PureComponent {
                             <Label for="device_reg_no">Device Number :</Label>
                             <Input
                                 type="text" name="device_reg_no" id="device_reg_no"
-                                value={this.props.device_reg_no}
+                                value={this.state.device_reg_no}
                                 onChange={this.onChange}
                                 required
                            />

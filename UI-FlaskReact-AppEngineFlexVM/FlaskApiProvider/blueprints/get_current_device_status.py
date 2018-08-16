@@ -47,8 +47,12 @@ def get_current_device_status():
         else:
             wifi_status = "Connected"
 
-        result_json["current_temp"] = "%s C" %((device_data["air_temp"]).decode())
+        if device_data.get("air_temp"):
+            result_json["current_temp"] = \
+                "%s C" %((device_data["air_temp"]).decode())
+
         result_json["progress"] = int(round(float(device_data.get("percent_complete") if device_data.get("percent_complete") else "0.0"))*100.0)
+
         result_json["wifi_status"] = wifi_status
         result_json["age_in_days"] = device_data.get("time_elapsed","")
 
