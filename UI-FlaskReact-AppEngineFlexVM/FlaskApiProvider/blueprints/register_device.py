@@ -14,6 +14,7 @@ register_bp = Blueprint('register_bp',__name__)
 @register_bp.route('/api/register/', methods=['GET', 'POST'])
 def register():
     received_form_response = json.loads(request.data.decode('utf-8'))
+    print('register API received_form_response={}'.format(received_form_response))
 
     user_token = received_form_response.get("user_token", None)
     device_name = received_form_response.get("device_name", None)

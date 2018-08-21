@@ -27,12 +27,16 @@ const DEFAULT_STATE = {
  * - onSubmit (function): Callback for form submission. Will be called
  * with the state, which contains the form responses.
  * - error_message (string): Error message to be displayed.
+ * - device_reg_no (string): Device registration number to display.
  */
 export class AddDeviceModal extends React.PureComponent {
 
     state = DEFAULT_STATE;
 
     onChange = (e) => {
+        console.log("Me")
+        console.log(e.target.value)
+        console.log(e.target.name)
         this.setState({[e.target.name]: e.target.value});
     }
 
@@ -48,6 +52,8 @@ export class AddDeviceModal extends React.PureComponent {
     }
 
     render() {
+        // we must use the property set externally to update the state
+        this.state.device_reg_no = this.props.device_reg_no;
         return (
             <Modal
                 isOpen={this.props.isOpen}
@@ -76,7 +82,8 @@ export class AddDeviceModal extends React.PureComponent {
                             <Label for="device_reg_no">Device Number :</Label>
                             <Input
                                 type="text" name="device_reg_no" id="device_reg_no"
-                                value={this.state.device_reg_no} onChange={this.onChange}
+                                value={this.state.device_reg_no}
+                                onChange={this.onChange}
                                 required
                            />
                         </FormGroup>

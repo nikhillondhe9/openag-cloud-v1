@@ -18,7 +18,14 @@ import * as api from './utils/api';
 class Home extends Component {
     constructor(props) {
         super(props);
-        this.user_uuid = this.props.location.pathname.replace("/home/", "").replace("#", "")
+        var qs = require('url').parse(window.location.href, true).query;
+        if( typeof qs['uu'] != 'undefined') {
+            this.user_uuid = qs['uu'];
+        }
+
+        // If the URL contains &vcode=<code>, popup the registration modal
+        var vcode = qs['vcode'];
+
         this.state = {
             user_token: props.cookies.get('user_token') || '',
             add_device_modal: false,
@@ -49,6 +56,14 @@ class Home extends Component {
         this.getCurrentNewPosts = this.getCurrentNewPosts.bind(this)
         this.getUserDiscoursePosts = this.getUserDiscoursePosts.bind(this)
         this.changeDiscourseType = this.changeDiscourseType.bind(this)
+         if( typeof vcode != 'undefined') {
+            console.log('Showing device reg with code='+ vcode);
+            // When we initialize the model, we take this Home.state.vcode and
+            // use it to initialize the modal's properties
+            this.setState({device_reg_no:vcode});
+            this.setState({add_device_modal:true});
+        }
+
     }
 
     componentWillMount() {
@@ -59,7 +74,7 @@ class Home extends Component {
     }
 
     componentDidMount() {
-        console.log("Mouting component")
+        console.log("Mounting Home component")
         this.getUserDevices()
     }
 
@@ -605,6 +620,7 @@ class Home extends Component {
                         toggle={this.toggleDeviceModal}
                         onSubmit={this.onSubmitDevice}
                         error_message={this.state.add_device_error_message}
+                        device_reg_no={this.state.device_reg_no}
                     />
                     <AddAccessCodeModal
                         isOpen={this.state.add_access_modal}

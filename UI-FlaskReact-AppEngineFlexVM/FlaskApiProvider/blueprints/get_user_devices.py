@@ -18,12 +18,14 @@ def get_user_devices():
     received_form_response = json.loads(request.data.decode('utf-8'))
     user_token = received_form_response.get("user_token", None)
     if user_token is None:
+        print("get_user_devices: No user token in form response")
         return error_response(
             message="Please make sure you have added values for all the fields"
         )
 
     user_uuid = get_user_uuid_from_token(user_token)
     if user_uuid is None:
+        print("get_user_devices: No user uuid")
         return error_response(
             message="Invalid User: Unauthorized"
         )
@@ -31,6 +33,7 @@ def get_user_devices():
     devices = get_devices_for_user(user_uuid)
 
     if not devices:
+        print("get_user_devices: No devices for user")
         return error_response(
             message="No devices associated with user."
         )

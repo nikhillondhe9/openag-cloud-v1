@@ -2,3 +2,4 @@ pyenv/
 FlaskApiProvider/lib 
 FlaskApiProvider/__pycache__
 ReactFrontEnd/node_modules/
+.idea/
