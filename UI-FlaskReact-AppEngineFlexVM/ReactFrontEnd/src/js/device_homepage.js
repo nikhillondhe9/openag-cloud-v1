@@ -137,6 +137,7 @@ class DeviceHomepage extends Component {
         this.LEDSpectrumSelection = this.LEDSpectrumSelection.bind(this);
         this.toggleEditMode = this.toggleEditMode.bind(this);
         this.accessChamber = this.accessChamber.bind(this);
+        this.submitRecipe = this.submitRecipe.bind(this)
     }
 
     toggleEditMode() {
@@ -238,18 +239,18 @@ class DeviceHomepage extends Component {
             body: JSON.stringify({
                 'user_uuid': this.state.user_uuid,
                 'user_token': this.props.cookies.get('user_token'),
-                'device_uuid':this.state.selected_device_uuid,
-                'measurement':({
-                    "plant_height":this.state.plant_height,
-                    "leaves_count":this.state.leaves_count
+                'device_uuid': this.state.selected_device_uuid,
+                'measurement': ({
+                    "plant_height": this.state.plant_height,
+                    "leaves_count": this.state.leaves_count
                 })
             })
         }).then((response) => response.json())
             .then((responseJson) => {
                 console.log(responseJson)
                 if (responseJson["response_code"] == 200) {
-                    this.setState({plant_height:""})
-                    this.setState({leaves_count:""})
+                    this.setState({plant_height: ""})
+                    this.setState({leaves_count: ""})
                 } else {
                     console.log("Something went wrong")
                 }
@@ -419,7 +420,7 @@ class DeviceHomepage extends Component {
             .then((responseJson) => {
                 console.log(responseJson)
                 if (responseJson["response_code"] == 200) {
-                    const devices = responseJson["results"];
+                    const devices = responseJson["results"]["devices"];
                     let devices_map = new Map();
                     for (const device of devices) {
                         devices_map.set(device['device_uuid'], device);
@@ -752,8 +753,8 @@ class DeviceHomepage extends Component {
             FileSaver.saveAs(blob, 'data.csv');
         })
     }
-    accessChamber()
-    {
+
+    accessChamber() {
         return fetch(process.env.REACT_APP_FLASK_URL + '/api/submit_access_chamber/', {
             method: 'POST',
             headers: {
@@ -775,28 +776,11 @@ class DeviceHomepage extends Component {
                 console.error(error);
             });
     }
-    submitRecipe()
-    {
-        return fetch(process.env.REACT_APP_FLASK_URL + '/api/submit_success_recipe/', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            body: JSON.stringify({
-                'user_token': this.props.cookies.get('user_token'),
-                'device_uuid': this.state.selected_device_uuid
-            })
-        })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log(responseJson)
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+
+    submitRecipe() {
+        window.location.href = "/horticulture_success/" + this.state.selected_device_uuid.toString();
     }
+
     handleApplySubmit() {
         console.log(this.state)
         return fetch(process.env.REACT_APP_FLASK_URL + '/api/submit_recipe_change/', {
@@ -854,7 +838,7 @@ class DeviceHomepage extends Component {
 
             <div className="device-homepage-container">
                 <div className="row dropdown-row">
-                    <div className="col-md-4">
+                    <div className="col-md-2">
                         <DevicesDropdown
                             devices={[...this.state.user_devices.values()]}
                             selectedDevice={this.state.selected_device}
@@ -864,7 +848,19 @@ class DeviceHomepage extends Component {
                         />
                     </div>
                     <div className="col-md-2">
-                        Turn on Edit Mode:
+                        <button className="apply-button btn btn-secondary" onClick={this.accessChamber}>Accessed Chamber
+                        </button>
+                    </div>
+                    <div className="col-md-2">
+                        <button className="apply-button btn btn-secondary" onClick={this.submitRecipe}> Submit Recipe
+                        </button>
+                    </div>
+                    <div className="col-md-2">
+                        <button className="apply-button btn btn-secondary" onClick={this.downloadCSV}>Download as CSV
+                        </button>
+                    </div>
+                    <div className="col-md-4">
+                        Edit Mode:
                         <label class="button-toggle-wrap">
                             <input class="toggler" type="checkbox" data-toggle="button-toggle"/>
                             <div class="button-toggle" onClick={this.toggleEditMode}>
@@ -874,19 +870,6 @@ class DeviceHomepage extends Component {
                             </div>
                         </label>
                     </div>
-                    <div className="col-md-2">
-                         <button className="apply-button btn btn-secondary" onClick={this.accessChamber}>Accessed Chamber
-                        </button>
-                    </div>
-                    <div className="col-md-2">
-                         <button className="apply-button btn btn-secondary" onClick={this.submitRecipe}> Submit Recipe
-                        </button>
-                    </div>
-                    <div className="col-md-2">
-                        <button className="apply-button btn btn-secondary" onClick={this.downloadCSV}>Download as CSV
-                        </button>
-                    </div>
-
                 </div>
                 <div className="row graphs-row">
                     {/*<Draggable cancel="strong">*/}
@@ -1106,12 +1089,12 @@ class DeviceHomepage extends Component {
                     </div>
                 </div>
                 <div className="row graphs-row">
-                        <div className="col-md-12">
-                                <button className="apply-button btn btn-secondary" onClick={this.submitMeasurements}>
-                                    Submit Measurements
-                                </button>
-                        </div>
+                    <div className="col-md-12">
+                        <button className="apply-button btn btn-secondary" onClick={this.submitMeasurements}>
+                            Submit Measurements
+                        </button>
                     </div>
+                </div>
                 {this.state.edit_mode ? <div className="edit-container">
                     <div className="row graphs-row">
                         <div className="col-md-6 edit-text"> Edit Climate Recipe</div>

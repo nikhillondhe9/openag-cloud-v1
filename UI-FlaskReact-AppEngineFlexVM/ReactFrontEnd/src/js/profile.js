@@ -22,7 +22,10 @@ class profile extends Component {
             email_address: '',
             organization: '',
             edit_profile: false,
-            twitter_hashtag: 'OpenAgPFCEDU2018'
+            twitter_hashtag: 'OpenAgPFCEDU2018',
+            discourse_modal: false,
+            discourse_username: '',
+            discourse_user:{}
         };
         this.getUserDevices = this.getUserDevices.bind(this);
         this.toggle_digit_modal = this.toggle_digit_modal.bind(this);
@@ -30,6 +33,10 @@ class profile extends Component {
         this.onImageUpload = this.onImageUpload.bind(this);
         this.inputChange = this.inputChange.bind(this)
         this.saveUserProfile = this.saveUserProfile.bind(this);
+        this.connectDiscourse = this.connectDiscourse.bind(this);
+        this.toggle_discourse_modal = this.toggle_discourse_modal.bind(this);
+        this.handleInputChange = this.handleInputChange.bind(this);
+        this.generateAPIKey = this.generateAPIKey.bind(this)
     }
 
     componentDidMount() {
@@ -58,6 +65,50 @@ class profile extends Component {
 
     toggle_digit_modal() {
         this.setState({digit_modal: !this.state.digit_modal})
+    }
+
+    connectDiscourse() {
+        this.setState({discourse_modal: false});
+        let discourse_topic_url = "https://forum.openag.media.mit.edu/users/"
+        return fetch(discourse_topic_url + "ManvithaPonnapati" + ".json?api_key=5cdae222422803379b630fa3a8a1b5e216aa6db5b6c0126dc0abce00fdc98394&api_username=openag", {
+            method: 'GET'
+        })
+            .then(response => response.json())
+            .then(responseJson => {
+
+                this.setState({discourse_user:responseJson["user"]})
+                this.generateAPIKey()
+            })
+            .catch(error => {
+                console.error(error);
+            })
+    }
+
+    generateAPIKey() {
+        console.log(this.state.discourse_user,"Ds")
+        let admin_api_key = "5cdae222422803379b630fa3a8a1b5e216aa6db5b6c0126dc0abce00fdc98394"
+        return fetch("https://forum.openag.media.mit.edu/admin/users/"+this.state.discourse_user["id"]+"/generate_api_key" ,
+            {
+                method: 'POST',
+                headers: {
+                'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    "api_key": admin_api_key,
+                    "id": this.state.discourse_user["id"]
+                })
+            })
+            .then(response => response.json())
+            .then(responseJson => {
+                let user = responseJson["user"]["id"]
+            })
+            .catch(error => {
+                console.error(error);
+            })
+    }
+
+    toggle_discourse_modal() {
+        this.setState({discourse_modal: !this.state.discourse_modal})
     }
 
     createAccessCode = (modal_state) => {
@@ -145,7 +196,7 @@ class profile extends Component {
             .then((responseJson) => {
                 console.log(responseJson)
                 if (responseJson["response_code"] == 200) {
-                    this.setState({user_devices: responseJson["results"]})
+                    this.setState({user_devices: responseJson["results"]["devices"]})
                     console.log("Response", responseJson["results"])
                 } else {
                     this.setState({get_devices_status: 'No Devices'});
@@ -178,6 +229,10 @@ class profile extends Component {
             this.setState({[event.target.name]: event.target.value});
             event.preventDefault();
         }
+    }
+
+    handleInputChange(event) {
+        this.setState({[event.target.name]: event.target.value});
     }
 
     onImageUpload(response) {
@@ -246,7 +301,7 @@ class profile extends Component {
                                         <Button className="save-button">
                                             Save
                                         </Button>
-                                    :
+                                        :
                                         <Button className="edit-button" onClick={this.toggleEditProfile}>
                                             Edit Profile
                                         </Button>
@@ -259,22 +314,22 @@ class profile extends Component {
                                     <div className="row">
                                         Username :
                                         <input className="profile-input" value={this.state.username} type="text"
-                                            name="username" onChange={this.inputChange} required/>
+                                               name="username" onChange={this.inputChange} required/>
                                     </div>
                                     <div className="row">
                                         Email Address:
                                         <input className="profile-input" value={this.state.email_address} type="email"
-                                            name="email_address" onChange={this.inputChange} required/>
+                                               name="email_address" onChange={this.inputChange} required/>
                                     </div>
                                     <div className="row">
                                         Organization:
                                         <input className="profile-input" value={this.state.organization} type="text"
-                                            name="organization" onChange={this.inputChange}/>
+                                               name="organization" onChange={this.inputChange}/>
                                     </div>
                                     <div className="row">
                                         Twitter Hashtag:
                                         <input className="profile-input" value={this.state.twitter_hashtag} type="text"
-                                            name="twitter_hashtag" onChange={this.inputChange} required/>
+                                               name="twitter_hashtag" onChange={this.inputChange} required/>
                                     </div>
                                 </div> : <div className="wrapper">
                                     <div className="row">
@@ -288,6 +343,9 @@ class profile extends Component {
                                     </div>
                                     <div className="row">
                                         {this.state.twitter_hashtag}
+                                    </div>
+                                    <div className="row">
+                                        <Button onClick={this.toggle_discourse_modal}>Connect Discourse</Button>
                                     </div>
                                 </div>}
                             </div>
@@ -325,6 +383,18 @@ class profile extends Component {
                     </ModalBody>
                     <ModalFooter>
                         <Button color="secondary" onClick={this.toggle_digit_modal}>Close</Button>
+                    </ModalFooter>
+                </Modal>
+
+                <Modal isOpen={this.state.discourse_modal} toggle={this.toggle_discourse_modal}>
+                    <ModalHeader toggle={this.toggle_discourse_modal}><i>Discourse Username</i></ModalHeader>
+                    <ModalBody>
+                        <Input placeholder="Enter your discourse username" name="discourse_username"
+                               onChange={this.handleInputChange}/>
+
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="secondary" onClick={this.connectDiscourse}>Submit</Button>
                     </ModalFooter>
                 </Modal>
             </div>

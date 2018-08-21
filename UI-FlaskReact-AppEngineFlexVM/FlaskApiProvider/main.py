@@ -8,6 +8,7 @@ from blueprints import (
     register_device, get_all_recipes, get_device_types, submit_recipe,
     get_plant_types, save_recipe, submit_recipe_change, verify_user_session,
     user_authenticate, upload_images, get_user_info, get_device_peripherals,
+post_to_discourse,
     submit_access_code,get_current_recipe, get_device_images,submit_horticulture_measurements,
     get_current_recipe_info, save_recipe_for_later,apply_recipe_to_device,save_user_profile_changes,get_current_device_status,submit_access_chamber,get_device_recipe_history
 )
@@ -49,7 +50,7 @@ app.register_blueprint(get_device_recipe_history.get_device_recipe_history_bp)
 app.register_blueprint(get_current_device_status.get_current_device_status_bp)
 app.register_blueprint(submit_horticulture_measurements.submit_horticulture_measurements_bp)
 app.register_blueprint(submit_access_chamber.submit_access_chamber_bp)
-
+app.register_blueprint(post_to_discourse.postdiscourse_bp)
 
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 CORS(app)

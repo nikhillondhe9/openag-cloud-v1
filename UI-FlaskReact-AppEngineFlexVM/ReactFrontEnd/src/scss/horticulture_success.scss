@@ -1,0 +1,93 @@
+@import "global_variables";
+
+.horticulture-container {
+
+  .title {
+    text-align: center;
+    font-weight: 100;
+  }
+
+  .profile-card {
+    height: 500px;
+    margin-bottom: 20px;
+  }
+
+  .wrapper {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .image--cover {
+    display: block;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .profile-details-card {
+    height: 290px;
+    margin-top: 10px;
+  }
+
+  .profile-row {
+    text-align:center;
+    margin-top:10px;
+  }
+
+  .profile-row.wrapper {
+    text-align: center;
+  }
+
+  .profile-card-row {
+    padding-left:20px;
+  }
+
+  .col-center-label {
+    text-align: center;
+  }
+
+  .centered-header {
+    text-align: center;
+  }
+
+  .device-name {
+    justify-self: start;
+  }
+
+  .measurements-row
+  {
+   width:80%;  margin-left:auto;
+    margin-right: auto;
+   padding-left:20px;
+    padding-right:20px;
+    padding-top:10px;
+  }
+.padded-row
+{
+  padding-left:15px;
+    padding-right:15px;
+}
+   .red-button.btn.btn-secondary
+  {
+     background-color: $orange-color;
+     border-color:$orange-color;
+
+  }
+  .green-button.btn.btn-secondary
+  {
+     background-color:$purple-color;
+    border-color:$purple-color;
+    margin-right:10px;
+  }
+  .leaf-wither
+  {
+    padding-right:5px;
+  }
+  .leaf-wither:hover
+  {
+    border:1px solid $purple-color;
+  }
+}

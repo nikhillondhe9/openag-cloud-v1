@@ -35,8 +35,12 @@ def get_user_devices():
             message="No devices associated with user."
         )
 
+    response = {
+        "devices":devices,
+        "user_uuid":user_uuid
+    }
     return success_response(
-        results=devices
+        results=response
     )
 
 def get_devices_for_user(user_uuid):

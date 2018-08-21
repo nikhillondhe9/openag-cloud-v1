@@ -171,5 +171,11 @@
     transform: translate(-50%, -50%);
 }
 
-
+.discourse-container
+{
+  height:400px;
+  padding-top:10px;
+  max-height:400px;
+  overflow-y:scroll;
+}
 }
