@@ -132,7 +132,7 @@ class App extends Component {
                             <Route path='/horticulture_success/:device_uuid' component={HorticultureSuccess} />
                             <Route path='/recipe_history/:recipe_uuid/:device_uuid' component={RecipeHistory} />
                             <Route path='/' component={Home}/>
-                            <Route path='/home/:user_uuid' component={Home} />
+                            <Route path='/home/:vcode/' component={Home} />
                         </Switch>
                     </main>
                 </Router>

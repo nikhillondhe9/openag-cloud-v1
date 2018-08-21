@@ -14,17 +14,16 @@ import {AddAccessCodeModal} from './components/add_access_code_modal';
 import {Circle, Line} from 'rc-progress';
 
 import * as api from './utils/api';
+import * as query_string from 'query-string';
 
 class Home extends Component {
     constructor(props) {
         super(props);
-        var qs = require('url').parse(window.location.href, true).query;
-        if( typeof qs['uu'] != 'undefined') {
-            this.user_uuid = qs['uu'];
-        }
 
-        // If the URL contains &vcode=<code>, popup the registration modal
-        var vcode = qs['vcode'];
+        let all_params = query_string.parse(this.props.location.search)
+        if( typeof all_params['user_uuid'] != 'undefined') {
+            this.user_uuid = all_params['user_uuid'];
+        }
 
         this.state = {
             user_token: props.cookies.get('user_token') || '',
@@ -47,6 +46,7 @@ class Home extends Component {
             user_discourse_posts: [],
             discourse_type: "yours"
         };
+        console.log(this.props)
 
         // This binding is necessary to make `this` work in the callback
         this.getUserDevices = this.getUserDevices.bind(this);
@@ -56,12 +56,12 @@ class Home extends Component {
         this.getCurrentNewPosts = this.getCurrentNewPosts.bind(this)
         this.getUserDiscoursePosts = this.getUserDiscoursePosts.bind(this)
         this.changeDiscourseType = this.changeDiscourseType.bind(this)
-         if( typeof vcode != 'undefined') {
-            console.log('Showing device reg with code='+ vcode);
+         if( typeof all_params["vcode"] != 'undefined') {
+            console.log('Showing device reg with code='+ all_params["vcode"]);
             // When we initialize the model, we take this Home.state.vcode and
             // use it to initialize the modal's properties
-            this.setState({device_reg_no:vcode});
-            this.setState({add_device_modal:true});
+            this.state.device_reg_no = all_params["vcode"];
+            this.state.add_device_modal = true;
         }
 
     }
