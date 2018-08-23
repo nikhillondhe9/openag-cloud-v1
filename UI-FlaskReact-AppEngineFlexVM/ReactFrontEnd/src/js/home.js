@@ -21,7 +21,7 @@ class Home extends Component {
         super(props);
 
         let all_params = query_string.parse(this.props.location.search)
-        if( typeof all_params['user_uuid'] != 'undefined') {
+        if (typeof all_params['user_uuid'] != 'undefined') {
             this.user_uuid = all_params['user_uuid'];
         }
 
@@ -44,6 +44,7 @@ class Home extends Component {
             posts: [],
             user_posts: [],
             user_discourse_posts: [],
+            discourse_message: "",
             discourse_type: "yours"
         };
         console.log(this.props)
@@ -56,8 +57,10 @@ class Home extends Component {
         this.getCurrentNewPosts = this.getCurrentNewPosts.bind(this)
         this.getUserDiscoursePosts = this.getUserDiscoursePosts.bind(this)
         this.changeDiscourseType = this.changeDiscourseType.bind(this)
-         if( typeof all_params["vcode"] != 'undefined') {
-            console.log('Showing device reg with code='+ all_params["vcode"]);
+        this.onChangeField = this.onChangeField.bind(this)
+        this.goToPost = this.goToPost.bind(this)
+        if (typeof all_params["vcode"] != 'undefined') {
+            console.log('Showing device reg with code=' + all_params["vcode"]);
             // When we initialize the model, we take this Home.state.vcode and
             // use it to initialize the modal's properties
             this.state.device_reg_no = all_params["vcode"];
@@ -67,9 +70,9 @@ class Home extends Component {
     }
 
     componentWillMount() {
-        if (this.props.cookies.get('user_token') === '' || this.props.cookies.get('user_token') === undefined || this.props.cookies.get('user_token') === "undefined") {
-            window.location.href = "/login"
-        }
+        // if (this.props.cookies.get('user_token') === '' || this.props.cookies.get('user_token') === undefined || this.props.cookies.get('user_token') === "undefined") {
+        //     // window.location.href = "/login"
+        // }
 
     }
 
@@ -85,6 +88,10 @@ class Home extends Component {
 
 
         }
+    }
+
+    onChangeField(e) {
+        this.setState({"discourse_message": e.target.value})
     }
 
     getUserDiscoursePosts() {
@@ -124,36 +131,72 @@ class Home extends Component {
         this.setState({"discourse_type": type})
     }
 
+    getRepliesOnPost(id,post,user_avatar) {
+        console.log("FGF")
+        let user_posts = this.state.user_posts
+        let url = "https://forum.openag.media.mit.edu/t/" + id + ".json?"
+        let discourse_topic_url = url + "api_key=5cdae222422803379b630fa3a8a1b5e216aa6db5b6c0126dc0abce00fdc98394&api_username=openag"
+        console.log(discourse_topic_url)
+        return fetch(discourse_topic_url, {
+            method: 'GET'
+        }).then(response => response.json())
+                        .then(responseJson => {
+                            let post_count = 0
+                            console.log(responseJson)
+                            post_count = responseJson["posts_count"]
+                            if (true) {
+                                user_posts.push({
+                                    "avatar": "https://discourse-cdn-sjc1.com/business6" + user_avatar.replace("{size}", "100"),
+                                    "username": post["last_poster_username"],
+                                    "message": post["title"],
+                                    "yours": true,
+                                    "post_url": "https://forum.openag.media.mit.edu/t/" + post["id"],
+                                    "post_count": post_count
+                                })
+
+                                this.setState({"user_posts": user_posts})
+                            }
+                        })
+                        .catch(error => {
+                            console.error(error);
+                        })
+
+    }
+
     getCurrentNewPosts() {
         let api_key_discourse = "5cdae222422803379b630fa3a8a1b5e216aa6db5b6c0126dc0abce00fdc98394"
-        let discourse_topic_url = "https://forum.openag.media.mit.edu/t/test-openag-test-test-test/3705"
-        return fetch(discourse_topic_url + ".json?api_key=5cdae222422803379b630fa3a8a1b5e216aa6db5b6c0126dc0abce00fdc98394&api_username=openag", {
+        let discourse_topic_url = "https://forum.openag.media.mit.edu/latest.json?api_key=5cdae222422803379b630fa3a8a1b5e216aa6db5b6c0126dc0abce00fdc98394&api_username=openag&category=20"
+        return fetch(discourse_topic_url, {
             method: 'GET'
         })
             .then(response => response.json())
             .then(responseJson => {
                 let posts = []
-                let user_posts = []
-                let post_stream = responseJson["post_stream"]["posts"]
+                this.setState({"user_posts":[]})
+                console.log(responseJson, "FG")
+                let post_stream = responseJson["topic_list"]["topics"]
+                let users = responseJson["users"]
                 for (let post of post_stream) {
                     var div = document.createElement("div");
                     div.innerHTML = post["cooked"];
-                    console.log(this.state.user_discourse_posts, "FGD")
-                    if (post["yours"] == true) {
-                        user_posts.push({
-                            "avatar": "https://discourse-cdn-sjc1.com/business6" + post["avatar_template"].replace("{size}", "100"),
-                            "username": post["username"],
-                            "message": div.textContent
-                        })
+                    let user_last = post["last_poster_username"]
+                    let user_avatar = "http://via.placeholder.com/100x100"
+                    for (let user of users) {
+                        if (user["username"] == user_last) {
+                            user_avatar = user["avatar_template"]
+                        }
                     }
+                    this.getRepliesOnPost(post["id"],post,user_avatar)
+
                     posts.push({
-                        "avatar": "https://discourse-cdn-sjc1.com/business6" + post["avatar_template"].replace("{size}", "100"),
-                        "username": post["username"],
-                        "message": div.textContent
+                        "avatar": "https://discourse-cdn-sjc1.com/business6" + user_avatar.replace("{size}", "100"),
+                        "username": post["last_poster_username"],
+                        "message": post["title"],
+                        "yours": false,
+                        "post_url": "https://forum.openag.media.mit.edu/t/" + post["id"]
                     })
                 }
                 this.setState({"posts": posts})
-                this.setState({"user_posts": user_posts})
             })
             .catch(error => {
                 console.error(error);
@@ -375,26 +418,25 @@ class Home extends Component {
     }
 
     postToDiscourse() {
-        console.log("D")
-        return fetch("https://forum.openag.media.mit.edu/posts.json", {
+        var message = this.state.discourse_message;
+        var title = message.substring(0, 100)
+        return fetch("https://forum.openag.media.mit.edu/posts.json?api_key=5cdae222422803379b630fa3a8a1b5e216aa6db5b6c0126dc0abce00fdc98394&api_username=openag&raw=" + message + "&title=" + title + "&category=20", {
             method: 'POST',
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            },
-            title:"Hello this is my title.",
+            headers: {},
+            title: "Hello this is my title.",
             body: JSON.stringify({
-                "topic_id":3705,
-                "api_key":"5cdae222422803379b630fa3a8a1b5e216aa6db5b6c0126dc0abce00fdc98394",
-                "body":"raw test post for disc",
-                "raw":"This is a raw "
-
+                "api_key": "5cdae222422803379b630fa3a8a1b5e216aa6db5b6c0126dc0abce00fdc98394",
+                "body": "raw test post for disc",
+                "raw": "This is a raw ",
+                "category": 20,
+                "api_username": "OpenAg"
             })
 
         })
             .then((response) => response.json())
             .then((responseJson) => {
                 console.log(responseJson)
-
+                this.getCurrentNewPosts()
 
             })
             .catch((error) => {
@@ -444,13 +486,17 @@ class Home extends Component {
         }
     }
 
+    goToPost(url, e) {
+        window.location.href = url
+    }
+
     render() {
 
         console.log(this.state.user_uuid, "FDFD")
 
         let discourse_messages = this.state.posts.map((post) => {
             return (
-                <div className="row">
+                <div className="row" onClick={this.goToPost.bind(this, post["post_url"])}>
                     <div className="col-md-2">
                         <img src={post["avatar"]} width="30" height="30"/>
                     </div>
@@ -472,6 +518,7 @@ class Home extends Component {
                     <div className="col-md-10">
                         <div className="row"><b>{post["username"]}</b></div>
                         <div className="row">{post["message"]}</div>
+                        <div className="row">Replies: {post["post_count"]} </div>
                     </div>
                 </div>
             )
@@ -606,7 +653,8 @@ class Home extends Component {
                         </div>}
                         <div className="row">
                             <div className="col-md-8">
-                                <Input placeholder="Post your message" name="discourse_message" id="discourse_message"/>
+                                <Input placeholder="Post your message" name="discourse_message" id="discourse_message"
+                                       onChange={this.onChangeField}/>
                             </div>
                             <div className="col-md-2">
                                 <Button onClick={this.postToDiscourse}>POST</Button>
