@@ -14,13 +14,13 @@ import {AddAccessCodeModal} from './components/add_access_code_modal';
 import {Circle, Line} from 'rc-progress';
 
 import * as api from './utils/api';
-import * as query_string from 'query-string';
+const querystring = require('querystring');
 
 class Home extends Component {
     constructor(props) {
         super(props);
 
-        let all_params = query_string.parse(this.props.location.search)
+        let all_params = querystring.parse(this.props.location.search)
         if (typeof all_params['user_uuid'] != 'undefined') {
             this.user_uuid = all_params['user_uuid'];
         }
