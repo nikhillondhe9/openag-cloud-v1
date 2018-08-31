@@ -101,7 +101,7 @@ def submit_recipe_change():
         "name": "Standard Day",
         "spectrum_key": led_panel_dac5578.get("on_selected_spectrum", ""),
         "light_spectrum_nm_percent":standard_day_led_spectrum,
-        "light_ppfd_umol_m2_s": 100,
+        "light_ppfd_umol_m2_s": 300,
         "light_illumination_distance_cm": on_illumination_distance,
         "air_temperature_celcius": 22
     }
@@ -109,7 +109,7 @@ def submit_recipe_change():
         "name": "Standard Night",
         "spectrum_key": led_panel_dac5578.get("off_selected_spectrum", ""),
         "light_spectrum_nm_percent": standard_night_led_spectrum,
-        "light_ppfd_umol_m2_s": 100,
+        "light_ppfd_umol_m2_s": 50,
         "light_illumination_distance_cm": off_illumination_distance,
         "air_temperature_celcius": 22
     }
@@ -117,7 +117,7 @@ def submit_recipe_change():
         "name": "Cold Day",
         "spectrum_key": led_panel_dac5578.get("on_selected_spectrum", ""),
         "light_spectrum_nm_percent": standard_day_led_spectrum,
-        "light_ppfd_umol_m2_s": 100,
+        "light_ppfd_umol_m2_s": 300,
         "light_illumination_distance_cm": on_illumination_distance,
         "air_temperature_celcius": 10
     }
@@ -125,7 +125,7 @@ def submit_recipe_change():
         "name": "Frost Night",
         "spectrum_key": led_panel_dac5578.get("off_selected_spectrum", ""),
         "light_spectrum_nm_percent": standard_night_led_spectrum,
-        "light_ppfd_umol_m2_s": 100,
+        "light_ppfd_umol_m2_s": 50,
         "light_illumination_distance_cm": off_illumination_distance,
         "air_temperature_celcius": 2
     }
