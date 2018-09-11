@@ -19,11 +19,11 @@ def get_led_panel():
     led_data = get_led_panel_history( device_uuid )
     result_json = []
     for led_json in led_data:
-        result_json.append({'cool_white': led_json.get("400-449",0),
-                            'warm_white': led_json.get("450-499",0),
-                            'blue': led_json.get("500-549",0),
-                            'green': led_json.get("550-599",0),
-                            'red': led_json.get("600-649",0),
+        result_json.append({'cool_white': led_json.get("380-399",0),
+                            'warm_white': led_json.get("400-499",0),
+                            'blue': led_json.get("500-599",0),
+                            'green': led_json.get("600-700",0),
+                            'red': led_json.get("701-780",0),
                             'far_red': led_json.get("650-699",0)})
 
     return success_response(
