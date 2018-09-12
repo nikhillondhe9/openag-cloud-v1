@@ -13,12 +13,28 @@ submit_recipe_bp = Blueprint('submit_recipe', __name__)
 
 def get_existing_recipes(recipe_key):
     print(recipe_key)
+    # white
     if recipe_key == "flat":
-        spectrum_json = {"380-399": 0.0, "400-499": 28.01, "500-599": 26.9, "600-700": 41.13, "701-780": 3.96}
+        spectrum_json = {"380-399": 2.03, "400-499": 20.30, "500-599": 23.27, "600-700": 31.09, "701-780": 23.31}
+
+    # off
     elif recipe_key == "off":
         spectrum_json = {"380-399": 0.0, "400-499": 0.0, "500-599": 0.0, "600-700": 0.0, "701-780": 0.0}
+
+    # blue
+    elif recipe_key == "low_end":
+        spectrum_json = {"380-399": 0.0, "400-499": 100.0, "500-599": 0.0, "600-700": 0.0, "701-780": 0.0}
+
+    # green
+    elif recipe_key == "mid_end":
+        spectrum_json = {"380-399": 0.0, "400-499": 0.0, "500-599": 100.0, "600-700": 0.0, "701-780": 0.0}
+
+    # red
+    elif recipe_key == "high_end":
+        spectrum_json = {"380-399": 0.0, "400-499": 0.0, "500-599": 0.0, "600-700": 100.0, "701-780": 0.0}
+
     else:
-        spectrum_json = {"380-399": 0.0, "400-499": 28.01, "500-599": 26.9, "600-700": 41.13, "701-780": 3.96}
+        spectrum_json = {"380-399": 2.03, "400-499": 20.30, "500-599": 23.27, "600-700": 31.09, "701-780": 23.31}
     return ast.literal_eval(json.dumps(spectrum_json))
 
 

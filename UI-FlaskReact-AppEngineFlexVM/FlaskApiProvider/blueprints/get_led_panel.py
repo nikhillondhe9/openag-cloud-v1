@@ -8,6 +8,7 @@ from .utils.database import get_led_panel_history
 get_led_panel_bp = Blueprint('get_led_panel_bp',__name__)
 
 # ------------------------------------------------------------------------------
+# This is old code, not used.
 @get_led_panel_bp.route('/api/get_led_panel/', methods=['GET', 'POST'])
 def get_led_panel():
     received_form_response = json.loads(request.data.decode('utf-8'))
