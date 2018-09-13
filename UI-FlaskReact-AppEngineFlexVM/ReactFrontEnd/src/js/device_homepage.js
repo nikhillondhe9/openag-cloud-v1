@@ -141,6 +141,7 @@ class DeviceHomepage extends Component {
     }
 
     toggleEditMode() {
+        console.log("Change to edit mode")
         this.setState({edit_mode: !this.state.edit_mode})
     }
 
@@ -851,16 +852,21 @@ class DeviceHomepage extends Component {
                         <button className="apply-button btn btn-secondary" onClick={this.accessChamber}>Accessed Chamber
                         </button>
                     </div>
-                    <div className="col-md-2">
-                        <button className="apply-button btn btn-secondary" onClick={this.submitRecipe}> Submit Recipe
+                    <div className="col-md-3">
+                        <button className="apply-button btn btn-secondary" onClick={this.submitRecipe}> Horticulture Measurements
                         </button>
                     </div>
                     <div className="col-md-2">
                         <button className="apply-button btn btn-secondary" onClick={this.downloadCSV}>Download as CSV
                         </button>
                     </div>
-                    <div className="col-md-4">
+                    <div className="col-md-1">
+                    </div>
+                    <div className="col-md-2 right-colu">
+                        <div className="row pull-right">
                         Edit Mode:
+                        </div>
+                        <div className="row">
                         <label class="button-toggle-wrap">
                             <input class="toggler" type="checkbox" data-toggle="button-toggle"/>
                             <div class="button-toggle" onClick={this.toggleEditMode}>
@@ -869,6 +875,7 @@ class DeviceHomepage extends Component {
                                 </div>
                             </div>
                         </label>
+                        </div>
                     </div>
                 </div>
                 <div className="row graphs-row">
@@ -1180,14 +1187,13 @@ class DeviceHomepage extends Component {
                     <div className="row graphs-row">
                         <div className="col-md-8">
                         </div>
-                        <div className="col-md-3">
+                        <div className="col-md-4 color-button">
                             {this.state.edit_mode ?
                                 <button className="apply-button btn btn-secondary" onClick={this.checkApply}>
                                     Apply Changes
                                 </button> : null}
                         </div>
-                        <div className="col-xs-1">
-                        </div>
+
                     </div>
 
                 </div> : null}

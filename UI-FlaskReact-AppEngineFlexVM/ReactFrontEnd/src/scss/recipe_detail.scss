@@ -2,6 +2,10 @@
 @import "global_variables";
 .recipe-detail-container {
 
+  .add-padding
+  {
+    padding-left:10px;
+  }
   .recipe-details-text {
     margin-top: 10px;
     text-align: left;
@@ -146,14 +150,48 @@
     //background-color:$purple-color;
     width:100%;
   }
-  .btn-secondary
+  .color-button
 {
-  background-color: #EDAE47;
-  border-color:#EDAE47;
-}
-  .btn-secondary:hover
+    .btn-secondary {
+      background-color: rgb(149, 38, 106);
+      border-color: rgb(149, 38, 106);
+      width:100%;
+    }
+    .btn-secondary:hover
 {
   background-color: #358A49;
      border-color:#358A49;
 }
+}
+  .image-row
+  {
+        padding-top: 41px;
+    .image-recipe
+    {
+      padding-left:20px;
+
+    }
+
+  }
+  .goback-text
+  {
+    font-size:22px;
+    margin-left: 2px;
+
+  }
+  .recipe-description-row
+  {
+    max-height:250px;
+    min-height:250px;
+  }
+
+  .sensors-card
+  {
+    min-height:120px;
+    max-height:120px;
+  }
+  .home-row
+  {
+    padding-top:10px;
+  }
 }

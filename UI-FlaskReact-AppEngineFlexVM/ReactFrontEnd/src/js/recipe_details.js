@@ -211,15 +211,13 @@ class RecipeDetails extends Component {
                     <li key={component.type}>
                         {component.name}
                     </li>
-
                 )
             }
             if (component.name.includes("Sensor") == true) {
                 sensors_html.push(
-                    <li  key={component.type}>
+                    <li key={component.type}>
                         {component.name}
                     </li>
-
                 )
             }
         });
@@ -271,26 +269,29 @@ class RecipeDetails extends Component {
             <div className="recipe-detail-container">
                 <div className="row">
                     <div className="col-md-4">
-                        <a href="/recipes"> Back to climate recipes</a>
+                        <a href="/recipes" className="goback-text"> Back to climate recipes</a>
                     </div>
                 </div>
                 <div className="row home-row">
                     <div className="col-md-3">
-                        <img src={this.state.recipe_image} className="image-recipe" width="300"/>
+                        <div className="row card-row"></div>
+                        <div className="row card-row image-row">
+                            <img src={this.state.recipe_image} className="image-recipe" height="250"/>
+                        </div>
                     </div>
 
-                    <div className="col-md-9">
+                    <div className="col-md-9 add-padding">
 
                         <div className="row card-row">
                             <div className="col-md-12 "><h3>{this.state.recipe_name} for {this.state.recipe_plant} </h3>
                             </div>
                         </div>
 
-                        <div className="row card-row">
+                        <div className="row card-row ">
 
                             <div className="col-md-12">
-                                <div className="card">
-                                    <div className="card-body">
+                                <div className="card recipe-description-row">
+                                    <div className="card-body ">
                                         <div className="card-text">
                                             {this.state.recipe_description}
                                         </div>
@@ -300,69 +301,67 @@ class RecipeDetails extends Component {
 
 
                         </div>
-                        <div className="row card-row">
+                    </div>
+                </div>
+                <div className="row home-row">
 
-                            <div className="col-md-12 "><h3>Peripherals used in this climate recipe </h3></div>
+                    <div className="col-md-12 "><h3>Peripherals used in this climate recipe </h3></div>
 
-                        </div>
-                        <div className="row card-row">
-                            <div className="col-md-6">
-                                <div className="card">
-                                    <div className="card-body">
-                                        <div className="card-title">Actuators</div>
-                                        <div className="card-text">
-                                             <ul>
+                </div>
+                <div className="row home-row">
 
-                                            {actuators_html}
-                                             </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                             <div className="col-md-6">
-                                <div className="card">
-                                    <div className="card-body">
-                                        <div className="card-title">Sensors</div>
-                                        <div className="card-text">
-                                            <ul>
-                                            {sensors_html}
-                                            </ul>
-                                        </div>
-                                    </div>
+                    <div className="col-md-6 ">
+                        <div className="card sensors-card">
+                            <div className="card-body">
+                                <div className="card-title"><h4>Actuators</h4></div>
+                                <div className="card-text">
+                                    <ul>
+                                        {actuators_html}
+                                    </ul>
                                 </div>
                             </div>
                         </div>
-                        <div className="row card-row">
-
-                            <div className="col-md-12 "><h3>Climate Recipe </h3></div>
-
-                        </div>
-                        <div className="row card-row">
-                            <div className="col-md-12">
-
-
-                                {recipeParams}
-
-
+                    </div>
+                    <div className="col-md-6">
+                        <div className="card sensors-card">
+                            <div className="card-body">
+                                <div className="card-title"><h4>Sensors</h4></div>
+                                <div className="card-text">
+                                    <ul>
+                                        {sensors_html}
+                                    </ul>
+                                </div>
                             </div>
                         </div>
-                        <div className="row card-row">
-                            {/*<Button onClick={this.toggleApplyToDevice} className="submit-recipe-button">*/}
-                                {/*Apply Recipe*/}
-                            {/*</Button>*/}
-                            <div className="col-md-10">
-                            </div>
-                            <div className="col-md-2">
-                            <button className="apply-button btn btn-secondary" onClick={this.toggleApplyToDevice}>
-                                    Download & Run
-                                </button>
-                            </div>
-                        </div>
+                    </div>
+
+                </div>
+                <div className="row home-row">
+                    <div className="col-md-12 "><h3>Climate Recipe </h3></div>
+
+                </div>
+                <div className="row home-row">
+                    <div className="col-md-12">
+                        {recipeParams}
 
                     </div>
+                </div>
+                <div className="row home-row">
+
+                        {/*<Button onClick={this.toggleApplyToDevice} className="submit-recipe-button">*/}
+                        {/*Apply Recipe*/}
+                        {/*</Button>*/}
+                        <div className="col-md-8">
+                        </div>
+                        <div className="col-md-4 color-button">
+                            <button className="apply-button btn btn-secondary" onClick={this.toggleApplyToDevice}>
+                                Download & Run
+                            </button>
+                        </div>
 
 
                 </div>
+
 
                 <Modal
                     isOpen={this.state.apply_to_device_modal}

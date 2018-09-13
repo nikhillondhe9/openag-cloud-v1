@@ -8,7 +8,7 @@ import {CreateAccessCodeModal} from './components/create_access_code_modal.js';
 import withered from'../images/withered.png';
 import med_withered from'../images/med_withered.png';
 import normal from'../images/normal.png';
-
+import curl1 from '../images/curl1.JPG';
 
 import * as api from './utils/api';
 import {CirclePicker} from 'react-color';
@@ -60,25 +60,25 @@ class HorticultureSuccess extends Component {
                         <Input onChange={this.sensorOnChange} name="plant_height" placeholder="Height in (cm)"/>
                     </div>
                 </div>
-                <div className="row measurements-row">
-                    <div className="col-md-6">
-                        Plant Weight
-                    </div>
-                    <div className="col-md-6">
-                        <div className="row padded-row">
-                            Weight with roots (in grams)
-                        </div>
-                        <div className="row padded-row">
-                        <Input onChange={this.sensorOnChange} name="plant_weight_roots" placeholder=""/>
-                         </div>
-                        <div className="row padded-row">
-                            Weight without roots (in grams)
-                        </div>
-                        <div className="row padded-row">
-                        <Input onChange={this.sensorOnChange} name="plant_weight_wo_roots" placeholder=""/>
-                         </div>
-                    </div>
-                </div>
+                {/*<div className="row measurements-row">*/}
+                    {/*<div className="col-md-6">*/}
+                        {/*Plant Weight*/}
+                    {/*</div>*/}
+                    {/*<div className="col-md-6">*/}
+                        {/*<div className="row padded-row">*/}
+                            {/*Weight with roots (in grams)*/}
+                        {/*</div>*/}
+                        {/*<div className="row padded-row">*/}
+                        {/*<Input onChange={this.sensorOnChange} name="plant_weight_roots" placeholder=""/>*/}
+                         {/*</div>*/}
+                        {/*<div className="row padded-row">*/}
+                            {/*Weight without roots (in grams)*/}
+                        {/*</div>*/}
+                        {/*<div className="row padded-row">*/}
+                        {/*<Input onChange={this.sensorOnChange} name="plant_weight_wo_roots" placeholder=""/>*/}
+                         {/*</div>*/}
+                    {/*</div>*/}
+                {/*</div>*/}
                 <div className="row measurements-row">
                     <div className="col-md-6">
                        Leaf Count
@@ -113,7 +113,7 @@ class HorticultureSuccess extends Component {
                             Pick the closest structure of your leaves
                         </div>
                         <div className="row padded-row">
-                            <div className="col-md-2"> <img className='leaf-wither' height="100" src="https://drive.google.com/file/d/0BwQ3bdazwwHDeE5iS0tGalFwcVZpZjNGWVpuVVppcnN4S1ZJ/view?usp=sharing" /></div>
+                            <div className="col-md-2"> <img className='leaf-wither' height="100" src={curl1} /></div>
                             <div className="col-md-2"> <img className='leaf-wither' height="100" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRyAvP0KV2UBbW5q4L4HIMBaLUcNg76FmYwoc9Sl8B1k1lvEd4o" /></div>
                             <div className="col-md-2"> <img className='leaf-wither' height="100" src="http://homewarehuntress.com/wp-content/uploads/2014/04/wilting-basil-plant-1024x768.jpg" /></div>
                          </div>
@@ -150,17 +150,19 @@ class HorticultureSuccess extends Component {
                     <Input onChange={this.sensorOnChange} name="flavor" placeholder="Describe the flavor"/>
                     </div>
                 </div>
-                <div className="row measurements-row">
-                    <div className="col-md-6">
-                        Nutrient Density
-                    </div>
-                    <div className="col-md-6">
-                    <Input onChange={this.sensorOnChange} name="nutrient_density" placeholder="Nutrient Density"/>
-                    </div>
-                </div>
+                {/*<div className="row measurements-row">*/}
+                    {/*<div className="col-md-6">*/}
+                        {/*Nutrient Density*/}
+                    {/*</div>*/}
+                    {/*<div className="col-md-6">*/}
+                    {/*<Input onChange={this.sensorOnChange} name="nutrient_density" placeholder="Nutrient Density"/>*/}
+                    {/*</div>*/}
+                {/*</div>*/}
                  <div className="row measurements-row">
-                     <div className="col-md-12">
-                        <Button onClick={this.submitRecipe}>Submit Recipe</Button>
+                     <div className="col-md-8">
+                        </div>
+                        <div className="col-md-4 color-button">
+                        <Button className="apply-button btn btn-secondary"  onClick={this.submitRecipe}>Submit Measurements</Button>
                      </div>
                  </div>
                 </div>}
