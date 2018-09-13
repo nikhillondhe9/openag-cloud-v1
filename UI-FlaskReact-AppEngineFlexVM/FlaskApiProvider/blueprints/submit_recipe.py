@@ -13,19 +13,28 @@ submit_recipe_bp = Blueprint('submit_recipe', __name__)
 
 def get_existing_recipes(recipe_key):
     print(recipe_key)
+    # white
     if recipe_key == "flat":
-        spectrum_json = {"400-449": 16.67, "450-499": 16.67, "500-549": 16.67, "550-559": 16.67, "600-649": 16.17, "650-699": 16.67}
-    elif recipe_key == "low_end":
-        spectrum_json = {"400-449": 50.0, "450-499": 50.0, "500-549": 0.0, "550-559": 0.0, "600-649": 0.0, "650-699": 0.0}
-    elif recipe_key == "off":
-        spectrum_json = {"400-449": 0.0, "450-499": 0.0, "500-549": 0.0, "550-559": 0.0, "600-649": 0.0,
-                         "650-699": 0.0}
-    elif recipe_key == "mid_end":
-        spectrum_json =  {"400-449": 0, "450-499": 0, "500-549": 50.0, "550-559": 50.0, "600-649": 0, "650-699": 0}
-    else:
-        spectrum_json = {"400-449": 0.0, "450-499": 0.0, "500-549": 0.0, "550-559": 0.0, "600-649": 50.0,
-                         "650-699": 50.0}
+        spectrum_json = {"380-399": 2.03, "400-499": 20.30, "500-599": 23.27, "600-700": 31.09, "701-780": 23.31}
 
+    # off
+    elif recipe_key == "off":
+        spectrum_json = {"380-399": 0.0, "400-499": 0.0, "500-599": 0.0, "600-700": 0.0, "701-780": 0.0}
+
+    # blue
+    elif recipe_key == "low_end":
+        spectrum_json = {"380-399": 0.0, "400-499": 100.0, "500-599": 0.0, "600-700": 0.0, "701-780": 0.0}
+
+    # green
+    elif recipe_key == "mid_end":
+        spectrum_json = {"380-399": 0.0, "400-499": 0.0, "500-599": 100.0, "600-700": 0.0, "701-780": 0.0}
+
+    # red
+    elif recipe_key == "high_end":
+        spectrum_json = {"380-399": 0.0, "400-499": 0.0, "500-599": 0.0, "600-700": 100.0, "701-780": 0.0}
+
+    else:
+        spectrum_json = {"380-399": 2.03, "400-499": 20.30, "500-599": 23.27, "600-700": 31.09, "701-780": 23.31}
     return ast.literal_eval(json.dumps(spectrum_json))
 
 
@@ -68,7 +77,7 @@ def submit_recipe():
         recipe_format = json.loads(query_result[0]["recipe_json"])
 
     recipe_format["format"] = query_result[0]["format_name"]
-    recipe_format["version"] = " ".join(str(x) for x in [2])
+    recipe_format["version"] = "0.1.2"
     recipe_format["authors"] = [
         {
             "name": str(user_name),
@@ -103,7 +112,7 @@ def submit_recipe():
         "name": "Standard Day",
         "spectrum_key":led_panel_dac5578.get("on_selected_spectrum", ""),
         "light_spectrum_nm_percent": standard_day_led_spectrum,
-        "light_intensity_watts": 100,
+        "light_ppfd_umol_m2_s": 300,
         "light_illumination_distance_cm": on_illumination_distance,
         "air_temperature_celcius": 22
     }
@@ -112,7 +121,7 @@ def submit_recipe():
         "name": "Standard Night",
         "spectrum_key": led_panel_dac5578.get("off_selected_spectrum", ""),
         "light_spectrum_nm_percent": standard_night_led_spectrum,
-        "light_intensity_watts": 100,
+        "light_ppfd_umol_m2_s": 50,
         "light_illumination_distance_cm": off_illumination_distance,
         "air_temperature_celcius": 22
     }
@@ -120,7 +129,7 @@ def submit_recipe():
         "name": "Cold Day",
         "spectrum_key": led_panel_dac5578.get("on_selected_spectrum", ""),
         "light_spectrum_nm_percent": standard_day_led_spectrum,
-        "light_intensity_watts": 100,
+        "light_ppfd_umol_m2_s": 300,
         "light_illumination_distance_cm": on_illumination_distance,
         "air_temperature_celcius": 10
     }
@@ -128,7 +137,7 @@ def submit_recipe():
         "name": "Frost Night",
         "spectrum_key": led_panel_dac5578.get("off_selected_spectrum", ""),
         "light_spectrum_nm_percent": standard_night_led_spectrum,
-        "light_intensity_watts": 100,
+        "light_ppfd_umol_m2_s": 50,
         "light_illumination_distance_cm": off_illumination_distance,
         "air_temperature_celcius": 2
     }

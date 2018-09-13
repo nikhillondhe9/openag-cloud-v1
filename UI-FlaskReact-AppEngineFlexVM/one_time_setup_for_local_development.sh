@@ -20,4 +20,4 @@ cd $DIR/FlaskApiProvider
 pip install -t lib -r requirements.txt
 
 cd $DIR/ReactFrontEnd
-npm install --save-dev
+npm install --save
