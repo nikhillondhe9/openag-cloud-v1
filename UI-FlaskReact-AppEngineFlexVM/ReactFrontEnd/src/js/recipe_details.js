@@ -203,14 +203,25 @@ class RecipeDetails extends Component {
                 return flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten);
             }, []);
         };
+        let actuators_html = []
+        let sensors_html = []
         let listperipherals = this.state.peripherals.map((component) => {
-            return (<div className="row" key={component.type}>
-                <div className="col-md-6">
-                    {component.name}
-                </div>
+            if (component.name.includes("Actuator") == true) {
+                actuators_html.push(
+                    <li key={component.type}>
+                        {component.name}
+                    </li>
 
-            </div>)
+                )
+            }
+            if (component.name.includes("Sensor") == true) {
+                sensors_html.push(
+                    <li  key={component.type}>
+                        {component.name}
+                    </li>
 
+                )
+            }
         });
 
         let recipeParams = this.state.peripherals.map(function (peripheral_json) {
@@ -295,12 +306,27 @@ class RecipeDetails extends Component {
 
                         </div>
                         <div className="row card-row">
-                            <div className="col-md-12">
+                            <div className="col-md-6">
                                 <div className="card">
                                     <div className="card-body">
-                                        {/*<div className="card-title"></div>*/}
+                                        <div className="card-title">Actuators</div>
                                         <div className="card-text">
-                                            {listperipherals}
+                                             <ul>
+
+                                            {actuators_html}
+                                             </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                             <div className="col-md-6">
+                                <div className="card">
+                                    <div className="card-body">
+                                        <div className="card-title">Sensors</div>
+                                        <div className="card-text">
+                                            <ul>
+                                            {sensors_html}
+                                            </ul>
                                         </div>
                                     </div>
                                 </div>
@@ -308,7 +334,7 @@ class RecipeDetails extends Component {
                         </div>
                         <div className="row card-row">
 
-                            <div className="col-md-12 "><h3>Parameters of the Climate Recipe </h3></div>
+                            <div className="col-md-12 "><h3>Climate Recipe </h3></div>
 
                         </div>
                         <div className="row card-row">
@@ -321,9 +347,16 @@ class RecipeDetails extends Component {
                             </div>
                         </div>
                         <div className="row card-row">
-                            <Button onClick={this.toggleApplyToDevice} className="submit-recipe-button">
-                                Apply Recipe
-                            </Button>
+                            {/*<Button onClick={this.toggleApplyToDevice} className="submit-recipe-button">*/}
+                                {/*Apply Recipe*/}
+                            {/*</Button>*/}
+                            <div className="col-md-10">
+                            </div>
+                            <div className="col-md-2">
+                            <button className="apply-button btn btn-secondary" onClick={this.toggleApplyToDevice}>
+                                    Download & Run
+                                </button>
+                            </div>
                         </div>
 
                     </div>

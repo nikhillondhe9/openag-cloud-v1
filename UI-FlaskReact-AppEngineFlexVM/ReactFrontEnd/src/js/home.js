@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {BrowserRouter as Router} from "react-router-dom";
 import '../scss/home.scss';
-import {Button, Input} from 'reactstrap';
+import {Button, Form, Input, Modal, ModalBody, ModalFooter, ModalHeader} from 'reactstrap';
 import {Cookies, withCookies} from "react-cookie";
 import placeholder from "../images/no-image.png";
 import notification from '../images/notification.png';
@@ -11,7 +11,7 @@ import {ImageTimelapse} from './components/image_timelapse';
 import {DevicesDropdown} from './components/devices_dropdown';
 import {AddDeviceModal} from './components/add_device_modal';
 import {AddAccessCodeModal} from './components/add_access_code_modal';
-import {Circle, Line} from 'rc-progress';
+import {Line} from 'rc-progress';
 
 import * as api from './utils/api';
 import * as query_string from 'query-string';
@@ -45,7 +45,9 @@ class Home extends Component {
             user_posts: [],
             user_discourse_posts: [],
             discourse_message: "",
-            discourse_type: "yours"
+            discourse_type: "yours",
+            open_twitter_modal:false,
+            twitter_message:"Test Message"
         };
         console.log(this.props)
 
@@ -59,6 +61,7 @@ class Home extends Component {
         this.changeDiscourseType = this.changeDiscourseType.bind(this)
         this.onChangeField = this.onChangeField.bind(this)
         this.goToPost = this.goToPost.bind(this)
+        this.handleOnChangeText = this.handleOnChangeText.bind(this)
         if (typeof all_params["vcode"] != 'undefined') {
             console.log('Showing device reg with code=' + all_params["vcode"]);
             // When we initialize the model, we take this Home.state.vcode and
@@ -66,7 +69,7 @@ class Home extends Component {
             this.state.device_reg_no = all_params["vcode"];
             this.state.add_device_modal = true;
         }
-
+        this.toggleTwitterModal = this.toggleTwitterModal.bind(this);
     }
 
     componentWillMount() {
@@ -80,7 +83,16 @@ class Home extends Component {
         console.log("Mounting Home component")
         this.getUserDevices()
     }
+    handleOnChangeText(e)
+    {
+        this.setState({twitter_message:e.target.value})
+    }
+    toggleTwitterModal()
 
+    {
+        this.setSocial("twitter")
+        this.setState({open_twitter_modal:!this.state.open_twitter_modal})
+    }
     setSocial(social) {
         this.setState({"social_selected": social})
         if (social == "discourse") {
@@ -445,6 +457,7 @@ class Home extends Component {
     }
 
     postToTwitter() {
+
         return fetch(process.env.REACT_APP_FLASK_URL + '/api/posttwitter/', {
             method: 'POST',
             headers: {
@@ -454,12 +467,14 @@ class Home extends Component {
             },
             body: JSON.stringify({
                 'user_uuid': this.state.user_uuid,
-                'user_token': this.props.cookies.get('user_token')
+                'user_token': this.props.cookies.get('user_token'),
+                'message':this.state.twitter_message
             })
         })
             .then((response) => response.json())
             .then((responseJson) => {
                 console.log(responseJson)
+                this.setState({open_twitter_modal:false})
                 // if (responseJson["response_code"] == 200) {
                 //     // this.setState({user_devices: responseJson["results"]})
                 // }
@@ -622,7 +637,7 @@ class Home extends Component {
                     <div className="twitter">
                         <div className="row">
                             <div className="col-md-4">
-                                <Button onClick={this.setSocial.bind(this, "twitter")}>Twitter</Button>
+                                <Button onClick={this.toggleTwitterModal}>Twitter</Button>
                             </div>
                             <div className="col-md-2">
                             </div>
@@ -651,17 +666,42 @@ class Home extends Component {
                             </div>
                             {this.state.discourse_type === "all" ? discourse_messages : user_discourse_messages}
                         </div>}
-                        <div className="row">
+                       {this.state.social_selected === 'discourse'? <div className="row">
                             <div className="col-md-8">
                                 <Input placeholder="Post your message" name="discourse_message" id="discourse_message"
                                        onChange={this.onChangeField}/>
                             </div>
-                            <div className="col-md-2">
-                                <Button onClick={this.postToDiscourse}>POST</Button>
-                            </div>
+
+                                <div className="col-md-2">
+                                    <Button onClick={this.postToDiscourse}>POST</Button>
+                                </div>:<div className="col-md-2"></div>
+
                         </div>
+                           :""}
                     </div>
 
+                      <Modal
+                isOpen={this.state.open_twitter_modal}
+                toggle={this.toggleTwitterModal}
+            >
+                <ModalHeader toggle={this.toggle}>
+                    Post to twitter
+                </ModalHeader>
+                <Form onSubmit={this.onSubmit}>
+                    <ModalBody>
+                        <Input type="textarea" placeholder="Enter your tweet" onChange={this.handleOnChangeText}></Input>
+                        <img src="https://storage.googleapis.com/openag-v1-images/EDU-2B97073C-50-65-83-e7-9f-52_Camera-Top_2018-07-30T08%3A12%3A06Z.png" width="100" height="100" />
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="primary" type="submit" onClick={this.postToTwitter}>
+                           Post to twitter
+                        </Button>
+                        <Button color="secondary" onClick={this.toggleTwitterModal}>
+                            Cancel
+                        </Button>
+                    </ModalFooter>
+                </Form>
+            </Modal>
 
                     <AddDeviceModal
                         isOpen={this.state.add_device_modal}

@@ -182,8 +182,8 @@ class DeviceHomepage extends Component {
 
         this.setState({
             'led_layout': {
-                width: 650,
-                height: 520,
+               width: 350,
+                 height: 450,
                 xaxis: {
                     autorange: true,
                     type: 'category'
@@ -539,8 +539,8 @@ class DeviceHomepage extends Component {
 
                     this.setState({
                         'co2_layout': {
-                            width: 650,
-                            height: 520,
+                            width: 350,
+                            height: 450,
                             xaxis: {
                                 autorange: true,
                                 tickformat: '%Y-%m-%dH:%M:%S',
@@ -610,8 +610,8 @@ class DeviceHomepage extends Component {
 
                     this.setState({
                         'rh_layout': {
-                            width: 650,
-                            height: 520,
+                           width: 350,
+                            height: 450,
                             xaxis: {
                                 autorange: true,
                                 tickformat: '%Y-%m-%dH:%M:%S',
@@ -646,8 +646,8 @@ class DeviceHomepage extends Component {
                     });
                     this.setState({
                         'temp_layout': {
-                            width: 650,
-                            height: 520,
+                            width: 350,
+                            height: 450,
                             xaxis: {
                                 autorange: true,
                                 tickformat: '%Y-%m-%dH:%M:%S',
@@ -908,7 +908,7 @@ class DeviceHomepage extends Component {
                     <div className="col-md-4">
                         <div className="card current-stats-card">
                             <div className="card-block">
-                                <h4 className="card-title "> CO2 Sensor </h4>
+                                <h4 className="card-title "> CO2 </h4>
                                 <div className="card-text">
                                     <div className="graph">
                                         <div className="knob_data">{this.state.current_co2}
@@ -925,15 +925,15 @@ class DeviceHomepage extends Component {
 
                 <div className="row graphs-row">
                     {/*<Draggable cancel="strong">*/}
-                    <div className="col-md-6">
+                    <div className="col-md-4">
                         <div className="card value-card">
                             <div className="card-block">
-                                <h4 className="card-title "> Temperature Sensor </h4>
+                                <h4 className="card-title "> Temperature </h4>
                                 <div className="row plot-row" style={{display: 'block'}}>
                                     <strong className="no-cursor"> <Plot data={this.state.temp_data}
                                                                          layout={this.state.temp_layout}
                                                                          onInitialized={(figure) => this.setState(figure)}
-                                                                         onUpdate={(figure) => this.setState(figure)}/>
+                                                                                                               onUpdate={(figure) => this.setState(figure)}/>
                                     </strong>
                                 </div>
                             </div>
@@ -943,11 +943,11 @@ class DeviceHomepage extends Component {
 
                     {/*</Draggable>*/}
                     {/*<Draggable cancel="strong">*/}
-                    <div className="col-md-6">
+                    <div className="col-md-4">
 
                         <div className="card value-card">
                             <div className="card-block">
-                                <h4 className="card-title "> Relative Humidity Sensor </h4>
+                                <h4 className="card-title "> Relative Humidity  </h4>
 
                                 <div className="row plot-row" style={{display: 'block'}}>
                                     <strong className="no-cursor"> <Plot data={this.state.rh_data}
@@ -959,14 +959,11 @@ class DeviceHomepage extends Component {
                             </div>
                         </div>
                     </div>
-                    {/*</Draggable>*/}
-                </div>
-                <div className="row graphs-row">
-                    {/*<Draggable cancel="strong">*/}
-                    <div className="col-md-6">
+
+                    <div className="col-md-4">
                         <div className="card value-card">
                             <div className="card-block">
-                                <h4 className="card-title "> Carbon Dioxide Sensor </h4>
+                                <h4 className="card-title "> CO2 </h4>
 
                                 <div className="row plot-row" style={{display: 'block'}}>
                                     <strong className="no-cursor"> <Plot data={this.state.co2_data}
@@ -980,121 +977,128 @@ class DeviceHomepage extends Component {
                         </div>
                     </div>
                     {/*</Draggable>*/}
-                    {/*<Draggable cancel="strong">*/}
-                    <div className="col-md-6">
-                        <div className="card value-card">
-                            <div className="card-block">
-                                <h4 className="card-title "> LED Panel Details </h4>
-                                <div className="row plot-row" style={{display: 'block'}}>
-                                    <strong className="no-cursor"> <Plot data={this.state.led_chart_data}
-                                                                         layout={this.state.led_layout}
-                                                                         onInitialized={(figure) => this.setState(figure)}
-                                                                         onUpdate={(figure) => this.setState(figure)}
-                                                                         config={this.state.config}/>
-                                    </strong>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {/*</Draggable>*/}
                 </div>
-                <div className="row graphs-row">
-                    <div className="col-md-6 edit-text">Horticulture Measurements</div>
-                </div>
+                {/*<div className="row graphs-row">*/}
+                    {/*/!*<Draggable cancel="strong">*!/*/}
 
-                <div className="row graphs-row">
-                    {/*<Draggable cancel="strong">*/}
-                    <div className="col-md-6">
-                        <div className="card environment-card">
-                            <div className="card-block">
-                                <h4 className="card-title "> Count leaves on the plant </h4>
-                                <div className="card-text">
-                                    <div className="graph">
-                                        <strong className="no-cursor">
+                    {/*/!*</Draggable>*!/*/}
+                    {/*/!*<Draggable cancel="strong">*!/*/}
+                    {/*<div className="col-md-6">*/}
+                        {/*<div className="card value-card">*/}
+                            {/*<div className="card-block">*/}
+                                {/*<h4 className="card-title "> LED Panel Details </h4>*/}
+                                {/*<div className="row plot-row" style={{display: 'block'}}>*/}
+                                    {/*<strong className="no-cursor"> <Plot data={this.state.led_chart_data}*/}
+                                                                         {/*layout={this.state.led_layout}*/}
+                                                                         {/*onInitialized={(figure) => this.setState(figure)}*/}
+                                                                         {/*onUpdate={(figure) => this.setState(figure)}*/}
+                                                                         {/*config={this.state.config}/>*/}
+                                    {/*</strong>*/}
+                                {/*</div>*/}
+                            {/*</div>*/}
+                        {/*</div>*/}
+                    {/*</div>*/}
+                    {/*/!*</Draggable>*!/*/}
+                {/*</div>*/}
+                {/*<div className="row graphs-row">*/}
+                    {/*<div className="col-md-6 edit-text">Horticulture Measurements</div>*/}
+                {/*</div>*/}
 
-                                            <span className="txt_smaller"></span>
-                                            <div className="knob_data">
-                                                <input type="text" className="recipe-details-text"
-                                                       placeholder="" id="leaves_count"
-                                                       value={this.state.leaves_count}
-                                                       name="leaves_count" onChange={this.sensorOnChange}/>
-                                            </div>
-                                            <span className="txt_smaller"></span>
+                {/*<div className="row graphs-row">*/}
+                    {/*/!*<Draggable cancel="strong">*!/*/}
+                    {/*<div className="col-md-6">*/}
+                        {/*<div className="card environment-card">*/}
+                            {/*<div className="card-block">*/}
+                                {/*<h4 className="card-title "> Count leaves on the plant </h4>*/}
+                                {/*<div className="card-text">*/}
+                                    {/*<div className="graph">*/}
+                                        {/*<strong className="no-cursor">*/}
 
-                                        </strong>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                                            {/*<span className="txt_smaller"></span>*/}
+                                            {/*<div className="knob_data">*/}
+                                                {/*<input type="text" className="recipe-details-text"*/}
+                                                       {/*placeholder="" id="leaves_count"*/}
+                                                       {/*value={this.state.leaves_count}*/}
+                                                       {/*name="leaves_count" onChange={this.sensorOnChange}/>*/}
+                                            {/*</div>*/}
+                                            {/*<span className="txt_smaller"></span>*/}
 
-
-                    {/*</Draggable>*/}
-                    {/*<Draggable cancel="strong">*/}
-                    <div className="col-md-6">
-                        <div className="card environment-card">
-                            <div className="card-block">
-                                <h4 className="card-title "> Height of the plant </h4>
-                                <div className="card-text">
-                                    <div className="graph">
-
-                                        <strong className="no-cursor">
-
-                                            <span className="txt_smaller"></span>
-                                            <div className="knob_data">
-                                                <input type="text" className="recipe-details-text"
-                                                       placeholder="" id="plant_height"
-                                                       value={this.state.plant_height}
-                                                       name="plant_height" onChange={this.sensorOnChange}/>
-                                            </div>
-                                            <span className="txt_smaller"> in centimeters ( cm )</span>
-
-
-                                        </strong>
-                                    </div>
+                                        {/*</strong>*/}
+                                    {/*</div>*/}
+                                {/*</div>*/}
+                            {/*</div>*/}
+                        {/*</div>*/}
+                    {/*</div>*/}
 
 
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    {/*/!*</Draggable>*!/*/}
+                    {/*/!*<Draggable cancel="strong">*!/*/}
+                    {/*<div className="col-md-6">*/}
+                        {/*<div className="card environment-card">*/}
+                            {/*<div className="card-block">*/}
+                                {/*<h4 className="card-title "> Height of the plant </h4>*/}
+                                {/*<div className="card-text">*/}
+                                    {/*<div className="graph">*/}
+
+                                        {/*<strong className="no-cursor">*/}
+
+                                            {/*<span className="txt_smaller"></span>*/}
+                                            {/*<div className="knob_data">*/}
+                                                {/*<input type="text" className="recipe-details-text"*/}
+                                                       {/*placeholder="" id="plant_height"*/}
+                                                       {/*value={this.state.plant_height}*/}
+                                                       {/*name="plant_height" onChange={this.sensorOnChange}/>*/}
+                                            {/*</div>*/}
+                                            {/*<span className="txt_smaller"> in centimeters ( cm )</span>*/}
 
 
-                    {/*</Draggable>*/}
-                </div>
+                                        {/*</strong>*/}
+                                    {/*</div>*/}
 
-                <div className="row graphs-row">
-                    <div className="col-md-6">
-                        <div className="card environment-card">
-                            <div className="card-block">
-                                <h4 className="card-title "> Solution pH </h4>
-                                <div className="card-text">
-                                    <div className="graph">
-                                        <strong className="no-cursor">
 
-                                            <span className="txt_smaller"></span>
-                                            <div className="knob_data">
-                                                <input type="text" className="recipe-details-text"
-                                                       placeholder="" id="solution_ph"
-                                                       value={this.state.solution_ph}
-                                                       name="solution_ph" onChange={this.sensorOnChange}/>
-                                            </div>
-                                            <span className="txt_smaller">(0-14)</span>
+                                {/*</div>*/}
+                            {/*</div>*/}
+                        {/*</div>*/}
+                    {/*</div>*/}
 
-                                        </strong>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className="row graphs-row">
-                    <div className="col-md-12">
-                        <button className="apply-button btn btn-secondary" onClick={this.submitMeasurements}>
-                            Submit Measurements
-                        </button>
-                    </div>
-                </div>
+
+                    {/*/!*</Draggable>*!/*/}
+                {/*</div>*/}
+
+                {/*<div className="row graphs-row">*/}
+                    {/*<div className="col-md-6">*/}
+                        {/*<div className="card environment-card">*/}
+                            {/*<div className="card-block">*/}
+                                {/*<h4 className="card-title "> Solution pH </h4>*/}
+                                {/*<div className="card-text">*/}
+                                    {/*<div className="graph">*/}
+                                        {/*<strong className="no-cursor">*/}
+
+                                            {/*<span className="txt_smaller"></span>*/}
+                                            {/*<div className="knob_data">*/}
+                                                {/*<input type="text" className="recipe-details-text"*/}
+                                                       {/*placeholder="" id="solution_ph"*/}
+                                                       {/*value={this.state.solution_ph}*/}
+                                                       {/*name="solution_ph" onChange={this.sensorOnChange}/>*/}
+                                            {/*</div>*/}
+                                            {/*<span className="txt_smaller">(0-14)</span>*/}
+
+                                        {/*</strong>*/}
+                                    {/*</div>*/}
+                                {/*</div>*/}
+                            {/*</div>*/}
+                        {/*</div>*/}
+                    {/*</div>*/}
+                {/*</div>*/}
+                {/*<div className="row graphs-row">*/}
+                    {/*<div className="col-md-10">*/}
+                    {/*</div>*/}
+                    {/*<div className="col-md-2">*/}
+                        {/*<button className="apply-button btn btn-secondary" onClick={this.submitMeasurements}>*/}
+                            {/*Submit Measurements*/}
+                        {/*</button>*/}
+                    {/*</div>*/}
+                {/*</div>*/}
                 {this.state.edit_mode ? <div className="edit-container">
                     <div className="row graphs-row">
                         <div className="col-md-6 edit-text"> Edit Climate Recipe</div>
@@ -1174,11 +1178,15 @@ class DeviceHomepage extends Component {
                         {/*</Draggable>*/}
                     </div>
                     <div className="row graphs-row">
-                        <div className="col-md-12">
+                        <div className="col-md-8">
+                        </div>
+                        <div className="col-md-3">
                             {this.state.edit_mode ?
                                 <button className="apply-button btn btn-secondary" onClick={this.checkApply}>
                                     Apply Changes
                                 </button> : null}
+                        </div>
+                        <div className="col-xs-1">
                         </div>
                     </div>
 

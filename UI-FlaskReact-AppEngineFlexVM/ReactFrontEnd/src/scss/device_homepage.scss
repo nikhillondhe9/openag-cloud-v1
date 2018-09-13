@@ -14,7 +14,7 @@
     padding: 20px;
     text-align: center;
     width: 100%;
-    height: 600px;
+    height: 530px;
   }
 
   .environment-card
@@ -275,5 +275,14 @@ h1 {
   {
         font-size: 2em;
   }
-
+.btn-secondary
+{
+  background-color: rgb(149, 38, 106);
+  border-color:rgb(149, 38, 106);
+}
+  .btn-secondary:hover
+{
+  background-color: #358A49;
+     border-color:#358A49;
+}
 }

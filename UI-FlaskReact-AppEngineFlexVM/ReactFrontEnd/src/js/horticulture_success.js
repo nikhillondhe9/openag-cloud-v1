@@ -96,9 +96,11 @@ class HorticultureSuccess extends Component {
                             Pick all the colors you see on the leaf
                         </div>
                         <div className="row padded-row">
-                            <div className="col-md-2"> <CirclePicker colors={green_color}/></div>
-                            <div className="col-md-2"> <CirclePicker colors={brown_color}/></div>
-                            <div className="col-md-2"> <CirclePicker colors={yellow_color}/></div>
+                            <div className="col-md-2"> <img src="https://blog.extension.uconn.edu/wp-content/uploads/sites/419/2014/06/basil-downy-mildew2-Ja-1024x682.jpg" width="100" height="100" /></div>
+                            <div className="col-md-2"> <img src="https://www.straitstimes.com/sites/default/files/basillemon.jpg" width="100" height="100" /></div>
+                            <div className="col-md-2"> <img src="https://img.hunkercdn.com/640/photos.demandstudios.com/227/50/fotolia_6694088_XS.jpg" width="100" height="100" /></div>
+                             <div className="col-md-2"> <img src="https://4.bp.blogspot.com/-yir1nM7pAHw/UeYKBvTO3gI/AAAAAAAADmA/pAmqTlt0SQ4/s1600/IMG_9297.JPG" width="100" height="100" /></div>
+                             <div className="col-md-2"> <img src="https://cdn.gardenista.com/wp-content/uploads/2015/04/img/sub/uimg/07-2012/700_purple-basil-dark-opal.jpg" width="100" height="100" /></div>
                          </div>
                     </div>
                 </div>
@@ -111,9 +113,9 @@ class HorticultureSuccess extends Component {
                             Pick the closest structure of your leaves
                         </div>
                         <div className="row padded-row">
-                            <div className="col-md-2"> <img className='leaf-wither' height="100" src={normal} /></div>
-                            <div className="col-md-2"> <img className='leaf-wither' height="100" src={med_withered} /></div>
-                            <div className="col-md-2"> <img className='leaf-wither' height="100" src={withered} /></div>
+                            <div className="col-md-2"> <img className='leaf-wither' height="100" src="https://drive.google.com/file/d/0BwQ3bdazwwHDeE5iS0tGalFwcVZpZjNGWVpuVVppcnN4S1ZJ/view?usp=sharing" /></div>
+                            <div className="col-md-2"> <img className='leaf-wither' height="100" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRyAvP0KV2UBbW5q4L4HIMBaLUcNg76FmYwoc9Sl8B1k1lvEd4o" /></div>
+                            <div className="col-md-2"> <img className='leaf-wither' height="100" src="http://homewarehuntress.com/wp-content/uploads/2014/04/wilting-basil-plant-1024x768.jpg" /></div>
                          </div>
                     </div>
                 </div>
