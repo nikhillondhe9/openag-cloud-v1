@@ -1,6 +1,6 @@
 # Communication details for the OpenAg™ Food Computer™ 
 
-## Technologies used by the OpenAg™ Food Computers™ and backend services
+## Technologies used by the OpenAg™ Food Computers™ and cloud services
 - RSA public / private keys
 - Google Firebase cloud functions
 - Google Firestore document database
@@ -33,13 +33,13 @@ Our standard microcomputer is a Beaglebone Black running Debian 9.3.  All our co
 
 ## Step 4: The Food Computer™ publishes data
 - While a recipe is running, the Food Computer™ publishes data and images according to the schedule specified in the climate recipe.
-- Our PubSub service (running managed virtual machines) receives, validates and saves the data in a BigQuery dataset.  Images are indexed and stored in cloud storage.
+- Our MQTT-PubSub service (running as an App Engine managed virtual machine) receives, validates and saves the data in a BigQuery dataset and in the real time Datastore for fast UI access.  Images are indexed and stored in cloud storage.
 
 ## Step 5: Monitor a Food Computer™ using the UI
 - The UI shows the user the current state of their Food Computers™:
   - Current and historical environmental variables.
   - Status of the running climate recipe.
   - Latest image (or timelaps up to now).
-  - Alerts based on ML / CV we do in the future.
+  - Alerts based on ML / CV we will do in the future.
 
 
