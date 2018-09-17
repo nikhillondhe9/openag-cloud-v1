@@ -1,1 +1,0 @@
-{ "dtype": "4", "measurement_period_ms": "4000", "num_cycles": "1", "curr_cycle": "0", "cycles": [ { "num_steps": "2", "num_repeats": "10", "curr_step": "0", "curr_repeat": "0", "steps": [ { "set_point": "800", "duration": "360" }, { "set_point": "0", "duration": "60" } ] } ] }

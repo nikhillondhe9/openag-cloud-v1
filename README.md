@@ -1,4 +1,3 @@
 # openag-cloud-v1
-Google Cloud Platform services and databases for the OpenAg™ backend.
+Google Cloud Platform services and databases for the OpenAg™ Food Computer backend.
 
-These projects are all a work in progress.
