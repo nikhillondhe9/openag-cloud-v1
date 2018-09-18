@@ -10,4 +10,5 @@ Documentation:
  - [System architecture diagram](docs/OpenAg_Cloud_Architecture.jpg)
  - [System description](docs/OpenAg_Cloud_Description.pdf)
  - [How device communication works](docs/DeviceCommunications.md)
- - [Installing python (for a developer)](docs/README_python.md)
+ - [Installing python (for developers)](docs/README_python.md)
+ - [Contributing to this software project](docs/contributing.md)
