@@ -230,8 +230,52 @@ def deleteImageChunksFromDatastore( DS, deviceId, messageId ):
     qiter = query.fetch()
     for entity in qiter:
         DS.delete( entity.key )
-    logging.debug( "deleteImageChunksFromDatastore: {} deleted.".format( 
-        messageId ))
+        logging.debug( "deleteImageChunksFromDatastore: chunk {} of messageId {} deleted.".format( entity.get( 'chunkNum', '?' ), messageId ))
+    return
+
+
+#------------------------------------------------------------------------------
+# Save the ids of an invalid image, so we can clean up the cache.
+def saveTurd( DS, deviceId, messageId ):
+    key = DS.key( 'MqttServiceTurds' )
+    turd = datastore.Entity( key )
+    turd.update( {
+        'deviceId': deviceId,
+        'messageId': messageId,
+        'timestamp': datetime.now()
+        } )
+    DS.put( turd )  
+    logging.debug( 'saveTurd: saved to MqttServiceTurds {} for {}'.format( 
+            messageId, deviceId ))
+    return 
+
+
+#------------------------------------------------------------------------------
+# Returns list of dicts, each with a chunk.
+def getTurds( DS, deviceId ):
+    query = DS.query( kind='MqttServiceTurds' )
+    query.add_filter( 'deviceId', '=', deviceId )
+    qiter = list( query.fetch() )
+    results = list( qiter )
+    resultsToReturn = []
+    for row in results:
+        pydict = {
+            'deviceId': row.get( 'deviceId', '' ),
+            'messageId': row.get( 'messageId', '' )
+        }
+        resultsToReturn.append( pydict )
+    return resultsToReturn
+
+
+#------------------------------------------------------------------------------
+def deleteTurd( DS, deviceId, messageId ):
+    query = DS.query( kind='MqttServiceTurds' )
+    query.add_filter( 'deviceId', '=', deviceId )
+    query.add_filter( 'messageId', '=', messageId )
+    qiter = query.fetch()
+    for entity in qiter:
+        DS.delete( entity.key )
+    logging.debug( "deleteTurd: messageId {} deleted.".format( messageId ))
     return
 
 
@@ -239,7 +283,6 @@ def deleteImageChunksFromDatastore( DS, deviceId, messageId ):
 # Parse and save the image
 def save_image( CS, DS, BQ, pydict, deviceId, PROJECT, DATASET, TABLE, \
         CS_BUCKET ):
-
     try:
         if messageType_Image != validateMessageType( pydict ):
             logging.error( "save_image: invalid message type" )
@@ -262,6 +305,27 @@ def save_image( CS, DS, BQ, pydict, deviceId, PROJECT, DATASET, TABLE, \
         totalChunks = pydict[ totalChunks_KEY ]
         imageChunk =  pydict[ imageChunk_KEY ]
 
+        # Get rid of all chunks if we receive one bad chunk - so we don't 
+        # make bad partial images.
+        if 0 == len(imageChunk):
+            logging.error( "save_image: received empty imageChunk from {}, cleaning up turds".format( deviceId ))
+            deleteImageChunksFromDatastore( DS, deviceId, messageId )
+            saveTurd( DS, deviceId, messageId )
+            return
+
+        # Clean up any smelly old turds from previous images (if they don't
+        # match the current messageId from this device).
+        turds = getTurds( DS, deviceId )
+        for badImage in turds:
+            badMessageId = badImage['messageId'] 
+            if badMessageId != messageId:
+                deleteImageChunksFromDatastore( DS, deviceId, badMessageId )
+                deleteTurd( DS, deviceId, badMessageId )
+
+        # Save this chunk to the datastore cache.
+        saveImageChunkToDatastore( DS, deviceId, messageId, varName, 
+            imageType, chunkNum, totalChunks, imageChunk )
+
         # For every message received, check data store to see if we can
         # assemble chunks.  Messages will probably be received out of order.
 
@@ -270,42 +334,40 @@ def save_image( CS, DS, BQ, pydict, deviceId, PROJECT, DATASET, TABLE, \
         for c in range( 0, totalChunks ):
             listOfChunksReceived.append( False )
 
-        # What chunks have we already received?
+        # What chunks have we already received? 
         oldChunks = getImageChunksFromDatastore( DS, deviceId, messageId )
         for oc in oldChunks:
             listOfChunksReceived[ oc[ 'chunkNum' ] ] = True
-
-        # Add in the chunk we just got
-        listOfChunksReceived[ chunkNum ] = True
-        oldChunks.append( {
-            'deviceId': deviceId,
-            'messageId': messageId,
-            'varName': varName,
-            'imageType': imageType,
-            'chunkNum': chunkNum,
-            'totalChunks': totalChunks,
-            'imageChunk': imageChunk
-        } )
+            logging.debug( 'save_image: received {} of {} '
+                'for messageId={}'.format( oc[ 'chunkNum'], 
+                    totalChunks, messageId))
 
         # Do we have all chunks?
         haveAllChunks = True
+        chunkCount = 0 
         for c in listOfChunksReceived:
+            logging.debug( 'save_image: listOfChunksReceived [{}]={}'.format(
+                chunkCount, c))
+            chunkCount += 1 
             if not c:
                 haveAllChunks = False
+        logging.debug( 'save_image: haveAllChunks={}'.format(haveAllChunks))
 
         # No, so just add this chunk to the datastore and return
         if not haveAllChunks:
-            saveImageChunkToDatastore( DS, deviceId, messageId, varName, 
-                imageType, chunkNum, totalChunks, imageChunk )
+            logging.debug('save_image: returning to wait for more chunks')
             return
 
         # YES! We have all our chunks, so reassemble the binary image.
 
         # Delete the temporary datastore cache for the chunks
         deleteImageChunksFromDatastore( DS, deviceId, messageId )
+        deleteTurd( DS, deviceId, messageId )
 
         # Sort the chunks by chunkNum (we get messages out of order)
         oldChunks = sorted( oldChunks, key=lambda k: k['chunkNum'] )
+
+        # Reassemble the b64 chunks into one string (in order).
         b64str = ''
         for oc in oldChunks:
             b64str += oc[ 'imageChunk' ]
@@ -332,7 +394,6 @@ def save_image( CS, DS, BQ, pydict, deviceId, PROJECT, DATASET, TABLE, \
         valuesJson += "]}"
         message_obj[ values_KEY ] = valuesJson
         bq_data_insert( BQ, message_obj, deviceId, PROJECT, DATASET, TABLE )
-
 
     except Exception as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -468,7 +529,7 @@ def save_data_to_Device( DS, pydict, deviceId ):
 
 
 #------------------------------------------------------------------------------
-# This method is the entry point for all day sent to our service, once 
+# This method is the entry point for all data sent to our service, once 
 # the message type is validated.
 # Parse and save the (json/dict) data to the appropriate place.
 def save_data( CS, DS, BQ, pydict, deviceId, \
