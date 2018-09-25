@@ -17,18 +17,10 @@ wget https://bootstrap.pypa.io/get-pip.py
 sudo python get-pip.py
 ```
 
-## There are different python setups and environments for BigQuery or PubSub 
+## Set up the environment for BigQuery 
 ```
 cd ~/openag-cloud-v1
 ./setup_bq_env.sh
-./setup_pubsub_env.sh
-```
-
-## You can switch between the environments 
-```
-cd ~/openag-cloud-v1
-./activate_bq_env.sh
-./activate_pubsub_env.sh
 ```
 
 [BQ dataset REST API](https://cloud.google.com/bigquery/docs/reference/rest/v2/datasets/list)

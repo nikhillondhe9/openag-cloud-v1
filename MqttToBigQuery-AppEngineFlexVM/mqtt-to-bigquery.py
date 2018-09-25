@@ -35,10 +35,13 @@ def callback( msg ):
     try:
         msg.ack() # acknowledge to the server that we got the message
 
+        display_data = msg.data
+        if 250 < len(display_data):
+            display_data = "..."
         logging.debug( 'data={}\n  deviceId={}\n  subFolder={}\n  '
             'deviceNumId={}\n'.
             format( 
-                msg.data, 
+                display_data, 
                 msg.attributes['deviceId'],
                 msg.attributes['subFolder'],
                 msg.attributes['deviceNumId'] ))
@@ -50,10 +53,10 @@ def callback( msg ):
         # try to decode the byte data as a string / JSON
         pydict = json.loads( msg.data.decode('utf-8'))
         utils.save_data( CS, DS, BQ, pydict, msg.attributes['deviceId'],
-                os.getenv('GCLOUD_PROJECT'),
-                os.getenv('BQ_DATASET'),
-                os.getenv('BQ_TABLE'),
-                os.getenv('CS_BUCKET'))
+            os.getenv('GCLOUD_PROJECT'),
+            os.getenv('BQ_DATASET'),
+            os.getenv('BQ_TABLE'),
+            os.getenv('CS_BUCKET'))
 
     except Exception as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()
