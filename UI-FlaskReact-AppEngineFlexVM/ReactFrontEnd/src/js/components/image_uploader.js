@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, Input } from 'reactstrap';
 import "../../scss/components/image_uploader.scss";
+import edit_icon from "../../images/pencil-edit-button.png";
 
 /**
  * ImageUploader
@@ -42,7 +43,7 @@ export class ImageUploader extends React.PureComponent {
     render() {
         return (
             <Button className="image-uploader">
-                Change Picture
+                <img className="small-pad" src={edit_icon} height="10"/> Edit
                 <Input
                     type="file"
                     name="file"

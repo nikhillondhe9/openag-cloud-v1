@@ -1,9 +1,9 @@
 .home-container {
   display: grid;
   grid-template-areas: "devices-dropdown . post-twitter" "notifications timelapse twitter" "notifications status twitter";
-  grid-gap: 20px;
+  grid-gap: 10px;
   grid-column-gap: 50px;
-  grid-template-columns: 2fr 3fr 2fr;
+  grid-template-columns: 2fr 2.5fr 2.5fr;
 }
 
 .home-container {
@@ -51,6 +51,7 @@
   .twitter {
     grid-area: twitter;
     height: 70vh;
+    width: 100%;
     overflow-y: scroll;
   }
 
@@ -61,7 +62,20 @@
   .range-slider {
     width: 100%;
   }
+  .twitter {
+    .row {
+      .buttons-row {
+        width: 100%;
+        .btn-group {
+          width: 100%;
+          .btn.btn-outline-primary {
+            width: 50%;
+          }
+        }
+      }
+    }
 
+  }
   .range-slider__range {
     -webkit-appearance: none;
     width: 100%;
@@ -171,26 +185,30 @@
           width: 100%;
           margin-top: 10px;
           border-radius: 0px;
-           background-color: rgb(149, 38, 106);
-    border-color: rgb(149, 38, 106);
-          color:white;
+          background-color: rgb(149, 38, 106);
+          border-color: rgb(149, 38, 106);
+          color: white;
         }
       }
     }
   }
   .btn-secondary {
-      background-color: rgb(149, 38, 106);
-      border-color: rgb(149, 38, 106);
-      width:100%;
-    }
-    .btn-secondary:hover
-{
-  background-color: #358A49;
-     border-color:#358A49;
-}
+    background-color: rgb(149, 38, 106);
+    border-color: rgb(149, 38, 106);
+    width: 100%;
+  }
+  .btn-secondary:hover {
+    background-color: #358A49;
+    border-color: #358A49;
+  }
   .bottom-row {
     margin-top: 5px;
 
+  }
+  .dropdown-toggle.btn.btn-secondary
+  {
+    background-color: #6c757d;
+    border-color: #6c757d;
   }
   .twitter-row {
     div {
@@ -201,7 +219,6 @@
     width: 100%;
   }
   .padding-0 {
-    padding-right: 0;
     padding-left: 0;
   }
   .discourse-container {
@@ -209,5 +226,26 @@
     padding-top: 10px;
     max-height: 400px;
     overflow-y: scroll;
+  }
+  .btn-group {
+    width: 92%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .toggle-caret-upper
+  {
+    text-transform: uppercase;
+  }
+  .twitter-share-img img
+  {
+    display:block;
+    margin-left:auto;
+    margin-right:auto;
+    padding-top: 10px;
+  }
+  .row.twitter-row div {
+    padding-left: 10px;
+    padding-right: 10px;
   }
 }

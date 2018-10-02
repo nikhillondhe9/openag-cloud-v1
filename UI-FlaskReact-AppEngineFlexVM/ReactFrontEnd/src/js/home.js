@@ -12,7 +12,8 @@ import {
     Modal,
     ModalBody,
     ModalFooter,
-    ModalHeader
+    ModalHeader,
+    ButtonGroup
 } from 'reactstrap';
 import {Cookies, withCookies} from "react-cookie";
 import placeholder from "../images/no-image.png";
@@ -468,6 +469,7 @@ class Home extends Component {
     postToDiscourse() {
         var message = this.state.discourse_message;
         var title = message.substring(0, 100)
+
         return fetch("https://forum.openag.media.mit.edu/posts.json?api_key=5cdae222422803379b630fa3a8a1b5e216aa6db5b6c0126dc0abce00fdc98394&api_username=openag&raw=" + message + "&title=" + title + "&category=20", {
             method: 'POST',
             headers: {},
@@ -562,18 +564,19 @@ class Home extends Component {
 
         let user_discourse_messages = this.state.user_posts.map((post) => {
             return (
-                <div className="row">
+                <div className="row" onClick={this.goToPost.bind(this, post["post_url"])}>
                     <div className="col-md-2">
                         <img src={post["avatar"]} width="30" height="30"/>
                     </div>
                     <div className="col-md-10">
                         <div className="row"><b>{post["username"]}</b></div>
                         <div className="row">{post["message"]}</div>
-                        <div className="row">Replies: {post["post_count"]} </div>
+                        <div className="row"> <b> Replies: </b> {post["post_count"]} </div>
                     </div>
                 </div>
             )
         });
+        let halfbox= {width:'50%'}
         let gotohistory = "/recipe_history/" + this.state.selected_device_uuid + "/" + this.state.current_recipe_uuid;
         return (
             <Router>
@@ -672,21 +675,27 @@ class Home extends Component {
                     </div>
 
                     <div className="twitter">
-                        <div className="row">
-                            <div className="col-md-3">
+                        <div className="row buttons-row">
+                        <ButtonGroup>
+                            <Button
+                                outline
+                                onClick={() => this.setSocial('twitter')}
+                                active={this.state.social_selected == 'twitter'}
+                                color="primary" style={halfbox}
+                            >
+                               <img src={twitter_icon} height="30"/>Twitter
+                            </Button>
+                            <Button
+                                outline
+                                onClick={() => this.setSocial('discourse')}
+                                active={this.state.social_selected == 'discourse'}
+                                color="primary" style={halfbox}
+                            >
+                                <img src={discourse_icon} height="30"/>Discourse
+                            </Button>
+                        </ButtonGroup>
+                    </div>
 
-                            </div>
-                            <div className="col-md-4 padding-0">
-                                <Button className="btn btn-secondary btn-block social-buttons"
-                                        onClick={this.selectTwitter}><img src={twitter_icon} height="30"/>Twitter</Button>
-                            </div>
-                            <div className="col-md-4 padding-0">
-                                <Button className="btn btn-secondary btn-block social-buttons"
-                                        onClick={this.setSocial.bind(this, "discourse")}><img src={discourse_icon} height="30"/>Discourse</Button>
-                            </div>
-                            <div className="col-xs-1 padding-0">
-                            </div>
-                        </div>
 
 
                         {this.state.social_selected === "twitter" ? <div className="row bottom-row">
@@ -694,9 +703,9 @@ class Home extends Component {
                                                                onClick={this.toggleTwitterModal}>
                                 Post To Twitter </Button></div>
                         </div> : <div className="row bottom-row">
-                            <div className="col-md-4 padding-0"><Dropdown isOpen={this.state.allyoursOpen}
+                            <div className="col-md-4"><Dropdown isOpen={this.state.allyoursOpen}
                                                                           toggle={this.toggleallyours}>
-                                <DropdownToggle caret>
+                                <DropdownToggle caret className="toggle-caret-upper">
                                     {this.state.discourse_type}
                                 </DropdownToggle>
                                 <DropdownMenu>
@@ -741,7 +750,7 @@ class Home extends Component {
                                        onChange={this.handleOnChangeText}></Input>
                                 <img
                                     src="https://storage.googleapis.com/openag-v1-images/EDU-2B97073C-50-65-83-e7-9f-52_Camera-Top_2018-07-30T08%3A12%3A06Z.png"
-                                    width="100" height="100"/>
+                                     height="200" className="twitter-share-img"/>
                             </ModalBody>
                             <ModalFooter>
                                 <Button color="primary" type="submit" onClick={this.postToTwitter}>
@@ -769,7 +778,7 @@ class Home extends Component {
                                 <Button color="primary" type="submit" onClick={this.postToDiscourse}>
                                     Post to Forum
                                 </Button>
-                                <Button color="secondary" onClick={this.toggleTwitterModal}>
+                                <Button color="secondary" onClick={this.toggleDiscourseModal}>
                                     Cancel
                                 </Button>
                             </ModalFooter>
