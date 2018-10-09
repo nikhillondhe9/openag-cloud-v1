@@ -17,6 +17,7 @@ import {
     Dropdown,
     DropdownToggle,
     DropdownMenu,
+    Button,
     DropdownItem
 } from 'reactstrap';
 
@@ -146,6 +147,7 @@ class DeviceHomepage extends Component {
         this.LEDSpectrumSelection = this.LEDSpectrumSelection.bind(this);
         this.toggleEditMode = this.toggleEditMode.bind(this);
         this.accessChamber = this.accessChamber.bind(this);
+        this.goToHarvest  = this.goToHarvest.bind(this)
         this.submitRecipe = this.submitRecipe.bind(this)
     }
 
@@ -280,6 +282,7 @@ class DeviceHomepage extends Component {
                 this.toggleApplyConfirmation();
             } else {
                 this.handleApplySubmit();
+                this.toggleEditMode()
             }
         });
     }
@@ -820,7 +823,11 @@ class DeviceHomepage extends Component {
                 console.error(error);
             });
     }
+    goToHarvest()
+    {
+        window.location.href = "/harvest/" + this.state.selected_device_uuid.toString();
 
+    }
     render() {
         const margin = {top: 20, right: 20, bottom: 30, left: 50};
         let changesList = []
@@ -874,34 +881,12 @@ class DeviceHomepage extends Component {
                         </DropdownMenu>
                     </Dropdown>
                     </div>
-                    {/*<div className="col-md-2">*/}
-                        {/*<button className="apply-button btn btn-secondary" onClick={this.accessChamber}>*/}
-                        {/*</button>*/}
-                    {/*</div>*/}
-                    {/*<div className="col-md-3">*/}
-                        {/*<button className="apply-button btn btn-secondary" onClick={this.submitRecipe}>*/}
-                        {/*</button>*/}
-                    {/*</div>*/}
-                    {/*<div className="col-md-2">*/}
-                        {/*<button className="apply-button btn btn-secondary" onClick={this.submitRecipe}>*/}
-                        {/*</button>*/}
-                    {/*</div>*/}
+
                     <div className="col-md-1">
                     </div>
-                    <div className="col-md-2 right-colu">
-                        {/*<div className="row pull-right">*/}
-                            {/*Edit Mode:*/}
-                        {/*</div>*/}
-                        {/*<div className="row">*/}
-                            {/*<label class="button-toggle-wrap">*/}
-                                {/*<input class="toggler" type="checkbox" data-toggle="button-toggle"/>*/}
-                                {/*<div class="button-toggle" onClick={this.toggleEditMode}>*/}
-                                    {/*<div class="handle">*/}
-                                        {/*<div class="bars"></div>*/}
-                                    {/*</div>*/}
-                                {/*</div>*/}
-                            {/*</label>*/}
-                        {/*</div>*/}
+                    <div className="col-md-2 color-button">
+                        <Button className="pull-right" onClick={this.goToHarvest}> Harvest Plant
+                        </Button>
                     </div>
                 </div>
                 <div className="row graphs-row">

@@ -27,11 +27,11 @@ def get_current_recipe_info():
             message='Invalid token. Unauthorized.'
         )
 
-    query = datastore_client.query(kind='DeviceHistory',
-                                   order=['-date_applied'])
-    query.add_filter('device_uuid', '=', device_uuid)
-    query.add_filter('recipe_uuid', '=', recipe_uuid)
-    query_result = list(query.fetch(1))
+    query = datastore_client.query(kind='DeviceHistory')
+    # query.add_filter('device_uuid', '=', "EDU-AC591127-f4-5e-ab-fa-82-e8")
+    query.add_filter('recipe_uuid', '=', "4e309eab-c2e4-4d81-b52f-f0fe2b8691fd")
+    query_result = list(query.fetch())
+    print(query_result)
     if len(query_result) == 0:
         return success_response(
             expired=True

@@ -13,7 +13,7 @@ import curl1 from '../images/curl1.JPG';
 import * as api from './utils/api';
 import {CirclePicker} from 'react-color';
 
-class HorticultureSuccess extends Component {
+class HarvestPlant extends Component {
     constructor(props) {
         super(props);
         let device_uuid = this.props.match.params.device_uuid;
@@ -45,9 +45,6 @@ class HorticultureSuccess extends Component {
     }
 
     render() {
-        let green_color = ["#8bc34a"]
-        let brown_color = ["#795548"]
-        let yellow_color = ["#ffeb3b"]
         let shaded_browns = ["#FFF8DC", "#CD853F", "#795548"]
         return (
 
@@ -82,25 +79,22 @@ class HorticultureSuccess extends Component {
                             <Input onChange={this.sensorOnChange} name="plant_height" placeholder="Height in (cm)"/>
                         </div>
                     </div>
-                    {/*<div className="row measurements-row">*/}
-                    {/*<div className="col-md-6">*/}
-                    {/*Plant Weight*/}
-                    {/*</div>*/}
-                    {/*<div className="col-md-6">*/}
-                    {/*<div className="row padded-row">*/}
-                    {/*Weight with roots (in grams)*/}
-                    {/*</div>*/}
-                    {/*<div className="row padded-row">*/}
-                    {/*<Input onChange={this.sensorOnChange} name="plant_weight_roots" placeholder=""/>*/}
-                    {/*</div>*/}
-                    {/*<div className="row padded-row">*/}
-                    {/*Weight without roots (in grams)*/}
-                    {/*</div>*/}
-                    {/*<div className="row padded-row">*/}
-                    {/*<Input onChange={this.sensorOnChange} name="plant_weight_wo_roots" placeholder=""/>*/}
-                    {/*</div>*/}
-                    {/*</div>*/}
-                    {/*</div>*/}
+                    <div className="row measurements-row">
+                        <div className="col-md-6">
+                            Plant Weight (with roots)
+                        </div>
+                        <div className="col-md-6">
+                            <Input onChange={this.sensorOnChange} name="plant_weight_roots" placeholder="Weight in (grams)"/>
+                        </div>
+                    </div>
+                    <div className="row measurements-row">
+                        <div className="col-md-6">
+                            Plant Weight (without roots)
+                        </div>
+                        <div className="col-md-6">
+                            <Input onChange={this.sensorOnChange} name="plant_weight_without_roots" placeholder="Weight in (grams)"/>
+                        </div>
+                    </div>
                     <div className="row measurements-row">
                         <div className="col-md-6">
                             Leaf Count
@@ -214,4 +208,4 @@ class HorticultureSuccess extends Component {
     }
 }
 
-export default withCookies(HorticultureSuccess);
+export default withCookies(HarvestPlant);
