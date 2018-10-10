@@ -293,6 +293,45 @@ h1 {
   {
         padding-right: 40px;
   }
+ .no-padding
+  {
+    padding:0;
+  }
+  .disabled-button
+  {
+    width:80%;
+  }
+  .btn{
 
+    &-loading {
+    pointer-events: auto;
+    &:after {
+      animation: btn-loading 1s linear infinite;
+      background: repeating-linear-gradient(
+                      -60deg,
+                      rgba(white, .15),
+                      rgba(white, .15) 1em,
+                      rgba(black, .15) 1em,
+                      rgba(black, .15) 2em /* determines size */
+      );
+      background-size: 200%;
+      content: "";
+      height: 100%;
+      left: 0;
+      position: absolute;
+      top: 0;
+      width: 80%;
+
+      @keyframes btn-loading {
+        from {
+          background-position: -4em 0;
+        }
+        to {
+          background-position: -1.7em 0;
+        }
+      }
+    }
+  }
+  }
 
 }

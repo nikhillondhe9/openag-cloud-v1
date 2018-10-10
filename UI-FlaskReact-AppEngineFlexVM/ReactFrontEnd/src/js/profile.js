@@ -300,8 +300,8 @@ class profile extends Component {
                                 <div className="col-md-4">N/A</div>
                             </div>
                             <div className="row">
-                                <div className="col-md-4"><Button className="edit-button-add"
-                                                                  onClick={this.shareDevice.bind(this, device)}>
+                                <div className="col-md-4 no-padding"><Button className="edit-button-full btn btn-loading"
+                                                                  onClick={this.shareDevice.bind(this, device)} disabled>
                                     Add User</Button></div>
                             </div>
                         </div>
@@ -445,9 +445,9 @@ class profile extends Component {
                                 <div className="row">
                                     <div className="col-md-4"></div>
                                     <div className="col-md-4"></div>
-                                    <div className="col-md-4 pull-right">
-                                        <Button className="edit-button"
-                                                onClick={this.toggle_discourse_modal}><img src={discourse_icon}
+                                    <div className="col-md-4 pull-right no-padding-right">
+                                        <Button className="edit-button-full btn btn-loading"
+                                                onClick={this.toggle_discourse_modal} title='Coming Soon' disabled ><img src={discourse_icon}
                                                                                            height="30"/> Connect
                                             Forum</Button>
                                     </div>
@@ -456,7 +456,7 @@ class profile extends Component {
                                     <div className="col-md-4"></div>
                                     <div className="col-md-4"></div>
 
-                                    <div className="col-md-4 pull-right">
+                                    <div className="col-md-4 pull-right no-padding-right">
                                         {this.state.edit_profile ?
                                             <Button className="edit-button" onClick={this.saveUserProfile}>
                                                 Save

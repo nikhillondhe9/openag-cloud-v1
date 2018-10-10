@@ -875,8 +875,8 @@ class DeviceHomepage extends Component {
                         </DropdownToggle>
                         <DropdownMenu>
                             <DropdownItem onClick={this.accessChamber}>Log chamber access only</DropdownItem>
-                           <DropdownItem onClick={this.submitRecipe}>Take Horticulture Measurements </DropdownItem>
-                            <DropdownItem onClick={this.downloadCSV}>Download data </DropdownItem>
+                           <DropdownItem onClick={this.submitRecipe} disabled>Take Horticulture Measurements </DropdownItem>
+                            <DropdownItem onClick={this.downloadCSV} disabled>Download data </DropdownItem>
                             <DropdownItem onClick={this.toggleEditMode}>Edit Climate Recipe </DropdownItem>
                         </DropdownMenu>
                     </Dropdown>
@@ -884,8 +884,8 @@ class DeviceHomepage extends Component {
 
                     <div className="col-md-1">
                     </div>
-                    <div className="col-md-2 color-button">
-                        <Button className="pull-right" onClick={this.goToHarvest}> Harvest Plant
+                    <div className="col-md-2 no-padding">
+                        <Button className="btn btn-loading disabled-button" onClick={this.goToHarvest} disabled> Harvest Plant
                         </Button>
                     </div>
                 </div>

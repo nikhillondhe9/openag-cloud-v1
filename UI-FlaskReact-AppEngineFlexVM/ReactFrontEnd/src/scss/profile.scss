@@ -96,6 +96,10 @@
     padding-top: 10px;
     border-top: 1px solid #000000;
   }
+  .no-padding
+  {
+    padding:0
+  }
   .edit-button {
     min-width: 180px;
     background-color: rgb(149, 38, 106);
@@ -110,6 +114,7 @@
       background-color: #358A49;
       border-color: #358A49;
     }
+
   }
   .small-pad
   {
@@ -126,5 +131,13 @@
   .image-uploader.btn.btn-secondary
   {
         float: right;
+  }
+  .edit-button-full
+  {
+    width:100%;
+  }
+  .no-padding-right
+  {
+    padding:0;
   }
 }

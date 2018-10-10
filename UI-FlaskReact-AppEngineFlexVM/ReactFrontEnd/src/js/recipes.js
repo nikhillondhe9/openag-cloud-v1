@@ -295,15 +295,15 @@ class recipes extends Component {
                                 outline
                                 onClick={() => this.onFilterRecipe('my')}
                                 active={this.state.filter_recipe_button_state == 'my'}
-                                color="primary"
-                            >
+                                color="primary" className="btn btn-loading" title='Coming Soon'
+                            disabled>
                                 My Recipes
                             </Button>
                             <Button
                                 outline
                                 onClick={() => this.onFilterRecipe('saved')}
                                 active={this.state.filter_recipe_button_state == 'saved'}
-                                color="primary"
+                                color="primary" className="btn btn-loading" title='Coming Soon' disabled
                             >
                                 Saved Recipes
                             </Button>
