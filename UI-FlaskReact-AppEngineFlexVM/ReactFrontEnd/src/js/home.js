@@ -271,8 +271,8 @@ class Home extends Component {
                 let results = responseJson["results"]
                 this.setState({wifi_status: results["wifi_status"]})
                 this.setState({current_temp: results["current_temp"]})
-                // this.setState({progress: results["progress"]})
-                // this.setState({age_in_days: results["age_in_days"]})
+                this.setState({current_recipe_runtime:results["runtime"]})
+                this.setState({age_in_days:results["age_in_days"]})
             })
             .catch(error => {
                 console.error(error);
@@ -311,8 +311,7 @@ class Home extends Component {
             console.log(response, "SS")
             this.setState({
                 current_recipe_uuid: response.recipe_uuid,
-                current_plant_type: response.plant_type,
-                current_recipe_runtime: response.runtime
+                current_plant_type: response.plant_type
             })
         });
     }
