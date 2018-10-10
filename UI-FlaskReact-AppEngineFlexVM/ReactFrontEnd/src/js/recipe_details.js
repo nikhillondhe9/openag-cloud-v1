@@ -46,6 +46,8 @@ class RecipeDetails extends Component {
             peripherals: [],
             history: {},
             devices: [],
+            standard_day_duration:"",
+            standard_night_duration:"",
             led_panel_dac5578: {
                 'on_illumination_distance': 5,
                 'off_illumination_distance': 5,
@@ -170,7 +172,9 @@ class RecipeDetails extends Component {
                     this.setState({devices: responseJson["devices"]})
                     let standard_day = resultJson["recipe_json"]['environments']['standard_day']
                     let standard_night = resultJson["recipe_json"]['environments']['standard_night']
-                    console.log(standard_day,"FDG")
+                    this.setState({standard_day_duration:resultJson["recipe_json"]["phases"][0]["cycles"][0]["duration_hours"]})
+                    this.setState({standard_night_duration:resultJson["recipe_json"]["phases"][0]["cycles"][1]["duration_hours"]})
+
                     let led_data = {
                         'on_illumination_distance': standard_day['light_illumination_distance_cm'],
                         "off_selected_spectrum": standard_night["spectrum_key"],
@@ -233,7 +237,7 @@ class RecipeDetails extends Component {
                     <div className="col-md-3">
                         <div className="row card-row"></div>
                         <div className="row card-row image-row">
-                            <img src={basil} className="image-recipe" height="250"/>
+                            <img src={basil} className="image-recipe" height="500"/>
                         </div>
                     </div>
 
@@ -254,111 +258,124 @@ class RecipeDetails extends Component {
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                                <div className="row home-row">
+                                    <div className="col-md-12"><h3>Settings </h3></div>
 
+                                </div>
+                                <div className="row home-row">
+                                    <div className="col-md-12">
+                                        <div className="card">
+                                            <div className="card-body">
+                                                <div className="card-title"><h4></h4></div>
+                                                <div className="card-text">
+                                                    <div className="row">
+                                                        <div className="col-md-2"></div>
+                                                        <div className="col-md-4">LED Spectrum for standard day</div>
+                                                        <div
+                                                            className="col-md-4">{this.state.led_panel_dac5578["on_selected_spectrum"].toUpperCase()}
+                                                            Spectrum
+                                                        </div>
+                                                        <div className="col-md-2"></div>
+                                                    </div>
+                                                    <div className="row">
+                                                        <div className="col-md-2"></div>
+                                                        <div className="col-md-4">LED illumination distance for standard
+                                                            day
+                                                        </div>
+                                                        <div
+                                                            className="col-md-4">{this.state.led_panel_dac5578["on_illumination_distance"]}
+                                                            cm
+                                                        </div>
+                                                        <div className="col-md-2"></div>
+                                                    </div>
+                                                    <div className="row">
+                                                        <div className="col-md-2"></div>
+                                                        <div className="col-md-4">LED Spectrum for standard night</div>
+                                                        <div
+                                                            className="col-md-4">{this.state.led_panel_dac5578["off_selected_spectrum"].toUpperCase()}
+                                                            Spectrum
+                                                        </div>
+                                                        <div className="col-md-2"></div>
+                                                    </div>
+                                                    <div className="row">
+                                                        <div className="col-md-2"></div>
+                                                        <div className="col-md-4">LED illumination distance for standard
+                                                            night
+                                                        </div>
+                                                        <div
+                                                            className="col-md-4">{this.state.led_panel_dac5578["off_illumination_distance"]}
+                                                            cm
+                                                        </div>
+                                                        <div className="col-md-2"></div>
+                                                    </div>
+                                                    <div className="row">
+                                                        <div className="col-md-2"></div>
+                                                        <div className="col-md-4">Standard night</div>
+                                                        <div className="col-md-4">{this.state.standard_night_duration} hours</div>
+                                                        <div className="col-md-2"></div>
+                                                    </div>
 
-                        </div>
-                    </div>
-                </div>
-                <div className="row home-row">
-                    <div className="col-md-3"></div>
-                    <div className="col-md-9"><h3>Settings </h3></div>
+                                                    <div className="row">
+                                                        <div className="col-md-2"></div>
+                                                        <div className="col-md-4">Standard day</div>
+                                                        <div className="col-md-4">{this.state.standard_day_duration} hours</div>
+                                                        <div className="col-md-2"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="row home-row">
+                                    <div className="col-md-12"><h3>Desired Environment </h3></div>
 
-                </div>
-                <div className="row home-row">
-                    <div className="col-md-3"></div>
-                    <div className="col-md-9">
-                    <div className="card">
-                            <div className="card-body">
-                                <div className="card-title"><h4></h4></div>
-                                <div className="card-text">
-                                    <div className="row">
-                                        <div className="col-md-2"></div>
-                                        <div className="col-md-4">LED Spectrum for standard day</div>
-                                        <div className="col-md-4">{this.state.led_panel_dac5578["on_selected_spectrum"].toUpperCase()} Spectrum</div>
-                                        <div className="col-md-2"></div>
-                                    </div>
-                                    <div className="row">
-                                        <div className="col-md-2"></div>
-                                        <div className="col-md-4">LED illumination distance for standard day</div>
-                                        <div className="col-md-4">{this.state.led_panel_dac5578["on_illumination_distance"]} cm</div>
-                                        <div className="col-md-2"></div>
-                                    </div>
-                                    <div className="row">
-                                        <div className="col-md-2"></div>
-                                        <div className="col-md-4">LED Spectrum for standard night</div>
-                                        <div className="col-md-4">{this.state.led_panel_dac5578["off_selected_spectrum"].toUpperCase()} Spectrum</div>
-                                        <div className="col-md-2"></div>
-                                    </div>
-                                    <div className="row">
-                                        <div className="col-md-2"></div>
-                                        <div className="col-md-4">LED illumination distance for standard night</div>
-                                        <div className="col-md-4">{this.state.led_panel_dac5578["off_illumination_distance"]} cm</div>
-                                        <div className="col-md-2"></div>
-                                    </div>
-                                    <div className="row">
-                                        <div className="col-md-2"></div>
-                                        <div className="col-md-4">Standard night</div>
-                                        <div className="col-md-4"></div>
-                                        <div className="col-md-2"></div>
-                                    </div>
-
-                                    <div className="row">
-                                        <div className="col-md-2"></div>
-                                        <div className="col-md-4">Standard day</div>
-                                        <div className="col-md-4"></div>
-                                        <div className="col-md-2"></div>
+                                </div>
+                                <div className="row home-row">
+                                    <div className="col-md-12">
+                                        <div className="card">
+                                            <div className="card-body">
+                                                <div className="card-title"><h4></h4></div>
+                                                <div className="card-text">
+                                                    <div className="row">
+                                                        <div className="col-md-2"></div>
+                                                        <div className="col-md-4">Temperature Set Point</div>
+                                                        <div className="col-md-4">25 (<sup>o</sup>C) Celsius</div>
+                                                        <div className="col-md-2"></div>
+                                                    </div>
+                                                    <div className="row">
+                                                        <div className="col-md-2"></div>
+                                                        <div className="col-md-4">Humidity Set Point</div>
+                                                        <div className="col-md-4">65 (%) Percent</div>
+                                                        <div className="col-md-2"></div>
+                                                    </div>
+                                                    <div className="row">
+                                                        <div className="col-md-2"></div>
+                                                        <div className="col-md-4">CO2 Set Point</div>
+                                                        <div className="col-md-4">450 <sup>o</sup>ppm (Parts per million)
+                                                        </div>
+                                                        <div className="col-md-2"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-                <div className="row home-row">
-                    <div className="col-md-3"></div>
-                    <div className="col-md-9"><h3>Desired Environment </h3></div>
 
-                </div>
-                <div className="row home-row">
-                    <div className="col-md-3"></div>
-                    <div className="col-md-9">
-                    <div className="card">
-                            <div className="card-body">
-                                <div className="card-title"><h4></h4></div>
-                                <div className="card-text">
-                                    <div className="row">
-                                        <div className="col-md-2"></div>
-                                        <div className="col-md-4">Temperature Set Point</div>
-                                        <div className="col-md-4">(<sup>o</sup>C) Celsius</div>
-                                        <div className="col-md-2"></div>
-                                    </div>
-                                    <div className="row">
-                                        <div className="col-md-2"></div>
-                                        <div className="col-md-4">Humidity Set Point</div>
-                                        <div className="col-md-4">(%) Percent</div>
-                                        <div className="col-md-2"></div>
-                                    </div>
-                                    <div className="row">
-                                        <div className="col-md-2"></div>
-                                        <div className="col-md-4">CO2 Set Point</div>
-                                        <div className="col-md-4"><sup>o</sup>ppm (Parts per million)</div>
-                                        <div className="col-md-2"></div>
-                                    </div>
-                                </div>
-                            </div>
+
                         </div>
                     </div>
                 </div>
 
 
                 <div className="row home-row">
-                        <div className="col-md-8">
-                        </div>
-                        <div className="col-md-4 color-button">
-                            <button className="apply-button btn btn-secondary" onClick={this.toggleApplyToDevice}>
-                                Download & Run
-                            </button>
-                        </div>
+                    <div className="col-md-8">
+                    </div>
+                    <div className="col-md-4 color-button">
+                        <button className="apply-button btn btn-secondary" onClick={this.toggleApplyToDevice}>
+                            Download & Run
+                        </button>
+                    </div>
                 </div>
                 <Modal
                     isOpen={this.state.apply_to_device_modal}

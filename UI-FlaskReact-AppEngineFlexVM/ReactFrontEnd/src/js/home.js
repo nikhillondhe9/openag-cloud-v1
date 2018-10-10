@@ -34,19 +34,26 @@ const querystring = require('querystring');
 class Home extends Component {
     constructor(props) {
         super(props);
-
+        this.set_modal=false
         let all_params = querystring.parse(this.props.location.search)
-        if (typeof all_params['user_uuid'] != 'undefined') {
-            this.user_uuid = all_params['user_uuid'];
-        }
 
+
+        if ("?uu" in all_params) {
+            this.params = all_params['?uu'].split("?vcode=");
+            this.user_uuid = this.params[0]
+            if (this.params.length > 1) {
+                this.vcode = this.params[1]
+                this.set_modal=true
+            }
+        }
         this.state = {
             user_token: props.cookies.get('user_token') || '',
-            add_device_modal: false,
             add_device_error_message: '',
             add_access_modal: false,
             access_code_error_message: '',
             user_uuid: this.user_uuid,
+            device_reg_no: this.vcode,
+            add_device_modal: this.set_modal,
             user_devices: new Map(),
             selected_device: 'Loading',
             device_images: [placeholder],
@@ -67,7 +74,7 @@ class Home extends Component {
             open_discourse_modal: false
         };
         console.log(this.props)
-
+        console.log(all_params, "F")
         // This binding is necessary to make `this` work in the callback
         this.toggleallyours = this.toggleallyours.bind(this)
         this.getUserDevices = this.getUserDevices.bind(this);
@@ -82,13 +89,7 @@ class Home extends Component {
         this.toggleDiscourseModal = this.toggleDiscourseModal.bind(this)
         this.handleOnChangeText = this.handleOnChangeText.bind(this)
         this.handleOnDiscourseChangeText = this.handleOnDiscourseChangeText.bind(this)
-        if (typeof all_params["vcode"] != 'undefined') {
-            console.log('Showing device reg with code=' + all_params["vcode"]);
-            // When we initialize the model, we take this Home.state.vcode and
-            // use it to initialize the modal's properties
-            this.state.device_reg_no = all_params["vcode"];
-            this.state.add_device_modal = true;
-        }
+
         this.toggleTwitterModal = this.toggleTwitterModal.bind(this);
         this.selectTwitter = this.selectTwitter.bind(this)
     }
@@ -271,8 +272,8 @@ class Home extends Component {
                 let results = responseJson["results"]
                 this.setState({wifi_status: results["wifi_status"]})
                 this.setState({current_temp: results["current_temp"]})
-                this.setState({current_recipe_runtime:results["runtime"]})
-                this.setState({age_in_days:results["age_in_days"]})
+                this.setState({current_recipe_runtime: results["runtime"]})
+                this.setState({age_in_days: results["age_in_days"]})
             })
             .catch(error => {
                 console.error(error);
@@ -544,8 +545,6 @@ class Home extends Component {
 
     render() {
 
-        console.log(this.state.user_uuid, "FDFD")
-
         let discourse_messages = this.state.posts.map((post) => {
             return (
                 <div className="row" onClick={this.goToPost.bind(this, post["post_url"])}>
@@ -570,12 +569,12 @@ class Home extends Component {
                     <div className="col-md-10">
                         <div className="row"><b>{post["username"]}</b></div>
                         <div className="row">{post["message"]}</div>
-                        <div className="row"> <b> Replies: </b> {post["post_count"]} </div>
+                        <div className="row"><b> Replies: </b> {post["post_count"]} </div>
                     </div>
                 </div>
             )
         });
-        let halfbox= {width:'50%'}
+        let halfbox = {width: '50%'}
         let gotohistory = "/recipe_history/" + this.state.selected_device_uuid + "/" + this.state.current_recipe_uuid;
         return (
             <Router>
@@ -675,26 +674,25 @@ class Home extends Component {
 
                     <div className="twitter">
                         <div className="row buttons-row">
-                        <ButtonGroup>
-                            <Button
-                                outline
-                                onClick={() => this.setSocial('twitter')}
-                                active={this.state.social_selected == 'twitter'}
-                                color="primary" style={halfbox}
-                            >
-                               <img src={twitter_icon} height="30"/>Twitter
-                            </Button>
-                            <Button
-                                outline
-                                onClick={() => this.setSocial('discourse')}
-                                active={this.state.social_selected == 'discourse'}
-                                color="primary" style={halfbox}
-                            >
-                                <img src={discourse_icon} height="30"/>Discourse
-                            </Button>
-                        </ButtonGroup>
-                    </div>
-
+                            <ButtonGroup>
+                                <Button
+                                    outline
+                                    onClick={() => this.setSocial('twitter')}
+                                    active={this.state.social_selected == 'twitter'}
+                                    color="primary" style={halfbox}
+                                >
+                                    <img src={twitter_icon} height="30"/>Twitter
+                                </Button>
+                                <Button
+                                    outline
+                                    onClick={() => this.setSocial('discourse')}
+                                    active={this.state.social_selected == 'discourse'}
+                                    color="primary" style={halfbox}
+                                >
+                                    <img src={discourse_icon} height="30"/>Discourse
+                                </Button>
+                            </ButtonGroup>
+                        </div>
 
 
                         {this.state.social_selected === "twitter" ? <div className="row bottom-row">
@@ -703,7 +701,7 @@ class Home extends Component {
                                 Post To Twitter </Button></div>
                         </div> : <div className="row bottom-row">
                             <div className="col-md-4"><Dropdown isOpen={this.state.allyoursOpen}
-                                                                          toggle={this.toggleallyours}>
+                                                                toggle={this.toggleallyours}>
                                 <DropdownToggle caret className="toggle-caret-upper">
                                     {this.state.discourse_type}
                                 </DropdownToggle>
@@ -749,7 +747,7 @@ class Home extends Component {
                                        onChange={this.handleOnChangeText}></Input>
                                 <img
                                     src="https://storage.googleapis.com/openag-v1-images/EDU-2B97073C-50-65-83-e7-9f-52_Camera-Top_2018-07-30T08%3A12%3A06Z.png"
-                                     height="200" className="twitter-share-img"/>
+                                    height="200" className="twitter-share-img"/>
                             </ModalBody>
                             <ModalFooter>
                                 <Button color="primary" type="submit" onClick={this.postToTwitter}>

@@ -145,7 +145,7 @@ class App extends Component {
                             <Route path='/harvest/:device_uuid' component={HarvestPlant} />
                             <Route path='/recipe_history/:recipe_uuid/:device_uuid' component={RecipeHistory} />
                             <Route path='/' component={Home}/>
-                            <Route path='/home/:vcode/' component={Home} />
+                            <Route path='/home' component={Home} />
                         </Switch>
                     </main>
                 </Router>
