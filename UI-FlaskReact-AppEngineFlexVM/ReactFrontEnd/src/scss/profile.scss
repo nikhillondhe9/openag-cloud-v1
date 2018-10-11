@@ -6,8 +6,11 @@
   }
 
   .profile-card {
-    height: 500px;
-    margin-bottom: 20px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
+    margin-top: 10px;
   }
 
   .wrapper {
@@ -15,12 +18,14 @@
     margin-left: auto;
     margin-right: auto;
   }
+  .padded-row{
+    padding-bottom:10px;
+  }
 
   .image--cover {
     display: block;
     width: 200px;
     height: 200px;
-    border-radius: 50%;
     margin-left: auto;
     margin-right: auto;
   }
@@ -31,16 +36,10 @@
   }
 
   .profile-row {
-    text-align:center;
-    margin-top:10px;
+    margin-top: 10px;
   }
 
   .profile-row.wrapper {
-    text-align: center;
-  }
-
-  .profile-card-row {
-    padding-left:20px;
   }
 
   .col-center-label {
@@ -54,5 +53,91 @@
   .device-name {
     justify-self: start;
   }
+  .edit-button:hover {
+    background-color: #358A49;
+    border-color: #358A49;
+  }
+  .edit-button-add:hover {
+    background-color: #358A49;
+    border-color: #358A49;
+  }
+  .modal-content.modal-body {
+    .row {
+      .modal-input-row {
+        margin-top: 5px;
+        padding-top:5px;
+      }
+    }
+  }
+  .modal-body.row.modal-input-row {
+        margin-top: 5px;
+        padding-top:5px;
+      }
+  .edit-button-add {
+    margin-bottom: 10px;
+    min-width: 180px;
+    background-color: rgb(149, 38, 106);
+    border-color: rgb(149, 38, 106);
+    width: 100%;
+    .btn-secondary {
+      background-color: rgb(149, 38, 106);
+      border-color: rgb(149, 38, 106);
+      width: 100%;
+    }
+    .btn-secondary:hover {
+      background-color: #358A49;
+      border-color: #358A49;
+    }
+  }
+  .device-row {
+    padding: 2px;
+  }
+  .each-device-div {
+    padding-top: 10px;
+    border-top: 1px solid #000000;
+  }
+  .no-padding
+  {
+    padding:0
+  }
+  .edit-button {
+    min-width: 180px;
+    background-color: rgb(149, 38, 106);
+    border-color: rgb(149, 38, 106);
+    width: 100%;
+    .btn-secondary {
+      background-color: rgb(149, 38, 106);
+      border-color: rgb(149, 38, 106);
+      width: 100%;
+    }
+    .btn-secondary:hover {
+      background-color: #358A49;
+      border-color: #358A49;
+    }
 
+  }
+  .small-pad
+  {
+    padding-right:5px;
+  }
+  .padded-left {
+    padding-left: 20px;
+    padding-top: 10px;
+  }
+  .spacer-row {
+    height: 1px;
+    background-color: black;
+  }
+  .image-uploader.btn.btn-secondary
+  {
+        float: right;
+  }
+  .edit-button-full
+  {
+    width:100%;
+  }
+  .no-padding-right
+  {
+    padding:0;
+  }
 }

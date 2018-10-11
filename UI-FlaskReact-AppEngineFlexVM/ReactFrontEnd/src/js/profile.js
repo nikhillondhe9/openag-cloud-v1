@@ -5,8 +5,11 @@ import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Lab
 
 import {ImageUploader} from './components/image_uploader';
 import {CreateAccessCodeModal} from './components/create_access_code_modal.js';
+import edit_icon from "../images/pencil-edit-button.png";
 
 import * as api from './utils/api';
+
+import discourse_icon from "../images/discourse.png"
 
 class profile extends Component {
     constructor(props) {
@@ -22,10 +25,13 @@ class profile extends Component {
             email_address: '',
             organization: '',
             edit_profile: false,
+            permissions: [],
             twitter_hashtag: 'OpenAgPFCEDU2018',
             discourse_modal: false,
             discourse_username: '',
-            discourse_user:{}
+            discourse_user: {},
+            device_selected_to_share: null,
+            share_device_modal: false
         };
         this.getUserDevices = this.getUserDevices.bind(this);
         this.toggle_digit_modal = this.toggle_digit_modal.bind(this);
@@ -37,11 +43,30 @@ class profile extends Component {
         this.toggle_discourse_modal = this.toggle_discourse_modal.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
         this.generateAPIKey = this.generateAPIKey.bind(this)
+        this.shareDevice = this.shareDevice.bind(this)
+        this.toggleShareDeviceModal = this.toggleShareDeviceModal.bind(this)
+        this.addPermission = this.addPermission.bind(this);
     }
 
     componentDidMount() {
         this.getUserDevices();
         this.getUserInfo();
+    }
+
+    addPermission(e) {
+        let permissions = []
+        if (e.target.checked === true) {
+            permissions.push(e.target.name)
+
+        }
+        for (let per of this.state.permissions) {
+            if (per !== e.target.name) {
+                permissions.push(per)
+            }
+        }
+        console.log(permissions)
+        this.setState({permissions: permissions})
+
     }
 
     inputChange(event) {
@@ -63,6 +88,12 @@ class profile extends Component {
         })
     }
 
+    toggleShareDeviceModal() {
+        this.setState(prevState => {
+            return {share_device_modal: !prevState.share_device_modal};
+        })
+    }
+
     toggle_digit_modal() {
         this.setState({digit_modal: !this.state.digit_modal})
     }
@@ -76,7 +107,7 @@ class profile extends Component {
             .then(response => response.json())
             .then(responseJson => {
 
-                this.setState({discourse_user:responseJson["user"]})
+                this.setState({discourse_user: responseJson["user"]})
                 this.generateAPIKey()
             })
             .catch(error => {
@@ -85,13 +116,13 @@ class profile extends Component {
     }
 
     generateAPIKey() {
-        console.log(this.state.discourse_user,"Ds")
+        console.log(this.state.discourse_user, "Ds")
         let admin_api_key = "5cdae222422803379b630fa3a8a1b5e216aa6db5b6c0126dc0abce00fdc98394"
-        return fetch("https://forum.openag.media.mit.edu/admin/users/"+this.state.discourse_user["id"]+"/generate_api_key" ,
+        return fetch("https://forum.openag.media.mit.edu/admin/users/" + this.state.discourse_user["id"] + "/generate_api_key",
             {
                 method: 'POST',
                 headers: {
-                'Accept': 'application/json'
+                    'Accept': 'application/json'
                 },
                 body: JSON.stringify({
                     "api_key": admin_api_key,
@@ -243,13 +274,39 @@ class profile extends Component {
         }
     }
 
+    shareDevice(device, e) {
+        this.setState({device_selected_to_share: device})
+        this.setState({share_device_modal: true})
+    }
+
     render() {
 
         let listDevices = <p>{this.state.get_devices_status}</p>
         if (this.state.user_devices.length > 0) {
             listDevices = this.state.user_devices.map((device) => {
-                return <div className="row profile-card-row" key={device.device_uuid}>
-                    <div className="col-md-8">{device.device_name}</div>
+                return <div className="each-device-div" key={device.device_uuid}>
+                    <div className="row device-row">
+                        <div className="col-md-4">Device Name:</div>
+                        <div className="col-md-4">{device.device_name}</div>
+                    </div>
+                    <div className="row device-row">
+                        <div className="col-md-4">Device Description:</div>
+                        <div className="col-md-4">{device.device_notes}</div>
+                    </div>
+                    <div className="row device-row">
+                        <div className="col-md-4">Shared with:</div>
+                        <div className="col-md-4">
+                            <div className="row">
+                                <div className="col-md-4">N/A</div>
+                            </div>
+                            <div className="row">
+                                <div className="col-md-4 no-padding"><Button className="edit-button-full btn btn-loading"
+                                                                  onClick={this.shareDevice.bind(this, device)} disabled>
+                                    Add User</Button></div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             });
         }
@@ -277,96 +334,146 @@ class profile extends Component {
 
         return (
             <div className="profile-container">
-                <div className="row">
-                    <div className="col-md-4">
+                <div className="card profile-card">
+                    <div className="card-body">
+                        <div className="card-title">
+                            <div className="row">
+                                <div className="col-md-4"><h2>My Info</h2></div>
+                            </div>
+                        </div>
                         <div className="row">
-                            <div className="wrapper">
-                                <img src={this.state.profile_picture_url}
-                                     className="image--cover"/>
-                                <ImageUploader
-                                    url={process.env.REACT_APP_FLASK_URL + "/api/upload_images/"}
-                                    data={{
-                                        type: 'user',
-                                        user_token: this.props.cookies.get('user_token')
-                                    }}
-                                    onDone={this.onImageUpload}
-                                    className="image-uploader"/>
-                            </div>
-                        </div>
-                        <form onSubmit={this.saveUserProfile}>
-                            <div className="row profile-row">
-                                <div className="col-md-4"></div>
-                                <div className="col-md-4">
-                                    {this.state.edit_profile ?
-                                        <Button className="save-button">
-                                            Save
-                                        </Button>
-                                        :
-                                        <Button className="edit-button" onClick={this.toggleEditProfile}>
-                                            Edit Profile
-                                        </Button>
-                                    }
-                                </div>
-                                <div className="col-md-4"></div>
-                            </div>
-                            <div className="row profile-row">
-                                {this.state.edit_profile ? <div className="wrapper">
-                                    <div className="row">
-                                        Username :
-                                        <input className="profile-input" value={this.state.username} type="text"
-                                               name="username" onChange={this.inputChange} required/>
-                                    </div>
-                                    <div className="row">
-                                        Email Address:
-                                        <input className="profile-input" value={this.state.email_address} type="email"
-                                               name="email_address" onChange={this.inputChange} required/>
-                                    </div>
-                                    <div className="row">
-                                        Organization:
-                                        <input className="profile-input" value={this.state.organization} type="text"
-                                               name="organization" onChange={this.inputChange}/>
-                                    </div>
-                                    <div className="row">
-                                        Twitter Hashtag:
-                                        <input className="profile-input" value={this.state.twitter_hashtag} type="text"
-                                               name="twitter_hashtag" onChange={this.inputChange} required/>
-                                    </div>
-                                </div> : <div className="wrapper">
-                                    <div className="row">
-                                        {this.state.username}
-                                    </div>
-                                    <div className="row">
-                                        {this.state.email_address}
-                                    </div>
-                                    <div className="row">
-                                        {this.state.organization}
-                                    </div>
-                                    <div className="row">
-                                        {this.state.twitter_hashtag}
-                                    </div>
-                                    <div className="row">
-                                        <Button onClick={this.toggle_discourse_modal}>Connect Discourse</Button>
-                                    </div>
-                                </div>}
-                            </div>
-                        </form>
-                    </div>
-                    <div className="col-md-4">
-                        <div className="card profile-card">
-                            <div className="card-body">
-                                <div className="row"><h3>My Devices </h3></div>
-                                {listDevices}
-                                <div className="row"><h3>Sharing </h3></div>
-                                <div className="row profile-card-row"><Button color="link"
-                                                                              onClick={this.toggleAccessCodeModal}>Create
-                                    Access Code</Button></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="col-md-4">
+                            <div className="col-md-4">
+                                <div className="row">
+                                    <div className="wrapper">
+                                        <img src={this.state.profile_picture_url}
+                                             className="image--cover"/>
 
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div className="col-md-8">
+
+                                <form onSubmit={this.saveUserProfile}>
+
+                                    <div className="row profile-row">
+                                        <div className="col-md-12"> {this.state.edit_profile ? <div className="wrapper">
+                                            <div className="row padded-row">
+                                                <div className="col-md-4">Farmer Name :</div>
+                                                <div className="col-md-4"><Input className="profile-input"
+                                                                                 value={this.state.username} type="text"
+                                                                                 name="username"
+                                                                                 onChange={this.inputChange} required/>
+                                                </div>
+                                            </div>
+                                            <div className="row padded-row">
+                                                <div className="col-md-4">Farm Name:</div>
+                                                <div className="col-md-4"><Input className="profile-input"
+                                                                                 value={this.state.twitter_hashtag}
+                                                                                 type="text"
+                                                                                 name="twitter_hashtag"
+                                                                                 onChange={this.inputChange} required/>
+                                                </div>
+                                            </div>
+                                            <div className="row padded-row">
+                                                <div className="col-md-4">School/Library:</div>
+                                                <div className="col-md-4"><Input className="profile-input"
+                                                                                 value={this.state.organization}
+                                                                                 type="text"
+                                                                                 name="organization"
+                                                                                 onChange={this.inputChange}/></div>
+                                            </div>
+                                            <div className="row padded-row">
+                                                <div className="col-md-4"> Email Address:</div>
+                                                <div className="col-md-4"><Input className="profile-input"
+                                                                                 value={this.state.email_address}
+                                                                                 type="email"
+                                                                                 name="email_address"
+                                                                                 onChange={this.inputChange} required/>
+                                                </div>
+                                            </div>
+
+                                        </div> : <div className="wrapper">
+                                            <div className="row padded-row">
+                                                <div className="col-md-4">Farmer Name :</div>
+                                                <div className="col-md-4">{this.state.username}</div>
+
+
+                                            </div>
+                                            <div className="row padded-row">
+                                                <div className="col-md-4"> Farm Name <sup><span
+                                                    title="Used for all social media posts"> ? </span></sup> :</div>
+                                                <div className="col-md-4">{this.state.twitter_hashtag}</div>
+
+                                            </div>
+                                            <div className="row padded-row">
+                                                <div className="col-md-4"> School/Library :</div>
+                                                <div className="col-md-4">{this.state.organization}</div>
+
+                                            </div>
+                                            <div className="row padded-row">
+                                                <div className="col-md-4">Email Address :</div>
+                                                <div className="col-md-4">{this.state.email_address}</div>
+
+                                            </div>
+
+
+                                        </div>}</div>
+
+
+                                    </div>
+                                </form>
+
+                            </div>
+                        </div>
+                        <div className="row">
+                            <div className="col-md-4">
+                                <div className="row">
+                                    <div className="wrapper">
+                                        <ImageUploader
+                                            url={process.env.REACT_APP_FLASK_URL + "/api/upload_images/"}
+                                            data={{
+                                                type: 'user',
+                                                user_token: this.props.cookies.get('user_token')
+                                            }}
+                                            onDone={this.onImageUpload}
+                                            className="image-uploader"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-md-8">
+                                <div className="row">
+                                    <div className="col-md-4"></div>
+                                    <div className="col-md-4"></div>
+                                    <div className="col-md-4 pull-right no-padding-right">
+                                        <Button className="edit-button-full btn btn-loading"
+                                                onClick={this.toggle_discourse_modal} title='Coming Soon' disabled ><img src={discourse_icon}
+                                                                                           height="30"/> Connect
+                                            Forum</Button>
+                                    </div>
+                                </div>
+                                <div className="row profile-row">
+                                    <div className="col-md-4"></div>
+                                    <div className="col-md-4"></div>
+
+                                    <div className="col-md-4 pull-right no-padding-right">
+                                        {this.state.edit_profile ?
+                                            <Button className="edit-button" onClick={this.saveUserProfile}>
+                                                Save
+                                            </Button>
+                                            :
+                                            <Button className="edit-button"
+                                                    onClick={this.toggleEditProfile}>
+                                                <img className="small-pad" src={edit_icon} height="30"/> Edit Profile
+                                            </Button>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
 
                 <CreateAccessCodeModal
                     isOpen={this.state.access_code_modal}
@@ -374,6 +481,58 @@ class profile extends Component {
                     onSubmit={this.createAccessCode}
                     devices={this.state.user_devices}
                 />
+                <div className="card profile-card">
+                    <div className="card-title">
+                        <div className="row padded-left">
+                            <div className="col-md-4"><h2>My PFCs</h2></div>
+                        </div>
+                    </div>
+                    <div className="card-body">
+
+                        {listDevices}
+                    </div>
+                </div>
+                <Modal isOpen={this.state.share_device_modal} toggle={this.toggleShareDeviceModal}
+                       className={this.props.className} size={"lg"}>
+                    <ModalHeader toggle={this.toggleShareDeviceModal}>Add User</ModalHeader>
+                    <ModalBody>
+                        <div className="row modal-input-row">
+                            <div className="col-md-3">Name</div>
+                            <div className="col-md-9">
+                                <Input type="text" placeholder="Caleb"/>
+                            </div>
+                        </div>
+                        <div className="row modal-input-row">
+                            <div className="col-md-3">Email</div>
+                            <div className="col-md-9">
+                                <Input type="text" placeholder="example@domain.com"/>
+                            </div>
+                        </div>
+                        <div className="row modal-input-row">
+                            <div className="col-md-3">Access</div>
+                            <div className="col-md-9">
+
+                                <ul>
+                                    <li><Input type="checkbox" name="share_device" onClick={this.addPermission}/> Can
+                                        share device
+                                    </li>
+                                    <li><Input type="checkbox" name="change_profile" onClick={this.addPermission}/> Can
+                                        change Profile Name/Email
+                                    </li>
+                                    <li><Input type="checkbox" name="change_climate_recipe"
+                                               onClick={this.addPermission}/> Can make Changes to Climate Recipe
+                                    </li>
+                                    <li><Input type="checkbox" name="access_farmer_connect"
+                                               onClick={this.addPermission}/> Can access to Farmer Connect
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button className="edit-button" onClick={this.createAccessCode}>Submit</Button>
+                    </ModalFooter>
+                </Modal>
 
                 <Modal isOpen={this.state.digit_modal} toggle={this.toggle_digit_modal}
                        className={this.props.className}>

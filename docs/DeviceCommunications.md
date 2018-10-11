@@ -20,7 +20,7 @@ Our standard microcomputer is a Beaglebone Black running Debian 9.3.  All our co
   - The script prints a 'verification code' for the user to enter into the UI.
 
 ## Step 2: Authenticate a Food Computer™
-- User logs into our UI (or creates an account).
+- User logs into our cloud UI (or creates an account).
 - On the device registration page, user enters the 'verification code'. they got in step 1.
 - The UI will find the devices public key in the firestore database and create an authorized device in our IoT MQTT registry.
 - The UI will also make an entry in the device table in the datastore and link the device to the user's account.
@@ -32,7 +32,7 @@ Our standard microcomputer is a Beaglebone Black running Debian 9.3.  All our co
   - The Food Computer™ runs the climate recipe.
 
 ## Step 4: The Food Computer™ publishes data
-- While a recipe is running, the Food Computer™ publishes data and images according to the schedule specified in the climate recipe.
+- The Food Computer™ continuously publishes data and images according to the schedule specified in the climate recipe.
 - Our MQTT-PubSub service (running as an App Engine managed virtual machine) receives, validates and saves the data in a BigQuery dataset and in the real time Datastore for fast UI access.  Images are indexed and stored in cloud storage.
 
 ## Step 5: Monitor a Food Computer™ using the UI

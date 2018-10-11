@@ -5,18 +5,35 @@ import {Link} from "react-router-dom";
 export class SignUp extends Component {
     constructor(props) {
         super(props);
+        var qs = require('url').parse(window.location.href, true).query;
+
+        if( typeof qs['vcode'] != 'undefined') {
+            console.log(qs['vcode'])
+            this.vcode = qs['vcode'];
+        }
         this.state = {
             name: '',
             password: '',
             email_address: '',
             organization:'',
-            error_message: ''
+            error_message: '',
+            vcode:this.vcode
         };
         // This binding is necessary to make `this` work in the callback
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.goToSignIn = this.goToSignIn.bind(this)
     }
+    goToSignIn()
+    {
 
+        if(this.state.vcode != "" && this.state.vcode != undefined && this.state.vcode != "undefined") {
+                        window.location.href = "/login?vcode=" + this.state.vcode
+                    }
+                    else {
+             window.location.href = "/login"
+        }
+    }
     componentDidMount() {
 
     }
@@ -52,7 +69,12 @@ export class SignUp extends Component {
                 console.log(responseJson)
                 if (responseJson["response_code"]== 200){
                     console.log("Succesfully signed up - redirecting page")
-                    this.props.history.push("/login")
+                    if(this.state.vcode != "" && this.state.vcode != undefined && this.state.vcode != "undefined") {
+                        window.location.href = "/login?vcode=" + this.state.vcode
+                    }
+                    else {
+             window.location.href = "/login"
+        }
                 } else {
                     let error_message = responseJson['message']
                     this.setState({error_message: error_message})
@@ -88,7 +110,7 @@ export class SignUp extends Component {
                                onChange={this.handleChange}/>
 
                         <button>create</button>
-                        <p className="message">Already registered? <Link to="login"> Sign In </Link></p>
+                        <p className="message">Already registered? <a onClick={this.goToSignIn}> Sign In </a></p>
                     </form>
                 </div>
 

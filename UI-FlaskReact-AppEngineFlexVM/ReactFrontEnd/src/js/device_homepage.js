@@ -13,6 +13,13 @@ import {DevicesDropdown} from './components/devices_dropdown';
 import {AddAccessCodeModal} from './components/add_access_code_modal';
 import {AddDeviceModal} from './components/add_device_modal';
 import {DeviceIsRunningModal} from './components/device_is_running_modal';
+import {
+    Dropdown,
+    DropdownToggle,
+    DropdownMenu,
+    Button,
+    DropdownItem
+} from 'reactstrap';
 
 import 'rc-slider/assets/index.css';
 import 'rc-tooltip/assets/bootstrap.css';
@@ -79,6 +86,7 @@ class DeviceHomepage extends Component {
             sensor_rh: 60,
             rh_data: [],
             co2_data: [],
+            action_isOpen:false,
             led_panel_dac5578: {
                 'on_illumination_distance': 5,
                 'off_illumination_distance': 5,
@@ -112,11 +120,13 @@ class DeviceHomepage extends Component {
             changes: {},
             control_level: 'view',
             current_recipe: {},
-            edit_mode: false
+            edit_mode: false,
+            selectedAction:'Select an action'
         };
         this.child = {
             console: Console
         };
+        this.toggle_action_drop = this.toggle_action_drop.bind(this);
         this.changes = {led_panel_dac5578: {}, led_panel_dac5578: {}}
         this.getUserDevices = this.getUserDevices.bind(this);
         this.getCurrentStats = this.getCurrentStats.bind(this);
@@ -137,6 +147,7 @@ class DeviceHomepage extends Component {
         this.LEDSpectrumSelection = this.LEDSpectrumSelection.bind(this);
         this.toggleEditMode = this.toggleEditMode.bind(this);
         this.accessChamber = this.accessChamber.bind(this);
+        this.goToHarvest  = this.goToHarvest.bind(this)
         this.submitRecipe = this.submitRecipe.bind(this)
     }
 
@@ -183,8 +194,8 @@ class DeviceHomepage extends Component {
 
         this.setState({
             'led_layout': {
-               width: 350,
-                 height: 450,
+                width: 350,
+                height: 450,
                 xaxis: {
                     autorange: true,
                     type: 'category'
@@ -271,6 +282,7 @@ class DeviceHomepage extends Component {
                 this.toggleApplyConfirmation();
             } else {
                 this.handleApplySubmit();
+                this.toggleEditMode()
             }
         });
     }
@@ -611,7 +623,7 @@ class DeviceHomepage extends Component {
 
                     this.setState({
                         'rh_layout': {
-                           width: 350,
+                            width: 350,
                             height: 450,
                             xaxis: {
                                 autorange: true,
@@ -736,7 +748,10 @@ class DeviceHomepage extends Component {
     promptLabel = () => {
         return this.state.count + "> ";
     }
-
+    toggle_action_drop()
+    {
+        this.setState({action_isOpen:!this.state.action_isOpen})
+    }
     downloadCSV() {
         return fetch(process.env.REACT_APP_FLASK_URL + '/api/download_as_csv/', {
             method: 'POST',
@@ -756,6 +771,7 @@ class DeviceHomepage extends Component {
     }
 
     accessChamber() {
+        this.setState({selectedAction:"Log Chamber Access Only"})
         return fetch(process.env.REACT_APP_FLASK_URL + '/api/submit_access_chamber/', {
             method: 'POST',
             headers: {
@@ -807,7 +823,11 @@ class DeviceHomepage extends Component {
                 console.error(error);
             });
     }
+    goToHarvest()
+    {
+        window.location.href = "/harvest/" + this.state.selected_device_uuid.toString();
 
+    }
     render() {
         const margin = {top: 20, right: 20, bottom: 30, left: 50};
         let changesList = []
@@ -848,34 +868,25 @@ class DeviceHomepage extends Component {
                             onAddAccessCode={this.toggleAccessCodeModal}
                         />
                     </div>
-                    <div className="col-md-2">
-                        <button className="apply-button btn btn-secondary" onClick={this.accessChamber}>Accessed Chamber
-                        </button>
+                    <div className="col-md-7">
+                    <Dropdown isOpen={this.state.action_isOpen} toggle={this.toggle_action_drop}>
+                        <DropdownToggle caret>
+                            {this.state.selectedAction}
+                        </DropdownToggle>
+                        <DropdownMenu>
+                            <DropdownItem onClick={this.accessChamber}>Log chamber access only</DropdownItem>
+                           <DropdownItem onClick={this.submitRecipe} disabled>Take Horticulture Measurements </DropdownItem>
+                            <DropdownItem onClick={this.downloadCSV} disabled>Download data </DropdownItem>
+                            <DropdownItem onClick={this.toggleEditMode}>Edit Climate Recipe </DropdownItem>
+                        </DropdownMenu>
+                    </Dropdown>
                     </div>
-                    <div className="col-md-3">
-                        <button className="apply-button btn btn-secondary" onClick={this.submitRecipe}> Horticulture Measurements
-                        </button>
-                    </div>
-                    <div className="col-md-2">
-                        <button className="apply-button btn btn-secondary" onClick={this.downloadCSV}>Download as CSV
-                        </button>
-                    </div>
+
                     <div className="col-md-1">
                     </div>
-                    <div className="col-md-2 right-colu">
-                        <div className="row pull-right">
-                        Edit Mode:
-                        </div>
-                        <div className="row">
-                        <label class="button-toggle-wrap">
-                            <input class="toggler" type="checkbox" data-toggle="button-toggle"/>
-                            <div class="button-toggle" onClick={this.toggleEditMode}>
-                                <div class="handle">
-                                    <div class="bars"></div>
-                                </div>
-                            </div>
-                        </label>
-                        </div>
+                    <div className="col-md-2 no-padding">
+                        <Button className="btn btn-loading disabled-button" onClick={this.goToHarvest} disabled> Harvest Plant
+                        </Button>
                     </div>
                 </div>
                 <div className="row graphs-row">
@@ -940,7 +951,7 @@ class DeviceHomepage extends Component {
                                     <strong className="no-cursor"> <Plot data={this.state.temp_data}
                                                                          layout={this.state.temp_layout}
                                                                          onInitialized={(figure) => this.setState(figure)}
-                                                                                                               onUpdate={(figure) => this.setState(figure)}/>
+                                                                         onUpdate={(figure) => this.setState(figure)}/>
                                     </strong>
                                 </div>
                             </div>
@@ -954,7 +965,7 @@ class DeviceHomepage extends Component {
 
                         <div className="card value-card">
                             <div className="card-block">
-                                <h4 className="card-title "> Relative Humidity  </h4>
+                                <h4 className="card-title "> Relative Humidity </h4>
 
                                 <div className="row plot-row" style={{display: 'block'}}>
                                     <strong className="no-cursor"> <Plot data={this.state.rh_data}
@@ -986,125 +997,125 @@ class DeviceHomepage extends Component {
                     {/*</Draggable>*/}
                 </div>
                 {/*<div className="row graphs-row">*/}
-                    {/*/!*<Draggable cancel="strong">*!/*/}
+                {/*/!*<Draggable cancel="strong">*!/*/}
 
-                    {/*/!*</Draggable>*!/*/}
-                    {/*/!*<Draggable cancel="strong">*!/*/}
-                    {/*<div className="col-md-6">*/}
-                        {/*<div className="card value-card">*/}
-                            {/*<div className="card-block">*/}
-                                {/*<h4 className="card-title "> LED Panel Details </h4>*/}
-                                {/*<div className="row plot-row" style={{display: 'block'}}>*/}
-                                    {/*<strong className="no-cursor"> <Plot data={this.state.led_chart_data}*/}
-                                                                         {/*layout={this.state.led_layout}*/}
-                                                                         {/*onInitialized={(figure) => this.setState(figure)}*/}
-                                                                         {/*onUpdate={(figure) => this.setState(figure)}*/}
-                                                                         {/*config={this.state.config}/>*/}
-                                    {/*</strong>*/}
-                                {/*</div>*/}
-                            {/*</div>*/}
-                        {/*</div>*/}
-                    {/*</div>*/}
-                    {/*/!*</Draggable>*!/*/}
+                {/*/!*</Draggable>*!/*/}
+                {/*/!*<Draggable cancel="strong">*!/*/}
+                {/*<div className="col-md-6">*/}
+                {/*<div className="card value-card">*/}
+                {/*<div className="card-block">*/}
+                {/*<h4 className="card-title "> LED Panel Details </h4>*/}
+                {/*<div className="row plot-row" style={{display: 'block'}}>*/}
+                {/*<strong className="no-cursor"> <Plot data={this.state.led_chart_data}*/}
+                {/*layout={this.state.led_layout}*/}
+                {/*onInitialized={(figure) => this.setState(figure)}*/}
+                {/*onUpdate={(figure) => this.setState(figure)}*/}
+                {/*config={this.state.config}/>*/}
+                {/*</strong>*/}
+                {/*</div>*/}
+                {/*</div>*/}
+                {/*</div>*/}
+                {/*</div>*/}
+                {/*/!*</Draggable>*!/*/}
                 {/*</div>*/}
                 {/*<div className="row graphs-row">*/}
-                    {/*<div className="col-md-6 edit-text">Horticulture Measurements</div>*/}
-                {/*</div>*/}
-
-                {/*<div className="row graphs-row">*/}
-                    {/*/!*<Draggable cancel="strong">*!/*/}
-                    {/*<div className="col-md-6">*/}
-                        {/*<div className="card environment-card">*/}
-                            {/*<div className="card-block">*/}
-                                {/*<h4 className="card-title "> Count leaves on the plant </h4>*/}
-                                {/*<div className="card-text">*/}
-                                    {/*<div className="graph">*/}
-                                        {/*<strong className="no-cursor">*/}
-
-                                            {/*<span className="txt_smaller"></span>*/}
-                                            {/*<div className="knob_data">*/}
-                                                {/*<input type="text" className="recipe-details-text"*/}
-                                                       {/*placeholder="" id="leaves_count"*/}
-                                                       {/*value={this.state.leaves_count}*/}
-                                                       {/*name="leaves_count" onChange={this.sensorOnChange}/>*/}
-                                            {/*</div>*/}
-                                            {/*<span className="txt_smaller"></span>*/}
-
-                                        {/*</strong>*/}
-                                    {/*</div>*/}
-                                {/*</div>*/}
-                            {/*</div>*/}
-                        {/*</div>*/}
-                    {/*</div>*/}
-
-
-                    {/*/!*</Draggable>*!/*/}
-                    {/*/!*<Draggable cancel="strong">*!/*/}
-                    {/*<div className="col-md-6">*/}
-                        {/*<div className="card environment-card">*/}
-                            {/*<div className="card-block">*/}
-                                {/*<h4 className="card-title "> Height of the plant </h4>*/}
-                                {/*<div className="card-text">*/}
-                                    {/*<div className="graph">*/}
-
-                                        {/*<strong className="no-cursor">*/}
-
-                                            {/*<span className="txt_smaller"></span>*/}
-                                            {/*<div className="knob_data">*/}
-                                                {/*<input type="text" className="recipe-details-text"*/}
-                                                       {/*placeholder="" id="plant_height"*/}
-                                                       {/*value={this.state.plant_height}*/}
-                                                       {/*name="plant_height" onChange={this.sensorOnChange}/>*/}
-                                            {/*</div>*/}
-                                            {/*<span className="txt_smaller"> in centimeters ( cm )</span>*/}
-
-
-                                        {/*</strong>*/}
-                                    {/*</div>*/}
-
-
-                                {/*</div>*/}
-                            {/*</div>*/}
-                        {/*</div>*/}
-                    {/*</div>*/}
-
-
-                    {/*/!*</Draggable>*!/*/}
+                {/*<div className="col-md-6 edit-text">Horticulture Measurements</div>*/}
                 {/*</div>*/}
 
                 {/*<div className="row graphs-row">*/}
-                    {/*<div className="col-md-6">*/}
-                        {/*<div className="card environment-card">*/}
-                            {/*<div className="card-block">*/}
-                                {/*<h4 className="card-title "> Solution pH </h4>*/}
-                                {/*<div className="card-text">*/}
-                                    {/*<div className="graph">*/}
-                                        {/*<strong className="no-cursor">*/}
+                {/*/!*<Draggable cancel="strong">*!/*/}
+                {/*<div className="col-md-6">*/}
+                {/*<div className="card environment-card">*/}
+                {/*<div className="card-block">*/}
+                {/*<h4 className="card-title "> Count leaves on the plant </h4>*/}
+                {/*<div className="card-text">*/}
+                {/*<div className="graph">*/}
+                {/*<strong className="no-cursor">*/}
 
-                                            {/*<span className="txt_smaller"></span>*/}
-                                            {/*<div className="knob_data">*/}
-                                                {/*<input type="text" className="recipe-details-text"*/}
-                                                       {/*placeholder="" id="solution_ph"*/}
-                                                       {/*value={this.state.solution_ph}*/}
-                                                       {/*name="solution_ph" onChange={this.sensorOnChange}/>*/}
-                                            {/*</div>*/}
-                                            {/*<span className="txt_smaller">(0-14)</span>*/}
+                {/*<span className="txt_smaller"></span>*/}
+                {/*<div className="knob_data">*/}
+                {/*<input type="text" className="recipe-details-text"*/}
+                {/*placeholder="" id="leaves_count"*/}
+                {/*value={this.state.leaves_count}*/}
+                {/*name="leaves_count" onChange={this.sensorOnChange}/>*/}
+                {/*</div>*/}
+                {/*<span className="txt_smaller"></span>*/}
 
-                                        {/*</strong>*/}
-                                    {/*</div>*/}
-                                {/*</div>*/}
-                            {/*</div>*/}
-                        {/*</div>*/}
-                    {/*</div>*/}
+                {/*</strong>*/}
+                {/*</div>*/}
+                {/*</div>*/}
+                {/*</div>*/}
+                {/*</div>*/}
+                {/*</div>*/}
+
+
+                {/*/!*</Draggable>*!/*/}
+                {/*/!*<Draggable cancel="strong">*!/*/}
+                {/*<div className="col-md-6">*/}
+                {/*<div className="card environment-card">*/}
+                {/*<div className="card-block">*/}
+                {/*<h4 className="card-title "> Height of the plant </h4>*/}
+                {/*<div className="card-text">*/}
+                {/*<div className="graph">*/}
+
+                {/*<strong className="no-cursor">*/}
+
+                {/*<span className="txt_smaller"></span>*/}
+                {/*<div className="knob_data">*/}
+                {/*<input type="text" className="recipe-details-text"*/}
+                {/*placeholder="" id="plant_height"*/}
+                {/*value={this.state.plant_height}*/}
+                {/*name="plant_height" onChange={this.sensorOnChange}/>*/}
+                {/*</div>*/}
+                {/*<span className="txt_smaller"> in centimeters ( cm )</span>*/}
+
+
+                {/*</strong>*/}
+                {/*</div>*/}
+
+
+                {/*</div>*/}
+                {/*</div>*/}
+                {/*</div>*/}
+                {/*</div>*/}
+
+
+                {/*/!*</Draggable>*!/*/}
+                {/*</div>*/}
+
+                {/*<div className="row graphs-row">*/}
+                {/*<div className="col-md-6">*/}
+                {/*<div className="card environment-card">*/}
+                {/*<div className="card-block">*/}
+                {/*<h4 className="card-title "> Solution pH </h4>*/}
+                {/*<div className="card-text">*/}
+                {/*<div className="graph">*/}
+                {/*<strong className="no-cursor">*/}
+
+                {/*<span className="txt_smaller"></span>*/}
+                {/*<div className="knob_data">*/}
+                {/*<input type="text" className="recipe-details-text"*/}
+                {/*placeholder="" id="solution_ph"*/}
+                {/*value={this.state.solution_ph}*/}
+                {/*name="solution_ph" onChange={this.sensorOnChange}/>*/}
+                {/*</div>*/}
+                {/*<span className="txt_smaller">(0-14)</span>*/}
+
+                {/*</strong>*/}
+                {/*</div>*/}
+                {/*</div>*/}
+                {/*</div>*/}
+                {/*</div>*/}
+                {/*</div>*/}
                 {/*</div>*/}
                 {/*<div className="row graphs-row">*/}
-                    {/*<div className="col-md-10">*/}
-                    {/*</div>*/}
-                    {/*<div className="col-md-2">*/}
-                        {/*<button className="apply-button btn btn-secondary" onClick={this.submitMeasurements}>*/}
-                            {/*Submit Measurements*/}
-                        {/*</button>*/}
-                    {/*</div>*/}
+                {/*<div className="col-md-10">*/}
+                {/*</div>*/}
+                {/*<div className="col-md-2">*/}
+                {/*<button className="apply-button btn btn-secondary" onClick={this.submitMeasurements}>*/}
+                {/*Submit Measurements*/}
+                {/*</button>*/}
+                {/*</div>*/}
                 {/*</div>*/}
                 {this.state.edit_mode ? <div className="edit-container">
                     <div className="row graphs-row">

@@ -7,33 +7,48 @@ import {Cookies, withCookies} from "react-cookie";
 class login extends Component {
     constructor(props) {
         super(props);
+        // Save the vcode
+        this.vcode  = ""
+        var qs = require('url').parse(window.location.href, true).query;
+        console.log(qs)
+        if( typeof qs['vcode'] != 'undefined') {
+            console.log(qs['vcode'])
+            this.vcode = qs['vcode'];
+        }
         this.state = {
             username: '',
             password: '',
             error_message: '',
-            render: false
+            render: false,
+            vcode:this.vcode
         };
         // This binding is necessary to make `this` work in the callback
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.verifyUser = this.verifyUser.bind(this)
+        this.signUpClick = this.signUpClick.bind(this);
 
-        // Save the vcode
-        var qs = require('url').parse(window.location.href, true).query;
-        if( typeof qs['vcode'] != 'undefined') {
-            this.state.vcode = qs['vcode'];
-        }
     }
 
     componentDidMount() {
         console.log("Did mount called");
-        const token = this.props.cookies.get("user_token");
-        if (!token) {
-            this.setState({render: true});
-            return;
+        this.verifyUser()
+    }
+    signUpClick()
+    {
+         if(this.state.vcode != "" && this.state.vcode != undefined && this.state.vcode != "undefined") {
+                        window.location.href = "/signup?vcode=" + this.state.vcode
+                    }
+                    else {
+             window.location.href = "/signup"
         }
+    }
+    verifyUser()
+    {
 
-        fetch(process.env.REACT_APP_FLASK_URL + '/api/verify_user_session/', {
-            method: 'post',
+        const token = this.props.cookies.get("user_token");
+        return fetch(process.env.REACT_APP_FLASK_URL + '/api/verify_user_session/', {
+            method: 'POST',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
@@ -57,7 +72,7 @@ class login extends Component {
                     this.props.cookies.remove("user_token");
                 } else {
                     const user_uuid = responseJson["user_uuid"];
-                    window.location.href = "/home?uu="+(user_uuid).toString()
+                    window.location.href = "/home?uu="+(user_uuid).toString()+"?vcode="+this.state.vcode
                 }
             })
             .catch((error) => {
@@ -101,7 +116,7 @@ class login extends Component {
                     this.props.cookies.set('is_admin',responseJson['is_admin'])
                     var new_href = "/home?uu="+(user_uuid).toString()
                     if( typeof this.state.vcode != 'undefined') {
-                        new_href += "&vcode=" + this.state.vcode;
+                        new_href += "?vcode=" + this.state.vcode;
                     }
                     window.location.href = new_href;
                 } else {
@@ -117,7 +132,7 @@ class login extends Component {
     }
 
     render() {
-        if (this.state.render) {
+
             return (
                 <div className="login-page">
                     <div className="form">
@@ -136,14 +151,12 @@ class login extends Component {
                                    onChange={this.handleChange}/>
                             <button>login</button>
 
-                            <p className="message">Not registered? <Link to="signup"> Create an account </Link> </p>
+                            <p className="message">Not registered? <a onClick={this.signUpClick}> Create an account </a> </p>
                         </form>
                     </div>
                 </div>
             )
-        } else {
-            return null;
-        }
+
     }
 }
 

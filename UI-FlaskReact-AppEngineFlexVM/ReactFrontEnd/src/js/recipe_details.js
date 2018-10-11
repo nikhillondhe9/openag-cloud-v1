@@ -7,7 +7,7 @@ import "../scss/recipe_detail.scss";
 import 'rc-slider/assets/index.css';
 import 'rc-tooltip/assets/bootstrap.css';
 import Slider from 'rc-slider';
-
+import basil from '../images/basil.jpg'
 import {DeviceIsRunningModal} from './components/device_is_running_modal';
 import {LEDSpectrumOptions} from "./components/led_spectrum_options";
 
@@ -46,6 +46,8 @@ class RecipeDetails extends Component {
             peripherals: [],
             history: {},
             devices: [],
+            standard_day_duration:"",
+            standard_night_duration:"",
             led_panel_dac5578: {
                 'on_illumination_distance': 5,
                 'off_illumination_distance': 5,
@@ -170,7 +172,9 @@ class RecipeDetails extends Component {
                     this.setState({devices: responseJson["devices"]})
                     let standard_day = resultJson["recipe_json"]['environments']['standard_day']
                     let standard_night = resultJson["recipe_json"]['environments']['standard_night']
-                    console.log(standard_day)
+                    this.setState({standard_day_duration:resultJson["recipe_json"]["phases"][0]["cycles"][0]["duration_hours"]})
+                    this.setState({standard_night_duration:resultJson["recipe_json"]["phases"][0]["cycles"][1]["duration_hours"]})
+
                     let led_data = {
                         'on_illumination_distance': standard_day['light_illumination_distance_cm'],
                         "off_selected_spectrum": standard_night["spectrum_key"],
@@ -222,49 +226,6 @@ class RecipeDetails extends Component {
             }
         });
 
-        let recipeParams = this.state.peripherals.map(function (peripheral_json) {
-
-            if (peripheral_json) {
-                let peripheral_html = []
-                peripheral_html.push(<div className="row label-row">
-                    <div className="col-md-6 rounded-col" style={{backgroundColor: peripheral_json.color}}>
-                        {peripheral_json.name}
-                    </div>
-                </div>)
-                // Get all the input fields needed to load required fields for this peripheral
-                let fields = JSON.parse(peripheral_json.inputs)
-                for (let field of fields) {
-                    if (field.field_type === "text_input") {
-                        peripheral_html.push(
-                            <div className="row field-row">
-                                <span>Sensor values are published every time environment changes </span>
-                            </div>)
-
-                    }
-                    if (field.field_type === "led_panel") {
-
-                        peripheral_html.push(<div className="row">
-                                <div className="col-md-6">
-                                    <LEDSpectrumOptions led_panel_dac5578={this.state.led_panel_dac5578}
-                                                        onLEDPanelChange={(led_name, color_channel, value) => this.LEDPanelChange(led_name, color_channel, value)}
-                                                        onLEDSpectrumSelection={(led_data_type, color_channel, spectrum_type, value) => this.LEDSpectrumSelection(led_data_type, color_channel, spectrum_type, value)}
-                                                        title="LED Panel - ON" prefix="on"/>
-                                </div>
-                                <div className="col-md-6">
-                                    <LEDSpectrumOptions led_panel_dac5578={this.state.led_panel_dac5578}
-                                                        onLEDPanelChange={(led_name, color_channel, value) => this.LEDPanelChange(led_name, color_channel, value)}
-                                                        onLEDSpectrumSelection={(led_data_type, color_channel, spectrum_type, value) => this.LEDSpectrumSelection(led_data_type, color_channel, spectrum_type, value)}
-                                                        title="LED Panel - OFF" prefix="off"/>
-
-                                </div>
-                            </div>
-                        )
-                    }
-
-                }
-                return peripheral_html
-            }
-        }, this);
         return (
             <div className="recipe-detail-container">
                 <div className="row">
@@ -276,7 +237,7 @@ class RecipeDetails extends Component {
                     <div className="col-md-3">
                         <div className="row card-row"></div>
                         <div className="row card-row image-row">
-                            <img src={this.state.recipe_image} className="image-recipe" height="250"/>
+                            <img src={basil} className="image-recipe" height="500"/>
                         </div>
                     </div>
 
@@ -297,72 +258,125 @@ class RecipeDetails extends Component {
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                                <div className="row home-row">
+                                    <div className="col-md-12"><h3>Settings </h3></div>
 
+                                </div>
+                                <div className="row home-row">
+                                    <div className="col-md-12">
+                                        <div className="card">
+                                            <div className="card-body">
+                                                <div className="card-title"><h4></h4></div>
+                                                <div className="card-text">
+                                                    <div className="row">
+                                                        <div className="col-md-2"></div>
+                                                        <div className="col-md-4">LED Spectrum for standard day</div>
+                                                        <div
+                                                            className="col-md-4">{this.state.led_panel_dac5578["on_selected_spectrum"].toUpperCase()}
+                                                            Spectrum
+                                                        </div>
+                                                        <div className="col-md-2"></div>
+                                                    </div>
+                                                    <div className="row">
+                                                        <div className="col-md-2"></div>
+                                                        <div className="col-md-4">LED illumination distance for standard
+                                                            day
+                                                        </div>
+                                                        <div
+                                                            className="col-md-4">{this.state.led_panel_dac5578["on_illumination_distance"]}
+                                                            cm
+                                                        </div>
+                                                        <div className="col-md-2"></div>
+                                                    </div>
+                                                    <div className="row">
+                                                        <div className="col-md-2"></div>
+                                                        <div className="col-md-4">LED Spectrum for standard night</div>
+                                                        <div
+                                                            className="col-md-4">{this.state.led_panel_dac5578["off_selected_spectrum"].toUpperCase()}
+                                                            Spectrum
+                                                        </div>
+                                                        <div className="col-md-2"></div>
+                                                    </div>
+                                                    <div className="row">
+                                                        <div className="col-md-2"></div>
+                                                        <div className="col-md-4">LED illumination distance for standard
+                                                            night
+                                                        </div>
+                                                        <div
+                                                            className="col-md-4">{this.state.led_panel_dac5578["off_illumination_distance"]}
+                                                            cm
+                                                        </div>
+                                                        <div className="col-md-2"></div>
+                                                    </div>
+                                                    <div className="row">
+                                                        <div className="col-md-2"></div>
+                                                        <div className="col-md-4">Standard night</div>
+                                                        <div className="col-md-4">{this.state.standard_night_duration} hours</div>
+                                                        <div className="col-md-2"></div>
+                                                    </div>
 
-                        </div>
-                    </div>
-                </div>
-                <div className="row home-row">
+                                                    <div className="row">
+                                                        <div className="col-md-2"></div>
+                                                        <div className="col-md-4">Standard day</div>
+                                                        <div className="col-md-4">{this.state.standard_day_duration} hours</div>
+                                                        <div className="col-md-2"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="row home-row">
+                                    <div className="col-md-12"><h3>Desired Environment </h3></div>
 
-                    <div className="col-md-12 "><h3>Peripherals used in this climate recipe </h3></div>
-
-                </div>
-                <div className="row home-row">
-
-                    <div className="col-md-6 ">
-                        <div className="card sensors-card">
-                            <div className="card-body">
-                                <div className="card-title"><h4>Actuators</h4></div>
-                                <div className="card-text">
-                                    <ul>
-                                        {actuators_html}
-                                    </ul>
+                                </div>
+                                <div className="row home-row">
+                                    <div className="col-md-12">
+                                        <div className="card">
+                                            <div className="card-body">
+                                                <div className="card-title"><h4></h4></div>
+                                                <div className="card-text">
+                                                    <div className="row">
+                                                        <div className="col-md-2"></div>
+                                                        <div className="col-md-4">Temperature Set Point</div>
+                                                        <div className="col-md-4">25 (<sup>o</sup>C) Celsius</div>
+                                                        <div className="col-md-2"></div>
+                                                    </div>
+                                                    <div className="row">
+                                                        <div className="col-md-2"></div>
+                                                        <div className="col-md-4">Humidity Set Point</div>
+                                                        <div className="col-md-4">65 (%) Percent</div>
+                                                        <div className="col-md-2"></div>
+                                                    </div>
+                                                    <div className="row">
+                                                        <div className="col-md-2"></div>
+                                                        <div className="col-md-4">CO2 Set Point</div>
+                                                        <div className="col-md-4">450 <sup>o</sup>ppm (Parts per million)
+                                                        </div>
+                                                        <div className="col-md-2"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+
+
                         </div>
                     </div>
-                    <div className="col-md-6">
-                        <div className="card sensors-card">
-                            <div className="card-body">
-                                <div className="card-title"><h4>Sensors</h4></div>
-                                <div className="card-text">
-                                    <ul>
-                                        {sensors_html}
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
+                </div>
+
+
+                <div className="row home-row">
+                    <div className="col-md-8">
                     </div>
-
-                </div>
-                <div className="row home-row">
-                    <div className="col-md-12 "><h3>Climate Recipe </h3></div>
-
-                </div>
-                <div className="row home-row">
-                    <div className="col-md-12">
-                        {recipeParams}
-
+                    <div className="col-md-4 color-button">
+                        <button className="apply-button btn btn-secondary" onClick={this.toggleApplyToDevice}>
+                            Download & Run
+                        </button>
                     </div>
                 </div>
-                <div className="row home-row">
-
-                        {/*<Button onClick={this.toggleApplyToDevice} className="submit-recipe-button">*/}
-                        {/*Apply Recipe*/}
-                        {/*</Button>*/}
-                        <div className="col-md-8">
-                        </div>
-                        <div className="col-md-4 color-button">
-                            <button className="apply-button btn btn-secondary" onClick={this.toggleApplyToDevice}>
-                                Download & Run
-                            </button>
-                        </div>
-
-
-                </div>
-
-
                 <Modal
                     isOpen={this.state.apply_to_device_modal}
                     toggle={this.toggleApplyToDevice}

@@ -21,6 +21,7 @@ import dashboardIcon from "../images/dashboard.png";
 import logoutIcon from "../images/logout.svg";
 import RecipeHistory from "./recipe_history";
 import HorticultureSuccess from "./horticulture_success";
+import HarvestPlant from "./harvest_plant";
 class App extends Component {
 
     static propTypes = {
@@ -42,7 +43,7 @@ class App extends Component {
         this.handleSubmit = this.handleSubmit.bind(this);
         this.showHideHeader = this.showHideHeader.bind(this);
         this.logout = this.logout.bind(this);
-
+        this.navLink = this.navLink.bind(this)
         if (window.location.href.indexOf('login') > 0 || window.location.href.indexOf('signup') > 0) {
             this.authentication_page = true
 
@@ -66,7 +67,18 @@ class App extends Component {
         this.props.cookies.remove('selected_device_uuid', { path: '/' });
         window.location = "/login";
     }
-
+    navLink(link_header,e)
+    {
+        let current_link = window.location.indexOf(link_header)
+        if(current_link>0)
+        {
+            return "rgba(1,1,1,0.1)"
+        }
+        else
+        {
+            return ""
+        }
+    }
     showHideHeader() {
         if (this.authentication_page) {
             return (<Router>
@@ -87,33 +99,33 @@ class App extends Component {
                             <script async src="https://platform.twitter.com/widgets.js" charSet="utf-8">d</script>
 
                             <NavLink to="/home" activeClassName='load-1-active'>
-                                <div className="load-1">
+                                <div className="load-1" style={{backgroundColor:this.navLink.bind(this,"home")}}>
                                     {/*<img src={homeIcon} className="icon-image"></img>*/}
                                     <img className="home-icon" src={homeIcon}/>
                                     <div className="label">Home</div>
                                 </div>
                             </NavLink>
                             <NavLink to="/recipes" activeClassName='load-1-active'>
-                                <div className="load-1">
+                                <div className="load-1" style={{backgroundColor:this.navLink.bind(this,"recipe")}}>
                                     <img className="home-icon" src={toolsIcon}/>
                                     <div className="label">Climate Recipes</div>
                                 </div>
                             </NavLink>
                             <NavLink to="/device_homepage" activeClassName='load-1-active'>
 
-                                <div className="load-1">
+                                <div className="load-1" style={{backgroundColor:this.navLink.bind(this,"homepage")}}>
                                     <img className="home-icon" src={dashboardIcon}/>
                                     <div className="label">MyPFC</div>
                                 </div>
                             </NavLink>
                             <NavLink to="/profile" activeClassName='load-1-active'>
-                                <div className="load-1">
+                                <div className="load-1" style={{backgroundColor:this.navLink.bind(this,"profile")}}>
                                     <img className="home-icon" src={profileIcon}/>
                                     <div className="label">Profile</div>
                                 </div>
                             </NavLink>
                             <a href="javascript:void()" onClick={this.logout}>
-                                <div className="load-1">
+                                <div className="load-1" >
                                     <img className="home-icon" src={logoutIcon}/>
                                     <div className="label">Logout</div>
                                 </div>
@@ -130,9 +142,10 @@ class App extends Component {
                             <Route path='/device/:device_uuid' component={MyPFC}/>
                             <Route path='/recipe_details/:recipe_uuid' component={RecipeDetails} />
                             <Route path='/horticulture_success/:device_uuid' component={HorticultureSuccess} />
+                            <Route path='/harvest/:device_uuid' component={HarvestPlant} />
                             <Route path='/recipe_history/:recipe_uuid/:device_uuid' component={RecipeHistory} />
                             <Route path='/' component={Home}/>
-                            <Route path='/home/:vcode/' component={Home} />
+                            <Route path='/home' component={Home} />
                         </Switch>
                     </main>
                 </Router>
