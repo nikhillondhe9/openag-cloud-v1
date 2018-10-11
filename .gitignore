@@ -1,4 +1,5 @@
 service_account.json
+fb-func-test-service-account.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
