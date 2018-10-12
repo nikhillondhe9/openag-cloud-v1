@@ -4,7 +4,7 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # MUST use the central region for beta IoT product.
-export GOOGLE_APPLICATION_CREDENTIALS=$DIR/FlaskApiProvider/authenticate.json
+export GOOGLE_APPLICATION_CREDENTIALS=$DIR/FlaskApiProvider/flask-service-account.json
 export GCLOUD_PROJECT=openag-v1
 export GCLOUD_DEV_REG=device-registry
 export GCLOUD_REGION=us-central1
