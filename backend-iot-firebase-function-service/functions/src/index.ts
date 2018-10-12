@@ -2,7 +2,7 @@
 // recieve a POSTed public key from a device and insert the key into
 // the Firestore document DB.
 //
-// curl http://localhost:5000/fb-func-test/us-central1/saveKey  -H "Content-Type: application/json" -X POST --data '{"foo": "rob", "bar": 1}'
+// curl http://localhost:5000/fb-func-test/us-central1/saveKey  -H "Content-Type: application/json" -X POST --data '{"key": "rob", "cksum": "1", "MAC":"and cheese"}'
 
 'use strict';
 
