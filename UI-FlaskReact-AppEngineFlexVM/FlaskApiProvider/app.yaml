@@ -7,7 +7,7 @@ runtime_config:
   python_version: 3
 
 env_variables:
-  GOOGLE_APPLICATION_CREDENTIALS: /app/authenticate.json
+  GOOGLE_APPLICATION_CREDENTIALS: /app/flask-service-account.json
   GCLOUD_DEV_REG: device-registry
   GCLOUD_REGION: us-central1
   FIREBASE_SERVICE_ACCOUNT: /app/fb-service-account.json

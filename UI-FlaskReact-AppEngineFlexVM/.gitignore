@@ -3,3 +3,5 @@ FlaskApiProvider/lib
 FlaskApiProvider/__pycache__
 ReactFrontEnd/node_modules/
 .idea/
+FlaskApiProvider/flask-service-account.json
+FlaskApiProvider/fb-service-account.json
