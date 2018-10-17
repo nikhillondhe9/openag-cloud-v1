@@ -16,7 +16,7 @@ source $DIR/pyenv/bin/activate
 cd $DIR/FlaskApiProvider
 export PYTHONPATH=./lib
 export FLASK_APP=main.py
-export GOOGLE_APPLICATION_CREDENTIALS=./authenticate.json
+export GOOGLE_APPLICATION_CREDENTIALS=./flask-service-account.json
 export GCLOUD_PROJECT=openag-v1
 export GCLOUD_DEV_REG=device-registry
 export GCLOUD_REGION=us-central1
