@@ -10,7 +10,7 @@ from blueprints import (
     user_authenticate, upload_images, get_user_info, get_device_peripherals,
 post_to_discourse,
     submit_access_code,get_current_recipe, get_device_images,submit_horticulture_measurements,
-    get_current_recipe_info, save_recipe_for_later,apply_recipe_to_device,save_user_profile_changes,get_current_device_status,submit_access_chamber,get_device_recipe_history,daily_horticulture_measurements
+    get_current_recipe_info, save_recipe_for_later,apply_recipe_to_device,save_user_profile_changes,get_current_device_status,submit_access_chamber,get_device_recipe_history,daily_horticulture_measurements,get_horticulture_daily_logs
 )
 
 app = Flask(__name__)
@@ -52,6 +52,7 @@ app.register_blueprint(submit_horticulture_measurements.submit_horticulture_meas
 app.register_blueprint(submit_access_chamber.submit_access_chamber_bp)
 app.register_blueprint(post_to_discourse.postdiscourse_bp)
 app.register_blueprint(daily_horticulture_measurements.daily_horticulture_measurements_bp)
+app.register_blueprint(get_horticulture_daily_logs.get_horticulture_daily_logs_bp)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 CORS(app)
 
