@@ -2,16 +2,17 @@ import React, {Component} from 'react';
 import {Cookies, withCookies} from "react-cookie";
 import '../scss/horticulture_success.scss';
 import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input} from 'reactstrap';
-
-import {ImageUploader} from './components/image_uploader';
-import {CreateAccessCodeModal} from './components/create_access_code_modal.js';
-import withered from '../images/withered.png';
-import med_withered from '../images/med_withered.png';
-import normal from '../images/normal.png';
-import curl1 from '../images/curl1.JPG';
-
-import * as api from './utils/api';
-import {CirclePicker} from 'react-color';
+import darkgreen from "../images/dark_green.png";
+import lushgreen from "../images/lush_green.png";
+import yellow from "../images/yellow.png";
+import yellowgreen from "../images/yellow_green.png";
+import healthy from "../images/healthy.png";
+import withered from "../images/withered.png";
+import partially_withered from "../images/partially_withered.png";
+import brown_root from "../images/brown.png";
+import brownish_root from "../images/brownish_root.png";
+import white_root from "../images/white_root.png";
+import classNames from 'classnames';
 
 class HorticultureSuccess extends Component {
     constructor(props) {
@@ -19,39 +20,138 @@ class HorticultureSuccess extends Component {
         let device_uuid = this.props.match.params.device_uuid;
         this.state = {
             successfully_submitted: false,
-            bgColor:["rgba(149, 38, 106,0.8)","rgba(149, 38, 106,0.8)","rgba(149, 38, 106,0.8)","rgba(149, 38, 106,0.8)","rgba(149, 38, 106,0.8)","rgba(149, 38, 106,0.8)"]
+            plant_height: "",
+            leaf_count: "",
+            leaf_colors: [],
+            leaf_withering: [],
+            flavors: [],
+            root_colors: [],
+            device_uuid: device_uuid,
+            submission_name: "",
+            horticulture_notes: ""
         };
-        this.submitRecipe = this.submitRecipe.bind(this);
-        this.sensorOnChange = this.sensorOnChange.bind(this);
-        this.onFlavorClick = this.onFlavorClick.bind(this);
     }
-    onFlavorClick(index,e)
-    {
-        console.log("here",index)
-        let bgcolors = this.state.bgColor
-        bgcolors[index] = "#358A49";
-        this.setState({bgColor:bgcolors})
-    }
+
+
     componentDidMount() {
 
     }
 
-    submitRecipe() {
-        this.setState({successfully_submitted: true})
+    submitRecipe = () => {
+        fetch(process.env.REACT_APP_FLASK_URL + '/api/daily_horticulture_measurements/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({
+                device_uuid: this.state.device_uuid,
+                plant_height: this.state.plant_height,
+                leaf_count: this.state.leaf_count,
+                leaf_colors: this.state.leaf_colors,
+                leaf_withering: this.state.leaf_withering,
+                flavors: this.state.flavors,
+                root_colors: this.state.root_colors,
+                horticulture_notes: this.state.horticulture_notes,
+                submission_name: this.state.submission_name
+            })
+        })
+            .then(response => response.json())
+            .then(response => {
+                this.setState({successfully_submitted: true})
+            });
+
     }
 
-    sensorOnChange(e) {
+    sensorOnChange = (e) => {
         this.setState({[e.target.name]: e.target.value})
+    }
+    addToFlavors = (flavor, e) => {
+        if (this.selectedBorder(flavor, "flavors")) {
+            let array_elems = []
+            for (let arr_elem of this.state["flavors"]) {
+                if (arr_elem !== flavor) {
+                    array_elems.push(arr_elem)
+                }
+            }
+            this.setState({flavors: array_elems});
+        }
+        else {
+            let state_now = this.state.flavors
+            let flavors_arr = state_now.concat(flavor)
+            this.setState({flavors: flavors_arr});
+        }
+    }
+    handleInputChange = (event) => {
+        this.setState({[event.target.name]: event.target.value});
+    }
+    selectRootColor = (root_color, e) => {
+        if (this.selectedBorder(root_color, "root_colors")) {
+            let array_elems = []
+            for (let arr_elem of this.state["root_colors"]) {
+                if (arr_elem !== root_color) {
+                    array_elems.push(arr_elem)
+                }
+            }
+            this.setState({root_colors: array_elems});
+        }
+        else {
+            let state_now = this.state.root_colors
+            let root_colors_arr = state_now.concat(root_color)
+            this.setState({root_colors: root_colors_arr});
+        }
+    }
+    selectLeafColor = (leaf_color, e) => {
+        if (this.selectedBorder(leaf_color, "leaf_colors")) {
+            let array_elems = []
+            for (let arr_elem of this.state["leaf_colors"]) {
+                if (arr_elem !== leaf_color) {
+                    array_elems.push(arr_elem)
+                }
+            }
+            this.setState({leaf_colors: array_elems});
+        }
+        else {
+            let state_now = this.state.leaf_colors
+            let leaf_colors_arr = state_now.concat(leaf_color)
+            this.setState({leaf_colors: leaf_colors_arr});
+        }
+
+    }
+    selectLeafWither = (leaf_wither, e) => {
+        //If the leaf wither is in the withers list already, remove it on second click
+        if (this.selectedBorder(leaf_wither, "leaf_withering")) {
+            let array_elems = []
+            for (let arr_elem of this.state["leaf_withering"]) {
+                if (arr_elem !== leaf_wither) {
+                    array_elems.push(arr_elem)
+                }
+            }
+            this.setState({leaf_withering: array_elems});
+        }
+        else {
+            let state_now = this.state.leaf_withering
+            let leaf_withering_arr = state_now.concat(leaf_wither)
+            this.setState({leaf_withering: leaf_withering_arr});
+        }
+    }
+    selectedBorder = (elem, array_to_search, e) => {
+
+        for (let arr_elem of this.state[array_to_search]) {
+            if (arr_elem === elem) {
+                return true
+            }
+        }
+
+        return false
     }
 
     render() {
-        let green_color = ["#8bc34a"]
-        let brown_color = ["#795548"]
-        let yellow_color = ["#ffeb3b"]
-        let shaded_browns = ["#FFF8DC", "#CD853F", "#795548"]
         return (
 
             <div className="horticulture-container">
+
                 {this.state.successfully_submitted ? <div className="row measurements-row">
                     <div className="row">
                         <div className="row">
@@ -75,83 +175,119 @@ class HorticultureSuccess extends Component {
                         </div>
                     </div>
                     <div className="row measurements-row">
-                        <div className="col-md-6">
+                        <div className="col-md-3">
                             Plant Height
                         </div>
-                        <div className="col-md-6">
+                        <div className="col-md-9">
                             <Input onChange={this.sensorOnChange} name="plant_height" placeholder="Height in (cm)"/>
                         </div>
                     </div>
-                    {/*<div className="row measurements-row">*/}
-                    {/*<div className="col-md-6">*/}
-                    {/*Plant Weight*/}
-                    {/*</div>*/}
-                    {/*<div className="col-md-6">*/}
-                    {/*<div className="row padded-row">*/}
-                    {/*Weight with roots (in grams)*/}
-                    {/*</div>*/}
-                    {/*<div className="row padded-row">*/}
-                    {/*<Input onChange={this.sensorOnChange} name="plant_weight_roots" placeholder=""/>*/}
-                    {/*</div>*/}
-                    {/*<div className="row padded-row">*/}
-                    {/*Weight without roots (in grams)*/}
-                    {/*</div>*/}
-                    {/*<div className="row padded-row">*/}
-                    {/*<Input onChange={this.sensorOnChange} name="plant_weight_wo_roots" placeholder=""/>*/}
-                    {/*</div>*/}
-                    {/*</div>*/}
-                    {/*</div>*/}
                     <div className="row measurements-row">
-                        <div className="col-md-6">
+                        <div className="col-md-3">
                             Leaf Count
                         </div>
-                        <div className="col-md-6">
+                        <div className="col-md-9">
                             <Input onChange={this.sensorOnChange} name="leaf_count"/>
                         </div>
                     </div>
                     <div className="row measurements-row">
-                        <div className="col-md-6">
+                        <div className="col-md-3">
                             Leaf Discoloration
                         </div>
-                        <div className="col-md-6">
-                            <div className="row padded-row">
-                                Pick all the colors you see on the leaf
+                        <div className="col-md-9">
+                            <div className="row">
+                                <div className="col-md-12">
+
+                                    <i> Pick all the colors you see on the leaf </i>
+                                </div>
                             </div>
                             <div className="row padded-row">
-                                <div className="col-md-2 padded-col"><div className="row"><img className='leaf-wither'
-                                                                          src="https://blog.extension.uconn.edu/wp-content/uploads/sites/419/2014/06/basil-downy-mildew2-Ja-1024x682.jpg"
-                                                                                                     width="100" height="100"/></div><div className="row">Green</div></div>
-                                <div className="col-md-2 padded-col"><div className="row"><img className='leaf-wither'
-                                                                          src="https://www.straitstimes.com/sites/default/files/basillemon.jpg"
-                                                                          width="100" height="100"/></div><div className="row">Yellow Green</div></div>
-                                <div className="col-md-2 padded-col"><div className="row"><img className='leaf-wither'
-                                                                          src="https://img.hunkercdn.com/640/photos.demandstudios.com/227/50/fotolia_6694088_XS.jpg"
-                                                                          width="100" height="100"/></div><div className="row"></div></div>
-                                <div className="col-md-2 padded-col"><div className="row"><img className='leaf-wither'
-                                                                          src="https://4.bp.blogspot.com/-yir1nM7pAHw/UeYKBvTO3gI/AAAAAAAADmA/pAmqTlt0SQ4/s1600/IMG_9297.JPG"
-                                                                          width="100" height="100"/></div><div className="row"></div></div>
-                                <div className="col-md-2 padded-col"><div className="row"><img className='leaf-wither'
-                                                                          src="https://cdn.gardenista.com/wp-content/uploads/2015/04/img/sub/uimg/07-2012/700_purple-basil-dark-opal.jpg"
-                                                                                               width="100" height="100"/></div><div className="row">Purple</div></div>
+                                <div className="col-md-2">
+                                    <div className="row">
+                                        <img className={classNames({
+                                            'leaf-wither': true,
+                                            'leaf-wither-with-border': this.selectedBorder("YELLOW", "leaf_colors")
+                                        })}
+                                             width="100" height="100" src={yellow}
+                                             onClick={this.selectLeafColor.bind(this, "YELLOW")}/></div>
+                                    <div className="row">Yellow</div>
+                                </div>
+                                <div className="col-md-2">
+                                    <div className="row">
+                                        <img className={classNames({
+                                            'leaf-wither': true,
+                                            'leaf-wither-with-border': this.selectedBorder("YELLOWGREEN", "leaf_colors")
+                                        })}
+                                             width="100" height="100" src={yellowgreen}
+                                             onClick={this.selectLeafColor.bind(this, "YELLOWGREEN")}/></div>
+                                    <div className="row">Yellow Green</div>
+                                </div>
+                                <div className="col-md-2">
+                                    <div className="row">
+                                        <img className={classNames({
+                                            'leaf-wither': true,
+                                            'leaf-wither-with-border': this.selectedBorder("LUSHGREEN", "leaf_colors")
+                                        })}
+                                             width="100" height="100" src={lushgreen}
+                                             onClick={this.selectLeafColor.bind(this, "LUSHGREEN")}/></div>
+                                    <div className="row">Lush Green</div>
+                                </div>
+                                <div className="col-md-2">
+                                    <div className="row">
+                                        <img className={classNames({
+                                            'leaf-wither': true,
+                                            'leaf-wither-with-border': this.selectedBorder("DARKGREEN", "leaf_colors")
+                                        })}
+                                             width="100" height="100" src={darkgreen}
+                                             onClick={this.selectLeafColor.bind(this, "DARKGREEN")}/></div>
+                                    <div className="row">Dark Green</div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
                     <div className="row measurements-row">
-                        <div className="col-md-6">
+                        <div className="col-md-3">
+
                             Leaf Curling
                         </div>
-                        <div className="col-md-6">
-                            <div className="row padded-row">
-                                Pick the closest structure of your leaves
+                        <div className="col-md-9">
+                            <div className="row">
+                                <div className="col-md-12">
+
+                                    <i> Pick the closest structure of your leaves </i>
+                                </div>
                             </div>
                             <div className="row padded-row">
-                                <div className="col-md-2 padded-col"><div className="row"><img className='leaf-wither' height="100"
-                                                                          src={curl1}/></div><div className="row">Healthy</div></div>
-                                <div className="col-md-2 padded-col"><div className="row"><img className='leaf-wither' height="100"
-                                                                          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRyAvP0KV2UBbW5q4L4HIMBaLUcNg76FmYwoc9Sl8B1k1lvEd4o"/></div><div className="row">Some withered</div>
+                                <div className="col-md-2">
+                                    <div className="row"><img className={classNames({
+                                        'leaf-wither': true,
+                                        'leaf-wither-with-border': this.selectedBorder("HEALTHY", "leaf_withering")
+                                    })} height="100"
+                                                              src={healthy}
+                                                              onClick={this.selectLeafWither.bind(this, "HEALTHY")}/>
+                                    </div>
+                                    <div className="row">Healthy</div>
                                 </div>
-                                <div className="col-md-2 padded-col"><div className="row"><img className='leaf-wither' height="100"
-                                                                          src="http://homewarehuntress.com/wp-content/uploads/2014/04/wilting-basil-plant-1024x768.jpg"/></div><div className="row">Withered</div>
+                                <div className="col-md-2">
+                                    <div className="row"><img className={classNames({
+                                        'leaf-wither': true,
+                                        'leaf-wither-with-border': this.selectedBorder("PARTIALLYWITHERED", "leaf_withering")
+                                    })} height="100"
+                                                              src={partially_withered}
+                                                              onClick={this.selectLeafWither.bind(this, "PARTIALLYWITHERED")}/>
+                                    </div>
+                                    <div className="row">Partial withered</div>
+                                </div>
+                                <div className="col-md-2">
+                                    <div className="row"><img className={classNames({
+                                        'leaf-wither': true,
+                                        'leaf-wither-with-border': this.selectedBorder("WITHERED", "leaf_withering")
+                                    })} height="100"
+                                                              src={withered}
+                                                              onClick={this.selectLeafWither.bind(this, "WITHERED")}/>
+                                    </div>
+                                    <div className="row">Withered</div>
                                 </div>
                             </div>
                         </div>
@@ -159,46 +295,143 @@ class HorticultureSuccess extends Component {
 
 
                     <div className="row measurements-row">
-
-                        <div className="col-md-6">
+                        <div className="col-md-3">
                             Roots
                         </div>
-                        <div className="col-md-6">
-                            <div className="row padded-row">
-                                Color of your roots
+                        <div className="col-md-9">
+                            <div className="row">
+                                <div className="col-md-12">
+
+                                    <i> Color of your roots </i>
+                                </div>
                             </div>
                             <div className="row padded-row">
-                                <CirclePicker colors={shaded_browns}/>
+                                <div className="col-md-2">
+                                    <div className="row"><img className={classNames({
+                                        'leaf-wither': true,
+                                        'leaf-wither-with-border': this.selectedBorder("WHITE", "root_colors")
+                                    })} height="100"
+                                                              width="100" src={white_root}
+                                                              onClick={this.selectRootColor.bind(this, "WHITE")}/></div>
+                                    <div className="row">White</div>
+                                </div>
+                                l
+                                <div className="col-md-2">
+                                    <div className="row"><img className={classNames({
+                                        'leaf-wither': true,
+                                        'leaf-wither-with-border': this.selectedBorder("BROWNISH", "root_colors")
+                                    })} height="100"
+                                                              width="100" src={brownish_root}
+                                                              onClick={this.selectRootColor.bind(this, "BROWNISH")}/>
+                                    </div>
+                                    <div className="row">Brownish</div>
+                                </div>
+                                <div className="col-md-2">
+                                    <div className="row"><img className={classNames({
+                                        'leaf-wither': true,
+                                        'leaf-wither-with-border': this.selectedBorder("BROWN", "root_colors")
+                                    })} height="100"
+                                                              width="100" src={brown_root}
+                                                              onClick={this.selectRootColor.bind(this, "BROWN")}/>
+                                    </div>
+                                    <div className="row">Brown</div>
+                                </div>
                             </div>
-                            <div className="row padded-row">
-                                Smell
-                            </div>
-                            <div className="row padded-row">
-                                <Button className="green-button">Normal</Button>
-                                <Button className="red-button">Rotten</Button>
-                            </div>
+
                         </div>
                     </div>
                     <div className="row measurements-row">
-                        <div className="col-md-6">
+                        <div className="col-md-3">
                             Flavor
                         </div>
-                        <div className="col-md-6">
-                             <div className="wheel outer-wheel">
+                        <div className="col-md-9">
+                            <div className="row">
+                                <div className="col-md-12">
 
-                                <ul id="flavours">
-                                    <li data-flavour="cereal" style={{backgroundColor:this.state.bgColor[0]}} onClick={this.onFlavorClick.bind(this,0)}><span>Spicy</span></li>
-                                    <li data-flavour="fruity" style={{backgroundColor:this.state.bgColor[1]}} onClick={this.onFlavorClick.bind(this,1)}><span>Fruity</span></li>
-                                    <li data-flavour="floral" style={{backgroundColor:this.state.bgColor[2]}} onClick={this.onFlavorClick.bind(this,2)}><span>Floral</span></li>
-                                    <li data-flavour="feinty" style={{backgroundColor:this.state.bgColor[3]}} onClick={this.onFlavorClick.bind(this,3)}><span>Sugar</span></li>
-                                    <li data-flavour="sulphury" style={{backgroundColor:this.state.bgColor[4]}} onClick={this.onFlavorClick.bind(this,4)}><span>Earthy</span></li>
-                                    <li data-flavour="woody" style={{backgroundColor:this.state.bgColor[5]}} onClick={this.onFlavorClick.bind(this,5)}><span>Woody</span></li>
-                                </ul>
+                                    <i> Pick all the flavors you taste </i>
+                                </div>
+                            </div>
+                            <div className="row padded-row">
+                                <div className="col-md-2">
+                                    <label>
+                                        <Input type="checkbox" aria-label="Woody"
+                                               onClick={this.addToFlavors.bind(this, "Woody")}/>
+                                        Woody
+                                    </label>
+                                </div>
+                                <div className="col-md-2">
+                                    <label>
+                                        <Input type="checkbox" aria-label="Fruity"
+                                               onClick={this.addToFlavors.bind(this, "Fruity")}/>
+                                        Fruity
+                                    </label>
+                                </div>
+                                <div className="col-md-2">
+                                    <label>
+                                        <Input type="checkbox" aria-label="Citrus"
+                                               onClick={this.addToFlavors.bind(this, "Citrus")}/>
+                                        Citrus
+                                    </label>
+                                </div>
+                                <div className="col-md-2">
+                                    <label>
+                                        <Input type="checkbox" aria-label="Minty"
+                                               onClick={this.addToFlavors.bind(this, "Minty")}/>
+                                        Minty
+                                    </label>
+                                </div>
+                                <div className="col-md-2">
+                                    <label>
+                                        <Input type="checkbox" aria-label="Earthy"
+                                               onClick={this.addToFlavors.bind(this, "Earthy")}/>
+                                        Earthy</label>
+                                </div>
+                                <div className="col-md-2">
+                                    <label>
+                                        <Input type="checkbox" aria-label="Floral"
+                                               onClick={this.addToFlavors.bind(this, "Floral")}/>
+                                        Floral
+                                    </label>
+                                </div>
                             </div>
 
                         </div>
                     </div>
+                    <div className="row measurements-row">
+                        <div className="col-md-3">
+                            Horticulture Notes
+                        </div>
+                        <div className="col-md-9">
 
+                            <div className="row padded-row">
+                                <div className="col-md-12">
+
+                                    <Input type="textarea" name="horticulture_notes"
+                                           placeholder={"Any additional notes ?"} onChange={this.handleInputChange}/>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div className="row measurements-row">
+                        <div className="col-md-3">
+                            Submitted by
+                        </div>
+                        <div className="col-md-9">
+
+                            <div className="row padded-row">
+                                <div className="col-md-12">
+
+                                    <Input type="text" name="submission_name"
+                                           placeholder={"Enter the name of the person submitting it"}
+                                           onChange={this.handleInputChange}/>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
                     <div className="row measurements-row">
                         <div className="col-md-8">
                         </div>

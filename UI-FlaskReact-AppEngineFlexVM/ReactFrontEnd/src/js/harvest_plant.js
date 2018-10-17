@@ -3,12 +3,13 @@ import {Cookies, withCookies} from "react-cookie";
 import '../scss/horticulture_success.scss';
 import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input} from 'reactstrap';
 
-import {ImageUploader} from './components/image_uploader';
-import {CreateAccessCodeModal} from './components/create_access_code_modal.js';
-import withered from '../images/withered.png';
-import med_withered from '../images/med_withered.png';
-import normal from '../images/normal.png';
-import curl1 from '../images/curl1.JPG';
+import darkgreen from "../images/dark_green.png";
+import lushgreen from "../images/lush_green.png";
+import yellow from "../images/yellow.png";
+import yellowgreen from "../images/yellow_green.png";
+import healthy from "../images/healthy.png";
+import withered from "../images/withered.png";
+import partially_withered from "../images/partially_withered.png";
 
 import * as api from './utils/api';
 import {CirclePicker} from 'react-color';
@@ -104,48 +105,67 @@ class HarvestPlant extends Component {
                         </div>
                     </div>
                     <div className="row measurements-row">
-                        <div className="col-md-6">
+                        <div className="col-md-3">
                             Leaf Discoloration
                         </div>
-                        <div className="col-md-6">
+                        <div className="col-md-9">
                             <div className="row padded-row">
                                 Pick all the colors you see on the leaf
                             </div>
                             <div className="row padded-row">
-                                <div className="col-md-2 padded-col"><div className="row"><img className='leaf-wither'
-                                                                          src="https://blog.extension.uconn.edu/wp-content/uploads/sites/419/2014/06/basil-downy-mildew2-Ja-1024x682.jpg"
-                                                                                                     width="100" height="100"/></div><div className="row">Green</div></div>
-                                <div className="col-md-2 padded-col"><div className="row"><img className='leaf-wither'
-                                                                          src="https://www.straitstimes.com/sites/default/files/basillemon.jpg"
-                                                                          width="100" height="100"/></div><div className="row">Yellow Green</div></div>
-                                <div className="col-md-2 padded-col"><div className="row"><img className='leaf-wither'
-                                                                          src="https://img.hunkercdn.com/640/photos.demandstudios.com/227/50/fotolia_6694088_XS.jpg"
-                                                                          width="100" height="100"/></div><div className="row"></div></div>
-                                <div className="col-md-2 padded-col"><div className="row"><img className='leaf-wither'
-                                                                          src="https://4.bp.blogspot.com/-yir1nM7pAHw/UeYKBvTO3gI/AAAAAAAADmA/pAmqTlt0SQ4/s1600/IMG_9297.JPG"
-                                                                          width="100" height="100"/></div><div className="row"></div></div>
-                                <div className="col-md-2 padded-col"><div className="row"><img className='leaf-wither'
-                                                                          src="https://cdn.gardenista.com/wp-content/uploads/2015/04/img/sub/uimg/07-2012/700_purple-basil-dark-opal.jpg"
-                                                                                               width="100" height="100"/></div><div className="row">Purple</div></div>
+                                <div className="col-md-2">
+                                    <div className="row">
+                                        <img className='leaf-wither'
+                                             width="100" height="100" src={yellow}/></div>
+                                    <div className="row">Yellow</div>
+                                </div>
+                                <div className="col-md-2">
+                                    <div className="row">
+                                        <img className='leaf-wither'
+                                             width="100" height="100" src={yellowgreen}/></div>
+                                    <div className="row">Yellow Green</div>
+                                </div>
+                                <div className="col-md-2">
+                                    <div className="row">
+                                        <img className='leaf-wither'
+                                             width="100" height="100" src={lushgreen}/></div>
+                                    <div className="row">Lush Green</div>
+                                </div>
+                                <div className="col-md-2">
+                                    <div className="row">
+                                        <img className='leaf-wither'
+                                             width="100" height="100" src={darkgreen}/></div>
+                                    <div className="row">Dark Green</div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
                     <div className="row measurements-row">
-                        <div className="col-md-6">
+                        <div className="col-md-3">
                             Leaf Curling
                         </div>
-                        <div className="col-md-6">
+                        <div className="col-md-9">
                             <div className="row padded-row">
                                 Pick the closest structure of your leaves
                             </div>
                             <div className="row padded-row">
-                                <div className="col-md-2 padded-col"><div className="row"><img className='leaf-wither' height="100"
-                                                                          src={curl1}/></div><div className="row">Healthy</div></div>
-                                <div className="col-md-2 padded-col"><div className="row"><img className='leaf-wither' height="100"
-                                                                          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRyAvP0KV2UBbW5q4L4HIMBaLUcNg76FmYwoc9Sl8B1k1lvEd4o"/></div><div className="row">Some withered</div>
+                                <div className="col-md-2">
+                                    <div className="row"><img className='leaf-wither' height="100"
+                                                              src={healthy}/></div>
+                                    <div className="row">Healthy</div>
                                 </div>
-                                <div className="col-md-2 padded-col"><div className="row"><img className='leaf-wither' height="100"
-                                                                          src="http://homewarehuntress.com/wp-content/uploads/2014/04/wilting-basil-plant-1024x768.jpg"/></div><div className="row">Withered</div>
+                                <div className="col-md-2">
+                                    <div className="row"><img className='leaf-wither' height="100"
+                                                              src={partially_withered}/>
+                                    </div>
+                                    <div className="row">Partial withered</div>
+                                </div>
+                                <div className="col-md-2">
+                                    <div className="row"><img className='leaf-wither' height="100"
+                                                              src={withered}/>
+                                    </div>
+                                    <div className="row">Withered</div>
                                 </div>
                             </div>
                         </div>
