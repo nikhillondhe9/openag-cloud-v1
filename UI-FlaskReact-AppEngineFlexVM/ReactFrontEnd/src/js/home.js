@@ -575,6 +575,7 @@ class Home extends Component {
             )
         });
         let halfbox = {width: '50%'}
+        let gotohorticulture = "/horticulture_success/" + this.state.selected_device_uuid;
         let gotohistory = "/recipe_history/" + this.state.selected_device_uuid + "/" + this.state.current_recipe_uuid;
         return (
             <Router>
@@ -586,9 +587,6 @@ class Home extends Component {
                         onAddDevice={this.toggleDeviceModal}
                         onAddAccessCode={this.toggleAccessCodeModal}
                     />
-                    {/*<Button className="postbutton" onClick={this.postToTwitter}>*/}
-                    {/*Post status to twitter*/}
-                    {/*</Button>*/}
                     <div className="card notifications">
                         <div className="card-body">
                             <div className="card-title">
@@ -607,9 +605,11 @@ class Home extends Component {
                                 </p>
                             )}
                             <hr/>
-                            <p><a href={gotohistory}>See edits </a> to your recipes </p>
-                            <hr/>
+                            {/*<p><a href={gotohistory}>See edits </a> to your recipes </p>*/}
+                            {/*<hr/>*/}
                             <p> Water needs refilling soon </p>
+                            <hr/>
+                            <p> <a href={gotohorticulture}>Take</a> horticulture measurements </p>
                         </div>
                     </div>
                     <div className="timelapse">

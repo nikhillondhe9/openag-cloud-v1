@@ -3,7 +3,6 @@ import '../scss/device_homepage.scss';
 import {Cookies, withCookies} from "react-cookie";
 import {$, jQuery} from 'jquery';
 // import Draggable from 'react-draggable';
-import Plot from 'react-plotly.js';
 import 'rc-time-picker/assets/index.css';
 import Console from 'react-console-component';
 import 'react-console-component/main.css';
@@ -13,13 +12,7 @@ import {DevicesDropdown} from './components/devices_dropdown';
 import {AddAccessCodeModal} from './components/add_access_code_modal';
 import {AddDeviceModal} from './components/add_device_modal';
 import {DeviceIsRunningModal} from './components/device_is_running_modal';
-import {
-    Dropdown,
-    DropdownToggle,
-    DropdownMenu,
-    Button,
-    DropdownItem
-} from 'reactstrap';
+import {Button, Dropdown, DropdownItem, DropdownMenu, DropdownToggle} from 'reactstrap';
 
 import 'rc-slider/assets/index.css';
 import 'rc-tooltip/assets/bootstrap.css';
@@ -86,7 +79,8 @@ class DeviceHomepage extends Component {
             sensor_rh: 60,
             rh_data: [],
             co2_data: [],
-            action_isOpen:false,
+            plant_height_results_data: [],
+            action_isOpen: false,
             led_panel_dac5578: {
                 'on_illumination_distance': 5,
                 'off_illumination_distance': 5,
@@ -101,10 +95,13 @@ class DeviceHomepage extends Component {
             rh_data_y: [],
             led_data: [],
             temp_data: [],
+            leaf_count_results_data: [],
             temp_layout: {title: '', width: 1, height: 1},
             led_layout: {title: '', width: 1, height: 1},
             rh_layout: {title: '', width: 1, height: 1},
             co2_layout: {title: '', width: 1, height: 1},
+            plant_height_results_layout: {title: '', width: 1, height: 1},
+            leaf_count_results_layout: {title: '', width: 1, height: 1},
             show_temp_line: false,
             show_rh_line: false,
             user_devices: new Map(),
@@ -121,7 +118,7 @@ class DeviceHomepage extends Component {
             control_level: 'view',
             current_recipe: {},
             edit_mode: false,
-            selectedAction:'Select an action'
+            selectedAction: 'Select an action'
         };
         this.child = {
             console: Console
@@ -147,7 +144,7 @@ class DeviceHomepage extends Component {
         this.LEDSpectrumSelection = this.LEDSpectrumSelection.bind(this);
         this.toggleEditMode = this.toggleEditMode.bind(this);
         this.accessChamber = this.accessChamber.bind(this);
-        this.goToHarvest  = this.goToHarvest.bind(this)
+        this.goToHarvest = this.goToHarvest.bind(this)
         this.submitRecipe = this.submitRecipe.bind(this)
     }
 
@@ -426,10 +423,10 @@ class DeviceHomepage extends Component {
                 'Access-Control-Allow-Origin': '*'
             },
             body: JSON.stringify({
-                'user_token': this.props.cookies.get('user_token')
-            })
-        })
-            .then((response) => response.json())
+                                      'user_token': this.props.cookies.get('user_token')
+    })
+    })
+    .then((response) => response.json())
             .then((responseJson) => {
                 console.log(responseJson)
                 if (responseJson["response_code"] == 200) {
@@ -552,6 +549,120 @@ class DeviceHomepage extends Component {
 
                     this.setState({
                         'co2_layout': {
+                            width: 350,
+                            height: 450,
+                            xaxis: {
+                                autorange: true,
+                                tickformat: '%Y-%m-%dH:%M:%S',
+                                rangeInput: {
+                                    type: 'date'
+                                }
+                            },
+                            yaxis: {
+                                autorange: true,
+                                type: 'linear'
+                            }
+                        }
+                    });
+
+                }
+
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }
+
+    getHorticultureDailyLogs(device_uuid) {
+        return fetch(process.env.REACT_APP_FLASK_URL + '/api/get_horticulture_daily_logs/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({
+                'device_uuid': device_uuid
+            })
+        })
+
+            .then((response) => response.json())
+            .then((responseJson) => {
+                console.log(responseJson)
+                if (responseJson["response_code"] == 200) {
+
+                    let plant_height_resultsData = responseJson["plant_height_results"]
+
+                    plant_height_resultsData.forEach(function (d) {
+                        d.value = parseFloat(d.value);
+                    });
+
+                    let plant_height_results_data_x = []
+                    let plant_height_results_data_y = []
+                    plant_height_resultsData.forEach(function (d) {
+                        plant_height_results_data_x.push(d.time);
+                        plant_height_results_data_y.push(d.value);
+                    });
+                    this.setState({'plant_height_results_data_x': plant_height_results_data_x})
+                    this.setState({'plant_height_results_data_y': plant_height_results_data_y})
+                    this.setState({
+                        'plant_height_results_data': [{
+                            type: "scatter",
+                            mode: "lines+markers",
+                            name: '',
+                            x: plant_height_results_data_x,
+                            y: plant_height_results_data_y,
+                            line: {color: '#ECAD48'}
+                        }]
+                    });
+
+                    this.setState({
+                        'plant_height_results_layout': {
+                            width: 350,
+                            height: 450,
+                            xaxis: {
+                                autorange: true,
+                                tickformat: '%Y-%m-%dH:%M:%S',
+                                rangeInput: {
+                                    type: 'date'
+                                }
+                            },
+                            yaxis: {
+                                autorange: true,
+                                type: 'linear'
+                            }
+                        }
+                    });
+                    let
+                        leaf_count_resultsData = responseJson["leaf_count_results"]
+
+                    leaf_count_resultsData.forEach(function (d) {
+                        d.value = parseFloat(d.value);
+                    });
+
+                    let
+                        leaf_count_results_data_x = []
+                    let
+                        leaf_count_results_data_y = []
+                    leaf_count_resultsData.forEach(function (d) {
+                        leaf_count_results_data_x.push(d.time);
+                        leaf_count_results_data_y.push(d.value);
+                    });
+                    this.setState({'leaf_count_results_data_x': leaf_count_results_data_x})
+                    this.setState({'leaf_count_results_data_y': leaf_count_results_data_y})
+                    this.setState({
+                        'leaf_count_results_data': [{
+                            type: "scatter",
+                            mode: "lines+markers",
+                            name: '',
+                            x: leaf_count_results_data_x,
+                            y: leaf_count_results_data_y,
+                            line: {color: '#ECAD48'}
+                        }]
+                    });
+
+                    this.setState({
+                        'leaf_count_results_layout': {
                             width: 350,
                             height: 450,
                             xaxis: {
@@ -734,6 +845,7 @@ class DeviceHomepage extends Component {
             this.getCO2Details(device_uuid);
             this.getCurrentStats(device_uuid);
             this.getRecipeOnDevice(device_uuid);
+            this.getHorticultureDailyLogs(device_uuid);
         }
     }
 
@@ -748,10 +860,11 @@ class DeviceHomepage extends Component {
     promptLabel = () => {
         return this.state.count + "> ";
     }
-    toggle_action_drop()
-    {
-        this.setState({action_isOpen:!this.state.action_isOpen})
+
+    toggle_action_drop() {
+        this.setState({action_isOpen: !this.state.action_isOpen})
     }
+
     downloadCSV() {
         return fetch(process.env.REACT_APP_FLASK_URL + '/api/download_as_csv/', {
             method: 'POST',
@@ -771,7 +884,7 @@ class DeviceHomepage extends Component {
     }
 
     accessChamber() {
-        this.setState({selectedAction:"Log Chamber Access Only"})
+        this.setState({selectedAction: "Log Chamber Access Only"})
         return fetch(process.env.REACT_APP_FLASK_URL + '/api/submit_access_chamber/', {
             method: 'POST',
             headers: {
@@ -823,11 +936,12 @@ class DeviceHomepage extends Component {
                 console.error(error);
             });
     }
-    goToHarvest()
-    {
+
+    goToHarvest() {
         window.location.href = "/harvest/" + this.state.selected_device_uuid.toString();
 
     }
+
     render() {
         const margin = {top: 20, right: 20, bottom: 30, left: 50};
         let changesList = []
@@ -869,254 +983,28 @@ class DeviceHomepage extends Component {
                         />
                     </div>
                     <div className="col-md-7">
-                    <Dropdown isOpen={this.state.action_isOpen} toggle={this.toggle_action_drop}>
-                        <DropdownToggle caret>
-                            {this.state.selectedAction}
-                        </DropdownToggle>
-                        <DropdownMenu>
-                            <DropdownItem onClick={this.accessChamber}>Log chamber access only</DropdownItem>
-                           <DropdownItem onClick={this.submitRecipe} disabled>Take Horticulture Measurements </DropdownItem>
-                            <DropdownItem onClick={this.downloadCSV} disabled>Download data </DropdownItem>
-                            <DropdownItem onClick={this.toggleEditMode}>Edit Climate Recipe </DropdownItem>
-                        </DropdownMenu>
-                    </Dropdown>
+                        <Dropdown isOpen={this.state.action_isOpen} toggle={this.toggle_action_drop}>
+                            <DropdownToggle caret>
+                                {this.state.selectedAction}
+                            </DropdownToggle>
+                            <DropdownMenu>
+                                <DropdownItem onClick={this.accessChamber}>Log chamber access only</DropdownItem>
+                                <DropdownItem onClick={this.submitRecipe}>Take Horticulture
+                                    Measurements </DropdownItem>
+                                <DropdownItem onClick={this.downloadCSV}>Download data </DropdownItem>
+                                <DropdownItem onClick={this.toggleEditMode}>Edit Climate Recipe </DropdownItem>
+                                <DropdownItem onClick={this.goToHarvest}>Harvest Plant </DropdownItem>
+                            </DropdownMenu>
+                        </Dropdown>
                     </div>
 
                     <div className="col-md-1">
                     </div>
                     <div className="col-md-2 no-padding">
-                        <Button className="btn btn-loading disabled-button" onClick={this.goToHarvest} disabled> Harvest Plant
-                        </Button>
+
                     </div>
                 </div>
-                <div className="row graphs-row">
-                    {/*<Draggable cancel="strong">*/}
-                    <div className="col-md-4">
-                        <div className="card current-stats-card">
-                            <div className="card-block">
-                                <h4 className="card-title "> Temperature </h4>
-                                <div className="card-text">
-                                    <div className="graph">
-                                        <div className="knob_data">{this.state.current_temp}
-                                        </div>
-                                        <span className="txt_smaller"><sup>o</sup>C (Celsius) </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {/*</Draggable>*/}
-                    {/*<Draggable cancel="strong">*/}
-                    <div className="col-md-4">
-                        <div className="card current-stats-card">
-                            <div className="card-block">
-                                <h4 className="card-title "> Relative Humidity </h4>
-                                <div className="card-text">
-                                    <div className="graph">
-                                        <div className="knob_data">{this.state.current_rh}
-                                        </div>
-                                        <span className="txt_smaller"><sup>o</sup>% (Percent) </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {/*</Draggable>*/}
-                    {/*<Draggable cancel="strong">*/}
-                    <div className="col-md-4">
-                        <div className="card current-stats-card">
-                            <div className="card-block">
-                                <h4 className="card-title "> CO2 </h4>
-                                <div className="card-text">
-                                    <div className="graph">
-                                        <div className="knob_data">{this.state.current_co2}
-                                        </div>
-                                        <span className="txt_smaller"><sup>o</sup>ppm (Parts per million) </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {/*</Draggable>*/}
-                </div>
 
-
-                <div className="row graphs-row">
-                    {/*<Draggable cancel="strong">*/}
-                    <div className="col-md-4">
-                        <div className="card value-card">
-                            <div className="card-block">
-                                <h4 className="card-title "> Temperature </h4>
-                                <div className="row plot-row" style={{display: 'block'}}>
-                                    <strong className="no-cursor"> <Plot data={this.state.temp_data}
-                                                                         layout={this.state.temp_layout}
-                                                                         onInitialized={(figure) => this.setState(figure)}
-                                                                         onUpdate={(figure) => this.setState(figure)}/>
-                                    </strong>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    {/*</Draggable>*/}
-                    {/*<Draggable cancel="strong">*/}
-                    <div className="col-md-4">
-
-                        <div className="card value-card">
-                            <div className="card-block">
-                                <h4 className="card-title "> Relative Humidity </h4>
-
-                                <div className="row plot-row" style={{display: 'block'}}>
-                                    <strong className="no-cursor"> <Plot data={this.state.rh_data}
-                                                                         layout={this.state.rh_layout}
-                                                                         onInitialized={(figure) => this.setState(figure)}
-                                                                         onUpdate={(figure) => this.setState(figure)}/>
-                                    </strong>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="col-md-4">
-                        <div className="card value-card">
-                            <div className="card-block">
-                                <h4 className="card-title "> CO2 </h4>
-
-                                <div className="row plot-row" style={{display: 'block'}}>
-                                    <strong className="no-cursor"> <Plot data={this.state.co2_data}
-                                                                         layout={this.state.co2_layout}
-                                                                         onInitialized={(figure) => this.setState(figure)}
-                                                                         onUpdate={(figure) => this.setState(figure)}
-                                                                         config={this.state.config}/>
-                                    </strong>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {/*</Draggable>*/}
-                </div>
-                {/*<div className="row graphs-row">*/}
-                {/*/!*<Draggable cancel="strong">*!/*/}
-
-                {/*/!*</Draggable>*!/*/}
-                {/*/!*<Draggable cancel="strong">*!/*/}
-                {/*<div className="col-md-6">*/}
-                {/*<div className="card value-card">*/}
-                {/*<div className="card-block">*/}
-                {/*<h4 className="card-title "> LED Panel Details </h4>*/}
-                {/*<div className="row plot-row" style={{display: 'block'}}>*/}
-                {/*<strong className="no-cursor"> <Plot data={this.state.led_chart_data}*/}
-                {/*layout={this.state.led_layout}*/}
-                {/*onInitialized={(figure) => this.setState(figure)}*/}
-                {/*onUpdate={(figure) => this.setState(figure)}*/}
-                {/*config={this.state.config}/>*/}
-                {/*</strong>*/}
-                {/*</div>*/}
-                {/*</div>*/}
-                {/*</div>*/}
-                {/*</div>*/}
-                {/*/!*</Draggable>*!/*/}
-                {/*</div>*/}
-                {/*<div className="row graphs-row">*/}
-                {/*<div className="col-md-6 edit-text">Horticulture Measurements</div>*/}
-                {/*</div>*/}
-
-                {/*<div className="row graphs-row">*/}
-                {/*/!*<Draggable cancel="strong">*!/*/}
-                {/*<div className="col-md-6">*/}
-                {/*<div className="card environment-card">*/}
-                {/*<div className="card-block">*/}
-                {/*<h4 className="card-title "> Count leaves on the plant </h4>*/}
-                {/*<div className="card-text">*/}
-                {/*<div className="graph">*/}
-                {/*<strong className="no-cursor">*/}
-
-                {/*<span className="txt_smaller"></span>*/}
-                {/*<div className="knob_data">*/}
-                {/*<input type="text" className="recipe-details-text"*/}
-                {/*placeholder="" id="leaves_count"*/}
-                {/*value={this.state.leaves_count}*/}
-                {/*name="leaves_count" onChange={this.sensorOnChange}/>*/}
-                {/*</div>*/}
-                {/*<span className="txt_smaller"></span>*/}
-
-                {/*</strong>*/}
-                {/*</div>*/}
-                {/*</div>*/}
-                {/*</div>*/}
-                {/*</div>*/}
-                {/*</div>*/}
-
-
-                {/*/!*</Draggable>*!/*/}
-                {/*/!*<Draggable cancel="strong">*!/*/}
-                {/*<div className="col-md-6">*/}
-                {/*<div className="card environment-card">*/}
-                {/*<div className="card-block">*/}
-                {/*<h4 className="card-title "> Height of the plant </h4>*/}
-                {/*<div className="card-text">*/}
-                {/*<div className="graph">*/}
-
-                {/*<strong className="no-cursor">*/}
-
-                {/*<span className="txt_smaller"></span>*/}
-                {/*<div className="knob_data">*/}
-                {/*<input type="text" className="recipe-details-text"*/}
-                {/*placeholder="" id="plant_height"*/}
-                {/*value={this.state.plant_height}*/}
-                {/*name="plant_height" onChange={this.sensorOnChange}/>*/}
-                {/*</div>*/}
-                {/*<span className="txt_smaller"> in centimeters ( cm )</span>*/}
-
-
-                {/*</strong>*/}
-                {/*</div>*/}
-
-
-                {/*</div>*/}
-                {/*</div>*/}
-                {/*</div>*/}
-                {/*</div>*/}
-
-
-                {/*/!*</Draggable>*!/*/}
-                {/*</div>*/}
-
-                {/*<div className="row graphs-row">*/}
-                {/*<div className="col-md-6">*/}
-                {/*<div className="card environment-card">*/}
-                {/*<div className="card-block">*/}
-                {/*<h4 className="card-title "> Solution pH </h4>*/}
-                {/*<div className="card-text">*/}
-                {/*<div className="graph">*/}
-                {/*<strong className="no-cursor">*/}
-
-                {/*<span className="txt_smaller"></span>*/}
-                {/*<div className="knob_data">*/}
-                {/*<input type="text" className="recipe-details-text"*/}
-                {/*placeholder="" id="solution_ph"*/}
-                {/*value={this.state.solution_ph}*/}
-                {/*name="solution_ph" onChange={this.sensorOnChange}/>*/}
-                {/*</div>*/}
-                {/*<span className="txt_smaller">(0-14)</span>*/}
-
-                {/*</strong>*/}
-                {/*</div>*/}
-                {/*</div>*/}
-                {/*</div>*/}
-                {/*</div>*/}
-                {/*</div>*/}
-                {/*</div>*/}
-                {/*<div className="row graphs-row">*/}
-                {/*<div className="col-md-10">*/}
-                {/*</div>*/}
-                {/*<div className="col-md-2">*/}
-                {/*<button className="apply-button btn btn-secondary" onClick={this.submitMeasurements}>*/}
-                {/*Submit Measurements*/}
-                {/*</button>*/}
-                {/*</div>*/}
-                {/*</div>*/}
                 {this.state.edit_mode ? <div className="edit-container">
                     <div className="row graphs-row">
                         <div className="col-md-6 edit-text"> Edit Climate Recipe</div>

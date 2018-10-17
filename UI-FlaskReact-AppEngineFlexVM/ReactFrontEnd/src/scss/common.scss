@@ -30,7 +30,7 @@
   &-loading {
     pointer-events: auto;
     &:after {
-      animation: btn-loading 1s linear infinite;
+      //animation: btn-loading 1s linear infinite;
       background: repeating-linear-gradient(
                       -60deg,
                       rgba(white, .15),
