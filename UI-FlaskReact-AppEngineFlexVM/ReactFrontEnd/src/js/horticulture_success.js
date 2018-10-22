@@ -424,7 +424,7 @@ class HorticultureSuccess extends Component {
                                 <div className="col-md-12">
 
                                     <Input type="text" name="submission_name"
-                                           placeholder={"Enter the name of the person submitting it"}
+                                           placeholder={"Enter the name of the person logging measurements"}
                                            onChange={this.handleInputChange}/>
 
                                 </div>

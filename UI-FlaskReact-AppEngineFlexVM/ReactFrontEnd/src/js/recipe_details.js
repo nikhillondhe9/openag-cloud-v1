@@ -312,66 +312,86 @@ class RecipeDetails extends Component {
                                             <div className="col-md-12">
                                                 <div className="row">
                                                     <div className="col-md-4"><b>Name</b></div>
-                                                    <div className="col-md-2"><b>Actuator/Sensor</b></div>
+                                                    <div className="col-md-4"><b>Actuator/Sensor</b></div>
                                                     <div className="col-md-4"><b>Value</b></div>
-                                                    <div className="col-md-2"></div>
+
                                                 </div>
                                                 <div className="row">
                                                     <div className="col-md-4">LED Spectrum for standard day</div>
-                                                    <div className="col-md-2">LED Panel</div>
+                                                    <div className="col-md-4">LED Panel</div>
                                                     <div
                                                         className="col-md-4">{this.state.led_panel_dac5578["on_selected_spectrum"].toUpperCase()}
-                                                        Spectrum
+                                                        <span>  Spectrum </span>
                                                     </div>
-                                                    <div className="col-md-2"></div>
+
                                                 </div>
                                                 <div className="row">
                                                     <div className="col-md-4">LED illumination distance for standard
                                                         day
                                                     </div>
-                                                    <div className="col-md-2">LED Panel</div>
+                                                    <div className="col-md-4">LED Panel</div>
                                                     <div
                                                         className="col-md-4">{this.state.led_panel_dac5578["on_illumination_distance"]}
                                                         <span> cm </span>
                                                     </div>
-                                                    <div className="col-md-2"></div>
+
                                                 </div>
                                                 <div className="row">
                                                     <div className="col-md-4">LED Spectrum for standard night</div>
-                                                    <div className="col-md-2">LED Panel</div>
+                                                    <div className="col-md-4">LED Panel</div>
                                                     <div
                                                         className="col-md-4">{this.state.led_panel_dac5578["off_selected_spectrum"].toUpperCase()}
-                                                        Spectrum
+                                                        <span>  Spectrum </span>
                                                     </div>
-                                                    <div className="col-md-2"></div>
+
                                                 </div>
                                                 <div className="row">
                                                     <div className="col-md-4">LED illumination distance for standard
                                                         night
                                                     </div>
-                                                    <div className="col-md-2">LED Panel</div>
+                                                    <div className="col-md-4">LED Panel</div>
                                                     <div
                                                         className="col-md-4">{this.state.led_panel_dac5578["off_illumination_distance"]}
                                                         <span> cm </span>
                                                     </div>
-                                                    <div className="col-md-2"></div>
+
                                                 </div>
                                                 <div className="row">
                                                     <div className="col-md-4">Standard night</div>
-                                                    <div className="col-md-2">LED Panel</div>
+                                                    <div className="col-md-4">LED Panel</div>
                                                     <div className="col-md-4">{this.state.standard_night_duration}
                                                         <span> hours </span>
                                                     </div>
-                                                    <div className="col-md-2"></div>
+
                                                 </div>
 
                                                 <div className="row">
                                                     <div className="col-md-4">Standard day</div>
-                                                    <div className="col-md-2">LED Panel</div>
+                                                    <div className="col-md-4">LED Panel</div>
                                                     <div className="col-md-4">{this.state.standard_day_duration}
                                                         <span> hours </span>
                                                     </div>
-                                                    <div className="col-md-2"></div>
+
+                                                </div>
+                                                 <div className="row">
+                                                    <div className="col-md-4">Sampling Frequency - Temperature</div>
+                                                    <div className="col-md-4">Temperature Sensor</div>
+                                                    <div className="col-md-4">Everytime temperature changes
+                                                    </div>
+
+                                                </div>
+                                                <div className="row">
+                                                    <div className="col-md-4">Sampling Frequency - Humidity</div>
+                                                    <div className="col-md-4">Humidity Sensor</div>
+                                                    <div className="col-md-4">Everytime humidity changes
+                                                    </div>
+
+                                                </div>
+                                                <div className="row">
+                                                    <div className="col-md-4">Sampling Frequency - CO2</div>
+                                                    <div className="col-md-4">CO2 Sensor</div>
+                                                    <div className="col-md-4">Everytime CO2 changes
+                                                    </div>
                                                 </div>
 
                                             </div>
@@ -385,21 +405,26 @@ class RecipeDetails extends Component {
                                         <div className="row">
                                             <div className="col-md-12">
                                                 <div className="row">
+                                                    <div className="col-md-4"><b>Name</b></div>
+                                                    <div className="col-md-4"><b>Value</b></div>
+                                                    <div className="col-md-4"><b>Measured By</b></div>
+                                                </div>
+                                                <div className="row">
                                                     <div className="col-md-4">Temperature Set Point</div>
                                                     <div className="col-md-4">25 (<sup>o</sup>C) Celsius</div>
-                                                    <div className="col-md-2"></div>
+                                                    <div className="col-md-4">Temperature Sensor</div>
                                                 </div>
                                                 <div className="row">
                                                     <div className="col-md-4">Humidity Set Point</div>
                                                     <div className="col-md-4">65 (%) Percent</div>
-                                                    <div className="col-md-2"></div>
+                                                    <div className="col-md-4">Humidity Sensor</div>
                                                 </div>
                                                 <div className="row">
                                                     <div className="col-md-4">CO2 Set Point</div>
                                                     <div className="col-md-4">450 <sup>o</sup>ppm (Parts per
                                                         million)
                                                     </div>
-                                                    <div className="col-md-2"></div>
+                                                    <div className="col-md-4">CO2 Sensor</div>
                                                 </div>
                                             </div>
                                         </div>

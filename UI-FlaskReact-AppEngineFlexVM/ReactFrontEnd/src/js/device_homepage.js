@@ -3,6 +3,7 @@ import '../scss/device_homepage.scss';
 import {Cookies, withCookies} from "react-cookie";
 import {$, jQuery} from 'jquery';
 // import Draggable from 'react-draggable';
+import Plot from 'react-plotly.js';
 import 'rc-time-picker/assets/index.css';
 import Console from 'react-console-component';
 import 'react-console-component/main.css';
@@ -12,7 +13,13 @@ import {DevicesDropdown} from './components/devices_dropdown';
 import {AddAccessCodeModal} from './components/add_access_code_modal';
 import {AddDeviceModal} from './components/add_device_modal';
 import {DeviceIsRunningModal} from './components/device_is_running_modal';
-import {Button, Dropdown, DropdownItem, DropdownMenu, DropdownToggle} from 'reactstrap';
+import {
+    Dropdown,
+    DropdownToggle,
+    DropdownMenu,
+    Button,
+    DropdownItem
+} from 'reactstrap';
 
 import 'rc-slider/assets/index.css';
 import 'rc-tooltip/assets/bootstrap.css';
@@ -1004,7 +1011,145 @@ class DeviceHomepage extends Component {
 
                     </div>
                 </div>
+                <div className="row graphs-row">
+                    {/*<Draggable cancel="strong">*/}
+                    <div className="col-md-4">
+                        <div className="card current-stats-card">
+                            <div className="card-block">
+                                <h4 className="card-title "> Temperature </h4>
+                                <div className="card-text">
+                                    <div className="graph">
+                                        <div className="knob_data">{this.state.current_temp}
+                                        </div>
+                                        <span className="txt_smaller"><sup>o</sup>C (Celsius) </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {/*</Draggable>*/}
+                    {/*<Draggable cancel="strong">*/}
+                    <div className="col-md-4">
+                        <div className="card current-stats-card">
+                            <div className="card-block">
+                                <h4 className="card-title "> Relative Humidity </h4>
+                                <div className="card-text">
+                                    <div className="graph">
+                                        <div className="knob_data">{this.state.current_rh}
+                                        </div>
+                                        <span className="txt_smaller"><sup>o</sup>% (Percent) </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {/*</Draggable>*/}
+                    {/*<Draggable cancel="strong">*/}
+                    <div className="col-md-4">
+                        <div className="card current-stats-card">
+                            <div className="card-block">
+                                <h4 className="card-title "> CO2 </h4>
+                                <div className="card-text">
+                                    <div className="graph">
+                                        <div className="knob_data">{this.state.current_co2}
+                                        </div>
+                                        <span className="txt_smaller"><sup>o</sup>ppm (Parts per million) </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {/*</Draggable>*/}
+                </div>
 
+
+                <div className="row graphs-row">
+                    {/*<Draggable cancel="strong">*/}
+                    <div className="col-md-4">
+                        <div className="card value-card">
+                            <div className="card-block">
+                                <h4 className="card-title "> Temperature </h4>
+                                <div className="row plot-row" style={{display: 'block'}}>
+                                    <strong className="no-cursor"> <Plot data={this.state.temp_data}
+                                                                         layout={this.state.temp_layout}
+                                                                         onInitialized={(figure) => this.setState(figure)}
+                                                                         onUpdate={(figure) => this.setState(figure)}/>
+                                    </strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    {/*</Draggable>*/}
+                    {/*<Draggable cancel="strong">*/}
+                    <div className="col-md-4">
+
+                        <div className="card value-card">
+                            <div className="card-block">
+                                <h4 className="card-title "> Relative Humidity </h4>
+
+                                <div className="row plot-row" style={{display: 'block'}}>
+                                    <strong className="no-cursor"> <Plot data={this.state.rh_data}
+                                                                         layout={this.state.rh_layout}
+                                                                         onInitialized={(figure) => this.setState(figure)}
+                                                                         onUpdate={(figure) => this.setState(figure)}/>
+                                    </strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="col-md-4">
+                        <div className="card value-card">
+                            <div className="card-block">
+                                <h4 className="card-title "> CO2 </h4>
+
+                                <div className="row plot-row" style={{display: 'block'}}>
+                                    <strong className="no-cursor"> <Plot data={this.state.co2_data}
+                                                                         layout={this.state.co2_layout}
+                                                                         onInitialized={(figure) => this.setState(figure)}
+                                                                         onUpdate={(figure) => this.setState(figure)}
+                                                                         config={this.state.config}/>
+                                    </strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {/*</Draggable>*/}
+                </div>
+
+                <div className="row graphs-row">
+                    {/*<Draggable cancel="strong">*/}
+                    <div className="col-md-4">
+                        <div className="card value-card">
+                            <div className="card-block">
+                                <h4 className="card-title "> Plant Height </h4>
+                                <div className="row plot-row" style={{display: 'block'}}>
+                                    <strong className="no-cursor"> <Plot data={this.state.plant_height_results_data}
+                                                                         layout={this.state.plant_height_results_layout}
+                                                                         onInitialized={(figure) => this.setState(figure)}
+                                                                         onUpdate={(figure) => this.setState(figure)}/>
+                                    </strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                     <div className="col-md-4">
+                        <div className="card value-card">
+                            <div className="card-block">
+                                <h4 className="card-title "> Number of Leaves </h4>
+                                <div className="row plot-row" style={{display: 'block'}}>
+                                    <strong className="no-cursor"> <Plot data={this.state.leaf_count_results_data}
+                                                                         layout={this.state.leaf_count_results_layout}
+                                                                         onInitialized={(figure) => this.setState(figure)}
+                                                                         onUpdate={(figure) => this.setState(figure)}/>
+                                    </strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 {this.state.edit_mode ? <div className="edit-container">
                     <div className="row graphs-row">
                         <div className="col-md-6 edit-text"> Edit Climate Recipe</div>

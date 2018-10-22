@@ -100,9 +100,9 @@ class profile extends Component {
 
     connectDiscourse() {
         this.setState({discourse_modal: false});
-        let discourse_topic_url = "https://forum.openag.media.mit.edu/users/"
-        return fetch(discourse_topic_url + "ManvithaPonnapati" + ".json?api_key=5cdae222422803379b630fa3a8a1b5e216aa6db5b6c0126dc0abce00fdc98394&api_username=openag", {
-            method: 'GET'
+        let discourse_topic_url = "https://forum.openag.media.mit.edu/admin/users/2292/"
+        return fetch(discourse_topic_url + "generate_api_key.json?api_key=653f5234f76316463e1784329128832ea296f87d3a29590290b2307ac6c2b892&api_username=openag", {
+            method: 'POST'
         })
             .then(response => response.json())
             .then(responseJson => {
@@ -446,8 +446,8 @@ class profile extends Component {
                                     <div className="col-md-4"></div>
                                     <div className="col-md-4"></div>
                                     <div className="col-md-4 pull-right no-padding-right">
-                                        <Button className="edit-button-full btn btn-loading"
-                                                onClick={this.toggle_discourse_modal} title='Coming Soon' disabled ><img src={discourse_icon}
+                                        <Button className="edit-button-full"
+                                                onClick={this.toggle_discourse_modal} title='Coming Soon'  ><img src={discourse_icon}
                                                                                            height="30"/> Connect
                                             Forum</Button>
                                     </div>
