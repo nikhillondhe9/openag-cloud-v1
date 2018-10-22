@@ -188,6 +188,7 @@ def get_co2_history(device_uuid):
     return results
 
 
+
 # ------------------------------------------------------------------------------
 # Get a list of the led panel historical values.
 # Returns a list.

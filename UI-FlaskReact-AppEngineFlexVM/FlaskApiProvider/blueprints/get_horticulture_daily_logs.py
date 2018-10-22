@@ -19,8 +19,7 @@ def get_horticulture_daily_logs():
     if device_uuid is None:
         device_uuid = 'None'
 
-    query = datastore_client.query(kind='DeviceHistory',
-                                   order=['-date_applied'])
+    query = datastore_client.query(kind='DailyHorticultureLog')
     query.add_filter('device_uuid', '=', device_uuid)
     query_result = list(query.fetch())
     if len(query_result) == 0:
@@ -30,8 +29,9 @@ def get_horticulture_daily_logs():
     leaf_count_results = []
     plant_height_results = []
     for result in query_result:
-        leaf_count_results.append({"value":result["leaf_count"],"time":result["submitted_at"]})
-        plant_height_results.append({"value": result["plant_height"], "time": result["submitted_at"]})
+
+        leaf_count_results.append({"value":result["leaf_count"],"time":str(result["submitted_at"])})
+        plant_height_results.append({"value": result["plant_height"], "time": str(result["submitted_at"])})
     return success_response(
         leaf_count_results=leaf_count_results,
         plant_height_results=plant_height_results
