@@ -4,7 +4,6 @@ import '../scss/profile.scss';
 import {Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input} from 'reactstrap';
 
 import {ImageUploader} from './components/image_uploader';
-import {CreateAccessCodeModal} from './components/create_access_code_modal.js';
 import edit_icon from "../images/pencil-edit-button.png";
 
 import * as api from './utils/api';
@@ -18,7 +17,6 @@ class profile extends Component {
             access_code_modal: false,
             user_devices: [],
             get_devices_status: 'Loading',
-            digit_modal: false,
             code: "",
             profile_picture_url: '',
             username: '',
@@ -42,21 +40,7 @@ class profile extends Component {
         this.getUserInfo();
     }
 
-    addPermission=(e)=>{
-        let permissions = []
-        if (e.target.checked === true) {
-            permissions.push(e.target.name)
 
-        }
-        for (let per of this.state.permissions) {
-            if (per !== e.target.name) {
-                permissions.push(per)
-            }
-        }
-        console.log(permissions)
-        this.setState({permissions: permissions})
-
-    }
 
     inputChange=(event) => {
         this.setState({
@@ -77,18 +61,8 @@ class profile extends Component {
         })
     }
 
-    toggleShareDeviceModal=()=>{
-        this.setState(prevState => {
-            return {share_device_modal: !prevState.share_device_modal};
-        })
-    }
-
-    toggle_digit_modal=()=> {
-        this.setState({digit_modal: !this.state.digit_modal})
-    }
 
     connectDiscourse=()=>{
-        console.log("EE")
         let discourse_topic_url = "https://forum.openag.media.mit.edu/admin/users/2292/"
         return fetch(discourse_topic_url + "generate_api_key.json?api_key=653f5234f76316463e1784329128832ea296f87d3a29590290b2307ac6c2b892&api_username=openag", {
             method: 'POST'
@@ -103,6 +77,23 @@ class profile extends Component {
                 console.error(error);
             })
     }
+
+    getUserDiscourseId=()=>{
+        let discourse_topic_url = "https://forum.openag.media.mit.edu/admin/users/2292/"
+        return fetch(discourse_topic_url + "generate_api_key.json?api_key=653f5234f76316463e1784329128832ea296f87d3a29590290b2307ac6c2b892&api_username=openag", {
+            method: 'POST'
+        })
+            .then(response => response.json())
+            .then(responseJson => {
+                this.setState({discourse_modal: false})
+                this.saveAPIKey(responseJson["api_key"]["key"])
+                this.setState({discourse_key:responseJson["api_key"]["key"]})
+            })
+            .catch(error => {
+                console.error(error);
+            })
+    }
+
     saveAPIKey=(discourse_key)=>{
         return fetch(process.env.REACT_APP_FLASK_URL + '/api/save_forum_api_key/', {
             method: 'POST',
@@ -133,72 +124,11 @@ class profile extends Component {
                 console.error(error);
             });
     }
-    // generateAPIKey=(discourse_user)=>{
-    //     console.log(discourse_user, "Ds")
-    //     let admin_api_key = "5cdae222422803379b630fa3a8a1b5e216aa6db5b6c0126dc0abce00fdc98394"
-    //     return fetch("https://forum.openag.media.mit.edu/admin/users/" + discourse_user["id"] + "/generate_api_key",
-    //         {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Accept': 'application/json'
-    //             },
-    //             body: JSON.stringify({
-    //                 "api_key": admin_api_key,
-    //                 "id": discourse_user["id"]
-    //             })
-    //         })
-    //         .then(response => response.json())
-    //         .then(responseJson => {
-    //
-    //         })
-    //         .catch(error => {
-    //             console.error(error);
-    //         })
-    // }
 
     toggle_discourse_modal=()=>{
         this.setState({discourse_modal: !this.state.discourse_modal})
     }
 
-    createAccessCode = (modal_state) => {
-        let permissions = [];
-        for (const device_uuid in modal_state) {
-            const permission = modal_state[device_uuid];
-            if (permission != 'control' && permission != 'view') continue;
-            permissions.push({
-                device_uuid: device_uuid,
-                permission: permission
-            });
-        }
-        const permissions_json = JSON.stringify(permissions);
-
-        return fetch(process.env.REACT_APP_FLASK_URL + '/api/create_new_code/', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            body: JSON.stringify({
-                'user_token': this.props.cookies.get('user_token'),
-                'permissions': permissions_json
-            })
-        })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log(responseJson)
-                if (responseJson["response_code"] == 200) {
-
-                    console.log("Response", responseJson["results"])
-                    this.toggleAccessCodeModal();
-                    this.setState({code: responseJson["code"]})
-                    this.setState({digit_modal: true})
-                }
-            })
-            .catch((error) => {
-                console.error(error);
-            });
-    }
 
     saveUserProfile=()=>{
 
@@ -495,12 +425,7 @@ class profile extends Component {
                 </div>
 
 
-                <CreateAccessCodeModal
-                    isOpen={this.state.access_code_modal}
-                    toggle={this.toggleAccessCodeModal}
-                    onSubmit={this.createAccessCode}
-                    devices={this.state.user_devices}
-                />
+
                 <div className="card profile-card">
                     <div className="card-title">
                         <div className="row padded-left">
@@ -512,58 +437,7 @@ class profile extends Component {
                         {listDevices}
                     </div>
                 </div>
-                <Modal isOpen={this.state.share_device_modal} toggle={this.toggleShareDeviceModal}
-                       className={this.props.className} size={"lg"}>
-                    <ModalHeader toggle={this.toggleShareDeviceModal}>Add User</ModalHeader>
-                    <ModalBody>
-                        <div className="row modal-input-row">
-                            <div className="col-md-3">Name</div>
-                            <div className="col-md-9">
-                                <Input type="text" placeholder="Caleb"/>
-                            </div>
-                        </div>
-                        <div className="row modal-input-row">
-                            <div className="col-md-3">Email</div>
-                            <div className="col-md-9">
-                                <Input type="text" placeholder="example@domain.com"/>
-                            </div>
-                        </div>
-                        <div className="row modal-input-row">
-                            <div className="col-md-3">Access</div>
-                            <div className="col-md-9">
 
-                                <ul>
-                                    <li><Input type="checkbox" name="share_device" onClick={this.addPermission}/> Can
-                                        share device
-                                    </li>
-                                    <li><Input type="checkbox" name="change_profile" onClick={this.addPermission}/> Can
-                                        change Profile Name/Email
-                                    </li>
-                                    <li><Input type="checkbox" name="change_climate_recipe"
-                                               onClick={this.addPermission}/> Can make Changes to Climate Recipe
-                                    </li>
-                                    <li><Input type="checkbox" name="access_farmer_connect"
-                                               onClick={this.addPermission}/> Can access to Farmer Connect
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button className="edit-button" onClick={this.createAccessCode}>Submit</Button>
-                    </ModalFooter>
-                </Modal>
-
-                <Modal isOpen={this.state.digit_modal} toggle={this.toggle_digit_modal}
-                       className={this.props.className}>
-                    <ModalHeader toggle={this.toggle_access_code_modal}><i>6-Digit Access Code</i></ModalHeader>
-                    <ModalBody>
-                        <h1 className="centered-header"> {this.state.code} </h1>
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button color="secondary" onClick={this.toggle_digit_modal}>Close</Button>
-                    </ModalFooter>
-                </Modal>
 
                 <Modal isOpen={this.state.discourse_modal} toggle={this.toggle_discourse_modal}>
                     <ModalHeader toggle={this.toggle_discourse_modal}><i>Discourse Username</i></ModalHeader>

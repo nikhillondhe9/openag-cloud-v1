@@ -271,8 +271,8 @@ class RecipeDetails extends Component {
                         <div className="row card-row">
                             <div className="col-md-12">
                                 <div className="row padded-left-row">
-                                    <div className="col-md-12 "><h3>Climate Recipe for
-                                        growing Basil </h3>
+                                    <div className="col-md-12 "><h3> Get growing recipe for
+                                         Basil </h3>
                                     </div>
                                 </div>
                                 <div className="row padded-row">

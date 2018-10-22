@@ -676,7 +676,8 @@ class Home extends Component {
                                           strokeLinecap="round"/>
                                 </div>
                                 <div className="row">
-                                    Day {this.state.age_in_days}
+                                    <span style={{'margin-left':'15px'}}>
+                                        Day {this.state.age_in_days}</span>
                                 </div>
 
                             </div>
