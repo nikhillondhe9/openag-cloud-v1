@@ -304,6 +304,28 @@ class Home extends Component {
             })
     }
 
+    getDiscourseKey(user_uuid) {
+        return fetch(process.env.REACT_APP_FLASK_URL + '/api/get_forum_key_by_uuid/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({
+                'user_token': this.props.cookies.get('user_token')
+            })
+        })
+            .then(response => response.json())
+            .then(responseJson => {
+
+            })
+            .catch(error => {
+                console.error(error);
+            })
+    }
+
+
     getCurrentRecipeInfo(device_uuid) {
         api.getCurrentRecipeInfo(
             this.props.cookies.get('user_token'),
@@ -470,7 +492,7 @@ class Home extends Component {
         var message = this.state.discourse_message;
         var title = message.substring(0, 100)
 
-        return fetch("https://forum.openag.media.mit.edu/posts.json?api_key=5cdae222422803379b630fa3a8a1b5e216aa6db5b6c0126dc0abce00fdc98394&api_username=openag&raw=" + message + "&title=" + title + "&category=20", {
+        return fetch("https://forum.openag.media.mit.edu/posts.json?api_key=02b97cbf8cbc38453815859e857820b698c879d5d8665a08a0071f68f58851bb&api_username=manvithaponnapati&raw=" + message + "&title=" + title + "&category=20", {
             method: 'POST',
             headers: {},
             title: "Hello this is my title.",

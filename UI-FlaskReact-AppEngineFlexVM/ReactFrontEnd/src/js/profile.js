@@ -113,7 +113,9 @@ class profile extends Component {
             },
             body: JSON.stringify({
                 'user_token': this.props.cookies.get('user_token'),
-                'discourse_key':discourse_key
+                'discourse_key':discourse_key,
+                "api_username":this.state.username
+
             })
         })
             .then((response) => response.json())
@@ -131,28 +133,28 @@ class profile extends Component {
                 console.error(error);
             });
     }
-    generateAPIKey=(discourse_user)=>{
-        console.log(discourse_user, "Ds")
-        let admin_api_key = "5cdae222422803379b630fa3a8a1b5e216aa6db5b6c0126dc0abce00fdc98394"
-        return fetch("https://forum.openag.media.mit.edu/admin/users/" + discourse_user["id"] + "/generate_api_key",
-            {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    "api_key": admin_api_key,
-                    "id": discourse_user["id"]
-                })
-            })
-            .then(response => response.json())
-            .then(responseJson => {
-
-            })
-            .catch(error => {
-                console.error(error);
-            })
-    }
+    // generateAPIKey=(discourse_user)=>{
+    //     console.log(discourse_user, "Ds")
+    //     let admin_api_key = "5cdae222422803379b630fa3a8a1b5e216aa6db5b6c0126dc0abce00fdc98394"
+    //     return fetch("https://forum.openag.media.mit.edu/admin/users/" + discourse_user["id"] + "/generate_api_key",
+    //         {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Accept': 'application/json'
+    //             },
+    //             body: JSON.stringify({
+    //                 "api_key": admin_api_key,
+    //                 "id": discourse_user["id"]
+    //             })
+    //         })
+    //         .then(response => response.json())
+    //         .then(responseJson => {
+    //
+    //         })
+    //         .catch(error => {
+    //             console.error(error);
+    //         })
+    // }
 
     toggle_discourse_modal=()=>{
         this.setState({discourse_modal: !this.state.discourse_modal})
