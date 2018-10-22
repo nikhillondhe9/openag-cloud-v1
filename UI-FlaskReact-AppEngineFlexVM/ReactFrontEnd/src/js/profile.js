@@ -88,16 +88,16 @@ class profile extends Component {
     }
 
     connectDiscourse=()=>{
-        this.setState({discourse_modal: false});
+        console.log("EE")
         let discourse_topic_url = "https://forum.openag.media.mit.edu/admin/users/2292/"
         return fetch(discourse_topic_url + "generate_api_key.json?api_key=653f5234f76316463e1784329128832ea296f87d3a29590290b2307ac6c2b892&api_username=openag", {
             method: 'POST'
         })
             .then(response => response.json())
             .then(responseJson => {
-
-                this.setState({discourse_user: responseJson["user"]})
-                this.generateAPIKey()
+                this.setState({discourse_modal: false})
+                this.saveAPIKey(responseJson["api_key"]["key"])
+                this.setState({discourse_key:responseJson["api_key"]["key"]})
             })
             .catch(error => {
                 console.error(error);
@@ -131,10 +131,10 @@ class profile extends Component {
                 console.error(error);
             });
     }
-    generateAPIKey=()=>{
-        console.log(this.state.discourse_user, "Ds")
+    generateAPIKey=(discourse_user)=>{
+        console.log(discourse_user, "Ds")
         let admin_api_key = "5cdae222422803379b630fa3a8a1b5e216aa6db5b6c0126dc0abce00fdc98394"
-        return fetch("https://forum.openag.media.mit.edu/admin/users/" + this.state.discourse_user["id"] + "/generate_api_key",
+        return fetch("https://forum.openag.media.mit.edu/admin/users/" + discourse_user["id"] + "/generate_api_key",
             {
                 method: 'POST',
                 headers: {
@@ -142,15 +142,12 @@ class profile extends Component {
                 },
                 body: JSON.stringify({
                     "api_key": admin_api_key,
-                    "id": this.state.discourse_user["id"]
+                    "id": discourse_user["id"]
                 })
             })
             .then(response => response.json())
             .then(responseJson => {
-                let user = responseJson["user"]["id"]
-                this.setState({discourse_modal: false})
-                this.saveAPIKey(responseJson["api_key"]["key"])
-                this.setState({discourse_key:responseJson["api_key"]["key"]})
+
             })
             .catch(error => {
                 console.error(error);
