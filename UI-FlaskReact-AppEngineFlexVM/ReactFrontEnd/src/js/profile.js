@@ -31,21 +31,10 @@ class profile extends Component {
             discourse_username: '',
             discourse_user: {},
             device_selected_to_share: null,
-            share_device_modal: false
+            share_device_modal: false,
+            discourse_key:''
         };
-        this.getUserDevices = this.getUserDevices.bind(this);
-        this.toggle_digit_modal = this.toggle_digit_modal.bind(this);
-        this.handleChange = this.handleChange.bind(this);
-        this.onImageUpload = this.onImageUpload.bind(this);
-        this.inputChange = this.inputChange.bind(this)
-        this.saveUserProfile = this.saveUserProfile.bind(this);
-        this.connectDiscourse = this.connectDiscourse.bind(this);
-        this.toggle_discourse_modal = this.toggle_discourse_modal.bind(this);
-        this.handleInputChange = this.handleInputChange.bind(this);
-        this.generateAPIKey = this.generateAPIKey.bind(this)
-        this.shareDevice = this.shareDevice.bind(this)
-        this.toggleShareDeviceModal = this.toggleShareDeviceModal.bind(this)
-        this.addPermission = this.addPermission.bind(this);
+
     }
 
     componentDidMount() {
@@ -53,7 +42,7 @@ class profile extends Component {
         this.getUserInfo();
     }
 
-    addPermission(e) {
+    addPermission=(e)=>{
         let permissions = []
         if (e.target.checked === true) {
             permissions.push(e.target.name)
@@ -69,7 +58,7 @@ class profile extends Component {
 
     }
 
-    inputChange(event) {
+    inputChange=(event) => {
         this.setState({
             [event.target.name]: event.target.value
         });
@@ -88,17 +77,17 @@ class profile extends Component {
         })
     }
 
-    toggleShareDeviceModal() {
+    toggleShareDeviceModal=()=>{
         this.setState(prevState => {
             return {share_device_modal: !prevState.share_device_modal};
         })
     }
 
-    toggle_digit_modal() {
+    toggle_digit_modal=()=> {
         this.setState({digit_modal: !this.state.digit_modal})
     }
 
-    connectDiscourse() {
+    connectDiscourse=()=>{
         this.setState({discourse_modal: false});
         let discourse_topic_url = "https://forum.openag.media.mit.edu/admin/users/2292/"
         return fetch(discourse_topic_url + "generate_api_key.json?api_key=653f5234f76316463e1784329128832ea296f87d3a29590290b2307ac6c2b892&api_username=openag", {
@@ -114,8 +103,35 @@ class profile extends Component {
                 console.error(error);
             })
     }
+    saveAPIKey=(discourse_key)=>{
+        return fetch(process.env.REACT_APP_FLASK_URL + '/api/save_forum_api_key/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({
+                'user_token': this.props.cookies.get('user_token'),
+                'discourse_key':discourse_key
+            })
+        })
+            .then((response) => response.json())
+            .then((responseJson) => {
+                console.log(responseJson)
+                if (responseJson["response_code"] == 200) {
 
-    generateAPIKey() {
+                    console.log("Response", responseJson["results"])
+                    this.toggleAccessCodeModal();
+                    this.setState({code: responseJson["code"]})
+                    this.setState({digit_modal: true})
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }
+    generateAPIKey=()=>{
         console.log(this.state.discourse_user, "Ds")
         let admin_api_key = "5cdae222422803379b630fa3a8a1b5e216aa6db5b6c0126dc0abce00fdc98394"
         return fetch("https://forum.openag.media.mit.edu/admin/users/" + this.state.discourse_user["id"] + "/generate_api_key",
@@ -132,13 +148,16 @@ class profile extends Component {
             .then(response => response.json())
             .then(responseJson => {
                 let user = responseJson["user"]["id"]
+                this.setState({discourse_modal: false})
+                this.saveAPIKey(responseJson["api_key"]["key"])
+                this.setState({discourse_key:responseJson["api_key"]["key"]})
             })
             .catch(error => {
                 console.error(error);
             })
     }
 
-    toggle_discourse_modal() {
+    toggle_discourse_modal=()=>{
         this.setState({discourse_modal: !this.state.discourse_modal})
     }
 
@@ -182,7 +201,7 @@ class profile extends Component {
             });
     }
 
-    saveUserProfile() {
+    saveUserProfile=()=>{
 
         return fetch(process.env.REACT_APP_FLASK_URL + '/api/save_user_profile_changes/', {
             method: 'POST',
@@ -210,7 +229,7 @@ class profile extends Component {
 
     }
 
-    getUserDevices() {
+    getUserDevices=()=> {
         return fetch(process.env.REACT_APP_FLASK_URL + '/api/get_user_devices/', {
             method: 'POST',
             headers: {
@@ -250,7 +269,7 @@ class profile extends Component {
             });
     }
 
-    handleChange(group_name, event) {
+    handleChange=(group_name, event)=>{
         if (group_name === "device_permissions") {
             console.log(event.target.name)
             this.setState({[event.target.name]: event.target.checked});
@@ -262,11 +281,11 @@ class profile extends Component {
         }
     }
 
-    handleInputChange(event) {
+    handleInputChange=(event)=>{
         this.setState({[event.target.name]: event.target.value});
     }
 
-    onImageUpload(response) {
+    onImageUpload=(response)=>{
         if (response.response_code == 200) {
             this.setState({profile_picture_url: response.url});
         } else {
@@ -274,7 +293,7 @@ class profile extends Component {
         }
     }
 
-    shareDevice(device, e) {
+    shareDevice=(device, e)=>{
         this.setState({device_selected_to_share: device})
         this.setState({share_device_modal: true})
     }
@@ -446,10 +465,12 @@ class profile extends Component {
                                     <div className="col-md-4"></div>
                                     <div className="col-md-4"></div>
                                     <div className="col-md-4 pull-right no-padding-right">
-                                        <Button className="edit-button-full"
+                                        {this.state.discourse_key === '' ?<Button className="edit-button-full"
                                                 onClick={this.toggle_discourse_modal} title='Coming Soon'  ><img src={discourse_icon}
                                                                                            height="30"/> Connect
-                                            Forum</Button>
+                                            Forum</Button>:<Button className="edit-button-full"
+                                               title='Coming Soon'  ><img src={discourse_icon}
+                                                                                           height="30"/>Connected</Button>}
                                     </div>
                                 </div>
                                 <div className="row profile-row">
@@ -553,7 +574,8 @@ class profile extends Component {
 
                     </ModalBody>
                     <ModalFooter>
-                        <Button color="secondary" onClick={this.connectDiscourse}>Submit</Button>
+                        <Button color="primary" onClick={this.connectDiscourse}>Submit</Button>
+                        <Button color="secondary" onClick={this.toggle_discourse_modal}>Cancel</Button>
                     </ModalFooter>
                 </Modal>
             </div>

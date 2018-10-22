@@ -6,8 +6,7 @@ function jsonRequest(endpoint, data, method = 'POST') {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(data)
-    })
-        .then(response => response.json())
+    }).then(response => response.json())
         .then(response => {
             if (response.response_code == 200) {
                 return Promise.resolve(response);

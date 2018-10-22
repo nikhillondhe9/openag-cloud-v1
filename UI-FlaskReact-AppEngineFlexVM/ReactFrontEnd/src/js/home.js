@@ -687,7 +687,7 @@ class Home extends Component {
                                     outline
                                     onClick={() => this.setSocial('discourse')}
                                     active={this.state.social_selected == 'discourse'}
-                                    color="primary" style={halfbox} className="btn btn-loading" title='Coming Soon' disabled
+                                    color="primary" style={halfbox} className="btn" title='Coming Soon'
                                 >
                                     <img src={discourse_icon} height="30"/>Discourse
                                 </Button>
