@@ -62,8 +62,9 @@ class profile extends Component {
     }
 
 
-    connectDiscourse=()=>{
-        let discourse_topic_url = "https://forum.openag.media.mit.edu/admin/users/2292/"
+    generateAPIKey=(discourse_id)=>{
+
+        let discourse_topic_url = "https://forum.openag.media.mit.edu/admin/users/"+discourse_id.toString()+"/"
         return fetch(discourse_topic_url + "generate_api_key.json?api_key=653f5234f76316463e1784329128832ea296f87d3a29590290b2307ac6c2b892&api_username=openag", {
             method: 'POST'
         })
@@ -78,16 +79,14 @@ class profile extends Component {
             })
     }
 
-    getUserDiscourseId=()=>{
-        let discourse_topic_url = "https://forum.openag.media.mit.edu/admin/users/2292/"
-        return fetch(discourse_topic_url + "generate_api_key.json?api_key=653f5234f76316463e1784329128832ea296f87d3a29590290b2307ac6c2b892&api_username=openag", {
-            method: 'POST'
+    connectDiscourse=()=>{
+        let discourse_topic_url = "https://forum.openag.media.mit.edu/users/"
+        return fetch(discourse_topic_url +this.state.discourse_username+ ".json?api_key=653f5234f76316463e1784329128832ea296f87d3a29590290b2307ac6c2b892&api_username=openag", {
+            method: 'GET'
         })
             .then(response => response.json())
             .then(responseJson => {
-                this.setState({discourse_modal: false})
-                this.saveAPIKey(responseJson["api_key"]["key"])
-                this.setState({discourse_key:responseJson["api_key"]["key"]})
+                this.generateAPIKey(responseJson["user"]["id"])
             })
             .catch(error => {
                 console.error(error);
@@ -105,7 +104,7 @@ class profile extends Component {
             body: JSON.stringify({
                 'user_token': this.props.cookies.get('user_token'),
                 'discourse_key':discourse_key,
-                "api_username":this.state.username
+                "api_username":this.state.discourse_username
 
             })
         })
@@ -159,7 +158,7 @@ class profile extends Component {
     }
 
     getUserDevices=()=> {
-        return fetch(process.env.REACT_APP_FLASK_URL + '/api/get_user_devices/', {
+        return fetch(process.env.REACT_APP_FLASK_URL + '/api/get_forum_key_by_uuid/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -174,12 +173,6 @@ class profile extends Component {
             .then((response) => response.json())
             .then((responseJson) => {
                 console.log(responseJson)
-                if (responseJson["response_code"] == 200) {
-                    this.setState({user_devices: responseJson["results"]["devices"]})
-                    console.log("Response", responseJson["results"])
-                } else {
-                    this.setState({get_devices_status: 'No Devices'});
-                }
             })
             .catch((error) => {
                 console.error(error);

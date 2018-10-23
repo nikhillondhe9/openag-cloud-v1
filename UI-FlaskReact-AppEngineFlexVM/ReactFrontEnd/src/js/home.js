@@ -34,7 +34,7 @@ const querystring = require('querystring');
 class Home extends Component {
     constructor(props) {
         super(props);
-        this.set_modal=false
+        this.set_modal = false
         let all_params = querystring.parse(this.props.location.search)
 
 
@@ -43,7 +43,7 @@ class Home extends Component {
             this.user_uuid = this.params[0]
             if (this.params.length > 1) {
                 this.vcode = this.params[1]
-                this.set_modal=true
+                this.set_modal = true
             }
         }
         this.state = {
@@ -71,7 +71,9 @@ class Home extends Component {
             open_twitter_modal: false,
             twitter_message: "Test Message",
             allyoursOpen: false,
-            open_discourse_modal: false
+            open_discourse_modal: false,
+            discourse_key: '',
+            api_username: ''
         };
         console.log(this.props)
         console.log(all_params, "F")
@@ -82,7 +84,6 @@ class Home extends Component {
         this.postToDiscourse = this.postToDiscourse.bind(this);
         this.setSocial = this.setSocial.bind(this);
         this.getCurrentNewPosts = this.getCurrentNewPosts.bind(this)
-        this.getUserDiscoursePosts = this.getUserDiscoursePosts.bind(this)
         this.changeDiscourseType = this.changeDiscourseType.bind(this)
         this.onChangeField = this.onChangeField.bind(this)
         this.goToPost = this.goToPost.bind(this)
@@ -108,6 +109,7 @@ class Home extends Component {
     componentDidMount() {
         console.log("Mounting Home component")
         this.getUserDevices()
+        this.getUserDiscourseKey()
     }
 
     handleOnChangeText(e) {
@@ -134,7 +136,7 @@ class Home extends Component {
     setSocial(social) {
         this.setState({"social_selected": social})
         if (social == "discourse") {
-            this.getUserDiscoursePosts()
+            this.getCurrentNewPosts()
 
 
         }
@@ -144,48 +146,39 @@ class Home extends Component {
         this.setState({"discourse_message": e.target.value})
     }
 
-    getUserDiscoursePosts() {
-        let results = [{
-            "post_id": "16"
-        }]
-        this.setState({"user_discourse_posts": results})
-        this.getCurrentNewPosts()
-        // return fetch(process.env.REACT_APP_FLASK_URL + '/api/get_user_discourse_posts/', {
-        //     method: 'POST',
-        //     headers: {
-        //         'Accept': 'application/json',
-        //         'Content-Type': 'application/json',
-        //         'Access-Control-Allow-Origin': '*'
-        //     },
-        //     body: JSON.stringify({
-        //         'user_token': this.props.cookies.get('user_token'),
-        //         'user_uuid': this.state.user_uuid
-        //     })
-        // })
-        //     .then(response => response.json())
-        //     .then(responseJson => {
-        //
-        //         // let results = responseJson["results"]
-        //         let results = [{
-        //             "post_id":"16"
-        //         }]
-        //         this.setState({"user_discourse_posts": results})
-        //          this.getCurrentNewPosts()
-        //     })
-        //     .catch(error => {
-        //         console.error(error);
-        //     })
-    }
 
     changeDiscourseType(type) {
         this.setState({"discourse_type": type})
+    }
+
+    getUserDiscourseKey() {
+        return fetch(process.env.REACT_APP_FLASK_URL + '/api/get_forum_key_by_uuid/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({
+                'user_token': this.props.cookies.get('user_token')
+            })
+        })
+            .then(response => response.json())
+            .then(responseJson => {
+                let results = responseJson["results"]
+                this.setState({discourse_key: results["discourse_key"]})
+                this.setState({api_username: results["api_username"]})
+            })
+            .catch(error => {
+                console.error(error);
+            })
     }
 
     getRepliesOnPost(id, post, user_avatar) {
         console.log("FGF")
         let user_posts = this.state.user_posts
         let url = "https://forum.openag.media.mit.edu/t/" + id + ".json?"
-        let discourse_topic_url = url + "api_key=5cdae222422803379b630fa3a8a1b5e216aa6db5b6c0126dc0abce00fdc98394&api_username=openag"
+        let discourse_topic_url = url + "api_key="+"ea8d111b9cfc88eca262abc8c733c10ffae100a905b094d1658b26d4f57d30d7"+"&api_username="+"manvithaponnapati"
         console.log(discourse_topic_url)
         return fetch(discourse_topic_url, {
             method: 'GET'
@@ -222,6 +215,7 @@ class Home extends Component {
             .then(response => response.json())
             .then(responseJson => {
                 let posts = []
+                let user_posts = []
                 this.setState({"user_posts": []})
                 console.log(responseJson, "FG")
                 let post_stream = responseJson["topic_list"]["topics"]
@@ -235,6 +229,10 @@ class Home extends Component {
                         if (user["username"] == user_last) {
                             user_avatar = user["avatar_template"]
                         }
+                        if (user["username"] == this.state.api_username) {
+                            console.log("xxxxx",post)
+                        }
+
                     }
                     this.getRepliesOnPost(post["id"], post, user_avatar)
 
@@ -298,27 +296,6 @@ class Home extends Component {
                 this.setState({
                     device_images: responseJson['image_urls']
                 });
-            })
-            .catch(error => {
-                console.error(error);
-            })
-    }
-
-    getDiscourseKey(user_uuid) {
-        return fetch(process.env.REACT_APP_FLASK_URL + '/api/get_forum_key_by_uuid/', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            body: JSON.stringify({
-                'user_token': this.props.cookies.get('user_token')
-            })
-        })
-            .then(response => response.json())
-            .then(responseJson => {
-
             })
             .catch(error => {
                 console.error(error);
@@ -631,7 +608,7 @@ class Home extends Component {
                             {/*<hr/>*/}
                             <p> Water needs refilling soon </p>
                             <hr/>
-                            <p> <a href={gotohorticulture}>Take</a> horticulture measurements </p>
+                            <p><a href={gotohorticulture}>Take</a> horticulture measurements </p>
                         </div>
                     </div>
                     <div className="timelapse">
@@ -676,7 +653,7 @@ class Home extends Component {
                                           strokeLinecap="round"/>
                                 </div>
                                 <div className="row">
-                                    <span style={{'margin-left':'15px'}}>
+                                    <span style={{'margin-left': '15px'}}>
                                         Day {this.state.age_in_days}</span>
                                 </div>
 
