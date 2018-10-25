@@ -43,7 +43,9 @@ class Home extends Component {
             this.user_uuid = this.params[0]
             if (this.params.length > 1) {
                 this.vcode = this.params[1]
-                this.set_modal = true
+                if(this.vcode!="") {
+                    this.set_modal = true
+                }
             }
         }
         this.state = {
@@ -469,14 +471,14 @@ class Home extends Component {
         var message = this.state.discourse_message;
         var title = message.substring(0, 100)
 
-        return fetch("https://forum.openag.media.mit.edu/posts.json?api_key=02b97cbf8cbc38453815859e857820b698c879d5d8665a08a0071f68f58851bb&api_username=manvithaponnapati&raw=" + message + "&title=" + title + "&category=20", {
+        return fetch("https://forum.openag.media.mit.edu/posts.json?api_key=653f5234f76316463e1784329128832ea296f87d3a29590290b2307ac6c2b892&api_username=manvithaponnapati&raw=" + message + "&title=" + title + "&category=20", {
             method: 'POST',
             headers: {},
             title: "Hello this is my title.",
             body: JSON.stringify({
-                "api_key": "5cdae222422803379b630fa3a8a1b5e216aa6db5b6c0126dc0abce00fdc98394",
-                "body": "raw test post for disc",
-                "raw": "This is a raw ",
+                "api_key": "653f5234f76316463e1784329128832ea296f87d3a29590290b2307ac6c2b892",
+                "body": message,
+                "raw": message,
                 "category": 20,
                 "api_username": "OpenAg"
             })
