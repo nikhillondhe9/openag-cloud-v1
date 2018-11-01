@@ -77,14 +77,14 @@ def get_runtime_description(date_applied):
     time_passed = datetime.now(pytz.utc) - date_applied
     description = []
     days_passed = time_passed.days
-    if days_passed > 30:
-        phrase = number_noun_agreement(int(days_passed / 30), 'month')
-        description.append(phrase)
-        days_passed %= 30
-    if time_passed.days > 7:
-        phrase = number_noun_agreement(int(days_passed / 7), 'week')
-        description.append(phrase)
-        days_passed %= 7
+    # if days_passed > 30:
+    #     phrase = number_noun_agreement(int(days_passed / 30), 'month')
+    #     description.append(phrase)
+    #     days_passed %= 30
+    # if time_passed.days > 7:
+    #     phrase = number_noun_agreement(int(days_passed / 7), 'week')
+    #     description.append(phrase)
+    #     days_passed %= 7
     if days_passed > 0:
         phrase = number_noun_agreement(days_passed, 'day')
         description.append(phrase)

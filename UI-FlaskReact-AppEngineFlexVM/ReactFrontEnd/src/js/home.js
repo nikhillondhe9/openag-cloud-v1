@@ -596,7 +596,7 @@ class Home extends Component {
                             </div>
                             {this.state.current_plant_type ? (
                                 <p>
-                                    Your {this.state.current_plant_type} is {this.state.current_recipe_runtime}
+                                    Your {this.state.current_plant_type} is {this.state.age_in_days}
                                     &nbsp;old. Congratulations!
                                 </p>
                             ) : (
@@ -654,8 +654,7 @@ class Home extends Component {
                                           strokeLinecap="round"/>
                                 </div>
                                 <div className="row">
-                                    <span style={{'margin-left': '15px'}}>
-                                        Day {this.state.age_in_days}</span>
+                                    <span style={{'margin-left': '15px'}}> {this.state.age_in_days}</span>
                                 </div>
 
                             </div>
