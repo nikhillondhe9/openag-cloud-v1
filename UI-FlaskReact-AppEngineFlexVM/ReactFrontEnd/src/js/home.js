@@ -503,7 +503,7 @@ class Home extends Component {
                 'user_token': this.props.cookies.get('user_token'),
                 'message': this.state.twitter_message,
                 'image_url':this.state.device_images[0]
-            })3
+            })
         })
             .then((response) => response.json())
             .then((responseJson) => {

@@ -34,9 +34,6 @@ export class AddDeviceModal extends React.PureComponent {
     state = DEFAULT_STATE;
 
     onChange = (e) => {
-        console.log("Me")
-        console.log(e.target.value)
-        console.log(e.target.name)
         this.setState({[e.target.name]: e.target.value});
     }
 
