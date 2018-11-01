@@ -75,7 +75,8 @@ class Home extends Component {
             allyoursOpen: false,
             open_discourse_modal: false,
             discourse_key: '',
-            api_username: ''
+            api_username: '',
+
         };
         console.log(this.props)
         console.log(all_params, "F")
@@ -471,22 +472,15 @@ class Home extends Component {
         var message = this.state.discourse_message;
         var title = message.substring(0, 100)
 
-        return fetch("https://forum.openag.media.mit.edu/posts.json?api_key=653f5234f76316463e1784329128832ea296f87d3a29590290b2307ac6c2b892&api_username=manvithaponnapati&raw=" + message + "&title=" + title + "&category=20", {
+        return fetch("https://forum.openag.media.mit.edu/posts.json?api_key=bfc9267c5b620b4b68e42f763fe092ad4194a48f1e2b36b38d159028f0b70383&api_username=manvithaponnapati&raw=" + message + "&title=" + title + "&category=20", {
             method: 'POST',
-            headers: {},
-            title: "Hello this is my title.",
-            body: JSON.stringify({
-                "api_key": "653f5234f76316463e1784329128832ea296f87d3a29590290b2307ac6c2b892",
-                "body": message,
-                "raw": message,
-                "category": 20,
-                "api_username": "OpenAg"
-            })
+            headers: {}
 
         })
-            .then((response) => response.json())
+            .then((response) => {console.log(response);response.json()})
             .then((responseJson) => {
-                console.log(responseJson)
+            alert("FDSGFDG")
+                console.log(responseJson,"ADSGDSG")
                 this.getCurrentNewPosts()
 
             })
@@ -507,17 +501,14 @@ class Home extends Component {
             body: JSON.stringify({
                 'user_uuid': this.state.user_uuid,
                 'user_token': this.props.cookies.get('user_token'),
-                'message': this.state.twitter_message
-            })
+                'message': this.state.twitter_message,
+                'image_url':this.state.device_images[0]
+            })3
         })
             .then((response) => response.json())
             .then((responseJson) => {
                 console.log(responseJson)
                 this.setState({open_twitter_modal: false})
-                // if (responseJson["response_code"] == 200) {
-                //     // this.setState({user_devices: responseJson["results"]})
-                // }
-
             })
             .catch((error) => {
                 console.error(error);
@@ -748,7 +739,7 @@ class Home extends Component {
                                 <Input type="textarea" placeholder="Enter your tweet"
                                        onChange={this.handleOnChangeText}></Input>
                                 <img
-                                    src="https://storage.googleapis.com/openag-v1-images/EDU-2B97073C-50-65-83-e7-9f-52_Camera-Top_2018-07-30T08%3A12%3A06Z.png"
+                                    src={this.state.device_images[0]}
                                     height="200" className="twitter-share-img"/>
                             </ModalBody>
                             <ModalFooter>
