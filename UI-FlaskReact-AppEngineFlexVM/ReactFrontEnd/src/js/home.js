@@ -296,9 +296,16 @@ class Home extends Component {
         })
             .then(response => response.json())
             .then(responseJson => {
-                this.setState({
-                    device_images: responseJson['image_urls']
-                });
+                if(responseJson["image_urls"].length > 0) {
+                    this.setState({
+                        device_images: responseJson['image_urls']
+                    });
+                }
+                else {
+                    this.setState({
+                        device_images: [placeholder]
+                    });
+                }
             })
             .catch(error => {
                 console.error(error);
