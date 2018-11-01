@@ -41,7 +41,10 @@ export class AddDeviceModal extends React.PureComponent {
         e.preventDefault();
         this.props.onSubmit(this.state);
     }
-
+    onRegNoChange  = (e) => {
+        e.preventDefault()
+        this.props.onRegNoChange(e.target.value)
+    }
     // Clears any input before closing
     toggle = () => {
         this.setState(DEFAULT_STATE);
@@ -80,7 +83,7 @@ export class AddDeviceModal extends React.PureComponent {
                             <Input
                                 type="text" name="device_reg_no" id="device_reg_no"
                                 value={this.state.device_reg_no}
-                                onChange={this.onChange}
+                                onChange={this.onRegNoChange}
                                 required
                            />
                         </FormGroup>

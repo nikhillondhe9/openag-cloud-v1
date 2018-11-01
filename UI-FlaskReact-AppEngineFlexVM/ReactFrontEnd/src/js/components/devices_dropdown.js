@@ -54,9 +54,9 @@ export class DevicesDropdown extends React.PureComponent {
                     <DropdownItem onClick={this.props.onAddDevice}>
                         Add new device
                     </DropdownItem>
-                    <DropdownItem onClick={this.props.onAddAccessCode}>
-                        Add access code
-                    </DropdownItem>
+                    {/*<DropdownItem onClick={this.props.onAddAccessCode}>*/}
+                        {/*Add access code*/}
+                    {/*</DropdownItem>*/}
                 </DropdownMenu>
             </Dropdown>
         );

@@ -403,7 +403,9 @@ class Home extends Component {
             }
         });
     }
-
+    changeRegNo = (reg_no) => {
+        this.setState({device_reg_no:reg_no})
+    }
     onSubmitDevice = (modal_state) => {
         console.log(modal_state);
         return fetch(process.env.REACT_APP_FLASK_URL + '/api/register/', {
@@ -499,7 +501,6 @@ class Home extends Component {
                 'Access-Control-Allow-Origin': '*'
             },
             body: JSON.stringify({
-                'user_uuid': this.state.user_uuid,
                 'user_token': this.props.cookies.get('user_token'),
                 'message': this.state.twitter_message,
                 'image_url':this.state.device_images[0]
@@ -778,15 +779,16 @@ class Home extends Component {
                         isOpen={this.state.add_device_modal}
                         toggle={this.toggleDeviceModal}
                         onSubmit={this.onSubmitDevice}
+                        onRegNoChange={this.changeRegNo}
                         error_message={this.state.add_device_error_message}
                         device_reg_no={this.state.device_reg_no}
                     />
-                    <AddAccessCodeModal
-                        isOpen={this.state.add_access_modal}
-                        toggle={this.toggleAccessCodeModal}
-                        onSubmit={this.onSubmitAccessCode}
-                        error_message={this.state.access_code_error_message}
-                    />
+                    {/*<AddAccessCodeModal*/}
+                        {/*isOpen={this.state.add_access_modal}*/}
+                        {/*toggle={this.toggleAccessCodeModal}*/}
+                        {/*onSubmit={this.onSubmitAccessCode}*/}
+                        {/*error_message={this.state.access_code_error_message}*/}
+                    {/*/>*/}
                 </div>
             </Router>
 
