@@ -270,11 +270,13 @@ class Home extends Component {
             .then(response => response.json())
             .then(responseJson => {
 
+                console.log(responseJson,"fdgfdsgdfsgadfgasdgsadgadgsasdgasdgasdgdsagsdgsdghsdhg")
                 let results = responseJson["results"]
                 this.setState({wifi_status: results["wifi_status"]})
                 this.setState({current_temp: results["current_temp"]})
                 this.setState({current_recipe_runtime: results["runtime"]})
                 this.setState({age_in_days: results["age_in_days"]})
+                this.setState({progress: parseInt(results["runtime"])*100/42.0})
             })
             .catch(error => {
                 console.error(error);
