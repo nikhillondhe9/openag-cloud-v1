@@ -2,7 +2,12 @@
 // recieve a POSTed public key from a device and insert the key into
 // the Firestore document DB.
 //
-// curl http://localhost:5000/fb-func-test/us-central1/saveKey  -H "Content-Type: application/json" -X POST --data '{"key": "rob", "cksum": "1", "MAC":"and cheese"}'
+// For testing a local server:
+// curl http://localhost:5000/fb-func-test/us-central1/saveKey  -H "Content-Type: application/json" -X POST --data '{"key": "rob", "cksum": "1", "MAC":"and cheese", "timestamp": "2018-12-04T15:52:52Z"}'
+//
+// For testing a deployed server:
+// curl https://us-central1-fb-func-test.cloudfunctions.net/saveKey  -H "Content-Type: application/json" -X POST --data '{"key": "rob", "cksum": "1", "MAC":"and cheese", "timestamp": "2018-12-04T15:52:52Z"}'
+
 
 'use strict';
 
@@ -14,11 +19,13 @@ const schema = {
     "key": { "type": "string" },
     "cksum": { "type": "string" },
     "state": { "type": "string" },
-    "MAC": { "type": "string" }
+    "MAC": { "type": "string" },
+    "timestamp": { "type": "string" }
   },
   "required": ["key", "cksum", "MAC"],
   "additionalProperties": false
 };
+// debugrob: later after all new brain code is deployed, make timestamp required.   Sometime in Feb. 2019.
 
 const Ajv = require('ajv');
 let ajv = new Ajv({allErrors: true});
