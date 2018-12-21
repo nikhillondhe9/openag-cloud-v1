@@ -1,11 +1,15 @@
 #!/bin/bash
 
-if [[ -z "${TOP_DIR}" ]]; then
-  # gcloud_env.bash has not been sourced.
-  export TOP_DIR="${PWD}/.."
-  source $TOP_DIR/gcloud_env.bash
-fi
+# Get the path to THIS script
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+#------------------------------------------------------------------------------
+export GCLOUD_PROJECT=openag-v1
+export GCLOUD_REGION=us-east1
+export GCLOUD_ZONE=us-east1-b
+export GOOGLE_APPLICATION_CREDENTIALS=$DIR/service_account.json
+export GCLOUD_DEV_EVENTS=device-events
+export GCLOUD_DEV_REG=device-registry
 # MUST use the central region / zone for beta IoT product.
 export GCLOUD_REGION=us-central1
 export GCLOUD_ZONE=us-central1-c
@@ -21,16 +25,10 @@ gcloud config set compute/zone $GCLOUD_ZONE
 gcloud config list
 
 gcloud app deploy
-#gcloud app browse
-
-echo "Remember to stop and/or delete this instance in the console if you are just testing!"
-
 
 #gcloud app open-console
-
 #gcloud app instances list
 #gcloud app instances ssh --service default --version <ver> <ID>
-
 #gcloud app versions list --hide-no-traffic
 #gcloud app versions stop <ver>
 #gcloud app instances delete --service default --version <ver> <ID>
