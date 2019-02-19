@@ -2,6 +2,7 @@ pyenv/
 FlaskApiProvider/lib 
 FlaskApiProvider/__pycache__
 ReactFrontEnd/node_modules/
+package-lock.json
 .idea/
 FlaskApiProvider/flask-service-account.json
 FlaskApiProvider/fb-service-account.json
