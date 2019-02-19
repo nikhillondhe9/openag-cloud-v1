@@ -11,3 +11,6 @@ Run: `./run_local_react_UI.sh`
 You won't be able to run the Flask API server, since we won't provide the service account credentials to our google cloud platform backend.  For this challenge you should stub the flask API so it doesn't connect to the backend and just uses a text file to hold user accounts.
 
 After making those changes, run: `./run_local_flask_API.sh`
+
+## Deadline
+Monday, February 25, 2019 noon EST.
