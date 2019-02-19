@@ -4,7 +4,6 @@ sudo apt-get install -y git
 sudo apt-get install -y python3
 sudo apt-get install -y python-pip
 sudo apt-get install -y python3-pip
-sudo pip3 install --upgrade virtualenv
 sudo apt-get install -y curl
 curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
 sudo apt-get install -y nodejs

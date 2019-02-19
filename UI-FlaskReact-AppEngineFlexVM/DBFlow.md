@@ -1,5 +1,3 @@
-<a href="https://ibb.co/gRM3wc"><img src="https://preview.ibb.co/dUtu2H/Screen_Shot_2018_04_03_at_1_39_55_PM.png" alt="Screen_Shot_2018_04_03_at_1_39_55_PM" border="0"></a><br /><a target='_blank' href='https://imgbb.com/'>image hosting for ebay</a><br />
-
 ## 1. Users 
 
 This table is almost all the things we would ask an user during sign up. 
